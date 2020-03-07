@@ -8,7 +8,7 @@ I am not sure whether the great Anders Hejlsberg of Microsoft will welcome it or
 
 #### This repo will be updated every Saturday until GA version is available !
 
-## Updated on 07-March-2020 1:20 PM GMT
+## Updated on 07-March-2020 12:20 PM GMT
 
 #### Łukasz Dąbrowski
 Engineer
