@@ -6,7 +6,7 @@ My goal is to "copy" functionality from LINQ in C# and transfer it stright into 
 \
 I am not sure whether the great Anders Hejlsberg of Microsoft will welcome it or not, but for sure I am not breaking any rules of good software development.
 
-### This repo will be updated every Saturday until GA version is available !
+#### This repo will be updated every Saturday until GA version is available !
 
 ## Updated on 07-March-2020 9:57 AM GMT
 
