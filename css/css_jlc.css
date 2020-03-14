@@ -1,0 +1,63 @@
+/*
+ * JavaScript LINQ Concept examplary CSS
+ *
+ *
+ * 
+ * Author: Łukasz Dąbrowski
+ * Title : Software Engineer
+ * 
+ * (c) C4B Solutions
+ *
+ * License: MIT (http://www.opensource.org/licenses/mit-license.php)
+*/
+
+body {
+		background-color: rgb(20, 79, 124);
+
+		color: #ffffff;
+
+        font-size: 4em;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 2em;
+
+		position: relative;
+
+		width: 1200px;
+    }
+
+	.content {
+		margin: auto;
+
+		position: relative;
+
+		width: 100%;
+	}
+
+	#readme {
+		height: 2em;
+
+		margin: auto;
+		position: relative;		
+
+		width: 100%;
+	}
+
+
+	.author {
+		background-repeat: no-repeat;
+		background-size: 100% 220px;
+		background-image: url(../images/C4B_Solutions_Lab_White_Logo.png);
+
+		height: 220px;
+
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 5%;
+
+		position: relative;
+
+		width: 220px;
+	}
