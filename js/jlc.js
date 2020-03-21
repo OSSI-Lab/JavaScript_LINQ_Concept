@@ -16,19 +16,151 @@
 
     /* private variables */
 
-    var _JLC_CONTEXT = {
-        Querying : {
-            initializeOver : function(inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
-                return initializeOver_I_1L(inputCollection, inputCollectionOptionalItemType, makeItEmpty);
+    var _SETUP = {
+        ___init___ : function() {
+            // set JLC runtime mode (so far exemplary usage, because it has no any effect on current inner workings of JLC)
+            this.Vars.isShared = true;
 
+            // enable usage of JLC
+            Array.prototype.useLINQ = this.Funcs.useJLC;
+        },
+
+        Vars : {
+            /**
+             * Set JLC runtime mode (future-reserved property !!!)
+             *   > true   - create a new instance being used by the current collection only, aka local instance
+             *   > false  - create a new instance, that can be reused across all the collections, aka global instance
+            */
+            isShared : false,
+
+            // is JLC mechanism initialized
+            isReady : false,
+
+            // JLC API
+            jlc : undefined // yes, I deliberately initialize it with default  
+        },
+        
+        Funcs : {
+            useJLC : function() {
+                // check if JLC context was initialized the very first time - if not initialized, then initialize it
+                if(!_SETUP.Vars.isReady) {
+                    // create JLC API
+                    _SETUP.Vars.jlc = _QUERYING.initialize();
+
+                    // mark that JLC context was initialized
+                    _SETUP.Vars.isReady = true;
+                }
+
+                // pass data in to the mechanism - 'this' refers to the calling client data array !
+                _SETUP.Funcs.over(this);
+
+                // allow user to invoke JLC API by returning it to the calling client
+                return _SETUP.Vars.jlc;
+            },
+
+            over : function (inputCollection) {
+                // store the collection to iterate over
+                return setupInputData_I_1L(inputCollection);
 
 
                 /**
                  * Local helper functions
                 */
-                function initializeOver_I_1L(inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
-                        // create collection history object that will contain all collections passed to the same shared JLC instance, aka static or shared instance
-                        var _DATA_HISTORY = {
+                function setupInputData_I_1L(inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
+                    // declare a private data object holding data collection of current JLC instance, aka static or shared instance
+                    var coll_data = {
+                        dirty_data : null,   // current flow data
+                        dirty_data_temp : [],
+                        data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JavaScript LINQ Concept
+                        type : {
+                            source : null,
+                            makeItEmpty : false,
+                            isReady : false,
+                            output : null
+                        }
+                    };
+
+
+                    // store the collection to iterate over
+                    coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
+
+                    // store the collection item type for later preparation of an empty object if required
+                    if(inputCollectionOptionalItemType) {
+                        coll_data.type.source = inputCollectionOptionalItemType;
+                        coll_data.type.makeItEmpty = makeItEmpty;
+                    }
+                    // otherwise create an empty object based on inputCollection's first item
+                    else if(coll_data.dirty_data.length) {
+                        coll_data.type.source = coll_data.dirty_data[0];
+                        coll_data.type.makeItEmpty = true;
+                    }
+                    // or default to an empty JavaScript object
+                    else {
+                        coll_data.type.output = {};
+                        coll_data.type.isReady = true;
+                    }
+
+                    
+                    // store current collection into collection history array
+                    _DATA.store(coll_data);
+                }
+            }
+        }
+    };    
+
+    var _DATA = {
+        // index that tracks contextually current collection within history array 
+        index : -1,
+
+        // collection history array
+        collection_array : [],
+
+        // store collection
+        store : function (collection) {
+            // store collection internally
+            this.collection_array.push(collection);
+
+            // increase collection index
+            this.index++;
+        },
+
+        // refresh updated contextually current collection in history array
+        update : function (collection) {
+            this.collection_array[this.index].dirty_data = collection;
+        },
+
+        // fetch metadata object of contextually current collection from history array
+        fetch : function() {
+            return {
+                // collection index within history array
+                index : this.index,
+
+                // collection itself
+                collection : this.collection_array[this.index].dirty_data
+            }
+        },
+        
+        // fetch type metadata of collection item of contextually current collection from history array
+        getItemType : function(index) {
+            return this.collection_array[index].type;
+        }
+    };
+
+    var _QUERYING = {
+        initialize : function() {
+            return initialize_I_1L();
+
+
+
+            /**
+             * Local helper functions
+            */
+            function initialize_I_1L() {
+                /**
+                 * Create collection history object that will contain all collections passed to the same shared JLC instance, aka static or shared instance 
+                 * !!! -> NOT BEING USED IN NEW IMPLEMENTATION
+                */
+                var _DATA_HISTORY = {
                             // index that tracks contextually current collection within history array 
                             index : -1,
 
@@ -64,10 +196,13 @@
                             getItemType : function(index) {
                                 return this.collection_array[index].type;
                             }
-                        };
+                };
 
-                        // declare a private data object (NOT BEING USED IN NEW IMPLEMENTATION)
-                        var _DATA_ = {
+                /**
+                 * Declare a private data object
+                 * !!! -> NOT BEING USED IN NEW IMPLEMENTATION
+                */
+                var _DATA_ = {
                             dirty_data : null,   // current flow data
                             dirty_data_temp : [],
                             data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JavaScript LINQ Concept
@@ -307,10 +442,10 @@
                                 else if(!create)
                                     this._dirty_data_temp_storage = JSON.stringify(this.dirty_data.slice());
                             }
-                        };
+                };
 
-                        // declare a private enum object
-                        var _ENUM = {
+                // declare a private enum object
+                var _ENUM = {
                             FIRST : "first",
                             LAST : "last",
                             SINGLE : "single",
@@ -331,61 +466,10 @@
                             CONCAT : "concat",
                             APPEND : "append",
                             PREPEND : "prepend"
-                        };
+                };
 
-                        // declare a private common object
-                        var _COMMON = {
-                            setupInputData : function(jlc, inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
-                                return setupInputData_I_1L(jlc, inputCollection, inputCollectionOptionalItemType, makeItEmpty);
-
-
-
-                                /**
-                                 * Local helper functions
-                                */
-                                function setupInputData_I_1L(jlc, inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
-                                    // declare a private data object holding data collection of current JLC instance, aka static or shared instance
-                                    var coll_data = {
-                                        dirty_data : null,   // current flow data
-                                        dirty_data_temp : [],
-                                        data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JavaScript LINQ Concept
-                                        type : {
-                                            source : null,
-                                            makeItEmpty : false,
-                                            isReady : false,
-                                            output : null
-                                        }
-                                    };
-
-
-                                    // store the collection to iterate over
-                                    coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
-
-                                    // store the collection item type for later preparation of an empty object if required
-                                    if(inputCollectionOptionalItemType) {
-                                        coll_data.type.source = inputCollectionOptionalItemType;
-                                        coll_data.type.makeItEmpty = makeItEmpty;
-                                    }
-                                    // otherwise create an empty object based on inputCollection's first item
-                                    else if(coll_data.dirty_data.length) {
-                                        coll_data.type.source = coll_data.dirty_data[0];
-                                        coll_data.type.makeItEmpty = true;
-                                    }
-                                    // or default to an empty JavaScript object
-                                    else {
-                                        coll_data.type.output = {};
-                                        coll_data.type.isReady = true;
-                                    }
-
-                                    
-                                    // store current collection into collection history array
-                                    _DATA_HISTORY.store(coll_data);
-
-                                    // return JavaScript LINQ Concept object
-                                    return jlc;
-                                }
-                            },
-
+                // declare a private common object
+                var _COMMON = {
                             executeLogicalWhereFilter : function(jlc, predicateArray, reverseBoolResult) {
                                 return executeLogicalWhereFilter_I_1L(jlc, predicateArray, reverseBoolResult);
 
@@ -399,7 +483,7 @@
                                     var c_i_c = [];
 
                                     // create input collection cache
-                                    var currentColl = _DATA_HISTORY.fetch().collection;
+                                    var currentColl = _DATA.fetch().collection;
 
                                     // loop over current collection and apply filters
                                     for(var i = 0; i < currentColl.length; i++) {
@@ -422,7 +506,7 @@
                                     }
 
                                     // store intermediate collection for further flow
-                                    _DATA_HISTORY.update(c_i_c);
+                                    _DATA.update(c_i_c);
                                 }
                             },
 
@@ -439,7 +523,7 @@
                                     var passed = false;
 
                                     // create input collection cache
-                                    var currentColl = _DATA_HISTORY.fetch().data;
+                                    var currentColl = _DATA.fetch().data;
 
                                     // loop over current collection and apply filters
                                     for(var i = 0; i < currentColl.length; i++) {
@@ -625,7 +709,7 @@
                                     */
                                     function getResult_I_2L(withPredicates) {
                                         // get metadata of contextually current collection from history array
-                                        var metadata = _DATA_HISTORY.fetch();
+                                        var metadata = _DATA.fetch();
 
                                         // reference contextually current collection
                                         var currentColl = metadata.collection;
@@ -717,7 +801,7 @@
                                     */
                                     function getResult_I_2L(withPredicates) {
                                         // get contextually current collection within history array
-                                        var currentColl = _DATA_HISTORY.fetch().data;
+                                        var currentColl = _DATA.fetch().data;
 
                                         // if the sequence contains elements
                                         if(currentColl.dirty_data.length) {
@@ -847,7 +931,7 @@
                                             }
 
                                             // store intermediate collection for further flow
-                                            _DATA_HISTORY.update(currentColl);
+                                            _DATA.update(currentColl);
                                         }
                                     }
                                 }
@@ -863,7 +947,7 @@
                                 */
                                 function addCollectionOrItem_I_1L(jlc, collectionOrItem, enumValue) {
                                     // get contextually current collection within history array
-                                    var currentColl = _DATA_HISTORY.fetch().data;
+                                    var currentColl = _DATA.fetch().data;
 
                                     if(enumValue === _ENUM.APPEND) {
                                         // append item to the end of current data flow collection
@@ -885,7 +969,7 @@
                                     }
 
                                     // store intermediate collection for further flow
-                                    _DATA_HISTORY.update(currentColl);                                      
+                                    _DATA.update(currentColl);                                      
                                 }
                             },
 
@@ -1037,7 +1121,7 @@
                                         var groups = {};
 
                                         // get contextually current collection within history array
-                                        var currentColl = _DATA_HISTORY.fetch().data;                                        
+                                        var currentColl = _DATA.fetch().data;                                        
 
                                         // do grouping
                                         currentColl.dirty_data.forEach(function (item) {
@@ -1072,7 +1156,7 @@
                                            groups = sortGroups_I_2L(udfEqualityComparer);
 
                                         // store intermediate collection for further flow
-                                        _DATA_HISTORY.update(currentColl);                                          
+                                        _DATA.update(currentColl);                                          
 
                                         // check if terminate data flow and return data to the calling client
                                         if(terminateFlowAndReturnData)
@@ -1162,7 +1246,7 @@
                                     // for no given predicates
                                     else {
                                         // check if there are any items in the sequence (contextually current collection within history array)
-                                        return _DATA_HISTORY.fetch().collection.length > 0;
+                                        return _DATA.fetch().collection.length > 0;
                                     }
                                 }
                             },
@@ -1206,7 +1290,7 @@
                                 */
                                 function createDefaultOfT_I_1L(historyIndex) {
                                     // get collection item type metadata of contextually current collection from history array
-                                    var itemTypeMetadata = _DATA_HISTORY.getItemType(historyIndex);
+                                    var itemTypeMetadata = _DATA.getItemType(historyIndex);
 
                                     if(itemTypeMetadata.type.isReady)
                                         // return an empty proper object
@@ -1364,7 +1448,7 @@
                                 */
                                 function resultsView_I_1L() {
                                     // get metadata of contextually current collection from the collection history array
-                                    var metadata = _DATA_HISTORY.fetch(); 
+                                    var metadata = _DATA.fetch(); 
 
                                     // create result view object that holds current query metadata
                                     return {
@@ -1376,10 +1460,10 @@
                                     };
                                 }
                             }
-                        };
+                };
 
-                        // declare a private core object
-                        var _CORE = {
+                // declare a private core object
+                var _CORE = {
                             where : function(jlc, predicateArray) {
                                 // invoke core logic
                                 _COMMON.executeLogicalWhereFilter(jlc, predicateArray);
@@ -1512,15 +1596,10 @@
                                     return _API;
                                 };
                             }
-                        };
+                };
 
-                        // declare a private JavaScript LINQ Concept object
-                        var _API = {
-                            over : function (inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
-                                // store the collection to iterate over
-                                return _COMMON.setupInputData(this, inputCollection, inputCollectionOptionalItemType, makeItEmpty);
-                            },
-
+                // declare a private JavaScript LINQ Concept object
+                var _API = {
                             where : function (predicateArray) {
                                 // apply SQL WHERE-like logic
                                 _CORE.where(this, predicateArray);
@@ -1736,20 +1815,20 @@
                                 // return JavaScript LINQ Concept object
                                 return this;
                             }
-                        };
+                };
 
-                        // optionally initialize mechanism over input collection and return a private object immediately creating public API context called JLC (JavaScript LINQ Concept)
-                        return _COMMON.setupInputData(_API, inputCollection, inputCollectionOptionalItemType, makeItEmpty);
-                }
+                // create public API context called JLC (JavaScript LINQ Concept)
+                return _API;
             }
         }
+        
     };
 
     /* ~ private variables */
 
 
 
-    /* Expose module API to the outside world */
-    window.jlc = window.jlc || _JLC_CONTEXT;
+    /* Initialize JLC */
+    _SETUP.___init___();
  }
 )(window);

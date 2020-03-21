@@ -36,18 +36,19 @@
 			{id: 200, name : "Object 200", ne : {ne_id : 200, ne_name : "NO 200"}, valid : true, lite : false, descr : "Descr 200", quality : "A 200"}
 		];		
 
-		var examplaryEmptyObject = {id: undefined, name : undefined, weight : 1234, ne : {ne_id : undefined, ne_name : undefined, weight : 5678}, valid : undefined};
+		// var examplaryEmptyObject = {id: undefined, name : undefined, weight : 1234, ne : {ne_id : undefined, ne_name : undefined, weight : 5678}, valid : undefined};
 
+		/**
+		 * Here we create a shared instance (by initializing JLC before the very first usage) that can be reused across all the examples
+		 *  
+		 *  THIS IMPLEMENTATION PHILOSOPHY IS ABANDONED IN FAVOR OF MORE LOGICAL AND PRACTICAL WAY TO BETTER GO IN LINE WITH C#'s LINQ !
+		*/
+		// var jlc_Shared_Instance = jlc.Querying.initializeOver(coll_1);
 		
 		debugger;
 
-		// here we create a shared instance (by initializing JLC before the very first usage) that can be reused across all the examples
-		var jlc_Shared_Instance = jlc.Querying.initializeOver(coll_1);
-
-
-		console.log("1. where -> ResultsView | using shared instance of JLC");
-		var where_1 = jlc_Shared_Instance
-									.where(
+		console.log("1. where(), first() and last()");
+		var where_1 = coll_1.useLINQ().where(
 											[
 												["id", ">", 1.1, true],
 												["ne.ne_id", ">", 1.5, true],
@@ -57,6 +58,36 @@
 												jlc_filters.myFilter1.bind(null, 1.9, 10)
 											]
 									);
+
+		var first_1 = where_1.first();
+
+		var last_1 = where_1.last();
+
+		console.log(where_1.resultsView.dataYield);
+		console.log(first_1);
+		console.log(last_1);
+		console.log("~1. where(), first() and last()");
+
+		// or in case you don't wanna use JLC, simply process collection 'coll_1' using your third-party implementation ! :-)
+		var my_where_1 = jlc_filters.whereFilter(coll_1);
+
+
+
+
+		/**
+		 *
+		 * 
+		 * 					HO - HO - HO :-)
+		 * 					
+		 * 					TAKE IT EASY, TRANSFERRING LINQ FROM C# IT'S NOT A TWO-DAY LIBRARY !
+		 * 
+		 * 
+		 *  
+		*/
+
+
+
+
 		/*
 		 * This is to-be-implemented during next DPRs (Dirty Point Release)
 		 * This will allow for achieving the correct flow in the case 5. in this index.html file.
@@ -67,9 +98,6 @@
 		 * In plain programming English, this will allow for singleton JLC instance to be used across whole execution. 
 		*/
 		//var partialQueryToken = where_1.resultsView.freeze(); // preserve the state of 'where_1' query by freezing the data state and obtaining the token.
-		console.log(where_1.resultsView.historyIndex);
-		console.log(where_1.resultsView.dataYield);
-		console.log("~1. where -> ResultsView | using shared instance of JLC");
 
 
 		console.log("2. where -> ResultsView | using shared instance of JLC | over same collection with additional filter");
