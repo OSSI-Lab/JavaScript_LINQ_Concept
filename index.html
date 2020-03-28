@@ -3,7 +3,7 @@
  <head>
   <meta charset="utf-8" />
   <meta name="description" content="JavaScript LINQ Concept by C4B Solutions Lab | Łukasz Dąbrowski - Inżynier Oprogramowania | Lukasz Dabrowski - Software Engineer" />
-  <title>JLC 1.0 by Solutions</title>
+  <title>JLC 1.0 by Solutions Lab</title>
   <script src="js/jlc.js"></script>
   <script src="js/user-defined-functions.js"></script>
   <link href="css/css_jlc.css" rel="stylesheet">
@@ -33,95 +33,56 @@
 
 		var coll_2 = [
 			{id: 100, name : "Object 100", ne : {ne_id : 100, ne_name : "NO 100"}, valid : true, lite : false, descr : "Descr 100", quality : "A 100"},
-			{id: 200, name : "Object 200", ne : {ne_id : 200, ne_name : "NO 200"}, valid : true, lite : false, descr : "Descr 200", quality : "A 200"}
-		];		
-
-		// var examplaryEmptyObject = {id: undefined, name : undefined, weight : 1234, ne : {ne_id : undefined, ne_name : undefined, weight : 5678}, valid : undefined};
-
-		/**
-		 * Here we create a shared instance (by initializing JLC before the very first usage) that can be reused across all the examples
-		 *  
-		 *  THIS IMPLEMENTATION PHILOSOPHY IS ABANDONED IN FAVOR OF MORE LOGICAL AND PRACTICAL WAY TO BETTER GO IN LINE WITH C#'s LINQ !
-		*/
-		// var jlc_Shared_Instance = jlc.Querying.initializeOver(coll_1);
+			{id: 200, name : "Object 200", ne : {ne_id : 200, ne_name : "NO 200"}, valid : true, lite : false, descr : "Descr 200", quality : "A 200"},
+			{id: 300, name : "Object 300", ne : {ne_id : 300, ne_name : "NO 300"}, valid : true, lite : false, descr : "Descr 300", quality : "C 300"}
+		];
 		
 		debugger;
 
+
+
 		console.log("1. where(), first() and last()");
-		var where_1 = coll_1.useLINQ().where(
-											[
-												["id", ">", 1.1, true],
-												["ne.ne_id", ">", 1.5, true],
-												["id", "<>", "-1"],
-												["id", "()", true],
-												["valid", "(!)", true],
-												jlc_filters.myFilter1.bind(null, 1.9, 10)
-											]
-									);
 
+		var where_1 = coll_1.usingLinq().where(
+												[
+													["id", ">=", 2, true],
+													["ne.ne_id", "<", 7, true]
+												]
+										 );
+
+		var where_1_A = coll_1.usingLinq().where(
+													[
+														jlc_filters.myFilter1.bind(null, 6, 9)
+													]
+										   );								   
+
+		
 		var first_1 = where_1.first();
-
 		var last_1 = where_1.last();
 
-		console.log(where_1.resultsView.dataYield);
+		var first_1_A = where_1_A.first();
+		var last_1_A = where_1_A.last();
+		
 		console.log(first_1);
 		console.log(last_1);
+
+		console.log(first_1_A);
+		console.log(last_1_A);		
+
+		console.log(where_1.resultsView().dataYield);
+		console.log(where_1_A.resultsView().dataYield);	
+
 		console.log("~1. where(), first() and last()");
 
-		// or in case you don't wanna use JLC, simply process collection 'coll_1' using your third-party implementation ! :-)
-		var my_where_1 = jlc_filters.whereFilter(coll_1);
 
 
 
 
-		/**
-		 *
-		 * 
-		 * 					HO - HO - HO :-)
-		 * 					
-		 * 					TAKE IT EASY, TRANSFERRING LINQ FROM C# IT'S NOT A TWO-DAY LIBRARY !
-		 * 
-		 * 
-		 *  
-		*/
 
+		console.log("2. first or default");
 
-
-
-		/*
-		 * This is to-be-implemented during next DPRs (Dirty Point Release)
-		 * This will allow for achieving the correct flow in the case 5. in this index.html file.
-		 * 
-		 * The goal is to allow this "partial" 'where_1' query to be kind of logically "freezed" (preserving the current data state)
-		 * and subsequently resume it for further processing like in the case of example 5. in this index.html file
-		 * 
-		 * In plain programming English, this will allow for singleton JLC instance to be used across whole execution. 
-		*/
-		//var partialQueryToken = where_1.resultsView.freeze(); // preserve the state of 'where_1' query by freezing the data state and obtaining the token.
-
-
-		console.log("2. where -> ResultsView | using shared instance of JLC | over same collection with additional filter");
-		var where_2 = jlc_Shared_Instance
-									.over(coll_1)
-									.where(
-											[
-												["id", ">", 1.1, true],
-												["ne.ne_id", ">", 1.5, true],
-												["id", "<>", "-1"],
-												["id", "()", true],
-												["valid", "(!)", true],
-												jlc_filters.myFilter1.bind(null, 1.9, 10),
-												["name", "<>", "Object 6"]
-											]
-									);
-		console.log(where_2.resultsView.historyIndex);
-		console.log(where_2.resultsView.dataYield);
-		console.log("~2. where -> ResultsView | using shared instance of JLC | over same collection with additional filter");
-
-
-		console.log("3. first | using shared instance of JLC");
-		var first_1 = jlc_Shared_Instance
-									.where(
+		var firstOrDefault = coll_1.usingLinq()
+								   .where(
 											[
 												["id", ">", 1.1, true],
 												["ne.ne_id", ">", 1.5, true],
@@ -130,162 +91,51 @@
 												["valid", "(!)", true],
 												jlc_filters.myFilter1.bind(null, 1.9, 10)
 											]
-									)
-									.first(
-											[
-												["id", ">=", 2]
-											]
-									);
-		console.log(first_1);
-		console.log("~3. first | using shared instance of JLC");
-
-
-		console.log("4. first | using shared instance of JLC | over new collection");
-		var first_2 = jlc_Shared_Instance
-									.over(coll_2)
-									.where(
-											[
-												["id", ">", 1.1, true],
-												jlc_filters.myFilter1.bind(null, 1.9, 1000)
-											]
-									)
-									.first(
-											[
-												["id", ">=", 200]
-											]
-									);
-		console.log(first_2);
-		console.log("~4. first | using shared instance of JLC | over new collection");
-
-
-		console.log("5. first | reusing already created where-like partial query from example 1. called where_1");
-		console.log(where_1.resultsView.historyIndex);
-		console.log(where_1.resultsView.dataYield);
-		// get the token of "partial" query called 'where_1' named 'partialQueryToken' and use it to resume flow of data preserved in example 1.
-		// var first_3 = where_1.resultsView.continue(partialQueryToken).first([  ["id", ">=", 2] ]);
-
-		// this example doesn't resume from where 'where_1' query was kind logically suspended !
-		var first_3 = where_1
-									.first(
-											[
-												["id", ">=", 2]
-											]
-									);
-		console.log(first_3);
-		console.log("~5. first | reusing already created where-like partial query from example 1. called where_1");
-
-
-/*
-		console.log("first or default");
-
-		var jlc_3 = jlc.Factory.Querying.createNew();
-		var firstOrDefault = jlc_3
-								 .over(coll_1)
-								 .where(
-											[
-												["id", ">", 1.1, true],
-												["ne.ne_id", ">", 1.5, true],
-												["id", "<>", "-1"],
-												["id", "()", true],
-												["valid", "(!)", true],
-												jlc_filters.myFilter1.bind(null, 1.9, 10)
-											]
-								 )
-								 .firstOrDefault(
-												  [
-												  	["id", ">=", 2]
-												  ]
-								 );
+								   		 )
+								   .firstOrDefault(
+												  	[
+												  		["id", ">=", 2]
+												  	]
+								 				  );
 		console.log(firstOrDefault);
 
-		console.log("~first or default");
+		console.log("~2. first or default");
 
 
 
-		console.log("last");
 
-		var jlc_4 = jlc.Factory.Querying.createNew();
-		var last = jlc_4
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 10)
-								]
-						)
-						.last(
-								[
-									["id", ">=", 2]
-								]
-						);
+
+
+		console.log("3. last");
+
+		var last = coll_1.usingLinq()
+								   .where(
+											[
+												["id", ">", 1.1, true],
+												["ne.ne_id", ">", 1.5, true],
+												["id", "<>", "-1"],
+												["id", "()", true],
+												["valid", "(!)", true],
+												jlc_filters.myFilter1.bind(null, 1.9, 10)
+											]
+								   		 )
+								   .last(
+											[
+												["id", ">=", 2]
+											]
+								 		);
 		console.log(last);
 
-		console.log("~last");
+		console.log("~3. last");
 
 
 
-		console.log("last or default");
-
-		var jlc_5 = jlc.Factory.Querying.createNew();						
-		var lastOrDefault = jlc_5
-								.over(coll_1)
-								.where(
-										[
-											["id", ">", 1.1, true],
-											["ne.ne_id", ">", 1.5, true],
-											["id", "<>", "-1"],
-											["id", "()", true],
-											["valid", "(!)", true],
-											jlc_filters.myFilter1.bind(null, 1.9, 10)
-										]
-								)
-								.lastOrDefault(
-												 [
-												 	["id", ">=", 2]
-												 ]
-								);
-
-		console.log(lastOrDefault);
-
-		console.log("~last or default");
 
 
 
-		console.log("single");
+		console.log("4. last or default");
 
-		var jlc_6 = jlc.Factory.Querying.createNew();
-		var single = jlc_6
-						 .over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 10)
-								]
-						)
-						.single(
-								[
-									["id", "===", 5]
-								]
-						);
-		console.log(single);
-
-		console.log("~single");
-
-
-
-		console.log("single or default");
-
-		var jlc_7 = jlc.Factory.Querying.createNew();
-		var singleOrDefault = jlc_7
-								  .over(coll_1, examplaryEmptyObject, true)
+		var lastOrDefault = coll_1.usingLinq()
 								  .where(
 											[
 												["id", ">", 1.1, true],
@@ -295,314 +145,278 @@
 												["valid", "(!)", true],
 												jlc_filters.myFilter1.bind(null, 1.9, 10)
 											]
-								  )
-								  .singleOrDefault(
+								   		 )
+								   .lastOrDefault(
 													[
-														["id", "===", 5]
-													]
+												  		["id", ">=", 2]
+												  	]
+								 				 );
+
+		console.log(lastOrDefault);
+
+		console.log("~4. last or default");
+
+
+
+
+
+
+		console.log("5. single");
+
+		var single = coll_1.usingLinq()
+						   .where(
+									[
+										["id", ">", 1.1, true],
+										["ne.ne_id", ">", 1.5, true],
+										["id", "<>", "-1"],
+										["id", "()", true],
+										["valid", "(!)", true],
+										jlc_filters.myFilter1.bind(null, 1.9, 10)
+									]
+								 )
+						   .single(
+									[
+										["id", "===", 5]
+									]
 								  );
+		console.log(single);
+
+		console.log("~5. single");
+
+
+
+
+
+
+		console.log("6. single or default");
+
+		var singleOrDefault = coll_1.usingLinq()
+						   			.where(
+											[
+												["id", ">", 1.1, true],
+												["ne.ne_id", ">", 1.5, true],
+												["id", "<>", "-1"],
+												["id", "()", true],
+												["valid", "(!)", true],
+												jlc_filters.myFilter1.bind(null, 1.9, 10)
+											]
+								 		  )
+									.single(
+												[
+													["id", "===", 5]
+												]
+										   );
 		console.log(singleOrDefault);
 
-		console.log("~single or default");
+		console.log("~6. single or default");
 
 
 
-		console.log("all list");
 
-		var jlc_8 = jlc.Factory.Querying.createNew();
-		var all_list = jlc_8
-							 .over(coll_1)
-							 .where(
+
+
+		console.log("7. all list");
+
+		var all_list_qualifies = coll_1.usingLinq()
+						   			   .where(
+												[
+													["id", ">", 1.1, true],
+													["ne.ne_id", ">", 1.5, true],
+													["id", "<>", "-1"],
+													["id", "()", true],
+													["valid", "(!)", true],
+													jlc_filters.myFilter1.bind(null, 1.9, 10)
+												]
+								 		  	 )
+							 		   .all(
+												[
+													jlc_filters.myFilter2.bind(null, 0)
+												]
+							 			   );
+		console.log("All items in the list meet the criteria: " + all_list_qualifies);
+
+		console.log("~7. all list");
+
+
+
+
+
+
+		console.log("8. any item from list qualifies");
+
+		var any_item_from_list_qualifies = coll_1.usingLinq()
+						   			   			 .where(
+															[
+																["id", ">", 1.1, true],
+																["ne.ne_id", ">", 1.5, true],
+																["id", "<>", "-1"],
+																["id", "()", true],
+																["valid", "(!)", true],
+																jlc_filters.myFilter1.bind(null, 1.9, 10)
+															]
+								 		  	 		   )
+												 .any(
+															[
+																jlc_filters.myFilter2.bind(null, 0)
+															]
+													 );
+		console.log("Any item in the list meets the criteria: " + any_item_from_list_qualifies);
+
+		console.log("~8. any item from list qualifies");
+
+
+
+
+
+
+		console.log("9. empty list");
+
+		var empty_list = [].usingLinq()
+							   .where(
 										[
-											["id", ">", 1.1, true],
-											["ne.ne_id", ">", 1.5, true],
-											["id", "<>", "-1"],
-											["id", "()", true],
-											["valid", "(!)", true],
-											jlc_filters.myFilter1.bind(null, 1.9, 10)
+											["id", ">", 10000, true]
 										]
-							 )
-							 .toArray(
-										[
-											["name", "===", "Object 4"]
-										],
-										false // don't yield the result
-							 )
-							 .all(
-									[
-										jlc_filters.myFilter2.bind(null, 0)
-									]
-							 );
-		console.log(all_list);
+							 		 )
+							   .toArray();
 
-		console.log("~ all list");
-
-
-
-		console.log("any list");
-
-		var jlc_9 = jlc.Factory.Querying.createNew();
-		var any_list = jlc_9
-							 .over(coll_1)
-							 .where(
-										[
-											["id", ">", 1.1, true],
-											["ne.ne_id", ">", 1.5, true],
-											["id", "<>", "-1"],
-											["id", "()", true],
-											["valid", "(!)", true],
-											jlc_filters.myFilter1.bind(null, 1.9, 10)
-										]
-							 )
-							 .toArray(
-										[
-											["name", "===", "Object 4"]
-										],
-										false // don't yield the result
-							 )
-							 .any(
-									[
-										jlc_filters.myFilter2.bind(null, 0)
-									]
-							 );
-		console.log(any_list);
-
-		console.log("~ any list");
-
-
-		console.log("empty list");
-
-		var jlc_10 = jlc.Factory.Querying.createNew();
-		var empty_list = jlc_10
-							 .over([])
-							 .where(
-										[
-											["id", ">", 1.1, true],
-											["ne.ne_id", ">", 1.5, true],
-											["id", "<>", "-1"],
-											["id", "()", true],
-											["valid", "(!)", true],
-											jlc_filters.myFilter1.bind(null, 1.9, 10),
-											["name", "===", "Object 4"]
-										]
-							 )
-							 .toArray();
-		console.log(empty_list.resultsView());
-
+		console.log(empty_list.resultsView().dataYield);
+		
 		empty_list = empty_list.all(
 										[
 											["id", ">", 0]
 										]
 								   );
 		console.log(empty_list);
+
+		console.log("~9. empty list");
+
+
+
+
+
+
+		console.log("10. reverse");
+
+		var reverse = coll_1.usingLinq()
+							.where(
+										[
+											["id", ">", 1.1, true],
+											["ne.ne_id", ">", 1.5, true],
+											["id", "<>", "-1"],
+											["id", "()", true],
+											["valid", "(!)", true],
+											jlc_filters.myFilter1.bind(null, 1.9, 10)
+										]
+								  )
+							.reverse();
 		
-		console.log("~ empty list");
-
-
-
-		console.log("reverse");
-
-		var jlc_11 = jlc.Factory.Querying.createNew();
-		var reverse = jlc_11
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 10)
-								]
-						).reverse();
-		console.log(reverse.resultsView());
+		console.log(reverse.resultsView().dataYield);
 		
-		console.log("~ reverse");
+		console.log("~10. reverse");
 
 
 
-		console.log("skip");
 
-		var jlc_12 = jlc.Factory.Querying.createNew();
-		var skip = jlc_12
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 10)
-								]
-						).skip(10);
-		console.log(skip.resultsView());
+
+
+		console.log("11. skip");
+
+		var skip = coll_1.usingLinq()
+						 .where(
+										[
+											["id", ">", 1.1, true],
+											["ne.ne_id", ">", 1.5, true],
+											["id", "<>", "-1"],
+											["id", "()", true],
+											["valid", "(!)", true],
+											jlc_filters.myFilter1.bind(null, 1.9, 10)
+										]
+							   )
+						 .skip(10);
 		
-		console.log("~ skip");
-
-
-		console.log("skipWhile");
-
-		var jlc_13 = jlc.Factory.Querying.createNew();
-		var skipWhile = jlc_13
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 10)
-								]
-						)
-						.skipWhile(
-									[
-										["lite", "===", false]
-									]
-						);
-		console.log(skipWhile.resultsView());
+		console.log(skip.resultsView().dataYield);
 		
-		console.log("~ skipWhile");
+		console.log("~11. skip");
 
 
-		console.log("take");
-
-		var jlc_14 = jlc.Factory.Querying.createNew();
-		var take = jlc_14
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 10)
-								]
-						)
-						.take(2);
-		console.log(take.resultsView());
-		
-		console.log("~ take");
 
 
-		console.log("takeWhile");
-
-		var jlc_13 = jlc.Factory.Querying.createNew();
-		var takeWhile = jlc_13
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 10)
-								]
-						)
-						.takeWhile(
-									[
-										["lite", "===", false]
-									]
-						);
-		console.log(takeWhile.resultsView());
-		
-		console.log("~ takeWhile");
 
 
-		console.log("orderBy");
+		console.log("12. skipWhile");
 
-		console.log(coll_1);
-		var jlc_14 = jlc.Factory.Querying.createNew();
-		var orderBy = jlc_14
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 100)
-								]
-						)
-						.orderBy(
-									[
-										["name", true]
-									]
-						);
-		console.log(orderBy.resultsView());
-
-		console.log("~ orderBy");
-
-
-		console.log("orderByDescending");
-
-		console.log(coll_1);
-		var jlc_15 = jlc.Factory.Querying.createNew();
-		var orderByDescending = jlc_15
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 100)
-								]
-						)
-						.orderByDescending(
-									[
-										["name", true],
-										[" - ", false],
-										["ne.ne_id", true],
-										["id", true]
-									]
-						);
-		console.log(orderByDescending.resultsView());
-
-		console.log("~ orderByDescending");
-
-
-		console.log("orderBy and thenByDescending");
-		
-		console.log(coll_1);
-		var jlc_16 = jlc.Factory.Querying.createNew();
-		var orderByAndThenByDescending = jlc_16
-						.over(coll_1)
-						.where(
-								[
-									["id", ">", 1.1, true],
-									["ne.ne_id", ">", 1.5, true],
-									["id", "<>", "-1"],
-									["id", "()", true],
-									["valid", "(!)", true],
-									jlc_filters.myFilter1.bind(null, 1.9, 100)
-								]
-						)
-						.orderBy(
+		var skipWhile = coll_1.usingLinq()
+						 	  .where(
+										[
+											["id", ">", 1.1, true],
+											["ne.ne_id", ">", 1.5, true],
+											["id", "<>", "-1"],
+											["id", "()", true],
+											["valid", "(!)", true],
+											jlc_filters.myFilter1.bind(null, 1.9, 10)
+										]
+							   		)
+							  .skipWhile(
 											[
-												["name", true]
+												["lite", "===", false]
 											]
-						)
-						.thenByDescending(
-											[
-												["id", true]
-											]
-						)
-						.thenBy(
-											[
-												["quality", true]
-											]
-						);						
-		console.log(orderByAndThenByDescending.resultsView());
+										);
+		console.log(skipWhile.resultsView().dataYield);
+		
+		console.log("~12. skipWhile");
 
-		console.log("~ orderBy and thenByDescending");
 
-	*/
+
+
+
+
+		console.log("13. take");
+
+		var take = coll_1.usingLinq()
+						 .where(
+									[
+											["id", ">", 1.1, true],
+											["ne.ne_id", ">", 1.5, true],
+											["id", "<>", "-1"],
+											["id", "()", true],
+											["valid", "(!)", true],
+											jlc_filters.myFilter1.bind(null, 1.9, 10)
+									]
+							   )
+						 .take(2);
+
+		console.log(take.resultsView().dataYield);
+		
+		console.log("~13. take");
+
+
+
+
+
+
+		console.log("14. takeWhile");
+
+		var takeWhile = coll_1.usingLinq()
+						 	  .where(
+										[
+												["id", ">", 1.1, true],
+												["ne.ne_id", ">", 1.5, true],
+												["id", "<>", "-1"],
+												["id", "()", true],
+												["valid", "(!)", true],
+												jlc_filters.myFilter1.bind(null, 1.9, 10)
+										]
+							   		)
+							  .takeWhile(
+											[
+												["lite", "===", false]
+											]
+										);
+
+		console.log(takeWhile.resultsView().dataYield);
+		
+		console.log("~14. takeWhile");
+
 	</script>
  </body>
 </html>
