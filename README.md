@@ -21,8 +21,8 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
- - DPR #3:&nbsp;2020-03-28 &nbsp;4:01 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes** )
- - DPR #2:&nbsp;2020-03-21 &nbsp;1:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *major design changes* )
+ - DPR #3:&nbsp;2020-03-28 &nbsp;&nbsp;4:01 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes** )
+ - DPR #2:&nbsp;2020-03-21 &nbsp;&nbsp;1:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *major design changes* )
  - DPR #1:&nbsp;2020-03-14 11:19 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
 ## Dirty Point Release: 2020-04-04 Local Time &nbsp;:zap:
 
