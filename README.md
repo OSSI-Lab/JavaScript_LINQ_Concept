@@ -13,9 +13,9 @@ I am not sure whether *the great* **Anders Hejlsberg** of *Microsoft* will welco
 I highly encourage reading this amazing article treating about [C# LINQ in detail](https://www.codeproject.com/Articles/383749/How-does-it-work-in-Csharp-Part-3-Csharp-LINQ-in-d "How does it work in C# ?") to better understand inner workings of LINQ ! \
 By the way, taking advantage of the occasion there are 3 books that every C#-oriented developer should have on his/her shelf... \
 (guess, whether I have them or not ? :smirk:)
- - [Essential C# 7.0 (6th Edition)](https://www.amazon.com/Essential-7-0-Addison-Wesley-Microsoft-Technology/dp/1509303588/ref=olp_product_details?ie=UTF8&me= "The Comprehensive, Expert Guide to C# Language Programming")
- - [C# in Depth, Fourth Edition](https://www.manning.com/books/c-sharp-in-depth-fourth-edition "C# in Depth, Fourth Edition is your key to unlocking the powerful new features added to the language in C# 5, 6, and 7")
- - [C# Deconstructed](https://www.apress.com/us/book/9781430266709 "Discover how C# works on the .NET Framework")
+ - [Essential C# 7.0 (6th Edition)](https://www.amazon.com/Essential-7-0-Addison-Wesley-Microsoft-Technology/dp/1509303588/ref=olp_product_details?ie=UTF8&me= "The Comprehensive, Expert Guide to C# Language Programming")&nbsp; - good for 0+ years of experience
+ - [C# in Depth, Fourth Edition](https://www.manning.com/books/c-sharp-in-depth-fourth-edition "C# in Depth, Fourth Edition is your key to unlocking the powerful new features added to the language in C# 5, 6, and 7")&nbsp; - good for 2+ years of experience
+ - [C# Deconstructed](https://www.apress.com/us/book/9781430266709 "Discover how C# works on the .NET Framework")&nbsp; - good for 6+ years of experience
 
 ##
 ## Version:&nbsp;:one:.:zero:
