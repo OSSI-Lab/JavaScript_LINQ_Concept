@@ -120,61 +120,59 @@
 		 * 
 		*/
 
-
+		
 
 		/**
 		 * Exemplary usage !
 		*/
-		var example_1 = coll_1.usingLinq()
-							  .where(
-								  		{
-											'predicateArray' :	[
-																	["id", ">=", 2, true],
-																	["ne.ne_id", "<", 10, true]
-																]
-										}
-									)
-							  .toArray(System.Linq.Context.where);
 
+		var example_where = coll_1.usingLinq()
+							  	  .where(
+								  		  {									
+												'predicateArray' :	[
+																		["id", ">=", 2, true],
+																		["ne.ne_id", "<", 10, true]
+																	]
+										  }
+										);
 
-		// keys has to be unique - check it and/or handle in the DPR #5, which has chances to be RC version !
-		var example_2 = coll_1.usingLinq()
-							  .where(
-								  		{
-											'predicateArray' :	[
-																	["id", ">=", 2, true],
-																	["ne.ne_id", "<", 10, true]
-																]
-										}
-									)
-							  .toDictionary(
-												{
-													'context' : System.Linq.Context.where,	
-													'predicateArray' :	[
-																			["id", true]
-																		]
+		var example_take = example_where.take(
+												{											
+													'count' : 7
 												}
-										   );
+											 );
 
-
-		var example_3 = coll_1.usingLinq()
-							  .first(
-										{
-											'context' : System.Linq.Context.first							
-										}
-								  	);
-			 
-
-		var example_4 = coll_1.usingLinq()
-							  .firstOrDefault(
+		var example_skip = example_where.skip(
 												{
-													'context' : System.Linq.Context.firstOrDefault,
-													'predicateArray' :	[
-																			["id", ">", 5000],				// 🤪
-																			["id", "<=", 7000]				// 😂
-																		]									
+													'count' : 2
 												}
-										   	 );
+											 );
+
+		var example_take_2 = example_where.take(
+												{
+													'count' : 2
+												}
+											 );											 
+
+		var example_take_2_skip = example_take_2.skip(
+												{
+													'count' : 5
+												}
+											 );
+
+
+
+		var example_where_array = example_where.toArray();
+
+		var example_take_first = example_take.first();
+		var example_take_first_or_default = example_take.firstOrDefault(
+																			{									
+																				'predicateArray' :	[
+																										["id", ">", 1234567890]
+																									]
+																			}
+																	   );
+
 	</script>
  </body>
 </html>

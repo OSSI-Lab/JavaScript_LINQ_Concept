@@ -15,7 +15,7 @@
 
 
     /* private variables */
-        
+
         // declare a private query debugger
         var _QUERY_DEBUGGER = {
             ___init___ : function() {
@@ -130,162 +130,714 @@
 
         // declare a private action object
         var _ACTION = {
-                action_array : [],
+            // create action that represents filtering logic for given Linq's method
+            create : function(jlc_instance_ctx, core_method_bind, context, to_execute) {
+                // create an action
+                var action = {
+                    // store information whether this action is executable one
+                    returnsData : System.Linq.QueryResults[context],
 
-                filter_groups : {},
+                    // store collection index
+                    coll_ref : jlc_instance_ctx.coll_index,
 
-                // create action that represents some filtering logic
-                create : function(self, core_method_bind, executeThem, allOfThem, returnSelfOtherwiseData, context) {
-                    // create an action
-                    var action = {
-                        // store method context
-                        context : _COMMON.getContext(core_method_bind),
+                    // store root of the chain filters
+                    chain_root_id : jlc_instance_ctx.root_token,
 
-                        // store collection index
-                        coll_ref : self._ctx.coll_index,
+                    // store parent of this action
+                    parent : jlc_instance_ctx.parent,
 
-                        //store root of the chain filters
-                        chain_root_id : self._ctx.root_token,
-
-                        // get all filters bound to this context - root query started with [].usingLinq
-                        chained_filters : _ACTION.getChain(self._ctx.root_token),
-
-                        // apply SQL WHERE-like logic
-                        execute : function() {
-                                    return core_method_bind();
-                                }
-                    };
-
-                    // chain current action to the retrieved action chain
-                    action.chained_filters.push(action.execute);
-
-                    // store action for later execution
-                    _ACTION.store(self._ctx.coll_index, action);
-
-                    // invoke real data filtering and produce output 
-                    if(executeThem && context) {
-                        // execute all actions
-                        return this.executeAll(self._ctx.coll_index, false, context);
-                    }          
-                    /*
-                    // execute all required actions if required
-                    if(executeThem && allOfThem && returnSelfOtherwiseData) {
-                        // execute all actions
-                        this.executeAll(self._ctx.coll_index, allOfThem);
-
-                        // return api to enable further flow of actions
-                        return self;
+                    // execute this action by invoking its API which is execute method
+                    execute : function() {
+                        return core_method_bind();
                     }
-                    else if(executeThem && !returnSelfOtherwiseData) {
-                        // execute all required actions and return data result 
-                        var data = this.executeAll(self._ctx.coll_index);
+                };
 
-                        // return data result
-                        return data;
-                    }
-                    */
+                // create context of this action
+                var ctx = {
+                    // collection reference id
+                    coll_index : jlc_instance_ctx.coll_index,
+                        
+                    // collection token
+                    root_token : jlc_instance_ctx.root_token,
+
+                    // parent action chained to this action
+                    parent : action
+                };
+
+                // invoke real data filtering and produce output 
+                if(to_execute)
+                    // execute all actions
+                    return this.executeChain(ctx);
+                else
+                    // return new instance api to enable further flow of actions passing context of current action to provide chain of actions to execute
+                    return _COMMON.jlcNew(ctx);
+            },
+
+            // execute all required actions
+            executeChain : function(jlc_ctx) {
+                return executeActionsRecursively_I_1L(jlc_ctx.parent);
+
+
+
+                /**
+                 * Local helper functions 
+                */
+                function executeActionsRecursively_I_1L(parentAction) {
+                    // go all the way down to the root action
+                    if(parentAction.parent)
+                        executeActionsRecursively_I_1L(parentAction.parent);
+                        
+                    // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
+                    if(parentAction.returnsData)
+                        return parentAction.execute();
                     else
-                        // return api to enable further flow of actions
-                        return self;
-                },
-                
-                // store action for delayed invocation
-                store : function (coll_ref, action) {
-                    // try to access existing collection using its internal index
-                    var collection = this.action_array[coll_ref];
-
-                    // if another filter for the same collection
-                    if(collection) {
-                        this.action_array[coll_ref].push(action);
-                    }
-                    else {
-                        // declare action array for a "new" collection
-                        var new_action_array = [];
-
-                        // store action for this collection
-                        new_action_array.push(action);
-
-                        // store action array of this collection in the JLC-wide array of all collections' actions 
-                        this.action_array.push(new_action_array);
-                    }
-
-                    // group filters from the same context (for the same base collection identified by the chain root id - collection's unique token) together (group filters from start to end of data flow)
-                    var group_arr = this.filter_groups[action.chain_root_id] || [];
-                    
-                    // add current (another) action filter to the chain
-                    group_arr.push(action.execute);
-
-                    // update group of filters from the same context (for the same base collection identified by the chain root id - collection's unique token)
-                    this.filter_groups[action.chain_root_id] = group_arr;
-                },
-
-                // get all the previous actions (filters) in this chain
-                getChain : function(chain_root_id) {
-                    // get filter chain using given context (for the same base collection identified by the chain root id - collection's unique token)
-                    return this.filter_groups[chain_root_id] || [];
-                },
-
-                // execute all required actions
-                executeAll : function(coll_ref, runAll, context) {
-                    // get array of actions associated with a collection stored under index equal to coll_ref
-                    var actions = this.action_array[coll_ref];
-                    
-                    // if there are any actions
-                    if(actions.length) {
-                        // execute all actions set for execution but in the given context
-                        for(var i = 0, length = runAll ? actions.length : actions.length - 1; i < length; i++) {
-                            // reference an action
-                            var a = actions[i];
-
-                            // go for context-bound actions only
-                            if(a.context === context)
-                                actions[i].execute();
-                        }
-
-                        // if 'runAll' is set to false, then in turn the last action is set to produce and return a result
-                        if(!runAll)
-                            return actions[actions.length - 1].execute();
-
-                        // if 'runAll' is set to true, then in turn there is no action being set to produce and return a result, hence return an empty object
-                        return {};
-                    }
-
-                    // otherwise return an empty object
-                    return {};
+                        parentAction.execute();
                 }
+            }
         };
 
         // declare a private common object
         var _COMMON = {
-                getContext : function(f) {
-                    return getContext_I_1L(f);
+            jlcNew : function(ctx) {
+                return get_Instance_I_1L(ctx);
 
 
 
-                    /**
-                     * Local helper functions
-                    */
-                    function getContext_I_1L(f) {
-                        // get the invocation method context, i.e. get the information, which method you invoke
-                        var f_n_arr = f.name.split(" ");
-                                
-                        // in case it's a bound method, get the root method
-                        var ctx = f_n_arr[f_n_arr.length - 1];
+                /**
+                 * Local helper functions
+                */
+                function get_Instance_I_1L(ctx) {
+                    // declare JavaScript LINQ Concept API object
+                    var api = {
+                        // ~ TO BE IMPLEMENTED AGAIN
+                        orderBy : function(keyPartSelectorArray, udfComparer) {
 
-                        // return context for current usage
-                        return ctx;
+
+                            // sorts the collection in ascending order according to a key or using given comparer
+                            _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_ASC);
+
+                            // return JavaScript LINQ Concept object
+                            return this;
+                        },
+
+                        // ~ TO BE IMPLEMENTED AGAIN
+                        orderByDescending : function(keyPartSelectorArray, udfComparer) {
+
+
+                            // sorts the collection in descending order according to a key or using given comparer
+                            _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_DESC);
+
+                            // return JavaScript LINQ Concept object
+                            return this;
+                        },
+
+                        // ~ TO BE IMPLEMENTED AGAIN
+                        reverse : function(params, startingIndex, count, context) {
+                            // create action and proceed with further flow
+                            return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE), true, true, true, params['context']);
+                        },
+
+                        // ~ TO BE IMPLEMENTED AGAIN
+                        reverseExt : function(params, startingIndex, count, context) {
+                            // create action and proceed with further flow
+                            return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE_EXT), false, false, true, params['context']);
+                        },
+                        
+                        // ~ TO BE IMPLEMENTED
+                        select : function(arrayOfNewObjectProps, outputType) {
+                            //
+
+                            // return JavaScript LINQ Concept object
+                            return this;
+                        },
+
+                        // ~ TO BE IMPLEMENTED
+                        join : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
+
+
+                            // join two sequences based on defined keys
+                            _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.JOIN);
+
+                            // return api to enable further flow
+                            return this;
+                        },
+
+                        // ~ TO BE IMPLEMENTED
+                        leftJoin : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
+
+
+                            // left join two sequences based on defined keys
+                            _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.LEFT_JOIN);
+
+                            // return JavaScript LINQ Concept object
+                            return this;
+                        },
+
+                        // ~ TO BE IMPLEMENTED
+                        contains : function(collectionItem, udfEqualityComparer) {
+                            //
+
+                            // return true/false
+                        },
+
+                        // ~ TO BE IMPLEMENTED
+                        distinct : function(udfEqualityComparer) {
+                            //
+
+                            // return JavaScript LINQ Concept object
+                            return this;
+                        },
+
+                        // ~ TO BE IMPLEMENTED                            
+                        except : function() {
+                            //
+
+                            // return JavaScript LINQ Concept object
+                            return this;
+                        },
+
+                        // ~ TO BE IMPLEMENTED ?
+                        intersect : function() {
+
+                        },
+
+                        // ~ TO BE IMPLEMENTED ?
+                        union : function() {
+
+                        },
+
+
+
+
+
+
+                        /**
+                         * ALREADY IMPLEMENTED 
+                        */
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                        */
+                        where : function (params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.where.bind(this, params['predicateArray']), System.Linq.Context.where);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - udfEqualityComparer
+                         *  - udfGroupProjector
+                         *  - udfGroupElementsProjector
+                         *  - udfGroupResultValueSelector
+                         *  - terminateFlowAndReturnData
+                        */
+                        groupBy : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(
+                                                    this._ctx,
+                                                    _CORE.group_by.bind(this, params['predicateArray'], params['udfEqualityComparer'], params['udfGroupProjector'], params['udfGroupElementsProjector'], params['udfGroupResultValueSelector'], params['terminateFlowAndReturnData']),
+                                                    System.Linq.Context.groupBy
+                                                 );
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - inputCollection
+                        */
+                        concat : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['inputCollection'], _ENUM.CONCAT), System.Linq.Context.concat);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - collectionItem
+                        */
+                        append : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.APPEND), System.Linq.Context.append);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - collectionItem
+                        */
+                        prepend : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.PREPEND), System.Linq.Context.prepend);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - count
+                        */
+                        skip : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.SKIP), System.Linq.Context.skip);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                        */
+                        skipWhile : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.SKIP), System.Linq.Context.skipWhile);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - count
+                        */
+                        take : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.TAKE), System.Linq.Context.take);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                        */
+                        takeWhile : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.TAKE), System.Linq.Context.takeWhile);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - udfEqualityComparer
+                         *  - udfGroupElementsProjector
+                         *  - context
+                        */
+                        toDictionary : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(
+                                                    this._ctx,
+                                                    _CORE.group_by.bind(this, params['predicateArray'], params['udfEqualityComparer'], null, null, params['udfGroupElementsProjector'], true),
+                                                    System.Linq.Context.toDictionary,
+                                                    true
+                                                );
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                        */
+                        toArray : function() {
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.list_t.bind(this, true), System.Linq.Context.toArray, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        first : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.first_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.first, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        firstOrDefault : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+                            
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.first_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.firstOrDefault, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        last : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.last_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.last, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        lastOrDefault : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.last_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.lastOrDefault, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        single : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.single_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.single, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        singleOrDefault : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.single_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.singleOrDefault, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        any : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ANY), System.Linq.Context.any, true);
+                        },
+
+                        /**
+                         * Serves the same purpose as Where method in LINQ from C#.
+                         * @param {object} params Contains all possible params used by this method :
+                         *  - predicateArray
+                         *  - context
+                        */
+                        all : function(params) {
+                            // handle "default" parameter
+                            if (params === undefined) params = {};
+
+                            // create action and proceed with further flow
+                            return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ALL), System.Linq.Context.all, true);
+                        },
+
+                        /**
+                         * Special method that tells whether query debugger is available ! 😀😉
+                         * Can be safely removed if library moved to production. 🙂
+                         * 
+                         * Go to line 1591 to remove from initialization JLC 1.0 Query Debugger 
+                        */
+                        ifConsoleDebug : function() {
+                            // is JLC 1.0 Query Debugger initialized ?
+                            var is_initialized = _QUERY_DEBUGGER.Funcs.is_initialized();
+                            
+                            if(is_initialized) {
+                                // check the state of the query debugger - on/off
+                                var is_on = _QUERY_DEBUGGER.Funcs.is_switched_on();
+
+                                // if switched on, enable fetching some debug data
+                                if(is_on) {
+                                    this.debugResultsView = function() {
+                                        // fetch on demand some DEBUG data !!!!!!!
+                                        return _QUERY_DEBUGGER.Funcs.getDebugData(); 
+                                    };
+                                }
+
+                                // return the state of the query debugger - on/off
+                                return is_on;
+                            }
+                            else {
+                                throw Error('JLC 1.0 Query Debugger not initialized !');
+                            }
+                        }
+                    };
+
+                    // bind context to this API instance
+                    api._ctx = ctx;
+
+                    // return JLC API instance
+                    return api;
+                }
+            },
+
+            getContext : function(f) {
+                return getContext_I_1L(f);
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function getContext_I_1L(f) {
+                    // get the invocation method context, i.e. get the information, which method you invoke
+                    var f_n_arr = f.name.split(" ");
+                            
+                    // in case it's a bound method, get the root method
+                    var ctx = f_n_arr[f_n_arr.length - 1];
+
+                    // return context for current usage
+                    return ctx;
+                }
+            },
+
+            createType : function(templateObject) {
+                return createType_I_1L(templateObject);
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function createType_I_1L(templateObject) {
+                        // loop over all props and delete their values
+                        for(var eot_k in templateObject) {
+                            // access current property
+                            var objProp = templateObject[eot_k];
+
+                            // if it's nested another object, drill down to discover the props of such nested object
+                            if(typeof objProp === 'object') {
+                                createType_I_1L(objProp);
+                            }
+                            // for primitive props just set the value to 'undefined'
+                            else if(typeof objProp !== 'function') {
+                                templateObject[eot_k] = undefined;
+                            }
+                        }
+
+                        // return the empty object
+                        return templateObject;
+                }
+            },
+
+            createDefaultOfT : function(historyIndex) {
+                return createDefaultOfT_I_1L(historyIndex);
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function createDefaultOfT_I_1L(historyIndex) {
+                        // get collection item type metadata of contextually current collection from history array
+                        var itemTypeMetadata = _DATA.getItemType(historyIndex);
+
+                        if(itemTypeMetadata.isReady)
+                            // return an empty proper object
+                            return itemTypeMetadata.output;
+                        else {
+                            if(itemTypeMetadata.makeItEmpty)
+                                itemTypeMetadata.output = _COMMON.createType(itemTypeMetadata.source);
+                            else
+                                itemTypeMetadata.output = itemTypeMetadata.source;
+
+                            // return an empty proper object
+                            return itemTypeMetadata.output;
+                        }
+                }
+            },
+
+            createGroupingOrSortingKey : function(keyPartSelectorArray) {
+                return createGroupingOrSortingKey_I_1L(keyPartSelectorArray);
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function createGroupingOrSortingKey_I_1L(keyPartSelectorArray) {
+                    // define array holding grouping or sorting logic key
+                    var key = [];
+
+                    // loop over all key selectors
+                    for(var i = 0; i < keyPartSelectorArray.length; i++) {
+                        // access current key part selector
+                        var keyPartSelector = keyPartSelectorArray[i];
+
+                        // get the value
+                        var value = keyPartSelector[0];
+
+                        // is this a property of the object
+                        var isValidProperty = keyPartSelector[1];
+
+                        // store object representing part of the key
+                        key.push({value : value, isValidProperty : isValidProperty, isComplex : value.indexOf('.') > -1});
                     }
-                },
 
-                executeLogicalWhereFilter : function(jlc, predicateArray, reverseBoolResult) {
-                    return executeLogicalWhereFilter_I_1L(jlc, predicateArray, reverseBoolResult);
+                    // return array holding grouping or sorting logic key
+                    return key;
+                }
+            },
+
+            useDefaultComparer : function(keyPartSelectorArray) {
+                return useDefaultComparer_I_1L(keyPartSelectorArray);
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function useDefaultComparer_I_1L(keyPartSelectorArray) {
+                    // define comparer object
+                    var comparer = {
+                        input : keyPartSelectorArray,
+
+                        defaultComparer : function(itemCurrent, itemPrevious) {
+                            var keyPart, itemCurrentValue, itemPreviousValue;
+
+                            // get the array of sorting key parts
+                            var key_array = _COMMON.createGroupingOrSortingKey(this.input);
+
+                            // loop over key parts and apply the comparison logic
+                            for(var j = 0; j < key_array.length; j++) {
+                                // reference the key part
+                                keyPart = key_array[j];
+
+                                // is it complex ?
+                                if(keyPart.isValidProperty && keyPart.isComplex) {
+                                    // get the property value from both, the current and the previous object
+                                    itemCurrentValue += _LOGICAL_FILTERS.applyPropertyValueFilter(itemCurrent, keyPart.value, true);
+                                    itemPreviousValue += _LOGICAL_FILTERS.applyPropertyValueFilter(itemPrevious, keyPart.value, true);
+                                }
+                                // is it simple ?
+                                else if(keyPart.isValidProperty) {
+                                    itemCurrentValue += itemCurrent[keyPart.value];
+                                    itemPreviousValue += itemPrevious[keyPart.value];
+                                }
+                                // otherwise apply some part that is not a property of an object
+                                else {
+                                    itemCurrentValue += keyPart.value;
+                                    itemPreviousValue += keyPart.value;
+                                }
+                            }
+
+                            // determine the sorting order of the comparer
+                            switch (enumValue) {
+                                case _ENUM.ORDER_ASC:
+                                case _ENUM.ORDER_THEN_ASC:
+                                    // go the ASC way
+                                    if(itemCurrentValue > itemPreviousValue)
+                                        return 1;
+                                    else
+                                        return -1;
+
+                                case _ENUM.ORDER_DESC:
+                                case _ENUM.ORDER_THEN_DESC:
+                                    // go the DESC way
+                                    if(itemCurrentValue > itemPreviousValue)
+                                        return -1;
+                                    else
+                                        return 1;
+
+                                 default:
+                                    throw Error("Unsupported sorting order [ " + enumValue + " ] !");
+                            }
+                        }
+                    };
+
+                    // bind the comparer to comparer object
+                    comparer.defaultComparer.bind(comparer);
+
+                    // return the comparer itself
+                    return comparer.defaultComparer;
+                }
+            },
+
+            resultsView : function(token) {
+                return resultsView_I_1L(token);
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function resultsView_I_1L(token) {
+                        // get metadata of contextually current collection from the collection history array
+                        var metadata = _DATA.fetch(token); 
+
+                        // create result view object that holds current query metadata
+                        return {
+                            // current index of contextually current query collection in collection history array
+                            dataToken : metadata.index,
+                                    
+                            // contextually current query collection
+                            dataYield : metadata.collection
+                        };
+                }
+            }            
+        };
+
+        // declare a private physical filters object
+        var _PHYSICAL_FILTERS = {
+                executeWhereFilter : function(jlc, predicateArray, reverseBoolResult) {
+                    return execute_WF_I_1L(jlc, predicateArray, reverseBoolResult);
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function executeLogicalWhereFilter_I_1L(jlc, predicateArray, reverseBoolResult) {
+                    function execute_WF_I_1L(jlc, predicateArray, reverseBoolResult) {
                             // declare current intermediate collection
                             var c_i_c = [];
 
@@ -301,10 +853,10 @@
                                 var passed;
 
                                 if(reverseBoolResult) {
-                                    passed = !_COMMON.applyLogicalWhereFilter(c_o, predicateArray, i);
+                                    passed = !_LOGICAL_FILTERS.applyLogicalBoolFilter(c_o, predicateArray, i);
                                 }
                                 else {
-                                    passed = _COMMON.applyLogicalWhereFilter(c_o, predicateArray, i);
+                                    passed = _LOGICAL_FILTERS.applyLogicalBoolFilter(c_o, predicateArray, i);
                                 }
 
                                 // based on filtering result (true/false) pass object further down the flow
@@ -317,188 +869,397 @@
                     }
                 },
 
-                executeLogicalBoolFilter : function(jlc, predicateArray, enumValue) {
-                    return executeLogicalBoolFilter_I_1L(jlc, predicateArray, enumValue);
+                executeGroupByFilter : function(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
+                    return execute_GBF_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function executeLogicalBoolFilter_I_1L(jlc, predicateArray, enumValue) {
-                            // declare the bool filter result
-                            var passed = false;
+                    function execute_GBF_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
+                            // check if grouping key is present
+                            if(predicateArray) {
+                                // create the key
+                                var key_array = _COMMON.createGroupingOrSortingKey(predicateArray);
 
-                            // create input collection cache
-                            var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+                                // declare groups object
+                                var groups = {};
 
-                            // loop over current collection and apply filters
-                            for(var i = 0; i < currentColl.length; i++) {
-                                // access current object
-                                var c_o = currentColl[i];
+                                // get contextually current collection within history array
+                                var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                                // apply where filter(s) and get the result
-                                passed = _COMMON.applyLogicalWhereFilter(c_o, predicateArray, i);
+                                // do grouping
+                                currentColl.forEach(function (item) {
+                                    // get the group id
+                                    var id = getTheKeyValue_I_2L(item);
 
-                                // based on filtering result (true/false) trigger further action
-                                if(enumValue === _ENUM.ALL && !passed)
-                                    break;
-                                else if(enumValue === _ENUM.ANY && passed)
-                                    break;
+                                    // project group id if required
+                                    if(udfGroupProjector)
+                                        id = (udfGroupProjector.bind(id))();
+
+                                    // project group elements if required
+                                    if(udfGroupElementsProjector)
+                                        item = (udfGroupElementsProjector.bind(item))();
+
+                                    // reference the list of elements
+                                    var list = groups[id];
+
+                                    // if such group exists
+                                    if (list) {
+                                        // add object to this group
+                                        list.push(item);
+                                    // otherwise create a new group
+                                    }
+                                    else {
+                                        // add object to this group
+                                        groups[id] = [item];
+                                    }
+                                });
+
+                                // sort the groups by using user-defined or a default comparer
+                                if(udfEqualityComparer)
+                                groups = sortGroups_I_2L(udfEqualityComparer);
+
+                                // store intermediate collection for further flow
+                                _DATA.update(jlc._ctx.coll_index, groups);                                          
+
+                                // check if terminate data flow and return data to the calling client
+                                if(terminateFlowAndReturnData)
+                                    return groups;
                             }
-
-                            // return the bool filter result
-                            return passed;
-                    }
-                },
-
-                applyLogicalWhereFilter : function(currentObject, predicateArray, elementIndex) {
-                    return applyLogicalWhereFilter_I_1L(currentObject, predicateArray, elementIndex);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function applyLogicalWhereFilter_I_1L(currentObject, predicateArray, elementIndex) {
-                            // flag that tells whether object passes or fails the filter
-                            var passed = true;
-
-                            // loop over predicates
-                            for(var i = 0; i < predicateArray.length; i++) {
-                                // access current filter
-                                var predicate = predicateArray[i];
-
-                                // determine the type of filter, i.e. user-defined function or a primitive one (string, int, float)
-                                if(typeof predicate === 'object') {
-                                    // apply pre-defined basic comparison operators
-                                    passed = applyWherePrimitivePredicate_I_2L(predicate, currentObject);
-                                }
-                                else if(typeof predicate === 'function') {
-                                    // apply pre-defined user-defined comparison function
-                                    passed = applyWhereUdfPredicate_I_2L(predicate, currentObject, elementIndex);
-                                }
-
-                                // check ASAP if object failed the filter
-                                if(!passed)
-                                    break;
+                            // otherwise throw error
+                            else {
+                                throw Error("groupBy requires a grouping key to be present. Current invocation is missing the key !");
                             }
-
-                            // return filtering result (true/false)
-                            return passed;
 
 
 
                             /**
                              * Local helper functions
                             */
-                            function applyWherePrimitivePredicate_I_2L(predicate, currentObject) {
-                                // filtering property name
-                                var propName = predicate[0];
+                            function getTheKeyValue_I_2L(itemCurrent) {
+                                // declare a real key
+                                var key;
 
-                                // is filtering property value type set to float ?
-                                var propValueFloat = (predicate.length === 4) && predicate[3];
+                                // loop over key parts and apply the comparison logic
+                                for(var i = 0; i < key_array.length; i++) {
+                                    // reference the key part
+                                    keyPart = key_array[i];
 
-                                // filtering property value
-                                var propValue;
+                                    // is it complex ?
+                                    if(keyPart.isValidProperty && keyPart.isComplex) {
+                                        // if key is already initialized
+                                        if(key)
+                                            // get the property value from both, the current and the previous object
+                                            key += _LOGICAL_FILTERS.applyPropertyValueFilter(itemCurrent, keyPart.value);
+                                        else {
+                                            // get the key value - get the property value from both, the current and the previous object
+                                            var rkv = _LOGICAL_FILTERS.applyPropertyValueFilter(itemCurrent, keyPart.value);
 
-                                // process float
-                                if(propValueFloat)
-                                    propValue = parseFloat(predicate[2]);
-                                // process Boolean
-                                else if(predicate[2] === true || predicate[2] === false)
-                                    propValue = predicate[2];
-                                // process string
-                                else if(typeof predicate[2] === 'string')
-                                    propValue = predicate[2];
-                                // by default try parsing as Int32
-                                else
-                                    propValue = parseInt(predicate[2]);
+                                            // initialize a key with a default value
+                                            key = getDefaultOf_I_3L(rkv);
+                                            key += rkv;
+                                        }
+                                    }
+                                    // is it simple ?
+                                    else if(keyPart.isValidProperty) {
+                                        // if key is already initialized
+                                        if(key)
+                                            key += itemCurrent[keyPart.value];
+                                        else {
+                                            // get the key value
+                                            var rkv = itemCurrent[keyPart.value];
 
-                                // filtering operator
-                                var propOperator = predicate[1];
+                                            // initialize a key with a default value
+                                            key = getDefaultOf_I_3L(rkv);
+                                            key += rkv;
+                                        }
+                                    }
+                                    // otherwise apply some part that is not a property of an object
+                                    else {
+                                        key += keyPart.value;
+                                    }
+                                }
 
-                                // navigate to the destination property of the current object and execute the filter
-                                var filterResult = seekObjectProp_I_3L();
-
-                                // return the filter result
-                                return filterResult;
-
+                                // return the key from object
+                                return key;
+                                
 
 
                                 /**
-                                 * Local helper functions
+                                 * Local helper functions 
                                 */
-                                function seekObjectProp_I_3L() {
-                                    // seek the destination property
-                                    var propOrVal = _COMMON.seekObjectPropertyOrValue(currentObject, propName, true);
+                                function getDefaultOf_I_3L(value) {
+                                    // determine the type of value
+                                    var type = getType_I_4L(value);
+
+                                    // type must be a string
+                                    if (typeof type !== 'string') throw new TypeError('Type must be a string.');
+                                
+                                    // handle simple types (primitives and plain function/object)
+                                    switch (type) {
+                                        case 'boolean'   : return false;
+                                        case 'function'  : return function () {};
+                                        case 'null'      : return null;
+                                        case 'number'    : return 0;
+                                        case 'object'    : return {};
+                                        case 'string'    : return "";
+                                        case 'symbol'    : return Symbol();
+                                        case 'undefined' : return void 0;
+                                    }
+                                
+                                    try
+                                    {
+                                        // look for constructor in this or current scope
+                                        var ctor = typeof this[type] === 'function'
+                                                                                    ? this[type]
+                                                                                    : eval(type);
+                                        return new ctor;
+                                    }
+                                    // constructor not found, return new object
+                                    catch (e)
+                                    {
+                                        return {};
+                                    }
+
+
 
                                     /**
-                                     * Check the validity of an object prop (logical "NOT NULL"), i.e. "", undefined, null
-                                     * Boolean values like false, 0 (that evaluates to false) in this case are considered correct values !
+                                     * Local helper functions 
                                     */
-                                    var valid = propOrVal || propOrVal === 0 || propOrVal === false;
+                                    
+                                    function getType_I_4L(value) {
+                                        // determine the type of value
+                                        var type = typeof value;
+                                    
+                                        // primitive or function
+                                        if (type !== 'object') return type;
 
-                                    // execute the filter provided that the found prop "is not null"
-                                    if(valid) {
-                                        switch (propOperator) {
-                                            case ">":
-                                                return propOrVal > propValue;
-                                            case "<":
-                                                return propOrVal < propValue;
-                                            case ">=":
-                                                return propOrVal >= propValue;
-                                            case "<=":
-                                                return propOrVal <= propValue;
-                                            case "==":
-                                                return propOrVal == propValue;
-                                            case "===":
-                                                return propOrVal === propValue;
-                                            case "<>":
-                                                return propOrVal !== propValue;
-                                            case "()":
-                                                return propOrVal ? true : false;
-                                            case "(!)":
-                                                return propOrVal === propValue ? true : false;
-                                            default:
-                                                throw new Error("Unsupported operator [ " + propOperator + " ] !");
-                                        }
+                                        // null
+                                        if (value === null) return 'null';
+                                    
+                                        // everything else, check for a constructor
+                                        var ctor = value.constructor;
+                                        var name = typeof ctor === 'function' && ctor.name;
+                                    
+                                        return typeof name === 'string' && name.length > 0 ? name : 'object';
                                     }
-                                    else
-                                        return false;
                                 }
                             }
 
-                            function applyWhereUdfPredicate_I_2L(predicate, currentObject, elementIndex) {
-                                /**
-                                 * 1. Bind current collection object to user-defined function - having some pre-defined values - with 'bind' keyword
-                                 *
-                                 * 2. Invoke a filter with '()' invocation syntax
-                                 *
-                                 * 3. return the filter result with 'return' keyword
-                                 *
-                                 *
-                                 *  All that is accomplished with the following line of code
-                                */
+                            function sortGroups_I_2L(equalityComparer) {
+                                // declare array of group keys
+                                var keys = [];
 
-                                return predicate.bind(null, currentObject, elementIndex)();
+                                // loop over all groups
+                                for(var gk in groups)
+                                    // store current group key
+                                    keys.push(gk);
+
+                                // sort the keys
+                                keys.sort(equalityComparer);
+
+                                // declare object holding sorted groups
+                                var sorted_groups = {};
+
+                                // store grouped objects sorted in a proper way into new object
+                                keys.forEach(function(key) {
+                                    sorted_groups[key] = groups[key];
+                                });
+
+                                // return sorted groups
+                                return sorted_groups;
                             }
                     }
                 },
 
-                firstOrLastOrSingleOrAll : function(jlc, predicateArray, fallbackOnDefault, enumValue) {
-                    return firstOrLastOrSingleOrAll_I_1L(jlc, predicateArray, fallbackOnDefault, enumValue);
+                executeRangeFilter : function(jlc, predicateArray, index, count, enumValue) {
+                    return extR_I_1L(jlc, predicateArray, index, count, enumValue);
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function firstOrLastOrSingleOrAll_I_1L(jlc, predicateArray, fallbackOnDefault, enumValue) {
+                    function extR_I_1L(jlc, predicateArray, index, count, enumValue) {
+                            // for given predicates
+                            if(predicateArray && (enumValue === _ENUM.SKIP)) {
+                                // execute the "WHERE" filter
+                                _PHYSICAL_FILTERS.executeWhereFilter(jlc, predicateArray, true);
+
+                                // check the result
+                                return getResult_I_2L(true);
+                            }
+                            else if(predicateArray) {
+                                // execute the "WHERE" filter
+                                _PHYSICAL_FILTERS.executeWhereFilter(jlc, predicateArray);
+
+                                // check the result
+                                return getResult_I_2L(true);
+                            }
+                            // for no given predicates
+                            else {
+                                // check the result
+                                return getResult_I_2L(false);
+                            }
+
+
+
+                            /**
+                             * Local helper functions
+                            */
+                            function getResult_I_2L(withPredicates) {
+                                // get contextually current collection within history array
+                                var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+
+                                // if the sequence contains elements
+                                if(currentColl.length) {
+                                    // declare array of reversed sequence
+                                    var r_seq = [];
+
+                                    // loop indexes
+                                    var i, j;
+
+                                    switch (enumValue) {
+                                        case _ENUM.REVERSE:
+                                        case _ENUM.REVERSE_EXT:
+                                            // determine the valid range of sequence to reverse
+                                            if((index || index === 0) && count) {
+                                                if(index + count - 1 > currentColl.length - 1)
+                                                    throw Error("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !");
+                                                else if(index + count - 1 === currentColl.length - 1)
+                                                    i = currentColl.length - 1;
+                                                else if(index + count - 1 < currentColl.length - 1)
+                                                    i = index + count - 1;
+
+                                                // reverse the sequence
+                                                for(i; i >= index; i--)
+                                                    r_seq.push(currentColl[i]);
+
+                                                // replace original sequence with the reversed sequence
+                                                for(j = 0; j < r_seq.length; j++)
+                                                currentColl[j + index] = r_seq[j];
+                                            }
+                                            else if((index || index === 0) && enumValue === _ENUM.REVERSE_EXT) {
+                                                // reverse the sequence
+                                                for(i = currentColl.length - 1; i >= index; i--)
+                                                    r_seq.push(currentColl[i]);
+
+                                                // replace original sequence with the reversed sequence
+                                                for(j = 0; j < r_seq.length; j++)
+                                                currentColl[j + index] = r_seq[j];
+                                            }
+                                            else if(count && enumValue === _ENUM.REVERSE_EXT) {
+                                                // determine the start index
+                                                index = currentColl.length - 1 - count;
+
+                                                // reverse the sequence
+                                                for(i = currentColl.length - 1; i > index; i--)
+                                                    r_seq.push(currentColl[i]);
+
+                                                // increment the starting index by 1 because of condition i > index
+                                                index++;
+                                                // replace original sequence with the reversed sequence
+                                                for(j = 0; j < r_seq.length; j++)
+                                                currentColl[j + index] = r_seq[j];
+                                            }
+                                            else {
+                                                if(enumValue === _ENUM.REVERSE && (index || count)) {
+                                                    console.warn("Invoking Reverse with only one of the parameters defaults to parameterless Reverse !");
+                                                    console.warn("If you wanna use only one of the parameters resort to ReverseExt instead !");
+                                                }
+                                                // reverse the whole sequence
+                                                for(i = currentColl.length - 1; i >= 0; i--)
+                                                    r_seq.push(currentColl[i]);
+
+                                                // replace original sequence with the reversed sequence
+                                                currentColl = r_seq;
+                                            }
+
+                                            break;
+
+                                        case _ENUM.SKIP:
+                                                // process skip only (no predicates, just count), because skipWhile was handled by executing the "WHERE" filter in the parent method
+                                                if(!withPredicates) {
+                                                    // for null or undefined count just throw an error
+                                                    if(!count && count !== 0)
+                                                        throw Error("Supply required parameter called count !");
+
+                                                    // determine the valid range of sequence to extract
+                                                    if(count > 0 && count < currentColl.length) {
+                                                        for(i = count; i < currentColl.length; i++)
+                                                            r_seq.push(currentColl[i]);
+                                                    }
+                                                    // skip the whole sequence
+                                                    else if(count >= currentColl.length)
+                                                        ;
+                                                    // skip nothing, which means taking whole sequence
+                                                    else if(count < 0)
+                                                        r_seq = currentColl;
+
+                                                    // skip the first element with index equal to 0
+                                                    else if(count === 0) {
+                                                        for(i = 1; i < currentColl.length; i++)
+                                                            r_seq.push(currentColl[i]);
+                                                    }
+
+
+                                                    // replace original sequence with the new sequence
+                                                    currentColl = r_seq;
+                                                }
+
+                                                break;
+
+                                        case _ENUM.TAKE:
+                                                // process take only (no predicates, just count), because takeWhile was handled by executing the "WHERE" filter in the parent method
+                                                if(!withPredicates) {
+                                                    // for null or undefined count just throw an error
+                                                    if(!count)
+                                                        throw Error("Supply required parameter called count !");
+
+                                                    // determine the valid range of sequence to extract
+                                                    if(count >= currentColl.length)
+                                                        r_seq = currentColl;
+
+                                                    else if(count > 0 && count < currentColl.length) {
+                                                        for(i = 0; i < count; i++)
+                                                            r_seq.push(currentColl[i]);
+                                                    }
+                                                    // take nothing which means no any processing required
+                                                    else if(count <= 0)
+                                                        ;
+
+                                                    // replace original sequence with the new sequence
+                                                    currentColl = r_seq;
+                                                }
+
+                                                break;
+
+                                        default:
+                                            throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
+                                    }
+
+                                    // store intermediate collection for further flow
+                                    _DATA.update(jlc._ctx.coll_index, currentColl);
+                                }
+                            }
+                    }
+                },
+
+                executeOneItemFilter : function(jlc, predicateArray, fallbackOnDefault, enumValue) {
+                    return get_FLSA_I_1L(jlc, predicateArray, fallbackOnDefault, enumValue);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function get_FLSA_I_1L(jlc, predicateArray, fallbackOnDefault, enumValue) {
                             // for given predicates
                             if(predicateArray) {
                                 // execute the "WHERE" filter
-                                _COMMON.executeLogicalWhereFilter(jlc, predicateArray);
+                                _PHYSICAL_FILTERS.executeWhereFilter(jlc, predicateArray);
 
                                 // check the result
                                 return getResult_I_2L(true);
@@ -571,224 +1332,15 @@
                     }
                 },
 
-                extractRange : function(jlc, predicateArray, index, count, enumValue) {
-                    return extractRange_I_1L(jlc, predicateArray, index, count, enumValue);
+                executeOrderFilter : function(keyPartSelectorArray, udfComparer, enumValue) {
+                    return apply_O_I_1L(keyPartSelectorArray, udfComparer, enumValue);
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function extractRange_I_1L(jlc, predicateArray, index, count, enumValue) {
-                            // for given predicates
-                            if(predicateArray && (enumValue === _ENUM.SKIP)) {
-                                // execute the "WHERE" filter
-                                 _COMMON.executeLogicalWhereFilter(jlc, predicateArray, true);
-
-                                // check the result
-                                return getResult_I_2L(true);
-                            }
-                            else if(predicateArray) {
-                                // execute the "WHERE" filter
-                                _COMMON.executeLogicalWhereFilter(jlc, predicateArray);
-
-                                // check the result
-                                return getResult_I_2L(true);
-                            }
-                            // for no given predicates
-                            else {
-                                // check the result
-                                return getResult_I_2L(false);
-                            }
-
-
-
-                            /**
-                             * Local helper functions
-                            */
-                            function getResult_I_2L(withPredicates) {
-                                // get contextually current collection within history array
-                                var currentColl = _DATA.fetch(jlc._ctx.coll_index);
-
-                                // if the sequence contains elements
-                                if(currentColl.collection.length) {
-                                    // declare array of reversed sequence
-                                    var r_seq = [];
-
-                                    // loop indexes
-                                    var i, j;
-
-                                    switch (enumValue) {
-                                        case _ENUM.REVERSE:
-                                        case _ENUM.REVERSE_EXT:
-                                            // determine the valid range of sequence to reverse
-                                            if((index || index === 0) && count) {
-                                                if(index + count - 1 > currentColl.collection.length - 1)
-                                                    throw Error("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !");
-                                                else if(index + count - 1 === currentColl.collection.length - 1)
-                                                    i = currentColl.collection.length - 1;
-                                                else if(index + count - 1 < currentColl.collection.length - 1)
-                                                    i = index + count - 1;
-
-                                                // reverse the sequence
-                                                for(i; i >= index; i--)
-                                                    r_seq.push(currentColl.collection[i]);
-
-                                                // replace original sequence with the reversed sequence
-                                                for(j = 0; j < r_seq.length; j++)
-                                                    currentColl.collection[j + index] = r_seq[j];
-                                            }
-                                            else if((index || index === 0) && enumValue === _ENUM.REVERSE_EXT) {
-                                                // reverse the sequence
-                                                for(i = currentColl.collection.length - 1; i >= index; i--)
-                                                    r_seq.push(currentColl.collection[i]);
-
-                                                // replace original sequence with the reversed sequence
-                                                for(j = 0; j < r_seq.length; j++)
-                                                    currentColl.collection[j + index] = r_seq[j];
-                                            }
-                                            else if(count && enumValue === _ENUM.REVERSE_EXT) {
-                                                // determine the start index
-                                                index = currentColl.collection.length - 1 - count;
-
-                                                // reverse the sequence
-                                                for(i = currentColl.collection.length - 1; i > index; i--)
-                                                    r_seq.push(currentColl.collection[i]);
-
-                                                // increment the starting index by 1 because of condition i > index
-                                                index++;
-                                                // replace original sequence with the reversed sequence
-                                                for(j = 0; j < r_seq.length; j++)
-                                                    currentColl.collection[j + index] = r_seq[j];
-                                            }
-                                            else {
-                                                if(enumValue === _ENUM.REVERSE && (index || count)) {
-                                                    console.warn("Invoking Reverse with only one of the parameters defaults to parameterless Reverse !");
-                                                    console.warn("If you wanna use only one of the parameters resort to ReverseExt instead !");
-                                                }
-                                                // reverse the whole sequence
-                                                for(i = currentColl.collection.length - 1; i >= 0; i--)
-                                                    r_seq.push(currentColl.collection[i]);
-
-                                                // replace original sequence with the reversed sequence
-                                                currentColl.collection = r_seq;
-                                            }
-
-                                            break;
-
-                                        case _ENUM.SKIP:
-                                                // process skip only (no predicates, just count), because skipWhile was handled by executing the "WHERE" filter in the parent method
-                                                if(!withPredicates) {
-                                                    // for null or undefined count just throw an error
-                                                    if(!count && count !== 0)
-                                                        throw Error("Supply required parameter called count !");
-
-                                                    // determine the valid range of sequence to extract
-                                                    if(count > 0 && count < currentColl.collection.length) {
-                                                        for(i = count; i < currentColl.collection.length; i++)
-                                                            r_seq.push(currentColl.collection[i]);
-                                                    }
-                                                    // skip the whole sequence
-                                                    else if(count >= currentColl.collection.length)
-                                                        ;
-                                                    // skip nothing, which means taking whole sequence
-                                                    else if(count < 0)
-                                                        r_seq = currentColl.collection;
-
-                                                    // skip the first element with index equal to 0
-                                                    else if(count === 0) {
-                                                        for(i = 1; i < currentColl.collection.length; i++)
-                                                            r_seq.push(currentColl.collection[i]);
-                                                    }
-
-
-                                                    // replace original sequence with the new sequence
-                                                    currentColl.collection = r_seq;
-                                                }
-
-                                                break;
-
-                                        case _ENUM.TAKE:
-                                                // process take only (no predicates, just count), because takeWhile was handled by executing the "WHERE" filter in the parent method
-                                                if(!withPredicates) {
-                                                    // for null or undefined count just throw an error
-                                                    if(!count)
-                                                        throw Error("Supply required parameter called count !");
-
-                                                    // determine the valid range of sequence to extract
-                                                    if(count >= currentColl.collection.length)
-                                                        r_seq = currentColl.collection;
-
-                                                    else if(count > 0 && count < currentColl.collection.length) {
-                                                        for(i = 0; i < count; i++)
-                                                            r_seq.push(currentColl.collection[i]);
-                                                    }
-                                                    // take nothing which means no any processing required
-                                                    else if(count <= 0)
-                                                        ;
-
-                                                    // replace original sequence with the new sequence
-                                                    currentColl.collection = r_seq;
-                                                }
-
-                                                break;
-
-                                        default:
-                                            throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
-                                    }
-
-                                    // store intermediate collection for further flow
-                                    _DATA.update(jlc._ctx.coll_index, currentColl);
-                                }
-                            }
-                    }
-                },
-
-                addCollectionOrItem : function(jlc, collectionOrItem, enumValue) {
-                    return addCollectionOrItem_I_1L(jlc, collectionOrItem, enumValue);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function addCollectionOrItem_I_1L(jlc, collectionOrItem, enumValue) {
-                            // get contextually current collection within history array
-                            var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
-
-                            if(enumValue === _ENUM.APPEND) {
-                                // append item to the end of current data flow collection
-                                currentColl.push(collectionOrItem);
-                            }
-                            else if(enumValue === _ENUM.PREPEND) {
-                                // declare new current flow data collection
-                                var new_dirty_data = [collectionOrItem];
-
-                                // merge new current flow data collection with old current flow data collection
-                                Array.prototype.push.apply(new_dirty_data, currentColl);
-
-                                // replace the existing current data flow collection with new current data flow collection
-                                currentColl = new_dirty_data;
-                            }
-                            else if(enumValue === _ENUM.CONCAT) {
-                                // merge new data collection with current flow data collection
-                                Array.prototype.push.apply(currentColl, collectionOrItem);
-                            }
-
-                            // store intermediate collection for further flow
-                            _DATA.update(jlc._ctx.coll_index, currentColl);
-                    }
-                },
-
-                applyOrder : function(keyPartSelectorArray, udfComparer, enumValue) {
-                    return applyOrder_I_1L(keyPartSelectorArray, udfComparer, enumValue);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function applyOrder_I_1L(keyPartSelectorArray, udfComparer, enumValue) {
+                    function apply_O_I_1L(keyPartSelectorArray, udfComparer, enumValue) {
                             // if first-level sorting required
                             if(enumValue === _ENUM.ORDER_ASC || enumValue === _ENUM.ORDER_DESC) {
                                 // clear the previous sorting selectors
@@ -908,446 +1460,228 @@
                                 _DATA.sortOrderSelectors.serializeIntermediateSortedCollection(_ENUM.UPDATE, propNameValuePair_array_array);
                             }
                     }
-                },
+                }
+        };
 
-                groupAllByKey : function(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
-                    return groupAllByKey_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
+        // declare a private logical filters object
+        var _LOGICAL_FILTERS = {
+                applyLogicalBoolFilter : function(currentObject, predicateArray, elementIndex) {
+                        return apply_LBF_I_1L(currentObject, predicateArray, elementIndex);
 
 
 
-                    /**
-                     * Local helper functions
-                    */
-                    function groupAllByKey_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
-                            // check if grouping key is present
-                            if(predicateArray) {
-                                // create the key
-                                var key_array = _COMMON.createGroupingOrSortingKey(predicateArray);
+                        /**
+                         * Local helper functions
+                        */
+                        function apply_LBF_I_1L(currentObject, predicateArray, elementIndex) {
+                                // flag that tells whether object passes or fails the filter
+                                var passed = true;
 
-                                // declare groups object
-                                var groups = {};
+                                // loop over predicates
+                                for(var i = 0; i < predicateArray.length; i++) {
+                                    // access current filter
+                                    var predicate = predicateArray[i];
 
-                                // get contextually current collection within history array
-                                var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
-
-                                // do grouping
-                                currentColl.forEach(function (item) {
-                                    // get the group id
-                                    var id = getTheKeyValue_I_2L(item);
-
-                                    // project group id if required
-                                    if(udfGroupProjector)
-                                        id = (udfGroupProjector.bind(id))();
-
-                                    // project group elements if required
-                                    if(udfGroupElementsProjector)
-                                        item = (udfGroupElementsProjector.bind(item))();
-
-                                    // reference the list of elements
-                                    var list = groups[id];
-
-                                    // if such group exists
-                                    if (list) {
-                                        // add object to this group
-                                        list.push(item);
-                                    // otherwise create a new group
+                                    // determine the type of filter, i.e. user-defined function or a primitive one (string, int, float)
+                                    if(typeof predicate === 'object') {
+                                        // apply pre-defined basic comparison operators
+                                        passed = applyPrimitivePredicate_I_2L(predicate, currentObject);
                                     }
-                                    else {
-                                        // add object to this group
-                                        groups[id] = [item];
+                                    else if(typeof predicate === 'function') {
+                                        // apply pre-defined user-defined comparison function
+                                        passed = applyUdfPredicate_I_2L(predicate, currentObject, elementIndex);
                                     }
-                                });
 
-                                // sort the groups by using user-defined or a default comparer
-                                if(udfEqualityComparer)
-                                   groups = sortGroups_I_2L(udfEqualityComparer);
-
-                                // store intermediate collection for further flow
-                                _DATA.update(jlc._ctx.coll_index, groups);                                          
-
-                                // check if terminate data flow and return data to the calling client
-                                if(terminateFlowAndReturnData)
-                                    return groups;
-                            }
-                            // otherwise throw error
-                            else {
-                                throw Error("groupBy requires a grouping key to be present. Current invocation is missing the key !");
-                            }
-
-
-
-                            /**
-                             * Local helper functions
-                            */
-                            function getTheKeyValue_I_2L(itemCurrent) {
-                                // declare a real key
-                                var key;
-
-                                // loop over key parts and apply the comparison logic
-                                for(var i = 0; i < key_array.length; i++) {
-                                    // reference the key part
-                                    keyPart = key_array[i];
-
-                                    // is it complex ?
-                                    if(keyPart.isValidProperty && keyPart.isComplex) {
-                                        // if key is already initialized
-                                        if(key)
-                                            // get the property value from both, the current and the previous object
-                                            key += _COMMON.seekObjectPropertyOrValue(itemCurrent, keyPart.value);
-                                        else {
-                                            // get the key value - get the property value from both, the current and the previous object
-                                            var rkv = _COMMON.seekObjectPropertyOrValue(itemCurrent, keyPart.value);
-
-                                            // initialize a key with a default value
-                                            key = getDefaultOf_I_3L(rkv);
-                                            key += rkv;
-                                        }
-                                    }
-                                    // is it simple ?
-                                    else if(keyPart.isValidProperty) {
-                                        // if key is already initialized
-                                        if(key)
-                                            key += itemCurrent[keyPart.value];
-                                        else {
-                                            // get the key value
-                                            var rkv = itemCurrent[keyPart.value];
-
-                                            // initialize a key with a default value
-                                            key = getDefaultOf_I_3L(rkv);
-                                            key += rkv;
-                                        }
-                                    }
-                                    // otherwise apply some part that is not a property of an object
-                                    else {
-                                        key += keyPart.value;
-                                    }
+                                    // check ASAP if object failed the filter
+                                    if(!passed)
+                                        break;
                                 }
 
-                                // return the key from object
-                                return key;
-                                
+                                // return filtering result (true/false)
+                                return passed;
+
 
 
                                 /**
-                                 * Local helper functions 
+                                 * Local helper functions
                                 */
-                                function getDefaultOf_I_3L(value) {
-                                    // determine the type of value
-                                    var type = getType_I_4L(value);
+                                function applyPrimitivePredicate_I_2L(predicate, currentObject) {
+                                    // filtering property name
+                                    var propName = predicate[0];
 
-                                    // type must be a string
-                                    if (typeof type !== 'string') throw new TypeError('Type must be a string.');
-                                
-                                    // handle simple types (primitives and plain function/object)
-                                    switch (type) {
-                                        case 'boolean'   : return false;
-                                        case 'function'  : return function () {};
-                                        case 'null'      : return null;
-                                        case 'number'    : return 0;
-                                        case 'object'    : return {};
-                                        case 'string'    : return "";
-                                        case 'symbol'    : return Symbol();
-                                        case 'undefined' : return void 0;
-                                    }
-                                
-                                    try
-                                    {
-                                        // look for constructor in this or current scope
-                                        var ctor = typeof this[type] === 'function'
-                                                                                    ? this[type]
-                                                                                    : eval(type);
-                                        return new ctor;
-                                    }
-                                    // constructor not found, return new object
-                                    catch (e)
-                                    {
-                                        return {};
-                                    }
+                                    // is filtering property value type set to float ?
+                                    var propValueFloat = (predicate.length === 4) && predicate[3];
+
+                                    // filtering property value
+                                    var propValue;
+
+                                    // process float
+                                    if(propValueFloat)
+                                        propValue = parseFloat(predicate[2]);
+                                    // process Boolean
+                                    else if(predicate[2] === true || predicate[2] === false)
+                                        propValue = predicate[2];
+                                    // process string
+                                    else if(typeof predicate[2] === 'string')
+                                        propValue = predicate[2];
+                                    // by default try parsing as Int32
+                                    else
+                                        propValue = parseInt(predicate[2]);
+
+                                    // filtering operator
+                                    var propOperator = predicate[1];
+
+                                    // navigate to the destination property of the current object and execute the filter
+                                    var fr = executePrimitivePredicate_I_3L();
+
+                                    // return the filter result
+                                    return fr;
 
 
 
                                     /**
-                                     * Local helper functions 
+                                     * Local helper functions
                                     */
-                                    
-                                    function getType_I_4L(value) {
-                                        // determine the type of value
-                                        var type = typeof value;
-                                    
-                                        // primitive or function
-                                        if (type !== 'object') return type;
+                                    function executePrimitivePredicate_I_3L() {
+                                        // seek the destination property
+                                        var propOrVal = _LOGICAL_FILTERS.applyPropertyValueFilter(currentObject, propName, true);
 
-                                        // null
-                                        if (value === null) return 'null';
-                                    
-                                        // everything else, check for a constructor
-                                        var ctor = value.constructor;
-                                        var name = typeof ctor === 'function' && ctor.name;
-                                    
-                                        return typeof name === 'string' && name.length > 0 ? name : 'object';
+                                        /**
+                                         * Check the validity of an object prop (logical "NOT NULL"), i.e. "", undefined, null
+                                         * Boolean values like false, 0 (that evaluates to false) in this case are considered correct values !
+                                        */
+                                        var valid = propOrVal || propOrVal === 0 || propOrVal === false;
+
+                                        // execute the filter provided that the found prop "is not null"
+                                        if(valid) {
+                                            switch (propOperator) {
+                                                case ">":
+                                                    return propOrVal > propValue;
+                                                case "<":
+                                                    return propOrVal < propValue;
+                                                case ">=":
+                                                    return propOrVal >= propValue;
+                                                case "<=":
+                                                    return propOrVal <= propValue;
+                                                case "==":
+                                                    return propOrVal == propValue;
+                                                case "===":
+                                                    return propOrVal === propValue;
+                                                case "<>":
+                                                    return propOrVal !== propValue;
+                                                case "()":
+                                                    return propOrVal ? true : false;
+                                                case "(!)":
+                                                    return propOrVal === propValue ? true : false;
+                                                default:
+                                                    throw new Error("Unsupported operator [ " + propOperator + " ] !");
+                                            }
+                                        }
+                                        else
+                                            return false;
                                     }
                                 }
-                            }
 
-                            function sortGroups_I_2L(equalityComparer) {
-                                // declare array of group keys
-                                var keys = [];
+                                function applyUdfPredicate_I_2L(predicate, currentObject, elementIndex) {
+                                    /**
+                                     * 1. Bind current collection object to user-defined function - having some pre-defined values - with 'bind' keyword
+                                     *
+                                     * 2. Invoke a filter with '()' invocation syntax
+                                     *
+                                     * 3. return the filter result with 'return' keyword
+                                     *
+                                     *
+                                     *  All that is accomplished with the following line of code
+                                    */
 
-                                // loop over all groups
-                                for(var gk in groups)
-                                    // store current group key
-                                    keys.push(gk);
+                                    return predicate.bind(null, currentObject, elementIndex)();
+                                }
+                        }
+                },                
 
-                                // sort the keys
-                                keys.sort(equalityComparer);
-
-                                // declare object holding sorted groups
-                                var sorted_groups = {};
-
-                                // store grouped objects sorted in a proper way into new object
-                                keys.forEach(function(key) {
-                                    sorted_groups[key] = groups[key];
-                                });
-
-                                // return sorted groups
-                                return sorted_groups;
-                            }
-                    }
-                },
-
-                allOrAny : function(jlc, predicateArray, enumValue) {
-                    return all_or_any_I_1L(jlc, predicateArray, enumValue);
+                applyLogicalWhereFilter : function(jlc, predicateArray, enumValue) {
+                        return apply_LWF_I_1L(jlc, predicateArray, enumValue);
 
 
 
-                    /**
-                     * Local helper functions
-                    */
-                    function all_or_any_I_1L(jlc, predicateArray, enumValue) {
-                            // for given predicates
-                            if(predicateArray) {
-                                // execute the "IF" filter
-                                var passed = _COMMON.executeLogicalBoolFilter(jlc, predicateArray, enumValue);
+                        /**
+                         * Local helper functions
+                        */
+                        function apply_LWF_I_1L(jlc, predicateArray, enumValue) {
+                                // declare the bool filter result
+                                var passed = false;
 
-                                // return the result
+                                // create input collection cache
+                                var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+
+                                // loop over current collection and apply filters
+                                for(var i = 0; i < currentColl.length; i++) {
+                                    // access current object
+                                    var c_o = currentColl[i];
+
+                                    // apply where filter(s) and get the result
+                                    passed = _LOGICAL_FILTERS.applyLogicalBoolFilter(c_o, predicateArray, i);
+
+                                    // based on filtering result (true/false) trigger further action
+                                    if(enumValue === _ENUM.ALL && !passed)
+                                        break;
+                                    else if(enumValue === _ENUM.ANY && passed)
+                                        break;
+                                }
+
+                                // return the bool filter result
                                 return passed;
-                            }
-                            // for no given predicates
-                            else {
-                                // check if there are any items in the sequence (contextually current collection within history array)
-                                return _DATA.fetch(jlc._ctx.coll_index).collection.length > 0;
-                            }
-                    }
+                        }
                 },
 
-                createType : function(templateObject) {
-                    return createType_I_1L(templateObject);
+                applyAllAnyFilter : function(jlc, predicateArray, enumValue) {
+                        return apply_AAF_I_1L(jlc, predicateArray, enumValue);
 
 
 
-                    /**
-                     * Local helper functions
-                    */
-                    function createType_I_1L(templateObject) {
-                            // loop over all props and delete their values
-                            for(var eot_k in templateObject) {
-                                // access current property
-                                var objProp = templateObject[eot_k];
+                        /**
+                         * Local helper functions
+                        */
+                        function apply_AAF_I_1L(jlc, predicateArray, enumValue) {
+                                // for given predicates
+                                if(predicateArray) {
+                                    // execute the "IF" filter
+                                    var passed = _LOGICAL_FILTERS.applyLogicalWhereFilter(jlc, predicateArray, enumValue);
 
-                                // if it's nested another object, drill down to discover the props of such nested object
-                                if(typeof objProp === 'object') {
-                                    createType_I_1L(objProp);
+                                    // return the result
+                                    return passed;
                                 }
-                                // for primitive props just set the value to 'undefined'
-                                else if(typeof objProp !== 'function') {
-                                    templateObject[eot_k] = undefined;
+                                // for no given predicates
+                                else {
+                                    // check if there are any items in the sequence (contextually current collection within history array)
+                                    return _DATA.fetch(jlc._ctx.coll_index).collection.length > 0;
                                 }
-                            }
-
-                            // return the empty object
-                            return templateObject;
-                    }
+                        }
                 },
 
-                createDefaultOfT : function(historyIndex) {
-                    return createDefaultOfT_I_1L(historyIndex);
+                applyPropertyValueFilter : function(currentObject, propertyName, returnValue) {
+                        return apply_PVF_I_1L(currentObject, propertyName, returnValue);
 
 
 
-                    /**
-                     * Local helper functions
-                    */
-                    function createDefaultOfT_I_1L(historyIndex) {
-                            // get collection item type metadata of contextually current collection from history array
-                            var itemTypeMetadata = _DATA.getItemType(historyIndex);
+                        /**
+                         * Local helper functions
+                        */
+                        function apply_PVF_I_1L(currentObject, propertyName, returnValue) {
+                                // create array of prop's path
+                                var pathArray = propertyName.split('.');
 
-                            if(itemTypeMetadata.isReady)
-                                // return an empty proper object
-                                return itemTypeMetadata.output;
-                            else {
-                                if(itemTypeMetadata.makeItEmpty)
-                                    itemTypeMetadata.output = _COMMON.createType(itemTypeMetadata.source);
-                                else
-                                    itemTypeMetadata.output = itemTypeMetadata.source;
+                                // define property value holder
+                                var propertyOrValue = null;
 
-                                // return an empty proper object
-                                return itemTypeMetadata.output;
-                            }
-                    }
-                },
-
-                seekObjectPropertyOrValue : function(currentObject, propertyName, returnValue) {
-                    return seekObjectProperty_I_1L(currentObject, propertyName, returnValue);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function seekObjectProperty_I_1L(currentObject, propertyName, returnValue) {
-                            // create array of prop's path
-                            var pathArray = propertyName.split('.');
-
-                            // define property value holder
-                            var propertyOrValue = null;
-
-                            // loop over array of prop's path to seek the destination property and/or return its value
-                            for(var i = 0, length = returnValue ? pathArray.length : pathArray.length - 1; i < length; i++) {
-                                propertyOrValue = propertyOrValue ? propertyOrValue[pathArray[i]] : currentObject[pathArray[i]];
-                            }
-
-                            // return value of the property or property
-                            return propertyOrValue;
-                    }
-                },
-
-                createGroupingOrSortingKey : function(keyPartSelectorArray) {
-                    return createGroupingOrSortingKey_I_1L(keyPartSelectorArray);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function createGroupingOrSortingKey_I_1L(keyPartSelectorArray) {
-                            // define array holding grouping or sorting logic key
-                            var key = [];
-
-                            // loop over all key selectors
-                            for(var i = 0; i < keyPartSelectorArray.length; i++) {
-                                // access current key part selector
-                                var keyPartSelector = keyPartSelectorArray[i];
-
-                                // get the value
-                                var value = keyPartSelector[0];
-
-                                // is this a property of the object
-                                var isValidProperty = keyPartSelector[1];
-
-                                // store object representing part of the key
-                                key.push({value : value, isValidProperty : isValidProperty, isComplex : value.indexOf('.') > -1});
-                            }
-
-                            // return array holding grouping or sorting logic key
-                            return key;
-                    }
-                },
-
-                useDefaultComparer : function(keyPartSelectorArray) {
-                    return useDefaultComparer_I_1L(keyPartSelectorArray);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function useDefaultComparer_I_1L(keyPartSelectorArray) {
-                            // define comparer object
-                            var comparer = {
-                                input : keyPartSelectorArray,
-
-                                defaultComparer : function(itemCurrent, itemPrevious) {
-                                    var keyPart, itemCurrentValue, itemPreviousValue;
-
-                                    // get the array of sorting key parts
-                                    var key_array = _COMMON.createGroupingOrSortingKey(this.input);
-
-                                    // loop over key parts and apply the comparison logic
-                                    for(var j = 0; j < key_array.length; j++) {
-                                        // reference the key part
-                                        keyPart = key_array[j];
-
-                                        // is it complex ?
-                                        if(keyPart.isValidProperty && keyPart.isComplex) {
-                                            // get the property value from both, the current and the previous object
-                                            itemCurrentValue += _COMMON.seekObjectPropertyOrValue(itemCurrent, keyPart.value, true);
-                                            itemPreviousValue += _COMMON.seekObjectPropertyOrValue(itemPrevious, keyPart.value, true);
-                                        }
-                                        // is it simple ?
-                                        else if(keyPart.isValidProperty) {
-                                            itemCurrentValue += itemCurrent[keyPart.value];
-                                            itemPreviousValue += itemPrevious[keyPart.value];
-                                        }
-                                        // otherwise apply some part that is not a property of an object
-                                        else {
-                                            itemCurrentValue += keyPart.value;
-                                            itemPreviousValue += keyPart.value;
-                                        }
-                                    }
-
-                                    // determine the sorting order of the comparer
-                                    switch (enumValue) {
-                                        case _ENUM.ORDER_ASC:
-                                        case _ENUM.ORDER_THEN_ASC:
-                                            // go the ASC way
-                                            if(itemCurrentValue > itemPreviousValue)
-                                                return 1;
-                                            else
-                                                return -1;
-
-                                        case _ENUM.ORDER_DESC:
-                                        case _ENUM.ORDER_THEN_DESC:
-                                            // go the DESC way
-                                            if(itemCurrentValue > itemPreviousValue)
-                                                return -1;
-                                            else
-                                                return 1;
-
-                                        default:
-                                            throw Error("Unsupported sorting order [ " + enumValue + " ] !");
-                                    }
+                                // loop over array of prop's path to seek the destination property and/or return its value
+                                for(var i = 0, length = returnValue ? pathArray.length : pathArray.length - 1; i < length; i++) {
+                                    propertyOrValue = propertyOrValue ? propertyOrValue[pathArray[i]] : currentObject[pathArray[i]];
                                 }
-                            };
 
-                            // bind the comparer to comparer object
-                            comparer.defaultComparer.bind(comparer);
-
-                            // return the comparer itself
-                            return comparer.defaultComparer;
-                    }
-                },
-
-                resultsView : function(token) {
-                    return resultsView_I_1L(token);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function resultsView_I_1L(token) {
-                            // get metadata of contextually current collection from the collection history array
-                            var metadata = _DATA.fetch(token); 
-
-                            // create result view object that holds current query metadata
-                            return {
-                                // current index of contextually current query collection in collection history array
-                                dataToken : metadata.index,
-                                        
-                                // contextually current query collection
-                                dataYield : metadata.collection
-                            };
-                    }
+                                // return value of the property or property
+                                return propertyOrValue;
+                        }
                 }
         };
 
@@ -1356,7 +1690,7 @@
                 // ~ TO BE IMPLEMENTED
                 apply_set_based_operations : function(inputObjectCollection, thisCollectionKeyArray, inputObjectCollectionKeyArray, outputType, enumValue) {
                     // invoke core logic
-                    //_COMMON.
+                    //_LOGICAL_FILTERS.
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1368,7 +1702,7 @@
                 // ~ TO BE IMPLEMENTED
                 order_asc_or_desc : function (keyPartSelectorArray, udfComparer, enumValue) {
                     // invoke core logic
-                    _COMMON.applyOrder(keyPartSelectorArray, udfComparer, enumValue);
+                    _PHYSICAL_FILTERS.executeOrderFilter(keyPartSelectorArray, udfComparer, enumValue);
 
                     // store dynamically the current array of selectors
                     _DATA.sortOrderSelectors.add(keyPartSelectorArray, udfComparer);
@@ -1409,7 +1743,7 @@
 
                 where : function(predicateArray) {
                     // invoke core logic
-                    _COMMON.executeLogicalWhereFilter(this, predicateArray);
+                    _PHYSICAL_FILTERS.executeWhereFilter(this, predicateArray);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1420,7 +1754,7 @@
 
                 group_by : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
                     // invoke core logic
-                    _COMMON.groupAllByKey(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
+                    _PHYSICAL_FILTERS.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1434,7 +1768,7 @@
 
                 list_t : function(fallbackOnDefault) {
                     // invoke core logic
-                    _COMMON.firstOrLastOrSingleOrAll(this, null, fallbackOnDefault, _ENUM.ALL);
+                    _PHYSICAL_FILTERS.executeOneItemFilter(this, null, fallbackOnDefault, _ENUM.ALL);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1448,7 +1782,7 @@
 
                 reverse_t : function(startingIndex, count, enumValue) {
                     // invoke core logic
-                    _COMMON.extractRange(this, null, startingIndex, count, enumValue);
+                    _PHYSICAL_FILTERS.executeRangeFilter(this, null, startingIndex, count, enumValue);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1459,18 +1793,50 @@
 
                 add_t : function(collectionOrItem, enumValue) {
                     // invoke core logic
-                    _COMMON.addCollectionOrItem(this, collectionOrItem, enumValue);
+                    add_CI_I_1L(this, collectionOrItem, enumValue);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
                      * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
                     */
                     this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
+
+
+
+                    /**
+                     * Local helper functions 
+                    */
+                    function add_CI_I_1L(jlc, collectionOrItem, enumValue) {
+                        // get contextually current collection within history array
+                        var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+
+                        if(enumValue === _ENUM.APPEND) {
+                            // append item to the end of current data flow collection
+                            currentColl.push(collectionOrItem);
+                        }
+                        else if(enumValue === _ENUM.PREPEND) {
+                            // declare new current flow data collection
+                            var new_dirty_data = [collectionOrItem];
+
+                            // merge new current flow data collection with old current flow data collection
+                            Array.prototype.push.apply(new_dirty_data, currentColl);
+
+                            // replace the existing current data flow collection with new current data flow collection
+                            currentColl = new_dirty_data;
+                        }
+                        else if(enumValue === _ENUM.CONCAT) {
+                            // merge new data collection with current flow data collection
+                            Array.prototype.push.apply(currentColl, collectionOrItem);
+                        }
+
+                        // store intermediate collection for further flow
+                        _DATA.update(jlc._ctx.coll_index, currentColl);
+                    }
                 },
 
                 skip_or_take : function(count, predicateArray, enumValue) {
                     // invoke core logic
-                    _COMMON.extractRange(this, predicateArray, null, count, enumValue);
+                    _PHYSICAL_FILTERS.executeRangeFilter(this, predicateArray, null, count, enumValue);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1481,22 +1847,22 @@
 
                 first_or_default : function(predicateArray, fallbackOnDefault) {
                     // invoke core logic
-                    return _COMMON.firstOrLastOrSingleOrAll(this, predicateArray, fallbackOnDefault, _ENUM.FIRST);
+                    return _PHYSICAL_FILTERS.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.FIRST);
                 },
 
                 last_or_default : function(predicateArray, fallbackOnDefault) {
                     // invoke core logic
-                    return _COMMON.firstOrLastOrSingleOrAll(this, predicateArray, fallbackOnDefault, _ENUM.LAST);
+                    return _PHYSICAL_FILTERS.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.LAST);
                 },
 
                 single_or_default : function(predicateArray, fallbackOnDefault) {
                     // invoke core logic
-                    return _COMMON.firstOrLastOrSingleOrAll(this, predicateArray, fallbackOnDefault, _ENUM.SINGLE);
+                    return _PHYSICAL_FILTERS.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.SINGLE);
                 },
 
                 all_or_any : function(predicateArray, enumValue) {
                     // invoke core logic
-                    return _COMMON.allOrAny(this, predicateArray, enumValue);
+                    return _LOGICAL_FILTERS.applyAllAnyFilter(this, predicateArray, enumValue);
                 }                    
         };
 
@@ -1613,15 +1979,17 @@
                             window.System = window.System || {};
                             window.System.Linq = window.System.Linq || {};
                             window.System.Linq.Context = window.System.Linq.Context || {};
+                            window.System.Linq.QueryResults = window.System.Linq.QueryResults || {};
 
                             // add methods to context object
                             addLinqMethodsToContext_I_3L(
                                                             [
-                                                                'where',
-                                                                'concat', 'append', 'prepend',
-                                                                'skip', 'skipWhile', 'take', 'takeWhile', 'toDictionary', 'toArray', 'reverse', 'reverseExt',
-                                                                'first', 'firstOrDefault', 'last', 'lastOrDefault', 'single', 'singleOrDefault',
-                                                                'any', 'all'
+                                                                ['where', false], ['groupBy', false],
+                                                                ['concat', false], ['append', false], ['prepend', false],
+                                                                ['skip', false], ['skipWhile', false], ['take', false], ['takeWhile', false], ['reverse', false], ['reverseExt', false],
+                                                                ['toArray', true], ['toDictionary', true],
+                                                                ['first', true], ['firstOrDefault', true], ['last', true], ['lastOrDefault', true], ['single', true], ['singleOrDefault', true],
+                                                                ['any', true], ['all', true]
                                                             ]
                                                         )
 
@@ -1638,7 +2006,10 @@
                                     var m = method_arr[i];
                                     
                                     // add method to Linq context object
-                                    System.Linq.Context[m] = m;
+                                    System.Linq.Context[m[0]] = m[0];
+
+                                    // store information whether this method produces physical result or a logical one
+                                    System.Linq.QueryResults[m[0]] = m[1];
                                 }
                             }
                         }
@@ -1657,423 +2028,66 @@
                         _this._rootToken = rootToken;
 
                         // pass data in to the mechanism - 'this' refers to the calling client data array !
-                        var coll_idx = _SETUP.Funcs.over(_this);
+                        var coll_idx = over_I_1L(_this);
                         
                         // get JLC API instance
-                        var api = getAPI_I_1L({coll_index : coll_idx, root_token : rootToken});
-
-                        // allow user to invoke JLC API by returning it to the calling client
-                        return api;
+                        return _COMMON.jlcNew({coll_index : coll_idx, root_token : rootToken, parent : null});
 
 
 
                         /**
-                         * Local helper functions
+                         * Local helper functions 
                         */
-                        
-                        function getAPI_I_1L(ctx) {
-                            // declare JavaScript LINQ Concept API object
-                            var api = {
-                                // ~ TO BE IMPLEMENTED AGAIN
-                                orderBy : function(keyPartSelectorArray, udfComparer) {
+                        function over_I_1L(inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
+                            // check if current collection is stored internally
+                            var index = _DATA.isStored(inputCollection._rootToken);
+
+                            // store this collection if a new one
+                            if(index === -1) {
+                                // declare a private data object holding data collection of current JLC instance, aka static or shared instance
+                                var coll_data = {
+                                    dirty_data : null,   // current flow data
+                                    dirty_data_temp : [],
+                                    data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JavaScript LINQ Concept
+                                    type : {
+                                        source : null,
+                                        makeItEmpty : false,
+                                        isReady : false,
+                                        output : null
+                                    }
+                                };
 
 
-                                    // sorts the collection in ascending order according to a key or using given comparer
-                                    _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_ASC);
+                                // store the collection to iterate over
+                                coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
 
-                                    // return JavaScript LINQ Concept object
-                                    return this;
-                                },
+                                // store the collection item type for later preparation of an empty object if required
+                                if(inputCollectionOptionalItemType) {
+                                    coll_data.type.source = inputCollectionOptionalItemType;
+                                    coll_data.type.makeItEmpty = makeItEmpty;
+                                }
+                                // otherwise create an empty object based on inputCollection's first item
+                                else if(coll_data.dirty_data.length) {
+                                    coll_data.type.source = coll_data.dirty_data[0];
+                                    coll_data.type.makeItEmpty = true;
+                                }
+                                // or default to an empty JavaScript object
+                                else {
+                                    coll_data.type.output = {};
+                                    coll_data.type.isReady = true;
+                                }
 
-                                // ~ TO BE IMPLEMENTED AGAIN
-                                orderByDescending : function(keyPartSelectorArray, udfComparer) {
-
-
-                                    // sorts the collection in descending order according to a key or using given comparer
-                                    _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_DESC);
-
-                                    // return JavaScript LINQ Concept object
-                                    return this;
-                                },
-
-                                // ~ TO BE IMPLEMENTED AGAIN
-                                reverse : function(params, startingIndex, count, context) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE), true, true, true, params['context']);
-                                },
-
-                                // ~ TO BE IMPLEMENTED AGAIN
-                                reverseExt : function(params, startingIndex, count, context) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE_EXT), false, false, true, params['context']);
-                                },
-                                
-                                // ~ TO BE IMPLEMENTED
-                                select : function(arrayOfNewObjectProps, outputType) {
-                                    //
-
-                                    // return JavaScript LINQ Concept object
-                                    return this;
-                                },
-
-                                // ~ TO BE IMPLEMENTED
-                                join : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
-
-
-                                    // join two sequences based on defined keys
-                                    _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.JOIN);
-
-                                    // return api to enable further flow
-                                    return this;
-                                },
-
-                                // ~ TO BE IMPLEMENTED
-                                leftJoin : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
-
-
-                                    // left join two sequences based on defined keys
-                                    _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.LEFT_JOIN);
-
-                                    // return JavaScript LINQ Concept object
-                                    return this;
-                                },
-
-                                // ~ TO BE IMPLEMENTED
-                                groupBy : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
-
-
-                                    // group the whole sequence by given props
-                                    _CORE.group_by(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
-
-                                    // return JavaScript LINQ Concept object
-                                    return this;
-                                },
-
-                                // ~ TO BE IMPLEMENTED
-                                contains : function(collectionItem, udfEqualityComparer) {
-                                    //
-
-                                    // return true/false
-                                },
-
-                                // ~ TO BE IMPLEMENTED
-                                distinct : function(udfEqualityComparer) {
-                                    //
-
-                                    // return JavaScript LINQ Concept object
-                                    return this;
-                                },
-
-                                // ~ TO BE IMPLEMENTED                            
-                                except : function() {
-                                    //
-
-                                    // return JavaScript LINQ Concept object
-                                    return this;
-                                },
-
-                                // ~ TO BE IMPLEMENTED ?
-                                intersect : function() {
-
-                                },
-
-                                // ~ TO BE IMPLEMENTED ?
-                                union : function() {
-
-                                },
-
-
-
-
-
-
-                                /**
-                                 * ALREADY IMPLEMENTED 
-                                */
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                */
-                                where : function (params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.where.bind(this, params['predicateArray']), false, false, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - inputCollection
-                                */
-                                concat : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.add_t.bind(this, params['inputCollection'], _ENUM.CONCAT), false, false, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - collectionItem
-                                */
-                                append : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.APPEND),  false, false, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - collectionItem
-                                */
-                                prepend : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.PREPEND),  false, false, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - count
-                                */
-                                skip : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.SKIP), true, true, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                */
-                                skipWhile : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.SKIP), true, true, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - count
-                                */
-                                take : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.TAKE), true, true, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                */
-                                takeWhile : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.TAKE), true, true, true);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - udfEqualityComparer
-                                 *  - udfGroupElementsProjector
-                                 *  - context
-                                */
-                                toDictionary : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(
-                                                            this,
-                                                            _CORE.group_by.bind(this, params['predicateArray'], params['udfEqualityComparer'], null, null, params['udfGroupElementsProjector'], true),
-                                                            true, false, false, params['context']
-                                                        );
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {string} context tell about invocation context.
-                                 *  - 
-                                */
-                                toArray : function(context) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.list_t.bind(this, true), true, false, false, context);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                first : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.first_or_default.bind(this, params['predicateArray'], false), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                firstOrDefault : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.first_or_default.bind(this, params['predicateArray'], true), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                last : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.last_or_default.bind(this, params['predicateArray'], false), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                lastOrDefault : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.last_or_default.bind(this, params['predicateArray'], true), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                single : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.single_or_default.bind(this, params['predicateArray'], false), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                singleOrDefault : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.single_or_default.bind(this, params['predicateArray'], true), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                any : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ANY), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Serves the same purpose as Where method in LINQ from C#.
-                                 * @param {object} params Contains all possible params used by this method :
-                                 *  - predicateArray
-                                 *  - context
-                                */
-                                all : function(params) {
-                                    // create action and proceed with further flow
-                                    return _ACTION.create(this, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ALL), true, false, false, params['context']);
-                                },
-
-                                /**
-                                 * Special method that tells whether query debugger is available ! 😀😉
-                                 * Can be safely removed if library moved to production. 🙂
-                                 * 
-                                 * Go to line 1591 to remove from initialization JLC 1.0 Query Debugger 
-                                */
-                                ifConsoleDebug : function() {
-                                    // is JLC 1.0 Query Debugger initialized ?
-                                    var is_initialized = _QUERY_DEBUGGER.Funcs.is_initialized();
                                     
-                                    if(is_initialized) {
-                                        // check the state of the query debugger - on/off
-                                        var is_on = _QUERY_DEBUGGER.Funcs.is_switched_on();
+                                // store current collection into collection history array
+                                _DATA.store(coll_data);
 
-                                        // if switched on, enable fetching some debug data
-                                        if(is_on) {
-                                            this.debugResultsView = function() {
-                                                // fetch on demand some DEBUG data !!!!!!!
-                                                return _QUERY_DEBUGGER.Funcs.getDebugData(); 
-                                            };
-                                        }
-
-                                        // return the state of the query debugger - on/off
-                                        return is_on;
-                                    }
-                                    else {
-                                        throw Error('JLC 1.0 Query Debugger not initialized !');
-                                    }
-                                }
-                            };
-
-                            // bind context to this API instance
-                            api._ctx = ctx;
-
-                            // return JLC API instance
-                            return api;
-                        }
-                    },
-
-                    over : function (inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
-                        // check if current collection is stored internally
-                        var index = _DATA.isStored(inputCollection._rootToken);
-
-                        // store this collection if a new one
-                        if(index === -1) {
-                            // declare a private data object holding data collection of current JLC instance, aka static or shared instance
-                            var coll_data = {
-                                dirty_data : null,   // current flow data
-                                dirty_data_temp : [],
-                                data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JavaScript LINQ Concept
-                                type : {
-                                    source : null,
-                                    makeItEmpty : false,
-                                    isReady : false,
-                                    output : null
-                                }
-                            };
-
-
-                            // store the collection to iterate over
-                            coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
-
-                            // store the collection item type for later preparation of an empty object if required
-                            if(inputCollectionOptionalItemType) {
-                                coll_data.type.source = inputCollectionOptionalItemType;
-                                coll_data.type.makeItEmpty = makeItEmpty;
+                                // return index of this collection from collection history array
+                                return _DATA.getIndex();
                             }
-                            // otherwise create an empty object based on inputCollection's first item
-                            else if(coll_data.dirty_data.length) {
-                                coll_data.type.source = coll_data.dirty_data[0];
-                                coll_data.type.makeItEmpty = true;
-                            }
-                            // or default to an empty JavaScript object
-                            else {
-                                coll_data.type.output = {};
-                                coll_data.type.isReady = true;
-                            }
-
-                                
-                            // store current collection into collection history array
-                            _DATA.store(coll_data);
-
+                            
                             // return index of this collection from collection history array
-                            return _DATA.getIndex();
+                            return index;                            
                         }
-                        
-                        // return index of this collection from collection history array
-                        return index;
                     }
                 }
         };
