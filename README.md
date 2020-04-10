@@ -21,10 +21,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
- - DPR #5:&nbsp;2020-04-10 &nbsp;&nbsp;1:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes v3** )&nbsp;<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-width="48" height="48"
-viewBox="0 0 172 172"
-style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,172v-172h172v172z" fill="none"></path><g fill="#152740"><path d="M86,27.93881c35.10547,0 36.5612,25.81119 36.5612,30.82226c0,14.33333 -10.05013,21.5 -15.0612,24.38347c6.43881,2.1276 20.07226,8.5944 20.07226,27.9388c0,25.8112 -18.64453,33.67774 -35.13346,33.67774c-10.75,0 -18.61654,-3.58333 -22.19988,-5.73893v28.66667h-22.22786v-105.3444c0,-14.33333 10.05013,-34.4056 37.98893,-34.4056zM85.27214,75.97787c13.63346,0 14.33333,-10.75 14.33333,-15.78906c0,-13.60547 -11.44988,-14.33333 -14.33333,-14.33333c-9.29427,0 -15.03321,7.16667 -15.03321,16.48893v59.48893c2.1556,1.42774 7.86654,4.3112 17.18881,4.3112c16.48893,0 17.2168,-13.63347 17.2168,-15.78906c0,-16.46094 -11.47787,-17.91667 -16.48894,-17.91667h-7.89453v-16.46094z"></path></g></g></svg>&nbsp;:zap:
+ - DPR #5:&nbsp;2020-04-10 &nbsp;&nbsp;1:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes v3** )&nbsp;**β**&nbsp;:zap:
 
 
  - DPR #4:&nbsp;2020-04-05 &nbsp;&nbsp;1:29 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes v2** )
