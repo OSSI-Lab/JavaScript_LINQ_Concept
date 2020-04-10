@@ -756,8 +756,8 @@
                                 // is it complex ?
                                 if(keyPart.isValidProperty && keyPart.isComplex) {
                                     // get the property value from both, the current and the previous object
-                                    itemCurrentValue += _LOGICAL_FILTERS.applyPropertyValueFilter(itemCurrent, keyPart.value, true);
-                                    itemPreviousValue += _LOGICAL_FILTERS.applyPropertyValueFilter(itemPrevious, keyPart.value, true);
+                                    itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value, true);
+                                    itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemPrevious, keyPart.value, true);
                                 }
                                 // is it simple ?
                                 else if(keyPart.isValidProperty) {
@@ -828,7 +828,7 @@
         };
 
         // declare a private physical filters object
-        var _PHYSICAL_FILTERS = {
+        var _PHYSICAL_FILTER = {
                 executeWhereFilter : function(jlc, predicateArray, reverseBoolResult) {
                     return execute_WF_I_1L(jlc, predicateArray, reverseBoolResult);
 
@@ -853,10 +853,10 @@
                                 var passed;
 
                                 if(reverseBoolResult) {
-                                    passed = !_LOGICAL_FILTERS.applyLogicalBoolFilter(c_o, predicateArray, i);
+                                    passed = !_LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
                                 }
                                 else {
-                                    passed = _LOGICAL_FILTERS.applyLogicalBoolFilter(c_o, predicateArray, i);
+                                    passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
                                 }
 
                                 // based on filtering result (true/false) pass object further down the flow
@@ -952,10 +952,10 @@
                                         // if key is already initialized
                                         if(key)
                                             // get the property value from both, the current and the previous object
-                                            key += _LOGICAL_FILTERS.applyPropertyValueFilter(itemCurrent, keyPart.value);
+                                            key += _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value);
                                         else {
                                             // get the key value - get the property value from both, the current and the previous object
-                                            var rkv = _LOGICAL_FILTERS.applyPropertyValueFilter(itemCurrent, keyPart.value);
+                                            var rkv = _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value);
 
                                             // initialize a key with a default value
                                             key = getDefaultOf_I_3L(rkv);
@@ -1086,14 +1086,14 @@
                             // for given predicates
                             if(predicateArray && (enumValue === _ENUM.SKIP)) {
                                 // execute the "WHERE" filter
-                                _PHYSICAL_FILTERS.executeWhereFilter(jlc, predicateArray, true);
+                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray, true);
 
                                 // check the result
                                 return getResult_I_2L(true);
                             }
                             else if(predicateArray) {
                                 // execute the "WHERE" filter
-                                _PHYSICAL_FILTERS.executeWhereFilter(jlc, predicateArray);
+                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray);
 
                                 // check the result
                                 return getResult_I_2L(true);
@@ -1259,7 +1259,7 @@
                             // for given predicates
                             if(predicateArray) {
                                 // execute the "WHERE" filter
-                                _PHYSICAL_FILTERS.executeWhereFilter(jlc, predicateArray);
+                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray);
 
                                 // check the result
                                 return getResult_I_2L(true);
@@ -1464,7 +1464,7 @@
         };
 
         // declare a private logical filters object
-        var _LOGICAL_FILTERS = {
+        var _LOGICAL_FILTER = {
                 applyLogicalBoolFilter : function(currentObject, predicateArray, elementIndex) {
                         return apply_LBF_I_1L(currentObject, predicateArray, elementIndex);
 
@@ -1544,7 +1544,7 @@
                                     */
                                     function executePrimitivePredicate_I_3L() {
                                         // seek the destination property
-                                        var propOrVal = _LOGICAL_FILTERS.applyPropertyValueFilter(currentObject, propName, true);
+                                        var propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter(currentObject, propName, true);
 
                                         /**
                                          * Check the validity of an object prop (logical "NOT NULL"), i.e. "", undefined, null
@@ -1620,7 +1620,7 @@
                                     var c_o = currentColl[i];
 
                                     // apply where filter(s) and get the result
-                                    passed = _LOGICAL_FILTERS.applyLogicalBoolFilter(c_o, predicateArray, i);
+                                    passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
 
                                     // based on filtering result (true/false) trigger further action
                                     if(enumValue === _ENUM.ALL && !passed)
@@ -1646,7 +1646,7 @@
                                 // for given predicates
                                 if(predicateArray) {
                                     // execute the "IF" filter
-                                    var passed = _LOGICAL_FILTERS.applyLogicalWhereFilter(jlc, predicateArray, enumValue);
+                                    var passed = _LOGICAL_FILTER.applyLogicalWhereFilter(jlc, predicateArray, enumValue);
 
                                     // return the result
                                     return passed;
@@ -1690,7 +1690,7 @@
                 // ~ TO BE IMPLEMENTED
                 apply_set_based_operations : function(inputObjectCollection, thisCollectionKeyArray, inputObjectCollectionKeyArray, outputType, enumValue) {
                     // invoke core logic
-                    //_LOGICAL_FILTERS.
+                    //_LOGICAL_FILTER.
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1702,7 +1702,7 @@
                 // ~ TO BE IMPLEMENTED
                 order_asc_or_desc : function (keyPartSelectorArray, udfComparer, enumValue) {
                     // invoke core logic
-                    _PHYSICAL_FILTERS.executeOrderFilter(keyPartSelectorArray, udfComparer, enumValue);
+                    _PHYSICAL_FILTER.executeOrderFilter(keyPartSelectorArray, udfComparer, enumValue);
 
                     // store dynamically the current array of selectors
                     _DATA.sortOrderSelectors.add(keyPartSelectorArray, udfComparer);
@@ -1743,7 +1743,7 @@
 
                 where : function(predicateArray) {
                     // invoke core logic
-                    _PHYSICAL_FILTERS.executeWhereFilter(this, predicateArray);
+                    _PHYSICAL_FILTER.executeWhereFilter(this, predicateArray);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1754,7 +1754,7 @@
 
                 group_by : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
                     // invoke core logic
-                    _PHYSICAL_FILTERS.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
+                    _PHYSICAL_FILTER.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1768,7 +1768,7 @@
 
                 list_t : function(fallbackOnDefault) {
                     // invoke core logic
-                    _PHYSICAL_FILTERS.executeOneItemFilter(this, null, fallbackOnDefault, _ENUM.ALL);
+                    _PHYSICAL_FILTER.executeOneItemFilter(this, null, fallbackOnDefault, _ENUM.ALL);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1782,7 +1782,7 @@
 
                 reverse_t : function(startingIndex, count, enumValue) {
                     // invoke core logic
-                    _PHYSICAL_FILTERS.executeRangeFilter(this, null, startingIndex, count, enumValue);
+                    _PHYSICAL_FILTER.executeRangeFilter(this, null, startingIndex, count, enumValue);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1836,7 +1836,7 @@
 
                 skip_or_take : function(count, predicateArray, enumValue) {
                     // invoke core logic
-                    _PHYSICAL_FILTERS.executeRangeFilter(this, predicateArray, null, count, enumValue);
+                    _PHYSICAL_FILTER.executeRangeFilter(this, predicateArray, null, count, enumValue);
 
                     /**
                      * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
@@ -1847,22 +1847,22 @@
 
                 first_or_default : function(predicateArray, fallbackOnDefault) {
                     // invoke core logic
-                    return _PHYSICAL_FILTERS.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.FIRST);
+                    return _PHYSICAL_FILTER.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.FIRST);
                 },
 
                 last_or_default : function(predicateArray, fallbackOnDefault) {
                     // invoke core logic
-                    return _PHYSICAL_FILTERS.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.LAST);
+                    return _PHYSICAL_FILTER.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.LAST);
                 },
 
                 single_or_default : function(predicateArray, fallbackOnDefault) {
                     // invoke core logic
-                    return _PHYSICAL_FILTERS.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.SINGLE);
+                    return _PHYSICAL_FILTER.executeOneItemFilter(this, predicateArray, fallbackOnDefault, _ENUM.SINGLE);
                 },
 
                 all_or_any : function(predicateArray, enumValue) {
                     // invoke core logic
-                    return _LOGICAL_FILTERS.applyAllAnyFilter(this, predicateArray, enumValue);
+                    return _LOGICAL_FILTER.applyAllAnyFilter(this, predicateArray, enumValue);
                 }                    
         };
 
