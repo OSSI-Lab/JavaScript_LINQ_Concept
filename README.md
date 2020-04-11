@@ -21,10 +21,13 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
+ - DPR #6:&nbsp;2020-04-11 &nbsp;&nbsp;4:31 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes v3** )&nbsp;**β2**&nbsp;:zap:
+
+
  - DPR #5:&nbsp;2020-04-10 &nbsp;&nbsp;1:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes v3** )&nbsp;**β**&nbsp;:zap:
 
 
- - DPR #4:&nbsp;2020-04-05 &nbsp;&nbsp;1:29 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v2* )
+ - DPR #4:&nbsp;2020-04-05 &nbsp;&nbsp;1:29 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA-towards design changes v2** )
 
 
  - DPR #3:&nbsp;2020-03-28 &nbsp;&nbsp;4:01 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes* )
@@ -34,7 +37,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 
  - DPR #1:&nbsp;2020-03-14 11:19 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
-## Release Candidate: 2020-04-18 Local Time &nbsp;:bell:
+## Release Candidate Version Proposal: 2020-04-18 Local Time &nbsp;:bell:&nbsp;:heavy_check_mark:
 
 #
 ## Download&nbsp;:lock:

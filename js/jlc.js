@@ -130,12 +130,30 @@
 
         // declare a private action object
         var _ACTION = {
+            // create 'current' query-wide HPID, i.e. holder of physical intermediate data
+            hpid : {
+                // is data holder activated
+                isOn : false,
+                
+                // array for storing physical intermediate data
+                data : [],
+
+                /**
+                 * Handle special case that returns the so-far filtered off array.
+                 * The following parameter called 'done' when set to 'true' tells to discard returned result and go for the so-far filtered off array as the final result 
+                */
+                done : false,
+
+                // is data holder being converted to dictionary
+                isDictionary : false 
+            },
+
             // create action that represents filtering logic for given Linq's method
             create : function(jlc_instance_ctx, core_method_bind, context, to_execute) {
                 // create an action
                 var action = {
                     // store information whether this action is executable one
-                    returnsData : System.Linq.QueryResults[context],
+                    returnsData : System.Linq.QueryResult[context],
 
                     // store collection index
                     coll_ref : jlc_instance_ctx.coll_index,
@@ -168,30 +186,56 @@
                 if(to_execute)
                     // execute all actions
                     return this.executeChain(ctx);
+                // otherwise enable further flow of actions
                 else
-                    // return new instance api to enable further flow of actions passing context of current action to provide chain of actions to execute
+                    // return new instance api and pass context of current action to provide chain of actions to execute
                     return _COMMON.jlcNew(ctx);
             },
 
-            // execute all required actions
+            // execute all actions in the chain
             executeChain : function(jlc_ctx) {
-                return executeActionsRecursively_I_1L(jlc_ctx.parent);
+                return execute_C_I_1L(jlc_ctx);
 
 
 
                 /**
                  * Local helper functions 
                 */
-                function executeActionsRecursively_I_1L(parentAction) {
-                    // go all the way down to the root action
-                    if(parentAction.parent)
-                        executeActionsRecursively_I_1L(parentAction.parent);
-                        
-                    // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
-                    if(parentAction.returnsData)
-                        return parentAction.execute();
-                    else
-                        parentAction.execute();
+                function execute_C_I_1L(jlc_ctx) {
+                    // reset temp storage
+                    _ACTION.hpid.isOn = _ACTION.hpid.done = _ACTION.hpid.isDictionary = false;
+                    _ACTION.hpid.data.length = 0;
+
+                    // execute all actions and determine the final output...
+                    var result = executeActionsRecursively_I_2L(jlc_ctx.parent);
+
+                    // check if 'special case' occurred determined by the hpid's flag called done being set to true and current filtered off data is a dictionary...
+                    if(_ACTION.hpid.done && _ACTION.hpid.isDictionary)
+                        return _ACTION.hpid.data;
+                    
+                    // check if 'special case' occurred determined by the hpid's flag called done being set to true...
+                    if(_ACTION.hpid.done)
+                        return _ACTION.hpid.data.slice(0);
+
+                    // ... otherwise return result as the output
+                    return result;
+
+
+
+                    /**
+                     * Local helper functions 
+                    */
+                    function executeActionsRecursively_I_2L(parentAction) {
+                        // go all the way down to the root action
+                        if(parentAction.parent)
+                            executeActionsRecursively_I_2L(parentAction.parent);
+                            
+                        // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
+                        if(parentAction.returnsData)
+                            return parentAction.execute();
+                        else
+                            parentAction.execute();
+                    }
                 }
             }
         };
@@ -345,7 +389,15 @@
                             // create action and proceed with further flow
                             return _ACTION.create(
                                                     this._ctx,
-                                                    _CORE.group_by.bind(this, params['predicateArray'], params['udfEqualityComparer'], params['udfGroupProjector'], params['udfGroupElementsProjector'], params['udfGroupResultValueSelector'], params['terminateFlowAndReturnData']),
+                                                    _CORE.group_by.bind(
+                                                                        this,
+                                                                        params['predicateArray'],
+                                                                        params['udfEqualityComparer'],
+                                                                        params['udfGroupProjector'],
+                                                                        params['udfGroupElementsProjector'],
+                                                                        params['udfGroupResultValueSelector'],
+                                                                        params['terminateFlowAndReturnData']
+                                                                       ),
                                                     System.Linq.Context.groupBy
                                                  );
                         },
@@ -456,7 +508,15 @@
                             // create action and proceed with further flow
                             return _ACTION.create(
                                                     this._ctx,
-                                                    _CORE.group_by.bind(this, params['predicateArray'], params['udfEqualityComparer'], null, null, params['udfGroupElementsProjector'], true),
+                                                    _CORE.group_by.bind(
+                                                                        this,
+                                                                        params['predicateArray'],
+                                                                        params['udfEqualityComparer'],
+                                                                        null,
+                                                                        null,
+                                                                        params['udfGroupResultValueSelector'],
+                                                                        true
+                                                                       ),
                                                     System.Linq.Context.toDictionary,
                                                     true
                                                 );
@@ -680,7 +740,7 @@
                 */
                 function createDefaultOfT_I_1L(historyIndex) {
                         // get collection item type metadata of contextually current collection from history array
-                        var itemTypeMetadata = _DATA.getItemType(historyIndex);
+                        var itemTypeMetadata = _DATA.getT(historyIndex);
 
                         if(itemTypeMetadata.isReady)
                             // return an empty proper object
@@ -803,6 +863,7 @@
                 }
             },
 
+            // CURRENTLY NOT IN USAGE 
             resultsView : function(token) {
                 return resultsView_I_1L(token);
 
@@ -842,7 +903,7 @@
                             var c_i_c = [];
 
                             // create input collection cache
-                            var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+                            var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
                             // loop over current collection and apply filters
                             for(var i = 0; i < currentColl.length; i++) {
@@ -864,8 +925,9 @@
                                     c_i_c.push(c_o);
                             }
 
-                            // store intermediate collection for further flow
-                            _DATA.update(jlc._ctx.coll_index, c_i_c);
+                            // update HPID object to enable further data flow
+                            _ACTION.hpid.data = c_i_c;
+                            if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
                     }
                 },
 
@@ -887,7 +949,7 @@
                                 var groups = {};
 
                                 // get contextually current collection within history array
-                                var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+                                var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
                                 // do grouping
                                 currentColl.forEach(function (item) {
@@ -921,12 +983,13 @@
                                 if(udfEqualityComparer)
                                 groups = sortGroups_I_2L(udfEqualityComparer);
 
-                                // store intermediate collection for further flow
-                                _DATA.update(jlc._ctx.coll_index, groups);                                          
+                                // update HPID object to enable further data flow
+                                _ACTION.hpid.data = groups;
+                                if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;                                
 
-                                // check if terminate data flow and return data to the calling client
+                                // check if terminate data flow
                                 if(terminateFlowAndReturnData)
-                                    return groups;
+                                    _ACTION.hpid.done = _ACTION.hpid.isDictionary = true;
                             }
                             // otherwise throw error
                             else {
@@ -1111,7 +1174,7 @@
                             */
                             function getResult_I_2L(withPredicates) {
                                 // get contextually current collection within history array
-                                var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+                                var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
                                 // if the sequence contains elements
                                 if(currentColl.length) {
@@ -1240,8 +1303,9 @@
                                             throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
                                     }
 
-                                    // store intermediate collection for further flow
-                                    _DATA.update(jlc._ctx.coll_index, currentColl);
+                                    // update HPID object to enable further data flow
+                                    _ACTION.hpid.data = currentColl;
+                                    if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
                                 }
                             }
                     }
@@ -1276,11 +1340,8 @@
                              * Local helper functions
                             */
                             function getResult_I_2L(withPredicates) {
-                                // get metadata of contextually current collection from history array
-                                var metadata = _DATA.fetch(jlc._ctx.coll_index);
-
-                                // reference contextually current collection
-                                var currentColl = metadata.collection;
+                                // get contextually current collection from history array
+                                var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
                                 // if the sequence contains elements
                                 if(currentColl.length) {
@@ -1301,6 +1362,8 @@
                                                 throw Error("Sequence contains more than one element !");
 
                                         case _ENUM.ALL:
+                                            // this flag tells to discard returned result
+                                            _ACTION.hpid.done = true;
                                             break;
 
                                         default:
@@ -1309,13 +1372,15 @@
                                 }
                                 // if the sequence contains no elements
                                 else {
-                                    // return an array of one empty proper object
+                                    // return an empty array
                                     if(fallbackOnDefault && (enumValue === _ENUM.ALL)) {
-                                        return [_COMMON.createDefaultOfT(metadata.index)];
+                                        // this flag tells to discard returned result and go for hpid's data
+                                        _ACTION.hpid.done = true;
+                                        return;
                                     }
-                                    // return one empty proper object
+                                    // return default of 'JavaScript's var variable', which is simply value of undefined
                                     else if(fallbackOnDefault)
-                                        return undefined; // return default of 'JavaScript's var variable', which is simply value of undefined 
+                                        return undefined; 
                                     // throw valid error
                                     else {
                                         if(withPredicates && (enumValue === _ENUM.SINGLE))
@@ -1328,6 +1393,7 @@
                                             throw Error("Sequence contains no elements !");
                                     }
                                 }
+                                // NO NEED TO SWITCH hpid's isOn flag ON, BECAUSE WE IMMEDIATELY RETURN 'SINGLE' ITEM FROM COLLECTION, BE IT hpid OR ORIGINAL ONE !
                             }
                     }
                 },
@@ -1691,12 +1757,6 @@
                 apply_set_based_operations : function(inputObjectCollection, thisCollectionKeyArray, inputObjectCollectionKeyArray, outputType, enumValue) {
                     // invoke core logic
                     //_LOGICAL_FILTER.
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
                 },
 
                 // ~ TO BE IMPLEMENTED
@@ -1724,12 +1784,6 @@
                         // return JavaScript LINQ Concept object
                         return _API;
                     };
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
                 },
 
 
@@ -1744,62 +1798,26 @@
                 where : function(predicateArray) {
                     // invoke core logic
                     _PHYSICAL_FILTER.executeWhereFilter(this, predicateArray);
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
                 },
 
                 group_by : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
                     // invoke core logic
                     _PHYSICAL_FILTER.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
-
-                    // return output data
-                    return this.resultsView().dataYield;
                 },
 
                 list_t : function(fallbackOnDefault) {
                     // invoke core logic
                     _PHYSICAL_FILTER.executeOneItemFilter(this, null, fallbackOnDefault, _ENUM.ALL);
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
-
-                    // return output data
-                    return this.resultsView().dataYield;
                 },
 
                 reverse_t : function(startingIndex, count, enumValue) {
                     // invoke core logic
                     _PHYSICAL_FILTER.executeRangeFilter(this, null, startingIndex, count, enumValue);
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
                 },                    
 
                 add_t : function(collectionOrItem, enumValue) {
                     // invoke core logic
-                    add_CI_I_1L(this, collectionOrItem, enumValue);
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
+                    return add_CI_I_1L(this, collectionOrItem, enumValue);
 
 
 
@@ -1808,7 +1826,7 @@
                     */
                     function add_CI_I_1L(jlc, collectionOrItem, enumValue) {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
                         if(enumValue === _ENUM.APPEND) {
                             // append item to the end of current data flow collection
@@ -1829,20 +1847,15 @@
                             Array.prototype.push.apply(currentColl, collectionOrItem);
                         }
 
-                        // store intermediate collection for further flow
-                        _DATA.update(jlc._ctx.coll_index, currentColl);
+                        // update HPID object to enable further data flow
+                        _ACTION.hpid.data = currentColl;
+                        if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
                     }
                 },
 
                 skip_or_take : function(count, predicateArray, enumValue) {
                     // invoke core logic
                     _PHYSICAL_FILTER.executeRangeFilter(this, predicateArray, null, count, enumValue);
-
-                    /**
-                     * Create dynamically a Results View, which after invoking (kind of expanding) will produce the valid output array's PREVIEW not physical data !
-                     * This approach is based on System.Linq.Enumerable.WhereListIterator<T>'s property called Results View from C# !
-                    */
-                    this.resultsView = this.resultsView || _COMMON.resultsView.bind(null, this._ctx.coll_index);
                 },
 
                 first_or_default : function(predicateArray, fallbackOnDefault) {
@@ -1877,9 +1890,8 @@
                 // collection history array
                 collection_array : [],
 
-
                 // check if contextually current collection is stored internally for data flows
-                isStored : function(rootToken) {
+                exists : function(rootToken) {
                     // index of this collection if already stored
                     var index = -1;
 
@@ -1895,11 +1907,6 @@
 
                     // return index
                     return index;
-                },
-
-                // get index of contextually current collection
-                getIndex : function() {
-                    return this.index;
                 },
 
                 // store collection
@@ -1918,11 +1925,9 @@
 
                     // store collection
                     this.collection_array.push(collection);
-                },
 
-                // refresh updated contextually current collection in history array
-                update : function (index, collection) {
-                    this.collection_array[index].dirty_data = collection;
+                    // get index of this contextually current collection
+                    return this.index;
                 },
 
                 // fetch metadata object of contextually current collection from history array
@@ -1937,7 +1942,7 @@
                 },
                 
                 // fetch type metadata of collection item of contextually current collection from history array
-                getItemType : function(index) {
+                getT : function(index) {
                     return this.collection_array[index].type;
                 }
         };
@@ -1975,13 +1980,13 @@
                             // bind JLC to Array type
                             Array.prototype.usingLinq = _SETUP.Funcs.useJLC;
 
-                            // create JLC context object
+                            // create Linq context objects
                             window.System = window.System || {};
                             window.System.Linq = window.System.Linq || {};
                             window.System.Linq.Context = window.System.Linq.Context || {};
-                            window.System.Linq.QueryResults = window.System.Linq.QueryResults || {};
+                            window.System.Linq.QueryResult = window.System.Linq.QueryResult || {};
 
-                            // add methods to context object
+                            // add methods to Linq context objects
                             addLinqMethodsToContext_I_3L(
                                                             [
                                                                 ['where', false], ['groupBy', false],
@@ -2001,7 +2006,6 @@
                             function addLinqMethodsToContext_I_3L(method_arr) {
                                 // loop over method array
                                 for(var i = 0; i < method_arr.length; i++) {
-                                    
                                     // reference a method
                                     var m = method_arr[i];
                                     
@@ -2009,7 +2013,7 @@
                                     System.Linq.Context[m[0]] = m[0];
 
                                     // store information whether this method produces physical result or a logical one
-                                    System.Linq.QueryResults[m[0]] = m[1];
+                                    System.Linq.QueryResult[m[0]] = m[1];
                                 }
                             }
                         }
@@ -2038,9 +2042,9 @@
                         /**
                          * Local helper functions 
                         */
-                        function over_I_1L(inputCollection, inputCollectionOptionalItemType, makeItEmpty) {
+                        function over_I_1L(inputCollection) {
                             // check if current collection is stored internally
-                            var index = _DATA.isStored(inputCollection._rootToken);
+                            var index = _DATA.exists(inputCollection._rootToken);
 
                             // store this collection if a new one
                             if(index === -1) {
@@ -2048,7 +2052,7 @@
                                 var coll_data = {
                                     dirty_data : null,   // current flow data
                                     dirty_data_temp : [],
-                                    data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JavaScript LINQ Concept
+                                    data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
                                     type : {
                                         source : null,
                                         makeItEmpty : false,
@@ -2061,13 +2065,8 @@
                                 // store the collection to iterate over
                                 coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
 
-                                // store the collection item type for later preparation of an empty object if required
-                                if(inputCollectionOptionalItemType) {
-                                    coll_data.type.source = inputCollectionOptionalItemType;
-                                    coll_data.type.makeItEmpty = makeItEmpty;
-                                }
                                 // otherwise create an empty object based on inputCollection's first item
-                                else if(coll_data.dirty_data.length) {
+                                if(coll_data.dirty_data.length) {
                                     coll_data.type.source = coll_data.dirty_data[0];
                                     coll_data.type.makeItEmpty = true;
                                 }
@@ -2077,12 +2076,11 @@
                                     coll_data.type.isReady = true;
                                 }
 
-                                    
-                                // store current collection into collection history array
-                                _DATA.store(coll_data);
-
-                                // return index of this collection from collection history array
-                                return _DATA.getIndex();
+                                /**
+                                 * Store current collection into collection history array.
+                                 * Return index of this collection from collection history array.
+                                */
+                                return _DATA.store(coll_data);
                             }
                             
                             // return index of this collection from collection history array

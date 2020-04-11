@@ -136,42 +136,107 @@
 										  }
 										);
 
-		var example_take = example_where.take(
-												{											
-													'count' : 7
-												}
-											 );
 
-		var example_skip = example_where.skip(
-												{
-													'count' : 2
-												}
-											 );
+		var example_where_take_5 = example_where.take(
+														{											
+															'count' : 5
+														}
+													 );
 
-		var example_take_2 = example_where.take(
-												{
-													'count' : 2
-												}
-											 );											 
+		var example_where_skip_3 = example_where.skip(
+														{
+															'count' : 3
+														}
+											 		 );
 
-		var example_take_2_skip = example_take_2.skip(
-												{
-													'count' : 5
-												}
-											 );
+		var example_where_take_2 = example_where.take(
+														{
+															'count' : 2
+														}
+											 		 );
+
+
+		var example_where_take_2_skip_3 = example_where_take_2.skip(
+																		{
+																			'count' : 3
+																		}
+											 		 	   		   );
+
 
 
 
 		var example_where_array = example_where.toArray();
 
-		var example_take_first = example_take.first();
-		var example_take_first_or_default = example_take.firstOrDefault(
+
+
+
+		var example_where_take_5_array = example_where_take_5.toArray();		
+		var example_where_take_5_first_or_default = example_where_take_5.firstOrDefault(
+																							{									
+																								'predicateArray' :	[
+																														["id", ">", 1234567890]
+																													]
+																							}
+																	   		   		   );
+		var example_where_take_5_last = example_where_take_5.last();
+		var example_where_take_5_last_or_default = example_where_take_5.lastOrDefault(
+																							{									
+																								'predicateArray' :	[
+																														["id", ">", 7],
+																														["id", "<", 9]
+																													]
+																							}
+																					 );
+		var example_where_take_5_last_or_default_2 = example_where_take_5.lastOrDefault(
+																							{									
+																								'predicateArray' :	[
+																														["id", ">", 5],
+																														["id", "<", 7]
+																													]
+																							}
+																					 );
+
+		// running whole query at once rather than breaking it into partial ones
+		var example_where_take_5_last_or_default_3 = coll_1.usingLinq()
+														   .where(
+																	{									
+																			'predicateArray' :	[
+																									["id", ">=", 2, true],
+																									["ne.ne_id", "<", 10, true]
+																								]
+																	}
+																 )
+														   .take(
+																	{											
+																		'count' : 5
+																	}
+																)
+														   .lastOrDefault(
 																			{									
 																				'predicateArray' :	[
-																										["id", ">", 1234567890]
+																										["id", ">", 5],
+																										["id", "<", 7]
 																									]
 																			}
-																	   );
+																		 );																 
+
+
+
+		var example_where_skip_3_array = example_where_skip_3.toArray();
+		var example_where_skip_3_dictionary = example_where_skip_3.toDictionary(
+																					{
+																						'predicateArray' :	[
+																												["id", true],
+																												[" - ", false],
+																												["quality", true]
+																											]
+																					}
+																			   );
+
+
+
+
+		var example_take_2_skip_array = example_where_take_2_skip_3.toArray();
 
 	</script>
  </body>
