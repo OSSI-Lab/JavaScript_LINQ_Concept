@@ -137,6 +137,29 @@
 										);
 
 
+		var example_where_groupBy = example_where.groupBy(
+															{
+																'predicateArray' :	[
+																						["id", true],
+																						[" - ", false],
+																						["descr", true]
+																					]
+															}
+														 );
+		var example_where_groupBy_array = example_where_groupBy.toArray();
+
+
+		var example_where_groupBy_array_2 = example_where.groupBy(
+																	{
+																		'predicateArray' :	[
+																								["id", true],
+																								[" - ", false],
+																								["descr", true]
+																							]
+																	}
+														 		 ).toArray();														 
+
+
 		var example_where_take_5 = example_where.take(
 														{											
 															'count' : 5

@@ -142,10 +142,7 @@
                  * Handle special case that returns the so-far filtered off array.
                  * The following parameter called 'done' when set to 'true' tells to discard returned result and go for the so-far filtered off array as the final result 
                 */
-                done : false,
-
-                // is data holder being converted to dictionary
-                isDictionary : false 
+                done : false
             },
 
             // create action that represents filtering logic for given Linq's method
@@ -164,7 +161,7 @@
                     // store parent of this action
                     parent : jlc_instance_ctx.parent,
 
-                    // execute this action by invoking its API which is execute method
+                    // execute this action by invoking its API which is execute method in turn invoking its core method with binded parameters
                     execute : function() {
                         return core_method_bind();
                     }
@@ -203,19 +200,19 @@
                 */
                 function execute_C_I_1L(jlc_ctx) {
                     // reset temp storage
-                    _ACTION.hpid.isOn = _ACTION.hpid.done = _ACTION.hpid.isDictionary = false;
-                    _ACTION.hpid.data.length = 0;
+                    _ACTION.hpid.isOn = _ACTION.hpid.done = false;
+                    Array.isArray(_ACTION.hpid.data) ? _ACTION.hpid.data.length = 0 : _ACTION.hpid.data = [];
 
                     // execute all actions and determine the final output...
                     var result = executeActionsRecursively_I_2L(jlc_ctx.parent);
 
-                    // check if 'special case' occurred determined by the hpid's flag called done being set to true and current filtered off data is a dictionary...
-                    if(_ACTION.hpid.done && _ACTION.hpid.isDictionary)
-                        return _ACTION.hpid.data;
-                    
-                    // check if 'special case' occurred determined by the hpid's flag called done being set to true...
-                    if(_ACTION.hpid.done)
+                    // check if 'special case' occurred determined by the hpid's flag called done being set to true
+                    if(_ACTION.hpid.done && Array.isArray(_ACTION.hpid.data))
                         return _ACTION.hpid.data.slice(0);
+                    
+                    // check if 'special case' occurred determined by the hpid's flag called done being set to true and current filtered off data is either a dictionary or an object...
+                    if(_ACTION.hpid.done)
+                        return _ACTION.hpid.data;
 
                     // ... otherwise return result as the output
                     return result;
@@ -396,7 +393,7 @@
                                                                         params['udfGroupProjector'],
                                                                         params['udfGroupElementsProjector'],
                                                                         params['udfGroupResultValueSelector'],
-                                                                        params['terminateFlowAndReturnData']
+                                                                        true
                                                                        ),
                                                     System.Linq.Context.groupBy
                                                  );
@@ -989,7 +986,7 @@
 
                                 // check if terminate data flow
                                 if(terminateFlowAndReturnData)
-                                    _ACTION.hpid.done = _ACTION.hpid.isDictionary = true;
+                                    _ACTION.hpid.done = true;
                             }
                             // otherwise throw error
                             else {
