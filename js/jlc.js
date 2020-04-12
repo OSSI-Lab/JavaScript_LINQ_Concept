@@ -199,18 +199,20 @@
                  * Local helper functions 
                 */
                 function execute_C_I_1L(jlc_ctx) {
-                    // reset temp storage
+                    // reset temp storage flags
                     _ACTION.hpid.isOn = _ACTION.hpid.done = false;
+                    // reset holder of physical intermediate data
                     Array.isArray(_ACTION.hpid.data) ? _ACTION.hpid.data.length = 0 : _ACTION.hpid.data = [];
+
 
                     // execute all actions and determine the final output...
                     var result = executeActionsRecursively_I_2L(jlc_ctx.parent);
 
-                    // check if 'special case' occurred determined by the hpid's flag called done being set to true
+                    // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
                     if(_ACTION.hpid.done && Array.isArray(_ACTION.hpid.data))
                         return _ACTION.hpid.data.slice(0);
                     
-                    // check if 'special case' occurred determined by the hpid's flag called done being set to true and current filtered off data is either a dictionary or an object...
+                    // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
                     if(_ACTION.hpid.done)
                         return _ACTION.hpid.data;
 
@@ -512,7 +514,8 @@
                                                                         null,
                                                                         null,
                                                                         params['udfGroupResultValueSelector'],
-                                                                        true
+                                                                        true,
+                                                                        true // is dictionary context
                                                                        ),
                                                     System.Linq.Context.toDictionary,
                                                     true
@@ -928,15 +931,15 @@
                     }
                 },
 
-                executeGroupByFilter : function(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
-                    return execute_GBF_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
+                executeGroupByFilter : function(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext) {
+                    return execute_GBF_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext);
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function execute_GBF_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
+                    function execute_GBF_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext) {
                             // check if grouping key is present
                             if(predicateArray) {
                                 // create the key
@@ -961,18 +964,34 @@
                                     if(udfGroupElementsProjector)
                                         item = (udfGroupElementsProjector.bind(item))();
 
-                                    // reference the list of elements
-                                    var list = groups[id];
+                                    
+                                    /**
+                                     * Distinguish between dictionary and grouped objects
+                                     *  - dictionary keys has to be unique
+                                     *  - values are primitives values or objects, not single elements of array 
+                                    */
+                                    if(isDictionaryContext && groups[id])
+                                        throw Error('Item with the same key was already added to this dictionary object !');
 
-                                    // if such group exists
-                                    if (list) {
-                                        // add object to this group
-                                        list.push(item);
-                                    // otherwise create a new group
+                                    // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
+                                    if(isDictionaryContext) {
+                                        // store object under this key
+                                        groups[id] = item;
                                     }
                                     else {
-                                        // add object to this group
-                                        groups[id] = [item];
+                                        // reference the list of elements
+                                        var list = groups[id];
+
+                                        // if such group exists
+                                        if (list) {
+                                            // add object to this group
+                                            list.push(item);
+                                        // otherwise create a new group
+                                        }
+                                        else {
+                                            // add object to this group
+                                            groups[id] = [item];
+                                        }
                                     }
                                 });
 
@@ -1797,9 +1816,51 @@
                     _PHYSICAL_FILTER.executeWhereFilter(this, predicateArray);
                 },
 
-                group_by : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData) {
+                group_by : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext) {
                     // invoke core logic
-                    _PHYSICAL_FILTER.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData);
+                    _PHYSICAL_FILTER.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext);
+
+                    /**
+                     * Inject dynamically contextual parameterless list method called toArrayList() if invocation context is set to creating dictionary.
+                     * This is very contextual method that can be invoke from only this context and serves the same purpose as in this C# use case:
+                     *           var dict_2_array = list.ToDictionary(...).ToArray();
+                     *           var dict_2_list = list.ToDictionary(...).ToList();
+                    */
+                    if(isDictionaryContext)
+                        Object.prototype.toArrayList = Object.prototype.toArrayList || toArrayList_I_1L;
+                    
+                    
+                    
+                    /**
+                     * Local helper functions 
+                    */
+                    function toArrayList_I_1L() {
+                        /**
+                         * 'this' refers to future data object being either a dictionary or other object.
+                         * The valid invocation context of this method is when future object is a dictionary one ! 
+                        */
+                       
+                        // declare an output 'array list'
+                        var al = [];
+
+                        // loop over all entries (KeyValuePair objects)
+                        for(var i = 0, keys = Object.getOwnPropertyNames(this); i < keys.length; i++) {
+                            // access current KVP's key
+                            var key = keys[i];
+
+                            // access current KVP's value
+                            var value = this[key];
+
+                            // push it to 'array list'
+                            al.push({key : key, value : value});
+                        }
+
+                        // unbind toArrayList from further usage
+                        delete Object.prototype.toArrayList;
+
+                        // return 'array list'
+                        return al;
+                    }
                 },
 
                 list_t : function(fallbackOnDefault) {
