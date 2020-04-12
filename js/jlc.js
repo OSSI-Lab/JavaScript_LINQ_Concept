@@ -1839,7 +1839,7 @@
                          * 'this' refers to future data object being either a dictionary or other object.
                          * The valid invocation context of this method is when future object is a dictionary one ! 
                         */
-                       
+
                         // declare an output 'array list'
                         var al = [];
 
@@ -1856,7 +1856,7 @@
                         }
 
                         // unbind toArrayList from further usage
-                        delete Object.prototype.toArrayList;
+                        Object.prototype.toArrayList = undefined;
 
                         // return 'array list'
                         return al;
