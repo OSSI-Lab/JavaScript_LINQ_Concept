@@ -33,6 +33,8 @@
 
 		];
 	
+		var coll_primitives = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 		debugger;
 
 
@@ -126,6 +128,81 @@
 		 * Exemplary usage !
 		*/
 
+		/**
+		 * Support for primitives added (tested in the following used methods) 😀😉
+		 * 
+		 * ⚠️
+		 * 📢 - when dealing with array of primitive values, predicateArray array filters use a bit of new logic in comparison to array of objects :
+		 * 		["_", ">=", 2, true]
+		 * 		Given such a filter, the first field is a 'special' character called underscore '_' that tells that you deal with primitive value and not an object !
+		 * 		Actually, the filter's first field can be provided in any of the following forms :
+		 * 			'_' 	     (underscore)
+		 * 			'    '       (any number of empty spaces, which are converted to 0-length string)
+		 *          ''	         (0-length string) 
+		*/  
+		var nonEmpty_array = coll_primitives.usingLinq().any();
+
+		var all_primitives = coll_primitives.usingLinq().all(		
+																	{									
+																		'predicateArray' :	[
+																								["_", ">=", 2, true],
+																								["", ">=", 4, true],
+																								["           ", "<", 10, true]
+																							]
+																	}
+															);
+
+
+		var example_primitives_1 = coll_primitives.usingLinq()
+												  .where(
+																{
+																	'predicateArray' :	[
+																							["_", ">=", 2, true],
+																							["_", "<", 10, true]
+																						]
+																}
+														)
+												  .take(
+															{
+																'count' : 6
+															}
+													   )
+												  .lastOrDefault(
+																	{									
+																		'predicateArray' :	[
+																								["_", ">", 5],
+																								["_", "<", 7]
+																							]
+																	}
+																);
+
+		var example_primitives_2 = coll_primitives.usingLinq()
+												  .where(
+															{
+																'predicateArray' :	[
+																						["_", ">=", 2, true],
+																						["_", "<", 10, true]
+																					]
+															}
+														)
+												  .takeWhile(
+																{
+																	'predicateArray' :	[
+																							["_", ">", 0]
+																						]
+																}
+															)
+												  .skipWhile(
+																{
+																	'predicateArray' :	[
+																							["_", "<", 6]
+																						]
+																}
+															)
+												  .toArray();
+
+
+
 		var example_where = coll_1.usingLinq()
 							  	  .where(
 								  		  {									
@@ -135,7 +212,6 @@
 																	]
 										  }
 										);
-
 
 		var example_where_groupBy = example_where.groupBy(
 															{
@@ -147,8 +223,6 @@
 															}
 														 );
 		var example_where_groupBy_array = example_where_groupBy.toArray();
-
-
 		var example_where_groupBy_array_2 = example_where.groupBy(
 																	{
 																		'predicateArray' :	[
@@ -157,8 +231,8 @@
 																								["descr", true]
 																							]
 																	}
-														 		 ).toArray();														 
-
+																  )
+														 .toArray();
 
 		var example_where_take_5 = example_where.take(
 														{											
@@ -177,8 +251,6 @@
 															'count' : 2
 														}
 											 		 );
-
-
 		var example_where_take_2_skip_3 = example_where_take_2.skip(
 																		{
 																			'count' : 3
@@ -189,9 +261,6 @@
 
 
 		var example_where_array = example_where.toArray();
-
-
-
 
 		var example_where_take_5_array = example_where_take_5.toArray();		
 		var example_where_take_5_first_or_default = example_where_take_5.firstOrDefault(
@@ -244,7 +313,6 @@
 																		 );																 
 
 
-
 		var example_where_skip_3_array = example_where_skip_3.toArray();
 		var example_where_skip_3_dictionary = example_where_skip_3.toDictionary(
 																					{
@@ -255,11 +323,61 @@
 																											]
 																					}
 																			   );
+		var example_where_skip_3_dictionary_arrayList = example_where_skip_3.toDictionary(
+																							{
+																								'predicateArray' :	[
+																														["id", true],
+																														[" - ", false],
+																														["quality", true]
+																													]
+																							}
+																			   			 )
+																  			.toArrayList();
+		var example_where_skip_3_groupBy = example_where_skip_3.groupBy(
+																			{
+																				'predicateArray' :	[
+																										["id", true],
+																										[" - ", false],
+																										["quality", true]
+																									]
+																			}
+																	   )
+															   .toArray();
 
+		var example_where_skip_3_groupBy_3 = coll_1.usingLinq()
+												   .groupBy(
+																{
+																	'predicateArray' :	[
+																							["name", true]
+																						]
+																}
+														   )
+												   .toArray();							   
 
 
 
 		var example_take_2_skip_array = example_where_take_2_skip_3.toArray();
+		
+
+		var example_where_skip_3_usingLinq_where = example_where_skip_3.toArray()
+																	    /**
+																		 * Enable Linq after producing final result with invocation of toArray()
+																		 * 
+																		 * Guess why it's the natural and logical way of enabling continuation of Linq in JavaScript 
+																		*/
+																	   .usingLinq()
+																	   .where(
+																					{									
+																							'predicateArray' :	[
+																													["id", ">=", 2, true],
+																													["ne.ne_id", "<", 10, true]
+																												]
+																					}
+																			)
+																	   .toArray();
+
+		// when you're done with all querying, you can free some memory up by removing all data stored in _DATA object
+		System.Linq.Resources.dispose();
 
 	</script>
  </body>

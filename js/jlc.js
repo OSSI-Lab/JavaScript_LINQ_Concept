@@ -117,15 +117,27 @@
                 TAKE : "take",
                 JOIN : "join",
                 LEFT_JOIN : "left_join",
-                ORDER_ASC : "asc",
-                ORDER_DESC : "desc",
-                ORDER_THEN_ASC : "then_asc",
-                ORDER_THEN_DESC : "then_desc",
                 SAVE : "save",
                 UPDATE : "update",
                 CONCAT : "concat",
                 APPEND : "append",
-                PREPEND : "prepend"
+                PREPEND : "prepend",
+
+                ORDER : {
+                    By : {
+                        ASC : "asc",
+                        DESC : "desc",
+                        THEN_ASC : "then_asc",
+                        THEN_DESC : "then_desc"
+                    },
+                    InputType : {
+                        PLAIN : "plain_object",
+                        GROUPING : "grouping_object",
+                        DICTIONARY : "dictionary_object",
+                        KVP : "key_value_pair_object"
+                    }
+                    
+                }
         };
 
         // declare a private action object
@@ -635,8 +647,9 @@
                          *  - context
                         */
                         all : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
+                            // handle missing params object
+                            if (params === undefined) throw ReferenceError("Method [ all ] has to have 'params' object provided !");
+                            if(params['predicateArray'] === undefined) throw TypeError("Method [ all ] with 'params' object provided is missing 'predicateArray' array !");
 
                             // create action and proceed with further flow
                             return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ALL), System.Linq.Context.all, true);
@@ -890,39 +903,74 @@
 
         // declare a private physical filters object
         var _PHYSICAL_FILTER = {
-                executeWhereFilter : function(jlc, predicateArray, reverseBoolResult) {
-                    return execute_WF_I_1L(jlc, predicateArray, reverseBoolResult);
+                executeWhereFilter : function(jlc, predicateArray, skipOrTakeEnum) {
+                    return execute_WF_I_1L(jlc, predicateArray, skipOrTakeEnum);
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function execute_WF_I_1L(jlc, predicateArray, reverseBoolResult) {
+                    function execute_WF_I_1L(jlc, predicateArray, skipOrTakeEnum) {
                             // declare current intermediate collection
                             var c_i_c = [];
 
                             // create input collection cache
                             var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                            // loop over current collection and apply filters
-                            for(var i = 0; i < currentColl.length; i++) {
-                                // access current object
-                                var c_o = currentColl[i];
+                            // if we're dealing with skipWhile...
+                            if(skipOrTakeEnum === _ENUM.SKIP) {
+                                // loop over current collection and apply filters
+                                for(var i = 0; i < currentColl.length; i++) {
+                                    // access current object
+                                    var c_o = currentColl[i];
 
-                                // apply where filter(s) and get the result
-                                var passed;
+                                    // apply where filter(s) and get the result
+                                    var passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
 
-                                if(reverseBoolResult) {
-                                    passed = !_LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
+                                    // if object didn't pass the filter
+                                    if(!passed) {
+                                        // take the rest of the collection
+                                        c_i_c = currentColl.slice(i);
+
+                                        // and break further skipping 
+                                        break;
+                                    }
                                 }
-                                else {
+                            }
+                            // if we're dealing with takeWhile...                            
+                            else if(skipOrTakeEnum === _ENUM.TAKE) {
+                                // loop over current collection and apply filters
+                                for(var i = 0; i < currentColl.length; i++) {
+                                    // access current object
+                                    var c_o = currentColl[i];
+
+                                    // apply where filter(s) and get the result
+                                    var passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
+
+                                    // if object passed the filter
+                                    if(passed)
+                                        c_i_c.push(c_o);
+                                    // if object didn't pass the filter
+                                    else
+                                        // and break further taking 
+                                        break;
+                                }
+                            }
+                            // otherwise we're dealing with 'normal where' case
+                            else {
+                                // loop over current collection and apply filters
+                                for(var i = 0; i < currentColl.length; i++) {
+                                    // access current object
+                                    var c_o = currentColl[i];
+
+                                    // apply where filter(s) and get the result
                                     passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
-                                }
 
-                                // based on filtering result (true/false) pass object further down the flow
-                                if(passed)
-                                    c_i_c.push(c_o);
+                                    // based on filtering result (true/false) pass object further down the flow
+                                    if(passed)
+                                        c_i_c.push(c_o);
+                                }
                             }
 
                             // update HPID object to enable further data flow
@@ -1162,17 +1210,9 @@
                      * Local helper functions
                     */
                     function extR_I_1L(jlc, predicateArray, index, count, enumValue) {
-                            // for given predicates
-                            if(predicateArray && (enumValue === _ENUM.SKIP)) {
+                            if(predicateArray) {
                                 // execute the "WHERE" filter
-                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray, true);
-
-                                // check the result
-                                return getResult_I_2L(true);
-                            }
-                            else if(predicateArray) {
-                                // execute the "WHERE" filter
-                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray);
+                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray, enumValue);
 
                                 // check the result
                                 return getResult_I_2L(true);
@@ -1625,8 +1665,15 @@
                                      * Local helper functions
                                     */
                                     function executePrimitivePredicate_I_3L() {
-                                        // seek the destination property
-                                        var propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter(currentObject, propName, true);
+                                        // input value to compare
+                                        var propOrVal;
+
+                                        // determine if the current object is primitive one, i.e. int, string, number, etc.
+                                        if((propName.trim().length === 0 || propName.trim().length === 1) && propName === '_')
+                                            propOrVal = currentObject;
+                                        else
+                                            // seek the destination property
+                                            propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter(currentObject, propName, true);
 
                                         /**
                                          * Check the validity of an object prop (logical "NOT NULL"), i.e. "", undefined, null
@@ -2043,6 +2090,18 @@
                             window.System.Linq = window.System.Linq || {};
                             window.System.Linq.Context = window.System.Linq.Context || {};
                             window.System.Linq.QueryResult = window.System.Linq.QueryResult || {};
+                            window.System.Linq.Resources = window.System.Linq.Resources || {
+                                                                                                dispose : function() {
+                                                                                                            // remove all collections
+                                                                                                            _DATA.collection_array.length = 0;
+
+                                                                                                            // remove all collections' tokens
+                                                                                                            _DATA.root_token_array.length = 0;
+
+                                                                                                            // reset collections' index
+                                                                                                            _DATA.index = -1;
+                                                                                                          }
+                                                                                           }
 
                             // add methods to Linq context objects
                             addLinqMethodsToContext_I_3L(
