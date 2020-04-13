@@ -1,5 +1,6 @@
 // context-wide available object
 var my_custom_jlc_filters = {
+    // filter 1 for usage with objects
     myFilter1 : function(min, max, currentObj) {
         var obj_id_prop_Value = currentObj['id'];
 
@@ -9,10 +10,27 @@ var my_custom_jlc_filters = {
         return false;
     },
 
+    // filter 2 for usage with objects
     myFilter2 : function(idValue, currentObj) {
         var obj_id_prop_Value = currentObj['id'];
 
         if(obj_id_prop_Value > idValue)
+            return true;
+
+        return false;
+    },
+
+    // filter 3 for usage with primitives
+    myFilter3 : function(anyCollection, currentPrimitiveValue) {
+        debugger;
+        // you can handle 'this' context here privided you binded this function when defining a query
+        var someContext = this;
+
+        // you can do something with passed some other collection
+        var exists = anyCollection.indexOf(currentPrimitiveValue) > -1;
+
+        // some examplary logic
+        if(currentPrimitiveValue % 3 === 0 && exists)
             return true;
 
         return false;
