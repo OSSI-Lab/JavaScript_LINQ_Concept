@@ -21,9 +21,9 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
- - DPR #9:&nbsp;2020-04-14 &nbsp;&nbsp;2:07 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 1**&nbsp;:heavy_check_mark:
+ - DPR #9:&nbsp;2020-04-14 &nbsp;&nbsp;2:17 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 1**&nbsp;:heavy_check_mark:
     - methods left to be implemented before releasing RC version :
-     - orderBy, orderByDescending, reverse, reverseExt, select, join, leftJoin, contains, distinct, except, intersect, union
+     - orderBy, orderByDescending, thenBy, thenByDescending, reverse, reverseExt, select, join, leftJoin, contains, distinct, except, intersect, union
 
 
  - DPR #8:&nbsp;2020-04-13 &nbsp;&nbsp;5:54 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α v3*
