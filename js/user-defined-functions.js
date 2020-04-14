@@ -22,7 +22,6 @@ var my_custom_jlc_filters = {
 
     // filter 3 for usage with primitives
     myFilter3 : function(anyCollection, currentPrimitiveValue) {
-        debugger;
         // you can handle 'this' context here privided you binded this function when defining a query
         var someContext = this;
 

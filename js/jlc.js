@@ -133,7 +133,6 @@
                     InputType : {
                         PLAIN : "plain_object",
                         GROUPING : "grouping_object",
-                        DICTIONARY : "dictionary_object",
                         KVP : "key_value_pair_object"
                     }
                     
@@ -1075,8 +1074,14 @@
                                 // create the key
                                 var key_array = _COMMON.createGroupingOrSortingKey(predicateArray);
 
-                                // declare groups object
-                                var groups = {};
+                                // declare groups object being a plain object or an array !
+                                var groups;
+
+                                // distinguish between dictionary and grouping object
+                                if(isDictionaryContext)
+                                    groups = [];
+                                else
+                                    groups = {};
 
                                 // get contextually current collection within history array
                                 var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
@@ -1105,8 +1110,8 @@
 
                                     // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
                                     if(isDictionaryContext) {
-                                        // store object under this key
-                                        groups[id] = item;
+                                        // store object as a KVP object (KeyValuePair)
+                                        groups.push({key : id, value : item});
                                     }
                                     else {
                                         // reference the list of elements
@@ -1255,7 +1260,7 @@
                                         return typeof name === 'string' && name.length > 0 ? name : 'object';
                                     }
                                 }
-                            }
+                            }                            
 
                             function sortGroups_I_2L(equalityComparer) {
                                 // declare array of group keys
@@ -1914,48 +1919,6 @@
                 group_by : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext) {
                     // invoke core logic
                     _PHYSICAL_FILTER.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext);
-
-                    /**
-                     * Inject dynamically contextual parameterless list method called toArrayList() if invocation context is set to creating dictionary.
-                     * This is very contextual method that can be invoke from only this context and serves the same purpose as in this C# use case:
-                     *           var dict_2_array = list.ToDictionary(...).ToArray();
-                     *           var dict_2_list = list.ToDictionary(...).ToList();
-                    */
-                    if(isDictionaryContext)
-                        Object.prototype.toArrayList = Object.prototype.toArrayList || toArrayList_I_1L;
-                    
-                    
-                    
-                    /**
-                     * Local helper functions 
-                    */
-                    function toArrayList_I_1L() {
-                        /**
-                         * 'this' refers to future data object being either a dictionary or other object.
-                         * The valid invocation context of this method is when future object is a dictionary one ! 
-                        */
-
-                        // declare an output 'array list'
-                        var al = [];
-
-                        // loop over all entries (KeyValuePair objects)
-                        for(var i = 0, keys = Object.getOwnPropertyNames(this); i < keys.length; i++) {
-                            // access current KVP's key
-                            var key = keys[i];
-
-                            // access current KVP's value
-                            var value = this[key];
-
-                            // push it to 'array list'
-                            al.push({key : key, value : value});
-                        }
-
-                        // unbind toArrayList from further usage
-                        Object.prototype.toArrayList = undefined;
-
-                        // return 'array list'
-                        return al;
-                    }
                 },
 
                 list_t : function(fallbackOnDefault) {
