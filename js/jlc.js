@@ -18,90 +18,90 @@
 
         // declare a private query debugger
         var _QUERY_DEBUGGER = {
-            ___init___ : function() {
-                // mark that Query Debugger was initialized
-                this.Vars.initialized = true;
+                ___init___ : function() {
+                    // mark that Query Debugger was initialized
+                    this.Vars.initialized = true;
 
-                // enable detection of open/closed browser's console
-                Object.defineProperty(this.Vars._I, 'id', { get : this.Funcs.enable_query_debugger });
+                    // enable detection of open/closed browser's console
+                    Object.defineProperty(this.Vars._I, 'id', { get : this.Funcs.enable_query_debugger });
 
-                // invoke JLC 1.0 Query Debugger
-                requestAnimationFrame(this.Funcs.run);
-            },
-
-            // internal state of the query debugger
-            Vars : {
-                initialized : false,
-                debugStatus : '',
-
-                menu : "\r\nJLC 1.0 Query Debugger (🐛) reports for duty ! 🖥️💻 \r\n\r\n====================================================================================================================================\r\n\r\nIt dynamically enables injection of ResultsView data projection !\r\nThe goal is to show dynamically - only WHILE DEBUGGING - current state of JLC query being processed - almost like in C# 😉\r\n\r\n====================================================================================================================================\r\n\r\nNot intended to use by the group of some 'false engineers' -> 🤡",
-                isSwitchedOn : false,
-
-                debugData : null,
-
-                _I : new Image(),
-                _c : 0,
-            },
-
-            // query debugger internal API
-            Funcs : {
-                is_initialized : function() {
-                    return _QUERY_DEBUGGER.Vars.initialized;
+                    // invoke JLC 1.0 Query Debugger
+                    requestAnimationFrame(this.Funcs.run);
                 },
 
-                run : function () {
-                    // prepare query debugger UI state as off
-                    _QUERY_DEBUGGER.Vars.debugStatus = 'off';
+                // internal state of the query debugger
+                Vars : {
+                    initialized : false,
+                    debugStatus : '',
+
+                    menu : "\r\nJLC 1.0 Query Debugger (🐛) reports for duty ! 🖥️💻 \r\n\r\n====================================================================================================================================\r\n\r\nIt dynamically enables injection of ResultsView data projection !\r\nThe goal is to show dynamically - only WHILE DEBUGGING - current state of JLC query being processed - almost like in C# 😉\r\n\r\n====================================================================================================================================\r\n\r\nNot intended to use by the group of some 'false engineers' -> 🤡",
+                    isSwitchedOn : false,
+
+                    debugData : null,
+
+                    _I : new Image(),
+                    _c : 0,
+                },
+
+                // query debugger internal API
+                Funcs : {
+                    is_initialized : function() {
+                        return _QUERY_DEBUGGER.Vars.initialized;
+                    },
+
+                    run : function () {
+                        // prepare query debugger UI state as off
+                        _QUERY_DEBUGGER.Vars.debugStatus = 'off';
+                        
+                        // mark query debugger as off
+                        _QUERY_DEBUGGER.Vars.isSwitchedOn = false;
+
+                        // switch query debugger off
+                        console.warn(_QUERY_DEBUGGER.Vars._I);
+                        
+                        // update query debugger UI
+                        document.querySelector('#devtool-status').className  = _QUERY_DEBUGGER.Vars.debugStatus;
+
+                        requestAnimationFrame(_QUERY_DEBUGGER.Funcs.run);
+                        // check periodically for state updates
+                    },
                     
-                    // mark query debugger as off
-                    _QUERY_DEBUGGER.Vars.isSwitchedOn = false;
+                    enable_query_debugger : function () {
+                        // prepare query debugger UI state as on
+                        _QUERY_DEBUGGER.Vars.debugStatus = 'on';
 
-                    // switch query debugger off
-                    console.warn(_QUERY_DEBUGGER.Vars._I);
-                    
-                    // update query debugger UI
-                    document.querySelector('#devtool-status').className  = _QUERY_DEBUGGER.Vars.debugStatus;
+                        // update query debugger UI
+                        document.querySelector('#devtool-status').className  = _QUERY_DEBUGGER.Vars.debugStatus;
+                        
+                        // display query debugger menu
+                        _QUERY_DEBUGGER.Vars._c++;
+                        if(_QUERY_DEBUGGER.Vars._c == 1) {
+                            // mark query debugger as on
+                            _QUERY_DEBUGGER.Vars.isSwitchedOn = true;
 
-                    requestAnimationFrame(_QUERY_DEBUGGER.Funcs.run);
-                    // check periodically for state updates
-                },
-                
-                enable_query_debugger : function () {
-                    // prepare query debugger UI state as on
-                    _QUERY_DEBUGGER.Vars.debugStatus = 'on';
+                            console.log(_QUERY_DEBUGGER.Vars.menu);                        
+                        }
 
-                    // update query debugger UI
-                    document.querySelector('#devtool-status').className  = _QUERY_DEBUGGER.Vars.debugStatus;
-                    
-                    // display query debugger menu
-                    _QUERY_DEBUGGER.Vars._c++;
-                    if(_QUERY_DEBUGGER.Vars._c == 1) {
-                        // mark query debugger as on
-                        _QUERY_DEBUGGER.Vars.isSwitchedOn = true;
+                        if(_QUERY_DEBUGGER.Vars._c >= 1) {
+                            // inject dynamically some DEBUG data - THIS IS AN EXEMPLARY USAGE - to show the purpose, not the exact functionality !
+                            _QUERY_DEBUGGER.Vars.debugData = _QUERY_DEBUGGER.Vars.debugData || _DATA;                        
+                        }
+                    },
 
-                        console.log(_QUERY_DEBUGGER.Vars.menu);                        
+                    is_switched_on : function() {
+                        if(_QUERY_DEBUGGER.Vars.isSwitchedOn || _QUERY_DEBUGGER.Vars._c > 0) {
+                            // inject dynamically some DEBUG data - THIS IS AN EXEMPLARY USAGE - to show the purpose, not the exact functionality !
+                            _QUERY_DEBUGGER.Vars.debugData = _QUERY_DEBUGGER.Vars.debugData || _DATA;
+                        }
+
+                        // return the state of the query debugger - on/off
+                        return _QUERY_DEBUGGER.Vars.isSwitchedOn || _QUERY_DEBUGGER.Vars._c > 0;
+                    },
+
+                    getDebugData : function() {
+                        return _QUERY_DEBUGGER.Vars.debugData;
                     }
-
-                    if(_QUERY_DEBUGGER.Vars._c >= 1) {
-                        // inject dynamically some DEBUG data - THIS IS AN EXEMPLARY USAGE - to show the purpose, not the exact functionality !
-                        _QUERY_DEBUGGER.Vars.debugData = _QUERY_DEBUGGER.Vars.debugData || _DATA;                        
-                    }
-                },
-
-                is_switched_on : function() {
-                    if(_QUERY_DEBUGGER.Vars.isSwitchedOn || _QUERY_DEBUGGER.Vars._c > 0) {
-                        // inject dynamically some DEBUG data - THIS IS AN EXEMPLARY USAGE - to show the purpose, not the exact functionality !
-                        _QUERY_DEBUGGER.Vars.debugData = _QUERY_DEBUGGER.Vars.debugData || _DATA;
-                    }
-
-                    // return the state of the query debugger - on/off
-                    return _QUERY_DEBUGGER.Vars.isSwitchedOn || _QUERY_DEBUGGER.Vars._c > 0;
-                },
-
-                getDebugData : function() {
-                    return _QUERY_DEBUGGER.Vars.debugData;
                 }
-            }
         }
 
         // declare a private enum object
@@ -140,765 +140,847 @@
                 }
         };
 
+        // declare a private operators object
+        var _OPERATORS = {
+                get : {
+                    '>' : {
+                            call : function(v1, v2) {
+                                        return v1 > v2;
+                                    }
+                    },
+
+                    '<' : {
+                            call : function(v1, v2) {
+                                        return v1 < v2;
+                                    }
+                    },
+
+                    '>=' : {
+                                call :  function(v1, v2) {
+                                            return v1 >= v2;
+                                        }
+                    },
+
+                    '<=' : {
+                                call :  function(v1, v2) {
+                                            return v1 <= v2;
+                                        }
+                    },
+
+                    '==' : {
+                                call :  function(v1, v2) {
+                                            return v1 == v2;
+                                        }
+                    },
+
+                    '===' : {
+                                call :  function(v1, v2) {
+                                            return v1 === v2;
+                                        }
+                    },
+
+                    '<>' : {
+                                call :  function(v1, v2) {
+                                            return v1 !== v2;
+                                        }
+                    },
+
+                    '()' : {
+                                call :  function(v1) {
+                                            return v1 ? true : false;
+                                        }
+                    },
+
+                    '(!)' : {
+                                call :  function(v1, v2) {
+                                            return v1 === v2 ? true : false;
+                                        }
+                    }
+                },
+
+                checkValue : function(propOrVal, propOperator, propValue) {
+                    /**
+                     * Check the validity of a prop - object's prop or a primitive type - (logical "NOT NULL"), i.e. "", undefined, null
+                     * Boolean values like false, 0 (that evaluates to false) in this case are considered correct values !
+                    */
+                    var valid = propOrVal || propOrVal === 0 || propOrVal === false;
+
+                    // execute the operator provided that the found prop "is not null"
+                    if(valid) {
+                        // get the proper bool operator
+                        var b_op = _OPERATORS.get[propOperator];
+                        
+                        // run operator
+                        if(b_op)
+                            return b_op.call(propOrVal, propValue);
+                        // in case you provided 'not-implemented' one, throw an error
+                        else
+                            throw new Error("Unsupported operator [ " + propOperator + " ] !");                
+                    }
+                    else
+                        return false;
+                }
+        };
+
         // declare a private action object
         var _ACTION = {
-            // create 'current' query-wide HPID, i.e. holder of physical intermediate data
-            hpid : {
-                // is data holder activated
-                isOn : false,
-                
-                // array for storing physical intermediate data
-                data : [],
-
-                /**
-                 * Handle special case that returns the so-far filtered off array.
-                 * The following parameter called 'done' when set to 'true' tells to discard returned result and go for the so-far filtered off array as the final result 
-                */
-                done : false
-            },
-
-            // create action that represents filtering logic for given Linq's method
-            create : function(jlc_instance_ctx, core_method_bind, context, to_execute) {
-                // create an action
-                var action = {
-                    // store information whether this action is executable one
-                    returnsData : System.Linq.QueryResult[context],
-
-                    // store collection index
-                    coll_ref : jlc_instance_ctx.coll_index,
-
-                    // store root of the chain filters
-                    chain_root_id : jlc_instance_ctx.root_token,
-
-                    // store parent of this action
-                    parent : jlc_instance_ctx.parent,
-
-                    // execute this action by invoking its API which is execute method in turn invoking its core method with binded parameters
-                    execute : function() {
-                        return core_method_bind();
-                    }
-                };
-
-                // create context of this action
-                var ctx = {
-                    // collection reference id
-                    coll_index : jlc_instance_ctx.coll_index,
-                        
-                    // collection token
-                    root_token : jlc_instance_ctx.root_token,
-
-                    // parent action chained to this action
-                    parent : action
-                };
-
-                // invoke real data filtering and produce output 
-                if(to_execute)
-                    // execute all actions
-                    return this.executeChain(ctx);
-                // otherwise enable further flow of actions
-                else
-                    // return new instance api and pass context of current action to provide chain of actions to execute
-                    return _COMMON.jlcNew(ctx);
-            },
-
-            // execute all actions in the chain
-            executeChain : function(jlc_ctx) {
-                return execute_C_I_1L(jlc_ctx);
-
-
-
-                /**
-                 * Local helper functions 
-                */
-                function execute_C_I_1L(jlc_ctx) {
-                    // reset temp storage flags
-                    _ACTION.hpid.isOn = _ACTION.hpid.done = false;
-                    // reset holder of physical intermediate data
-                    Array.isArray(_ACTION.hpid.data) ? _ACTION.hpid.data.length = 0 : _ACTION.hpid.data = [];
-
-
-                    // execute all actions and determine the final output...
-                    var result = executeActionsRecursively_I_2L(jlc_ctx.parent);
-
-                    // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
-                    if(_ACTION.hpid.done && Array.isArray(_ACTION.hpid.data))
-                        return _ACTION.hpid.data.slice(0);
+                // create 'current' query-wide HPID, i.e. holder of physical intermediate data
+                hpid : {
+                    // is data holder activated
+                    isOn : false,
                     
-                    // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
-                    if(_ACTION.hpid.done)
-                        return _ACTION.hpid.data;
+                    // array for storing physical intermediate data
+                    data : [],
 
-                    // ... otherwise return result as the output
-                    return result;
+                    /**
+                     * Handle special case that returns the so-far filtered off array.
+                     * The following parameter called 'done' when set to 'true' tells to discard returned result and go for the so-far filtered off array as the final result 
+                    */
+                    done : false
+                },
+
+                // create action that represents filtering logic for given Linq's method
+                create : function(jlc_instance_ctx, core_method_bind, context, to_execute) {
+                    // create an action
+                    var action = {
+                        // store information whether this action is executable one
+                        returnsData : System.Linq.QueryResult[context],
+
+                        // store collection index
+                        coll_ref : jlc_instance_ctx.coll_index,
+
+                        // store root of the chain filters
+                        chain_root_id : jlc_instance_ctx.root_token,
+
+                        // store parent of this action
+                        parent : jlc_instance_ctx.parent,
+
+                        // execute this action by invoking its API which is execute method in turn invoking its core method with binded parameters
+                        execute : function() {
+                            return core_method_bind();
+                        }
+                    };
+
+                    // create context of this action
+                    var ctx = {
+                        // collection reference id
+                        coll_index : jlc_instance_ctx.coll_index,
+                            
+                        // collection token
+                        root_token : jlc_instance_ctx.root_token,
+
+                        // parent action chained to this action
+                        parent : action
+                    };
+
+                    // invoke real data filtering and produce output 
+                    if(to_execute)
+                        // execute all actions
+                        return this.executeChain(ctx);
+                    // otherwise enable further flow of actions
+                    else
+                        // return new instance api and pass context of current action to provide chain of actions to execute
+                        return _COMMON.jlcNew(ctx);
+                },
+
+                // execute all actions in the chain
+                executeChain : function(jlc_ctx) {
+                    return execute_C_I_1L(jlc_ctx);
 
 
 
                     /**
                      * Local helper functions 
                     */
-                    function executeActionsRecursively_I_2L(parentAction) {
-                        // go all the way down to the root action
-                        if(parentAction.parent)
-                            executeActionsRecursively_I_2L(parentAction.parent);
-                            
-                        // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
-                        if(parentAction.returnsData)
-                            return parentAction.execute();
-                        else
-                            parentAction.execute();
+                    function execute_C_I_1L(jlc_ctx) {
+                        // reset temp storage flags
+                        _ACTION.hpid.isOn = _ACTION.hpid.done = false;
+                        // reset holder of physical intermediate data
+                        Array.isArray(_ACTION.hpid.data) ? _ACTION.hpid.data.length = 0 : _ACTION.hpid.data = [];
+
+
+                        // execute all actions and determine the final output...
+                        var result = executeActionsRecursively_I_2L(jlc_ctx.parent);
+
+                        // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
+                        if(_ACTION.hpid.done && Array.isArray(_ACTION.hpid.data))
+                            return _ACTION.hpid.data.slice(0);
+                        
+                        // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
+                        if(_ACTION.hpid.done)
+                            return _ACTION.hpid.data;
+
+                        // ... otherwise return result as the output
+                        return result;
+
+
+
+                        /**
+                         * Local helper functions 
+                        */
+                        function executeActionsRecursively_I_2L(parentAction) {
+                            // go all the way down to the root action
+                            if(parentAction.parent)
+                                executeActionsRecursively_I_2L(parentAction.parent);
+                                
+                            // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
+                            if(parentAction.returnsData)
+                                return parentAction.execute();
+                            else
+                                parentAction.execute();
+                        }
                     }
                 }
-            }
         };
 
         // declare a private common object
         var _COMMON = {
-            jlcNew : function(ctx) {
-                return get_Instance_I_1L(ctx);
+                jlcNew : function(ctx) {
+                    return get_Instance_I_1L(ctx);
 
 
 
-                /**
-                 * Local helper functions
-                */
-                function get_Instance_I_1L(ctx) {
-                    // declare JavaScript LINQ Concept API object
-                    var api = {
-                        // ~ TO BE IMPLEMENTED AGAIN
-                        orderBy : function(keyPartSelectorArray, udfComparer) {
+                    /**
+                     * Local helper functions
+                    */
+                    function get_Instance_I_1L(ctx) {
+                        // declare JavaScript LINQ Concept API object
+                        var api = {
+                            // ~ TO BE IMPLEMENTED AGAIN
+                            orderBy : function(keyPartSelectorArray, udfComparer) {
 
 
-                            // sorts the collection in ascending order according to a key or using given comparer
-                            _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_ASC);
+                                // sorts the collection in ascending order according to a key or using given comparer
+                                _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_ASC);
 
-                            // return JavaScript LINQ Concept object
-                            return this;
-                        },
+                                // return JavaScript LINQ Concept object
+                                return this;
+                            },
 
-                        // ~ TO BE IMPLEMENTED AGAIN
-                        orderByDescending : function(keyPartSelectorArray, udfComparer) {
-
-
-                            // sorts the collection in descending order according to a key or using given comparer
-                            _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_DESC);
-
-                            // return JavaScript LINQ Concept object
-                            return this;
-                        },
-
-                        // ~ TO BE IMPLEMENTED AGAIN
-                        reverse : function(params, startingIndex, count, context) {
-                            // create action and proceed with further flow
-                            return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE), true, true, true, params['context']);
-                        },
-
-                        // ~ TO BE IMPLEMENTED AGAIN
-                        reverseExt : function(params, startingIndex, count, context) {
-                            // create action and proceed with further flow
-                            return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE_EXT), false, false, true, params['context']);
-                        },
-                        
-                        // ~ TO BE IMPLEMENTED
-                        select : function(arrayOfNewObjectProps, outputType) {
-                            //
-
-                            // return JavaScript LINQ Concept object
-                            return this;
-                        },
-
-                        // ~ TO BE IMPLEMENTED
-                        join : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
+                            // ~ TO BE IMPLEMENTED AGAIN
+                            orderByDescending : function(keyPartSelectorArray, udfComparer) {
 
 
-                            // join two sequences based on defined keys
-                            _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.JOIN);
+                                // sorts the collection in descending order according to a key or using given comparer
+                                _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_DESC);
 
-                            // return api to enable further flow
-                            return this;
-                        },
+                                // return JavaScript LINQ Concept object
+                                return this;
+                            },
 
-                        // ~ TO BE IMPLEMENTED
-                        leftJoin : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
+                            // ~ TO BE IMPLEMENTED AGAIN
+                            reverse : function(params, startingIndex, count, context) {
+                                // create action and proceed with further flow
+                                return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE), true, true, true, params['context']);
+                            },
 
-
-                            // left join two sequences based on defined keys
-                            _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.LEFT_JOIN);
-
-                            // return JavaScript LINQ Concept object
-                            return this;
-                        },
-
-                        // ~ TO BE IMPLEMENTED
-                        contains : function(collectionItem, udfEqualityComparer) {
-                            //
-
-                            // return true/false
-                        },
-
-                        // ~ TO BE IMPLEMENTED
-                        distinct : function(udfEqualityComparer) {
-                            //
-
-                            // return JavaScript LINQ Concept object
-                            return this;
-                        },
-
-                        // ~ TO BE IMPLEMENTED                            
-                        except : function() {
-                            //
-
-                            // return JavaScript LINQ Concept object
-                            return this;
-                        },
-
-                        // ~ TO BE IMPLEMENTED ?
-                        intersect : function() {
-
-                        },
-
-                        // ~ TO BE IMPLEMENTED ?
-                        union : function() {
-
-                        },
-
-
-
-
-
-
-                        /**
-                         * ALREADY IMPLEMENTED 
-                        */
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                        */
-                        where : function (params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.where.bind(this, params['predicateArray']), System.Linq.Context.where);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - udfEqualityComparer
-                         *  - udfGroupProjector
-                         *  - udfGroupElementsProjector
-                         *  - udfGroupResultValueSelector
-                         *  - terminateFlowAndReturnData
-                        */
-                        groupBy : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(
-                                                    this._ctx,
-                                                    _CORE.group_by.bind(
-                                                                        this,
-                                                                        params['predicateArray'],
-                                                                        params['udfEqualityComparer'],
-                                                                        params['udfGroupProjector'],
-                                                                        params['udfGroupElementsProjector'],
-                                                                        params['udfGroupResultValueSelector'],
-                                                                        true
-                                                                       ),
-                                                    System.Linq.Context.groupBy
-                                                 );
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - inputCollection
-                        */
-                        concat : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['inputCollection'], _ENUM.CONCAT), System.Linq.Context.concat);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - collectionItem
-                        */
-                        append : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.APPEND), System.Linq.Context.append);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - collectionItem
-                        */
-                        prepend : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.PREPEND), System.Linq.Context.prepend);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - count
-                        */
-                        skip : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.SKIP), System.Linq.Context.skip);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                        */
-                        skipWhile : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.SKIP), System.Linq.Context.skipWhile);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - count
-                        */
-                        take : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.TAKE), System.Linq.Context.take);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                        */
-                        takeWhile : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.TAKE), System.Linq.Context.takeWhile);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - udfEqualityComparer
-                         *  - udfGroupElementsProjector
-                         *  - context
-                        */
-                        toDictionary : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(
-                                                    this._ctx,
-                                                    _CORE.group_by.bind(
-                                                                        this,
-                                                                        params['predicateArray'],
-                                                                        params['udfEqualityComparer'],
-                                                                        null,
-                                                                        null,
-                                                                        params['udfGroupResultValueSelector'],
-                                                                        true,
-                                                                        true // is dictionary context
-                                                                       ),
-                                                    System.Linq.Context.toDictionary,
-                                                    true
-                                                );
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                        */
-                        toArray : function() {
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.list_t.bind(this, true), System.Linq.Context.toArray, true);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        first : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
-
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.first_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.first, true);
-                        },
-
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        firstOrDefault : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
+                            // ~ TO BE IMPLEMENTED AGAIN
+                            reverseExt : function(params, startingIndex, count, context) {
+                                // create action and proceed with further flow
+                                return _ACTION.create(this, _CORE.reverse_t.bind(this, params['startingIndex'], params['count'], _ENUM.REVERSE_EXT), false, false, true, params['context']);
+                            },
                             
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.first_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.firstOrDefault, true);
-                        },
+                            // ~ TO BE IMPLEMENTED
+                            select : function(arrayOfNewObjectProps, outputType) {
+                                //
 
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        last : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
+                                // return JavaScript LINQ Concept object
+                                return this;
+                            },
 
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.last_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.last, true);
-                        },
+                            // ~ TO BE IMPLEMENTED
+                            join : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
 
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        lastOrDefault : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
 
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.last_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.lastOrDefault, true);
-                        },
+                                // join two sequences based on defined keys
+                                _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.JOIN);
 
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        single : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
+                                // return api to enable further flow
+                                return this;
+                            },
 
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.single_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.single, true);
-                        },
+                            // ~ TO BE IMPLEMENTED
+                            leftJoin : function(anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType) {
 
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        singleOrDefault : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
 
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.single_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.singleOrDefault, true);
-                        },
+                                // left join two sequences based on defined keys
+                                _CORE.apply_set_based_operations(this, anotherObjectCollection, thisCollectionItemKeyPropArray, anotherCollectionItemKeyPropArray, outputCollectionItemType, _ENUM.LEFT_JOIN);
 
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        any : function(params) {
-                            // handle "default" parameter
-                            if (params === undefined) params = {};
+                                // return JavaScript LINQ Concept object
+                                return this;
+                            },
 
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ANY), System.Linq.Context.any, true);
-                        },
+                            // ~ TO BE IMPLEMENTED
+                            contains : function(collectionItem, udfEqualityComparer) {
+                                //
 
-                        /**
-                         * Serves the same purpose as Where method in LINQ from C#.
-                         * @param {object} params Contains all possible params used by this method :
-                         *  - predicateArray
-                         *  - context
-                        */
-                        all : function(params) {
-                            // handle missing params object
-                            if (params === undefined) throw ReferenceError("Method [ all ] has to have 'params' object provided !");
-                            if(params['predicateArray'] === undefined) throw TypeError("Method [ all ] with 'params' object provided is missing 'predicateArray' array !");
+                                // return true/false
+                            },
 
-                            // create action and proceed with further flow
-                            return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ALL), System.Linq.Context.all, true);
-                        },
+                            // ~ TO BE IMPLEMENTED
+                            distinct : function(udfEqualityComparer) {
+                                //
 
-                        /**
-                         * Special method that tells whether query debugger is available ! 😀😉
-                         * Can be safely removed if library moved to production. 🙂
-                         * 
-                         * Go to line 1591 to remove from initialization JLC 1.0 Query Debugger 
-                        */
-                        ifConsoleDebug : function() {
-                            // is JLC 1.0 Query Debugger initialized ?
-                            var is_initialized = _QUERY_DEBUGGER.Funcs.is_initialized();
-                            
-                            if(is_initialized) {
-                                // check the state of the query debugger - on/off
-                                var is_on = _QUERY_DEBUGGER.Funcs.is_switched_on();
+                                // return JavaScript LINQ Concept object
+                                return this;
+                            },
 
-                                // if switched on, enable fetching some debug data
-                                if(is_on) {
-                                    this.debugResultsView = function() {
-                                        // fetch on demand some DEBUG data !!!!!!!
-                                        return _QUERY_DEBUGGER.Funcs.getDebugData(); 
-                                    };
+                            // ~ TO BE IMPLEMENTED                            
+                            except : function() {
+                                //
+
+                                // return JavaScript LINQ Concept object
+                                return this;
+                            },
+
+                            // ~ TO BE IMPLEMENTED ?
+                            intersect : function() {
+
+                            },
+
+                            // ~ TO BE IMPLEMENTED ?
+                            union : function() {
+
+                            },
+
+
+
+
+
+
+                            /**
+                             * ALREADY IMPLEMENTED 
+                            */
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                            */
+                            where : function (params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.where.bind(this, params['predicateArray']), System.Linq.Context.where);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - udfEqualityComparer
+                             *  - udfGroupProjector
+                             *  - udfGroupElementsProjector
+                             *  - udfGroupResultValueSelector
+                             *  - terminateFlowAndReturnData
+                            */
+                            groupBy : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(
+                                                        this._ctx,
+                                                        _CORE.group_by.bind(
+                                                                            this,
+                                                                            params['predicateArray'],
+                                                                            params['udfEqualityComparer'],
+                                                                            params['udfGroupProjector'],
+                                                                            params['udfGroupElementsProjector'],
+                                                                            params['udfGroupResultValueSelector'],
+                                                                            true
+                                                                        ),
+                                                        System.Linq.Context.groupBy
+                                                    );
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - inputCollection
+                            */
+                            concat : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['inputCollection'], _ENUM.CONCAT), System.Linq.Context.concat);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - collectionItem
+                            */
+                            append : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.APPEND), System.Linq.Context.append);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - collectionItem
+                            */
+                            prepend : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.add_t.bind(this, params['collectionItem'], _ENUM.PREPEND), System.Linq.Context.prepend);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - count
+                            */
+                            skip : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.SKIP), System.Linq.Context.skip);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                            */
+                            skipWhile : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.SKIP), System.Linq.Context.skipWhile);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - count
+                            */
+                            take : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, params['count'], null, _ENUM.TAKE), System.Linq.Context.take);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                            */
+                            takeWhile : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.skip_or_take.bind(this, null, params['predicateArray'], _ENUM.TAKE), System.Linq.Context.takeWhile);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - udfEqualityComparer
+                             *  - udfGroupElementsProjector
+                             *  - context
+                            */
+                            toDictionary : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(
+                                                        this._ctx,
+                                                        _CORE.group_by.bind(
+                                                                            this,
+                                                                            params['predicateArray'],
+                                                                            params['udfEqualityComparer'],
+                                                                            null,
+                                                                            null,
+                                                                            params['udfGroupResultValueSelector'],
+                                                                            true,
+                                                                            true // is dictionary context
+                                                                        ),
+                                                        System.Linq.Context.toDictionary,
+                                                        true
+                                                    );
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                            */
+                            toArray : function() {
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.list_t.bind(this, true), System.Linq.Context.toArray, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            first : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.first_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.first, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            firstOrDefault : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+                                
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.first_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.firstOrDefault, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            last : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.last_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.last, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            lastOrDefault : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.last_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.lastOrDefault, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            single : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.single_or_default.bind(this, params['predicateArray'], false), System.Linq.Context.single, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            singleOrDefault : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.single_or_default.bind(this, params['predicateArray'], true), System.Linq.Context.singleOrDefault, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            any : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ANY), System.Linq.Context.any, true);
+                            },
+
+                            /**
+                             * Serves the same purpose as Where method in LINQ from C#.
+                             * @param {object} params Contains all possible params used by this method :
+                             *  - predicateArray
+                             *  - context
+                            */
+                            all : function(params) {
+                                // handle missing params object
+                                if (params === undefined) throw ReferenceError("Method [ all ] has to have 'params' object provided !");
+                                if(params['predicateArray'] === undefined) throw TypeError("Method [ all ] with 'params' object provided is missing 'predicateArray' array !");
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ALL), System.Linq.Context.all, true);
+                            },
+
+                            /**
+                             * Special method that tells whether query debugger is available ! 😀😉
+                             * Can be safely removed if library moved to production. 🙂
+                             * 
+                             * Go to line 1591 to remove from initialization JLC 1.0 Query Debugger 
+                            */
+                            ifConsoleDebug : function() {
+                                // is JLC 1.0 Query Debugger initialized ?
+                                var is_initialized = _QUERY_DEBUGGER.Funcs.is_initialized();
+                                
+                                if(is_initialized) {
+                                    // check the state of the query debugger - on/off
+                                    var is_on = _QUERY_DEBUGGER.Funcs.is_switched_on();
+
+                                    // if switched on, enable fetching some debug data
+                                    if(is_on) {
+                                        this.debugResultsView = function() {
+                                            // fetch on demand some DEBUG data !!!!!!!
+                                            return _QUERY_DEBUGGER.Funcs.getDebugData(); 
+                                        };
+                                    }
+
+                                    // return the state of the query debugger - on/off
+                                    return is_on;
                                 }
-
-                                // return the state of the query debugger - on/off
-                                return is_on;
-                            }
-                            else {
-                                throw Error('JLC 1.0 Query Debugger not initialized !');
-                            }
-                        }
-                    };
-
-                    // bind context to this API instance
-                    api._ctx = ctx;
-
-                    // return JLC API instance
-                    return api;
-                }
-            },
-
-            getContext : function(f) {
-                return getContext_I_1L(f);
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function getContext_I_1L(f) {
-                    // get the invocation method context, i.e. get the information, which method you invoke
-                    var f_n_arr = f.name.split(" ");
-                            
-                    // in case it's a bound method, get the root method
-                    var ctx = f_n_arr[f_n_arr.length - 1];
-
-                    // return context for current usage
-                    return ctx;
-                }
-            },
-
-            createType : function(templateObject) {
-                return createType_I_1L(templateObject);
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function createType_I_1L(templateObject) {
-                        // loop over all props and delete their values
-                        for(var eot_k in templateObject) {
-                            // access current property
-                            var objProp = templateObject[eot_k];
-
-                            // if it's nested another object, drill down to discover the props of such nested object
-                            if(typeof objProp === 'object') {
-                                createType_I_1L(objProp);
-                            }
-                            // for primitive props just set the value to 'undefined'
-                            else if(typeof objProp !== 'function') {
-                                templateObject[eot_k] = undefined;
-                            }
-                        }
-
-                        // return the empty object
-                        return templateObject;
-                }
-            },
-
-            createDefaultOfT : function(historyIndex) {
-                return createDefaultOfT_I_1L(historyIndex);
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function createDefaultOfT_I_1L(historyIndex) {
-                        // get collection item type metadata of contextually current collection from history array
-                        var itemTypeMetadata = _DATA.getT(historyIndex);
-
-                        if(itemTypeMetadata.isReady)
-                            // return an empty proper object
-                            return itemTypeMetadata.output;
-                        else {
-                            if(itemTypeMetadata.makeItEmpty)
-                                itemTypeMetadata.output = _COMMON.createType(itemTypeMetadata.source);
-                            else
-                                itemTypeMetadata.output = itemTypeMetadata.source;
-
-                            // return an empty proper object
-                            return itemTypeMetadata.output;
-                        }
-                }
-            },
-
-            createGroupingOrSortingKey : function(keyPartSelectorArray) {
-                return createGroupingOrSortingKey_I_1L(keyPartSelectorArray);
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function createGroupingOrSortingKey_I_1L(keyPartSelectorArray) {
-                    // define array holding grouping or sorting logic key
-                    var key = [];
-
-                    // loop over all key selectors
-                    for(var i = 0; i < keyPartSelectorArray.length; i++) {
-                        // access current key part selector
-                        var keyPartSelector = keyPartSelectorArray[i];
-
-                        // get the value
-                        var value = keyPartSelector[0];
-
-                        // is this a property of the object
-                        var isValidProperty = keyPartSelector[1];
-
-                        // store object representing part of the key
-                        key.push({value : value, isValidProperty : isValidProperty, isComplex : value.indexOf('.') > -1});
-                    }
-
-                    // return array holding grouping or sorting logic key
-                    return key;
-                }
-            },
-
-            useDefaultComparer : function(keyPartSelectorArray) {
-                return useDefaultComparer_I_1L(keyPartSelectorArray);
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function useDefaultComparer_I_1L(keyPartSelectorArray) {
-                    // define comparer object
-                    var comparer = {
-                        input : keyPartSelectorArray,
-
-                        defaultComparer : function(itemCurrent, itemPrevious) {
-                            var keyPart, itemCurrentValue, itemPreviousValue;
-
-                            // get the array of sorting key parts
-                            var key_array = _COMMON.createGroupingOrSortingKey(this.input);
-
-                            // loop over key parts and apply the comparison logic
-                            for(var j = 0; j < key_array.length; j++) {
-                                // reference the key part
-                                keyPart = key_array[j];
-
-                                // is it complex ?
-                                if(keyPart.isValidProperty && keyPart.isComplex) {
-                                    // get the property value from both, the current and the previous object
-                                    itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value, true);
-                                    itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemPrevious, keyPart.value, true);
-                                }
-                                // is it simple ?
-                                else if(keyPart.isValidProperty) {
-                                    itemCurrentValue += itemCurrent[keyPart.value];
-                                    itemPreviousValue += itemPrevious[keyPart.value];
-                                }
-                                // otherwise apply some part that is not a property of an object
                                 else {
-                                    itemCurrentValue += keyPart.value;
-                                    itemPreviousValue += keyPart.value;
+                                    throw Error('JLC 1.0 Query Debugger not initialized !');
+                                }
+                            }
+                        };
+
+                        // bind context to this API instance
+                        api._ctx = ctx;
+
+                        // return JLC API instance
+                        return api;
+                    }
+                },
+
+                getContext : function(f) {
+                    return getContext_I_1L(f);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function getContext_I_1L(f) {
+                        // get the invocation method context, i.e. get the information, which method you invoke
+                        var f_n_arr = f.name.split(" ");
+                                
+                        // in case it's a bound method, get the root method
+                        var ctx = f_n_arr[f_n_arr.length - 1];
+
+                        // return context for current usage
+                        return ctx;
+                    }
+                },
+
+                createType : function(templateObject) {
+                    return createType_I_1L(templateObject);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function createType_I_1L(templateObject) {
+                            // loop over all props and delete their values
+                            for(var eot_k in templateObject) {
+                                // access current property
+                                var objProp = templateObject[eot_k];
+
+                                // if it's nested another object, drill down to discover the props of such nested object
+                                if(typeof objProp === 'object') {
+                                    createType_I_1L(objProp);
+                                }
+                                // for primitive props just set the value to 'undefined'
+                                else if(typeof objProp !== 'function') {
+                                    templateObject[eot_k] = undefined;
                                 }
                             }
 
-                            // determine the sorting order of the comparer
-                            switch (enumValue) {
-                                case _ENUM.ORDER_ASC:
-                                case _ENUM.ORDER_THEN_ASC:
-                                    // go the ASC way
-                                    if(itemCurrentValue > itemPreviousValue)
-                                        return 1;
-                                    else
-                                        return -1;
+                            // return the empty object
+                            return templateObject;
+                    }
+                },
 
-                                case _ENUM.ORDER_DESC:
-                                case _ENUM.ORDER_THEN_DESC:
-                                    // go the DESC way
-                                    if(itemCurrentValue > itemPreviousValue)
-                                        return -1;
-                                    else
-                                        return 1;
+                createDefaultOfT : function(historyIndex) {
+                    return createDefaultOfT_I_1L(historyIndex);
 
-                                 default:
-                                    throw Error("Unsupported sorting order [ " + enumValue + " ] !");
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function createDefaultOfT_I_1L(historyIndex) {
+                            // get collection item type metadata of contextually current collection from history array
+                            var itemTypeMetadata = _DATA.getT(historyIndex);
+
+                            if(itemTypeMetadata.isReady)
+                                // return an empty proper object
+                                return itemTypeMetadata.output;
+                            else {
+                                if(itemTypeMetadata.makeItEmpty)
+                                    itemTypeMetadata.output = _COMMON.createType(itemTypeMetadata.source);
+                                else
+                                    itemTypeMetadata.output = itemTypeMetadata.source;
+
+                                // return an empty proper object
+                                return itemTypeMetadata.output;
                             }
+                    }
+                },
+
+                createGroupingOrSortingKey : function(keyPartSelectorArray) {
+                    return createGroupingOrSortingKey_I_1L(keyPartSelectorArray);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function createGroupingOrSortingKey_I_1L(keyPartSelectorArray) {
+                        // define array holding grouping or sorting logic key
+                        var key = [];
+
+                        // loop over all key selectors
+                        for(var i = 0; i < keyPartSelectorArray.length; i++) {
+                            // access current key part selector
+                            var keyPartSelector = keyPartSelectorArray[i];
+
+                            // get the value
+                            var value = keyPartSelector[0];
+
+                            // is this a property of the object
+                            var isValidProperty = keyPartSelector[1];
+
+                            // store object representing part of the key
+                            key.push({value : value, isValidProperty : isValidProperty, isComplex : value.indexOf('.') > -1});
                         }
-                    };
 
-                    // bind the comparer to comparer object
-                    comparer.defaultComparer.bind(comparer);
+                        // return array holding grouping or sorting logic key
+                        return key;
+                    }
+                },
 
-                    // return the comparer itself
-                    return comparer.defaultComparer;
-                }
-            },
-
-            // CURRENTLY NOT IN USAGE 
-            resultsView : function(token) {
-                return resultsView_I_1L(token);
+                useDefaultComparer : function(keyPartSelectorArray) {
+                    return useDefaultComparer_I_1L(keyPartSelectorArray);
 
 
 
-                /**
-                 * Local helper functions
-                */
-                function resultsView_I_1L(token) {
-                        // get metadata of contextually current collection from the collection history array
-                        var metadata = _DATA.fetch(token); 
+                    /**
+                     * Local helper functions
+                    */
+                    function useDefaultComparer_I_1L(keyPartSelectorArray) {
+                        // define comparer object
+                        var comparer = {
+                            input : keyPartSelectorArray,
 
-                        // create result view object that holds current query metadata
-                        return {
-                            // current index of contextually current query collection in collection history array
-                            dataToken : metadata.index,
-                                    
-                            // contextually current query collection
-                            dataYield : metadata.collection
+                            defaultComparer : function(itemCurrent, itemPrevious) {
+                                var keyPart, itemCurrentValue, itemPreviousValue;
+
+                                // get the array of sorting key parts
+                                var key_array = _COMMON.createGroupingOrSortingKey(this.input);
+
+                                // loop over key parts and apply the comparison logic
+                                for(var j = 0; j < key_array.length; j++) {
+                                    // reference the key part
+                                    keyPart = key_array[j];
+
+                                    // is it complex ?
+                                    if(keyPart.isValidProperty && keyPart.isComplex) {
+                                        // get the property value from both, the current and the previous object
+                                        itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value, true);
+                                        itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemPrevious, keyPart.value, true);
+                                    }
+                                    // is it simple ?
+                                    else if(keyPart.isValidProperty) {
+                                        itemCurrentValue += itemCurrent[keyPart.value];
+                                        itemPreviousValue += itemPrevious[keyPart.value];
+                                    }
+                                    // otherwise apply some part that is not a property of an object
+                                    else {
+                                        itemCurrentValue += keyPart.value;
+                                        itemPreviousValue += keyPart.value;
+                                    }
+                                }
+
+                                // determine the sorting order of the comparer
+                                switch (enumValue) {
+                                    case _ENUM.ORDER_ASC:
+                                    case _ENUM.ORDER_THEN_ASC:
+                                        // go the ASC way
+                                        if(itemCurrentValue > itemPreviousValue)
+                                            return 1;
+                                        else
+                                            return -1;
+
+                                    case _ENUM.ORDER_DESC:
+                                    case _ENUM.ORDER_THEN_DESC:
+                                        // go the DESC way
+                                        if(itemCurrentValue > itemPreviousValue)
+                                            return -1;
+                                        else
+                                            return 1;
+
+                                    default:
+                                        throw Error("Unsupported sorting order [ " + enumValue + " ] !");
+                                }
+                            }
                         };
+
+                        // bind the comparer to comparer object
+                        comparer.defaultComparer.bind(comparer);
+
+                        // return the comparer itself
+                        return comparer.defaultComparer;
+                    }
+                },
+
+                // CURRENTLY NOT IN USAGE 
+                resultsView : function(token) {
+                    return resultsView_I_1L(token);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function resultsView_I_1L(token) {
+                            // get metadata of contextually current collection from the collection history array
+                            var metadata = _DATA.fetch(token); 
+
+                            // create result view object that holds current query metadata
+                            return {
+                                // current index of contextually current query collection in collection history array
+                                dataToken : metadata.index,
+                                        
+                                // contextually current query collection
+                                dataYield : metadata.collection
+                            };
+                    }
                 }
-            }            
         };
 
         // declare a private physical filters object
@@ -1653,11 +1735,8 @@
                                     // filtering operator
                                     var propOperator = predicate[1];
 
-                                    // navigate to the destination property of the current object and execute the filter
-                                    var fr = executePrimitivePredicate_I_3L();
-
-                                    // return the filter result
-                                    return fr;
+                                    // navigate to the destination property of the current object, execute the filter and return the filter bool result
+                                    return executePrimitivePredicate_I_3L();
 
 
 
@@ -1675,39 +1754,8 @@
                                             // seek the destination property
                                             propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter(currentObject, propName, true);
 
-                                        /**
-                                         * Check the validity of an object prop (logical "NOT NULL"), i.e. "", undefined, null
-                                         * Boolean values like false, 0 (that evaluates to false) in this case are considered correct values !
-                                        */
-                                        var valid = propOrVal || propOrVal === 0 || propOrVal === false;
-
-                                        // execute the filter provided that the found prop "is not null"
-                                        if(valid) {
-                                            switch (propOperator) {
-                                                case ">":
-                                                    return propOrVal > propValue;
-                                                case "<":
-                                                    return propOrVal < propValue;
-                                                case ">=":
-                                                    return propOrVal >= propValue;
-                                                case "<=":
-                                                    return propOrVal <= propValue;
-                                                case "==":
-                                                    return propOrVal == propValue;
-                                                case "===":
-                                                    return propOrVal === propValue;
-                                                case "<>":
-                                                    return propOrVal !== propValue;
-                                                case "()":
-                                                    return propOrVal ? true : false;
-                                                case "(!)":
-                                                    return propOrVal === propValue ? true : false;
-                                                default:
-                                                    throw new Error("Unsupported operator [ " + propOperator + " ] !");
-                                            }
-                                        }
-                                        else
-                                            return false;
+                                        // run native comparison
+                                        return _OPERATORS.checkValue(propOrVal, propOperator, propValue);
                                     }
                                 }
 
