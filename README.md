@@ -48,7 +48,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 
  - DPR #1:&nbsp;2020-03-14 11:19 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
-## Release Candidate Version Proposal: 2020-04-18 Local Time &nbsp;:bell:&nbsp;:heavy_check_mark:
+## Release Candidate Version Proposal: 2020-04-25 Local Time &nbsp;:bell:&nbsp;:heavy_check_mark:
 
 #
 ## Download&nbsp;:lock:
