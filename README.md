@@ -21,10 +21,13 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
- - DPR #9:&nbsp;2020-04-14 &nbsp;&nbsp;4:04 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 1**&nbsp;:heavy_check_mark:
+ - DPR #10:&nbsp;2020-04-19 &nbsp;&nbsp;3:22 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 2**&nbsp;:heavy_check_mark:
     - the-already implemented methods are GA methods !&nbsp;:bell:
+      - orderBy && orderByDescending are RC methods ! 
     - methods left to be implemented before releasing RC version are :
-        - orderBy, orderByDescending, thenBy, thenByDescending, reverse, reverseExt, select, join, leftJoin, contains, distinct, except, intersect, union
+        - thenBy, thenByDescending, reverse, reverseExt, select, selectMany, join, leftJoin, contains, distinct, except, defaultIfEmpty, min, max, average, intersect ?, union ?
+ - DPR #9:&nbsp;2020-04-14 &nbsp;&nbsp;4:04 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 1*&nbsp;:heavy_check_mark:
+    - the-already implemented methods are GA methods !&nbsp;:bell:
 
  - DPR #8:&nbsp;2020-04-13 &nbsp;&nbsp;5:54 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α v3*
 

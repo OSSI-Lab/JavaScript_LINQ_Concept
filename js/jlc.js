@@ -231,6 +231,14 @@
                     // array for storing physical intermediate data
                     data : [],
 
+                    sorting : {
+                        // store current sorting direction
+                        sort_order : undefined,
+
+                        // array for storing all so-far used sorting keys
+                        sort_keys : [],
+                    },
+
                     /**
                      * Handle special case that returns the so-far filtered off array.
                      * The following parameter called 'done' when set to 'true' tells to discard returned result and go for the so-far filtered off array as the final result 
@@ -296,6 +304,10 @@
                         _ACTION.hpid.isOn = _ACTION.hpid.done = false;
                         // reset holder of physical intermediate data
                         Array.isArray(_ACTION.hpid.data) ? _ACTION.hpid.data.length = 0 : _ACTION.hpid.data = [];
+                        
+                        // reset all so-far used sorting
+                        _ACTION.hpid.sorting.sort_order = undefined;
+                        _ACTION.hpid.sorting.sort_keys.length = 0;
 
 
                         // execute all actions and determine the final output...
@@ -345,28 +357,6 @@
                     function get_Instance_I_1L(ctx) {
                         // declare JavaScript LINQ Concept API object
                         var api = {
-                            // ~ TO BE IMPLEMENTED AGAIN
-                            orderBy : function(keyPartSelectorArray, udfComparer) {
-
-
-                                // sorts the collection in ascending order according to a key or using given comparer
-                                _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_ASC);
-
-                                // return JavaScript LINQ Concept object
-                                return this;
-                            },
-
-                            // ~ TO BE IMPLEMENTED AGAIN
-                            orderByDescending : function(keyPartSelectorArray, udfComparer) {
-
-
-                                // sorts the collection in descending order according to a key or using given comparer
-                                _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_DESC);
-
-                                // return JavaScript LINQ Concept object
-                                return this;
-                            },
-
                             // ~ TO BE IMPLEMENTED AGAIN
                             reverse : function(params, startingIndex, count, context) {
                                 // create action and proceed with further flow
@@ -453,7 +443,7 @@
 
                             /**
                              * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                             */
                             where : function (params) {
@@ -461,12 +451,19 @@
                                 if (params === undefined) params = {};
 
                                 // create action and proceed with further flow
-                                return _ACTION.create(this._ctx, _CORE.where.bind(this, params['predicateArray']), System.Linq.Context.where);
+                                return _ACTION.create(
+                                                        this._ctx,
+                                                        _CORE.where.bind(
+                                                                            this,
+                                                                            params['predicateArray']
+                                                                        ),
+                                                        System.Linq.Context.where
+                                                     );
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as GroupBy method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - udfEqualityComparer
                              *  - udfGroupProjector
@@ -482,21 +479,67 @@
                                 return _ACTION.create(
                                                         this._ctx,
                                                         _CORE.group_by.bind(
-                                                                            this,
-                                                                            params['predicateArray'],
-                                                                            params['udfEqualityComparer'],
-                                                                            params['udfGroupProjector'],
-                                                                            params['udfGroupElementsProjector'],
-                                                                            params['udfGroupResultValueSelector'],
-                                                                            true
-                                                                        ),
+                                                                                this,
+                                                                                params['predicateArray'],
+                                                                                params['udfEqualityComparer'],
+                                                                                params['udfGroupProjector'],
+                                                                                params['udfGroupElementsProjector'],
+                                                                                params['udfGroupResultValueSelector'],
+                                                                                true
+                                                                           ),
                                                         System.Linq.Context.groupBy
                                                     );
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as OrderBy method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
+                             *  - keyPartSelectorArray
+                             *  - udfComparer
+                            */
+                            orderBy : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(
+                                                        this._ctx,
+                                                        _CORE.order_asc_or_desc.bind(
+                                                                                        this,
+                                                                                        params['keyPartSelectorArray'],
+                                                                                        params['udfComparer'],
+                                                                                        _ENUM.ORDER.By.ASC
+                                                                                    ),
+                                                        System.Linq.Context.orderBy
+                                                     );
+                            },
+
+                            /**
+                             * Serves the same purpose as OrderByDescending method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
+                             *  - keyPartSelectorArray
+                             *  - udfComparer
+                            */
+                            orderByDescending : function(params) {
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(
+                                                        this._ctx,
+                                                        _CORE.order_asc_or_desc.bind(
+                                                                                        this,
+                                                                                        params['keyPartSelectorArray'],
+                                                                                        params['udfComparer'],
+                                                                                        _ENUM.ORDER.By.DESC
+                                                                                    ),
+                                                        System.Linq.Context.orderByDescending
+                                                     );
+                            },                            
+
+                            /**
+                             * Serves the same purpose as Concat method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - inputCollection
                             */
                             concat : function(params) {
@@ -508,8 +551,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as Append method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - collectionItem
                             */
                             append : function(params) {
@@ -521,8 +564,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as Prepend method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - collectionItem
                             */
                             prepend : function(params) {
@@ -534,8 +577,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as Skip method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - count
                             */
                             skip : function(params) {
@@ -547,8 +590,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as SkipWhile method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                             */
                             skipWhile : function(params) {
@@ -560,8 +603,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as Take method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - count
                             */
                             take : function(params) {
@@ -573,8 +616,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as TakeWhile method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                             */
                             takeWhile : function(params) {
@@ -586,8 +629,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as ToDictionary method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - udfEqualityComparer
                              *  - udfGroupElementsProjector
@@ -616,7 +659,7 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
+                             * Serves the same purpose as ToArray method in LINQ from C#.
                             */
                             toArray : function() {
                                 // create action and proceed with further flow
@@ -624,8 +667,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as First method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -638,8 +681,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as FirstOrDefault method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -652,8 +695,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as Last method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -666,8 +709,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as LastOrDefault method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -680,8 +723,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as Single method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -694,8 +737,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as SingleOrDefault method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -708,8 +751,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as Any method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -722,8 +765,8 @@
                             },
 
                             /**
-                             * Serves the same purpose as Where method in LINQ from C#.
-                             * @param {object} params Contains all possible params used by this method :
+                             * Serves the same purpose as All method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
                              *  - predicateArray
                              *  - context
                             */
@@ -740,7 +783,7 @@
                              * Special method that tells whether query debugger is available ! 😀😉
                              * Can be safely removed if library moved to production. 🙂
                              * 
-                             * Go to line 1591 to remove from initialization JLC 1.0 Query Debugger 
+                             * Go to _SETUP's ___init___ method to remove from initialization JLC 1.0 Query Debugger 
                             */
                             ifConsoleDebug : function() {
                                 // is JLC 1.0 Query Debugger initialized ?
@@ -772,26 +815,6 @@
 
                         // return JLC API instance
                         return api;
-                    }
-                },
-
-                getContext : function(f) {
-                    return getContext_I_1L(f);
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function getContext_I_1L(f) {
-                        // get the invocation method context, i.e. get the information, which method you invoke
-                        var f_n_arr = f.name.split(" ");
-                                
-                        // in case it's a bound method, get the root method
-                        var ctx = f_n_arr[f_n_arr.length - 1];
-
-                        // return context for current usage
-                        return ctx;
                     }
                 },
 
@@ -883,24 +906,22 @@
                     }
                 },
 
-                useDefaultComparer : function(keyPartSelectorArray) {
-                    return useDefaultComparer_I_1L(keyPartSelectorArray);
+                useDefaultComparer : function() {
+                    return useDefaultComparer_I_1L();
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function useDefaultComparer_I_1L(keyPartSelectorArray) {
+                    function useDefaultComparer_I_1L() {
                         // define comparer object
                         var comparer = {
-                            input : keyPartSelectorArray,
-
                             defaultComparer : function(itemCurrent, itemPrevious) {
-                                var keyPart, itemCurrentValue, itemPreviousValue;
+                                var keyPart, itemCurrentValue = '', itemPreviousValue = '';
 
                                 // get the array of sorting key parts
-                                var key_array = _COMMON.createGroupingOrSortingKey(this.input);
+                                var key_array = _COMMON.createGroupingOrSortingKey(_ACTION.hpid.sorting.sort_keys[0]);
 
                                 // loop over key parts and apply the comparison logic
                                 for(var j = 0; j < key_array.length; j++) {
@@ -926,17 +947,17 @@
                                 }
 
                                 // determine the sorting order of the comparer
-                                switch (enumValue) {
-                                    case _ENUM.ORDER_ASC:
-                                    case _ENUM.ORDER_THEN_ASC:
+                                switch (_ACTION.hpid.sorting.sort_order) {
+                                    case _ENUM.ORDER.By.ASC:
+                                    case _ENUM.ORDER.By.THEN_ASC:
                                         // go the ASC way
                                         if(itemCurrentValue > itemPreviousValue)
                                             return 1;
                                         else
                                             return -1;
 
-                                    case _ENUM.ORDER_DESC:
-                                    case _ENUM.ORDER_THEN_DESC:
+                                    case _ENUM.ORDER.By.DESC:
+                                    case _ENUM.ORDER.By.THEN_DESC:
                                         // go the DESC way
                                         if(itemCurrentValue > itemPreviousValue)
                                             return -1;
@@ -1541,33 +1562,38 @@
                     }
                 },
 
-                executeOrderFilter : function(keyPartSelectorArray, udfComparer, enumValue) {
-                    return apply_O_I_1L(keyPartSelectorArray, udfComparer, enumValue);
+                executeOrderFilter : function(jlc, keyPartSelectorArray, udfComparer, enumValue) {
+                    return apply_O_I_1L(jlc, keyPartSelectorArray, udfComparer, enumValue);
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function apply_O_I_1L(keyPartSelectorArray, udfComparer, enumValue) {
+                    function apply_O_I_1L(jlc, keyPartSelectorArray, udfComparer, enumValue) {
                             // if first-level sorting required
-                            if(enumValue === _ENUM.ORDER_ASC || enumValue === _ENUM.ORDER_DESC) {
-                                // clear the previous sorting selectors
-                                _DATA.sortOrderSelectors.clear();
+                            if(enumValue === _ENUM.ORDER.By.ASC || enumValue === _ENUM.ORDER.By.DESC) {
+                                // clear the previous sorting
+                                _ACTION.hpid.sorting.sort_order = undefined;
+                                _ACTION.hpid.sorting.sort_keys.length = 0;
                             }
+
+                            // create input collection cache
+                            var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;                            
 
                             // if user defined his own comparer
                             if(udfComparer) {
                                 // just invoke it
-                                _DATA.dirty_data.sort(udfComparer);
+                                currentColl.sort(udfComparer);
                             }
                             // otherwise do the subsequent sorting by applying result from the very last sorting using default comparer
                             else if(enumValue === _ENUM.ORDER_THEN_ASC || enumValue === _ENUM.ORDER_THEN_DESC) {
+                              /*
                                 // prepare sequence for this-context type of sorting
                                 prepareContextualSorting_I_2L();
 
                                 // invoke actual sorting
-                                doContextualSorting_I_2L();
+                                doDefaultSorting_I_2L();
 
                                 // store intermediate sorted collection as the input for next sort order
                                 storeContextualSorting_I_2L();
@@ -1577,26 +1603,34 @@
 
                                 // update contextual sorting object
                                 updateContextualSorting_I_2L(propNameValuePair_array_array);
+                              */
                             }
                             // otherwise do the sorting using default comparer
                             else {
+                                // store current sorting metadata
+                                _ACTION.hpid.sorting.sort_order = enumValue;
+                                _ACTION.hpid.sorting.sort_keys.push(keyPartSelectorArray);
                                 // invoke actual sorting
-                                doContextualSorting_I_2L();
+                                doDefaultSorting_I_2L();
                             }
+
+                            // update HPID object to enable further data flow
+                            _ACTION.hpid.data = currentColl;
+                            if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;                            
 
 
 
                             /**
                              * Local helper functions
                             */
+                            function doDefaultSorting_I_2L() {
+                                // just invoke the default comparer
+                                currentColl.sort(_COMMON.useDefaultComparer());
+                            }
+
                             function prepareContextualSorting_I_2L() {
                                 // exclude properties that were used as keys in the very previous sorting
                                 _DATA.sortOrderSelectors.excludeCurrentSelectors();
-                            }
-
-                            function doContextualSorting_I_2L() {
-                                // just invoke the default comparer
-                                _DATA.dirty_data.sort(_COMMON.useDefaultComparer(keyPartSelectorArray));
                             }
 
                             function storeContextualSorting_I_2L() {
@@ -1875,33 +1909,6 @@
                     //_LOGICAL_FILTER.
                 },
 
-                // ~ TO BE IMPLEMENTED
-                order_asc_or_desc : function (keyPartSelectorArray, udfComparer, enumValue) {
-                    // invoke core logic
-                    _PHYSICAL_FILTER.executeOrderFilter(keyPartSelectorArray, udfComparer, enumValue);
-
-                    // store dynamically the current array of selectors
-                    _DATA.sortOrderSelectors.add(keyPartSelectorArray, udfComparer);
-
-                    // inject dynamically contextual ordering method called thenBy
-                    _API.thenBy = _API.thenBy || function(keyPartSelectorArray, udfComparer) {
-                        // sort the collection in ascending order according to a key or using given comparer
-                        _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_THEN_ASC);
-
-                        // return JavaScript LINQ Concept object
-                        return _API;
-                    };
-
-                    // inject dynamically contextual ordering method called thenByDescending
-                    _API.thenByDescending = _API.thenByDescending || function(keyPartSelectorArray, udfComparer) {
-                        // sort the collection in descending order according to a key or using given comparer
-                        _CORE.order_asc_or_desc(keyPartSelectorArray, udfComparer, _ENUM.ORDER_THEN_DESC);
-
-                        // return JavaScript LINQ Concept object
-                        return _API;
-                    };
-                },
-
 
 
 
@@ -1919,6 +1926,65 @@
                 group_by : function(predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext) {
                     // invoke core logic
                     _PHYSICAL_FILTER.executeGroupByFilter(this, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext);
+                },
+
+                order_asc_or_desc : function (keyPartSelectorArray, udfComparer, enumValue) {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeOrderFilter(this, keyPartSelectorArray, udfComparer, enumValue);
+
+                    // store dynamically the current array of selectors
+                    //_DATA.sortOrderSelectors.add(keyPartSelectorArray, udfComparer);
+
+                    // preserve this context
+                    var self = this;
+
+                    // inject dynamically contextual method called thenBy
+                    /**
+                     * Serves the same purpose as OrderBy method in LINQ from C#.
+                     * @param {object} params contains all possible params used by this method :
+                     *  - keyPartSelectorArray
+                     *  - udfComparer
+                    */
+                    this.thenBy = this.thenBy || function(params) {
+                                                    // handle "default" parameter
+                                                    if (params === undefined) params = {};
+
+                                                    // create action and proceed with further flow
+                                                    return _ACTION.create(
+                                                                            self._ctx,
+                                                                            _CORE.order_asc_or_desc.bind(
+                                                                                                            self,
+                                                                                                            params['keyPartSelectorArray'],
+                                                                                                            params['udfComparer'],
+                                                                                                            _ENUM.ORDER.By.THEN_ASC
+                                                                                                        ),
+                                                                            System.Linq.Context.orderBy
+                                                                         );
+                    };
+
+                    // inject dynamically contextual method called thenByDescending
+                    /**
+                     * Serves the same purpose as OrderBy method in LINQ from C#.
+                     * @param {object} params contains all possible params used by this method :
+                     *  - keyPartSelectorArray
+                     *  - udfComparer
+                    */                    
+                    this.thenByDescending = this.thenByDescending || function(params) {
+                                                                        // handle "default" parameter
+                                                                        if (params === undefined) params = {};
+
+                                                                        // create action and proceed with further flow
+                                                                        return _ACTION.create(
+                                                                                                self._ctx,
+                                                                                                _CORE.order_asc_or_desc.bind(
+                                                                                                                                self,
+                                                                                                                                params['keyPartSelectorArray'],
+                                                                                                                                params['udfComparer'],
+                                                                                                                                _ENUM.ORDER.By.THEN_DESC
+                                                                                                                            ),
+                                                                                                System.Linq.Context.orderByDescending
+                                                                                             );
+                    };
                 },
 
                 list_t : function(fallbackOnDefault) {
@@ -2082,7 +2148,7 @@
                          *  
                          * Can be safely removed if library moved to production. 🙂
                          * 
-                         * Go to line 1995 to remove from api public method called 'ifConsoleDebug'
+                         * Go to JLC API instance creation to remove from api public method called 'ifConsoleDebug'
                         */
                         // switch JLC 1.0 Query Debugger on
                         //_QUERY_DEBUGGER.___init___();
@@ -2117,7 +2183,7 @@
                             // add methods to Linq context objects
                             addLinqMethodsToContext_I_3L(
                                                             [
-                                                                ['where', false], ['groupBy', false],
+                                                                ['where', false], ['groupBy', false], ['orderBy', false], ['orderByDescending', false], ['thenBy', false], ['thenByDescending', false],
                                                                 ['concat', false], ['append', false], ['prepend', false],
                                                                 ['skip', false], ['skipWhile', false], ['take', false], ['takeWhile', false], ['reverse', false], ['reverseExt', false],
                                                                 ['toArray', true], ['toDictionary', true],
