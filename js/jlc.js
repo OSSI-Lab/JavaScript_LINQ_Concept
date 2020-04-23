@@ -232,11 +232,114 @@
                     data : [],
 
                     sorting : {
+                        // sort input type
+                        sit : undefined, 
+
                         // store current sorting direction
                         sort_order : undefined,
 
                         // array for storing all so-far used sorting keys
                         sort_keys : [],
+
+                        // whether to carry out further sorting operations or not
+                        stop : false,
+
+                        // this objct drives the sorting of second-level sorting, i.e. thenBy || thenByDescending
+                        sortSet : {
+                            // initialize this object once with the first new invocation of second-level sorting 
+                            is_initialized : false,
+
+                            // all columns of an data object
+                            all_columns : [],
+
+                            // so-far columns used for sorting
+                            sort_columns : [],
+
+                            // all_columns - sort_columns
+                            result_set_columns : [],
+
+                            init : function(obj) {
+                                // get all object props at all levels
+                                var propNames = _COMMON.fetchObjectStructureKeys(obj);
+
+                                // store it for ordering purposes as all columns available for usage in sorting operations
+                                _ACTION.hpid.sorting.sortSet.all_columns = propNames;
+
+                                // initially post-ordering result set will be equal to all columns available for usage in sorting operations
+                                _ACTION.hpid.sorting.sortSet.result_set_columns = propNames;
+
+                                // object is ready for usage
+                                _ACTION.hpid.sorting.sortSet.is_initialized = true;
+                            },
+
+                            getSortSet : function (userColumnSet) {
+                                // check if this sorting is still required from the data flow point of view (if further sorting makes sense)
+                                if(!_ACTION.hpid.sorting.stop) {
+                                    // create sort set
+                                    var sort_set = get_SS_I_1L(userColumnSet);
+
+                                    // check if current sort set defines 'unique value', aka 'the key' that will discard subsequent sorting operations
+                                    var isUnique = is_UV_I_1L(sort_set.ovc);
+
+                                    // if current sort set is unique, then discard subsequent sorting operations
+                                    if(isUnique)
+                                        _ACTION.hpid.sorting.stop = true;
+                                    // otherwise update sorting metadata
+                                    else {
+                                        // add current sorting columns to already-used sorting columns
+                                        Array.prototype.push.apply(_ACTION.hpid.sorting.sortSet.sort_columns, sort_set.ovc);
+
+                                        // remove current sorting columns from already-used result set columns
+                                        _ACTION.hpid.sorting.sortSet.result_set_columns.length = _ACTION.hpid.sorting.sortSet.result_set_columns.length - sort_set.ovc.length;
+                                    }
+
+
+
+                                    /**
+                                     * Local helper functions 
+                                    */
+                                    function get_SS_I_1L(userColumnSet) {
+                                        // define output object
+                                        var o = {
+                                            // phrase used to sort the sort set
+                                            phrase : '',
+                                            
+                                            // only valid columns extracted from the user column set
+                                            ovc : []
+                                        };
+
+                                        // fulfill the output object
+
+
+                                        // return output object
+                                        return o;
+                                    }
+
+                                    function is_UV_I_1L(ovc) {
+                                        // let's assume that is unique
+                                        var unique = true;
+
+                                        // along the way try to prove that this set of columns is not unique one
+
+                                        // return if it's unique
+                                        return unique;
+                                    }
+                                }
+                            }
+                        },
+
+                        // reset all so-far used sorting
+                        clear : function() {
+                            // reset sorting object
+                            _ACTION.hpid.sorting.sit = undefined;
+                            _ACTION.hpid.sorting.sort_order = undefined;
+                            _ACTION.hpid.sorting.sort_keys.length = 0;
+                            _ACTION.hpid.sorting.stop = false;
+                            
+                            // reset sorting object's sort set object
+                            _ACTION.hpid.sorting.sortSet.sort_columns.length = 0;
+                            _ACTION.hpid.sorting.sortSet.result_set_columns = _ACTION.hpid.sorting.sortSet.all_columns; 
+                        }
                     },
 
                     /**
@@ -306,8 +409,7 @@
                         Array.isArray(_ACTION.hpid.data) ? _ACTION.hpid.data.length = 0 : _ACTION.hpid.data = [];
                         
                         // reset all so-far used sorting
-                        _ACTION.hpid.sorting.sort_order = undefined;
-                        _ACTION.hpid.sorting.sort_keys.length = 0;
+                        _ACTION.hpid.sorting.clear();
 
 
                         // execute all actions and determine the final output...
@@ -928,8 +1030,19 @@
                                     // reference the key part
                                     keyPart = key_array[j];
 
+                                    // determine if the current object is primitive one, i.e. int, string, number, etc.
+                                    var isPrimitive = _COMMON.isPrimitiveType(typeof (itemCurrent || itemPrevious), keyPart.value, true);
+                                    
+                                    // if is primitive...
+                                    if(isPrimitive) {
+                                        itemCurrentValue = itemCurrent;
+                                        itemPreviousValue = itemPrevious;
+                                    }
+
+                                    // otherwise deal with data objects
+
                                     // is it complex ?
-                                    if(keyPart.isValidProperty && keyPart.isComplex) {
+                                    else if(keyPart.isValidProperty && keyPart.isComplex) {
                                         // get the property value from both, the current and the previous object
                                         itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value, true);
                                         itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter(itemPrevious, keyPart.value, true);
@@ -975,6 +1088,61 @@
 
                         // return the comparer itself
                         return comparer.defaultComparer;
+                    }
+                },
+
+                isPrimitiveType : function(type, propertyName, isSortContxt) {
+                    return isPrimitiveType_I_1L(type, propertyName, isSortContxt);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function isPrimitiveType_I_1L(type, propertyName, isSortContxt) {
+                        // in this context function type is not supported
+                        if(type === 'function')
+                            throw new TypeError('Type ' + type + ' is not supported in this context - "object" type and primitive types are supported !');
+
+
+                        // check for empty property name
+                        var isEmpty = propertyName.trim().length === 0;
+
+                        if(isEmpty) {
+                            // determine whether objects are sorted
+                            if(isSortContxt && type === 'object') return false;
+
+                            // determine whether primitive types are sorted
+                            else if(isSortContxt && type !== 'object') return true;
+                        }
+                        //
+                        else {
+                            // determine whether objects are sorted
+                            if(isSortContxt && type === 'object') return false;
+
+                            // determine whether objects are involved in other operations
+                            else if(type === 'object') return false;
+
+                            // determine whether primitive types are involved in other operations
+                            else if(type !== 'object') return true;
+
+                            // unsupported context
+                            else
+                                throw Error('Contxt [ ' + type + ', ' + propertyName + ', ' + isSortContxt + ' ] is not supported !');
+                        }
+                    }
+                },
+
+                fetchObjectStructureKeys : function(obj) {
+                    return fetch_OSKs_I_1L(obj);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function fetch_OSKs_I_1L(obj) {
+
                     }
                 },
 
@@ -1095,61 +1263,22 @@
                                 // create the key
                                 var key_array = _COMMON.createGroupingOrSortingKey(predicateArray);
 
-                                // declare groups object being a plain object or an array !
-                                var groups;
-
-                                // distinguish between dictionary and grouping object
-                                if(isDictionaryContext)
-                                    groups = [];
-                                else
-                                    groups = {};
+                                // declare groups object being an array !
+                                var groups = [];
 
                                 // get contextually current collection within history array
                                 var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                                // do grouping
-                                currentColl.forEach(function (item) {
-                                    // get the group id
-                                    var id = getTheKeyValue_I_2L(item);
+                                // reference first object in the collection and determine the type ASAP
+                                var o = currentColl[0];
+                                
+                                // do grouping of primitives
+                                if(typeof o !== 'object')
+                                    currentColl.forEach(groupPrimitives_I_2L);
+                                else
+                                // do grouping of objects
+                                    currentColl.forEach(groupObjects_I_2L);
 
-                                    // project group id if required
-                                    if(udfGroupProjector)
-                                        id = (udfGroupProjector.bind(id))();
-
-                                    // project group elements if required
-                                    if(udfGroupElementsProjector)
-                                        item = (udfGroupElementsProjector.bind(item))();
-
-                                    
-                                    /**
-                                     * Distinguish between dictionary and grouped objects
-                                     *  - dictionary keys has to be unique
-                                     *  - values are primitives values or objects, not single elements of array 
-                                    */
-                                    if(isDictionaryContext && groups[id])
-                                        throw Error('Item with the same key was already added to this dictionary object !');
-
-                                    // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
-                                    if(isDictionaryContext) {
-                                        // store object as a KVP object (KeyValuePair)
-                                        groups.push({key : id, value : item});
-                                    }
-                                    else {
-                                        // reference the list of elements
-                                        var list = groups[id];
-
-                                        // if such group exists
-                                        if (list) {
-                                            // add object to this group
-                                            list.push(item);
-                                        // otherwise create a new group
-                                        }
-                                        else {
-                                            // add object to this group
-                                            groups[id] = [item];
-                                        }
-                                    }
-                                });
 
                                 // sort the groups by using user-defined or a default comparer
                                 if(udfEqualityComparer)
@@ -1173,6 +1302,178 @@
                             /**
                              * Local helper functions
                             */
+                            function groupPrimitives_I_2L(item) {
+                                // get the group id
+                                var id = item;
+
+                                // project group id if required
+                                if(udfGroupProjector)
+                                    id = (udfGroupProjector.bind(id))();
+
+                                // project group elements if required
+                                if(udfGroupElementsProjector)
+                                    item = (udfGroupElementsProjector.bind(item))();
+
+
+                                /**
+                                 * Distinguish between dictionary and grouped objects
+                                 *  - dictionary keys has to be unique
+                                 *  - values are primitives values or objects, not single elements of array 
+                                */
+                                if(isDictionaryContext && getGrouping_I_2L(id, groups).arr)
+                                    throw Error('Item with the same key was already added to this dictionary object !');
+
+                                // create pure empty object
+                                var eo = Object.create(null);
+
+                                // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
+                                if(isDictionaryContext) {
+                                    // define object as a KVP object (KeyValuePair)
+                                    eo.key = id;
+                                    eo.value = item;
+                                        
+                                    // store KVP object
+                                    groups.push(eo);
+                                }
+                                else {
+                                    // get grouping seeker object from the group
+                                    var gso = getGrouping_I_2L(id, groups);
+
+                                    // reference the list of elements if any
+                                    if (gso.arr) {
+                                        // add object to this grouping object
+                                        gso.arr.push(item);
+
+                                        // update grouping object
+                                        setGrouping_I_2L(id, gso, groups);
+                                    }
+                                    // otherwise create a new grouping object
+                                    else {
+                                        // define a dictionary-like object
+                                        eo.idx = -1;
+                                        eo.arr = [item];
+
+                                        // add object to this grouping object
+                                        setGrouping_I_2L(id, eo, groups);
+                                    }
+                                }
+                            }
+
+                            function groupObjects_I_2L(item) {
+                                // get the group id
+                                var id = getTheKeyValue_I_2L(item);
+
+                                // project group id if required
+                                if(udfGroupProjector)
+                                    id = (udfGroupProjector.bind(id))();
+
+                                // project group elements if required
+                                if(udfGroupElementsProjector)
+                                    item = (udfGroupElementsProjector.bind(item))();
+
+                                    
+                                /**
+                                 * Distinguish between dictionary and grouped objects
+                                 *  - dictionary keys has to be unique
+                                 *  - values are primitives values or objects, not single elements of array 
+                                */
+                                if(isDictionaryContext && getGrouping_I_2L(id, groups).arr)
+                                    throw Error('Item with the same key was already added to this dictionary object !');
+
+                                // create pure empty object
+                                var eo = Object.create(null);
+
+                                // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
+                                if(isDictionaryContext) {
+                                    // define object as a KVP object (KeyValuePair)
+                                    eo.key = id;
+                                    eo.value = item;
+                                        
+                                    // store KVP object
+                                    groups.push(eo);
+                                }
+                                else {
+                                    // get grouping seeker object from the group
+                                    var gso = getGrouping_I_2L(id, groups);
+
+                                    // reference the list of elements if any
+                                    if (gso.arr) {
+                                        // add object to this grouping object
+                                        gso.arr.push(item);
+
+                                        // update grouping object
+                                        setGrouping_I_2L(id, gso, groups);
+                                    }
+                                    // otherwise create a new grouping object
+                                    else {
+                                        // define a dictionary-like object
+                                        eo.idx = -1;
+                                        eo.arr = [item];
+
+                                        // add object to this grouping object
+                                        setGrouping_I_2L(id, eo, groups);
+                                    }
+                                }
+                            }
+
+                            function getGrouping_I_2L(key_id, groups_obj) {
+                                // create pure empty object
+                                var gso = Object.create(null);
+
+                                // define grouping seeker object
+                                gso.idx = -1;                       // index of grouping object in the group
+                                gso.arr = undefined;                // list of grouped values
+
+                                // loop over groups' object
+                                for(var i = 0; i < groups_obj.length; i++) {
+                                    // access grouping object
+                                    var item = groups_obj[i];
+
+                                    // find the right one with key id
+                                    if(item.key === key_id) {
+                                        // store index of grouping object in the group
+                                        gso.idx = i;
+
+                                        // reference the list of grouped values and yield them on demand (right here right now)
+                                        gso.arr = item.resultsView;
+                                        
+                                        // discard further search
+                                        break;
+                                    }
+                                }
+
+                                // return grouping seeker object
+                                return gso;
+                            }
+
+                            function setGrouping_I_2L(key_id, gso, groups_obj) {
+                                // create pure empty object
+                                var grouping_obj = Object.create(null);
+
+                                // define grouping object
+                                grouping_obj.key = key_id;
+
+                                /**
+                                 * Declare resultsView function
+                                 *  - declare non-public components called '_privateList'
+                                */
+                                var _privateList = gso.arr;
+                                Object.defineProperty(
+                                                        grouping_obj,
+                                                        "resultsView",
+                                                        {
+                                                            // only override getter
+                                                            get: function() { return _privateList; }
+                                                        }
+                                                     );
+
+                                // store grouping object at the right position
+                                if(gso.idx === -1)
+                                    groups_obj.push(grouping_obj);
+                                else
+                                    groups_obj[gso.idx] = grouping_obj;
+                            }
+
                             function getTheKeyValue_I_2L(itemCurrent) {
                                 // declare a real key
                                 var key;
@@ -1571,62 +1872,155 @@
                      * Local helper functions
                     */
                     function apply_O_I_1L(jlc, keyPartSelectorArray, udfComparer, enumValue) {
-                            // if first-level sorting required
+                            // if first-level sorting required, always reset all so-far used sorting
                             if(enumValue === _ENUM.ORDER.By.ASC || enumValue === _ENUM.ORDER.By.DESC) {
-                                // clear the previous sorting
-                                _ACTION.hpid.sorting.sort_order = undefined;
-                                _ACTION.hpid.sorting.sort_keys.length = 0;
+                                // by default clear all sorting metadata
+                                _ACTION.hpid.sorting.clear();
+
+                                // setup sorting context
+                                var cc = setup_1st_LevelSortingContext_I_2L();
+
+                                // do the real sorting over current data collection
+                                executeCurrentSort_I_2L(cc);
                             }
+                            // second-level sorting requires first-level sorting to take place in the first place, hence takes into account the previous sorting operations
+                            else if(enumValue === _ENUM.ORDER.By.THEN_ASC || enumValue === _ENUM.ORDER.By.THEN_DESC) {
+                                // if second-level sorting still required, and when the first time you invoke thenBy || thenByDescending, you have to initialize the sortSet
+                                if(!_ACTION.hpid.sorting.stop && !_ACTION.hpid.sorting.sortSet.is_initialized) {
+                                    // reference a first object in a collection
+                                    var f_o = (_ACTION.hpid.isOn ? _ACTION.hpid.data[0] : _DATA.fetch(jlc._ctx.coll_index).collection[0]) || {};
+                                        
+                                    // initialize the sortSet by passing a reference to a first object in a collection
+                                    _ACTION.hpid.sorting.sortSet.init(f_o);
 
-                            // create input collection cache
-                            var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;                            
+                                    // if so, setup 2nd level sorting context
+                                    setup_2nd_LevelSortingContext_I_2L();
+                                }
+                                //if second-level sorting still required
+                                else if(!_ACTION.hpid.sorting.stop) {
+                                    // if so, setup 2nd level sorting context
+                                    setup_2nd_LevelSortingContext_I_2L();
+                                }
+                                // proceed with second-level sorting operations by applying result from the very last sorting
+                                /*
+                                        // prepare sequence for this-context type of sorting
+                                        prepareContextualSorting_I_2L();
 
-                            // if user defined his own comparer
-                            if(udfComparer) {
-                                // just invoke it
-                                currentColl.sort(udfComparer);
+                                        // invoke actual sorting
+                                        doDefaultSorting_I_2L();
+
+                                        // store intermediate sorted collection as the input for next sort order
+                                        storeContextualSorting_I_2L();
+
+                                        // perform kind of T-SQL-like property lookup, and return array of arrays of current flow data objects' stripped down props looked up from respective lookup objects
+                                        var propNameValuePair_array_array = includeOmittedProps_I_2L();
+
+                                        // update contextual sorting object
+                                        updateContextualSorting_I_2L(propNameValuePair_array_array);
+                                */
                             }
-                            // otherwise do the subsequent sorting by applying result from the very last sorting using default comparer
-                            else if(enumValue === _ENUM.ORDER_THEN_ASC || enumValue === _ENUM.ORDER_THEN_DESC) {
-                              /*
-                                // prepare sequence for this-context type of sorting
-                                prepareContextualSorting_I_2L();
-
-                                // invoke actual sorting
-                                doDefaultSorting_I_2L();
-
-                                // store intermediate sorted collection as the input for next sort order
-                                storeContextualSorting_I_2L();
-
-                                // perform kind of T-SQL-like property lookup, and return array of arrays of current flow data objects' stripped down props looked up from respective lookup objects
-                                var propNameValuePair_array_array = includeOmittedProps_I_2L();
-
-                                // update contextual sorting object
-                                updateContextualSorting_I_2L(propNameValuePair_array_array);
-                              */
-                            }
-                            // otherwise do the sorting using default comparer
-                            else {
-                                // store current sorting metadata
-                                _ACTION.hpid.sorting.sort_order = enumValue;
-                                _ACTION.hpid.sorting.sort_keys.push(keyPartSelectorArray);
-                                // invoke actual sorting
-                                doDefaultSorting_I_2L();
-                            }
-
-                            // update HPID object to enable further data flow
-                            _ACTION.hpid.data = currentColl;
-                            if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;                            
 
 
 
                             /**
                              * Local helper functions
                             */
-                            function doDefaultSorting_I_2L() {
-                                // just invoke the default comparer
-                                currentColl.sort(_COMMON.useDefaultComparer());
+                            function setup_1st_LevelSortingContext_I_2L() {
+                                // create input collection cache
+                                var coll = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
+
+                                // first object holder
+                                var foh = {
+                                    isPrimitive : false,
+                                    obj : undefined
+                                };
+
+                                // reference first object in the collection
+                                var o = coll[0];
+                                
+                                // determine the type ASAP
+                                if(o) {
+                                    foh.obj = o;
+                                    foh.isPrimitive = _COMMON.isPrimitiveType(typeof o, keyPartSelectorArray[0][0], true);
+                                }
+                                
+                                // For primitive types is available only 1st level sorting due to their nature.
+                                // If it's primitive or a collection is empty, discard further ordering during further data flow
+                                if(foh.isPrimitive || foh.obj === undefined)
+                                    _ACTION.hpid.sorting.stop = true;
+                                else {
+                                    // detect type of data object
+                                    var sortInputType = detectDataObjectType_I_3L(coll.length === 0, foh.obj);
+
+                                    // if any valid, then store it and adjust logic of the default comparer
+                                    if(sortInputType) {
+                                        // store current sort input type of data objects
+                                        _ACTION.hpid.sorting.sit = sortInputType;
+                                    }
+                                    else
+                                        // otherwise mark that further sorting is not required
+                                        _ACTION.hpid.sorting.stop = true;
+                                }
+                                
+                                // return data to be sorted
+                                return coll;
+                                
+                                
+                                
+                                /**
+                                 * Local helper functions 
+                                */
+                                function detectDataObjectType_I_3L(isCollectionEmpty, collectionItem) {
+                                    // if collection has any object
+                                    if(!isCollectionEmpty) {
+                                        // get all prop names
+                                        var propNames = Object.getOwnPropertyNames(collectionItem);
+
+                                        // if it's KVP
+                                        if(propNames.indexOf('key') > -1)
+                                            return _ENUM.ORDER.InputType.KVP;
+                                        
+                                        // if not KVP, then check for GROUPING
+                                        var groupingObjectValue = collectionItem[propNames[0]];
+                                        if(Array.isArray(groupingObjectValue))
+                                            return _ENUM.ORDER.InputType.GROUPING;
+
+                                        // otherwise it must be PLAIN
+                                        return _ENUM.ORDER.InputType.PLAIN;
+                                    }
+                                }
                             }
+
+                            function setup_2nd_LevelSortingContext_I_2L() {
+                                // if so, setup sorting context
+                                var cc = setup_1st_LevelSortingContext_I_2L();
+
+                                // do the real sorting over current data collection
+                                executeCurrentSort_I_2L(cc);
+                            }                            
+
+                            function executeCurrentSort_I_2L(currentColl) {
+                                // if user defined his own comparer
+                                if(udfComparer) {
+                                    // just invoke it
+                                    currentColl.sort(udfComparer);
+                                }
+                                // otherwise do the sorting using default comparer
+                                else {
+                                    // store current sorting metadata
+                                    _ACTION.hpid.sorting.sort_order = enumValue;
+                                    _ACTION.hpid.sorting.sort_keys.push(keyPartSelectorArray);
+                                    
+                                    // invoke actual sorting - just invoke the default comparer
+                                    currentColl.sort(_COMMON.useDefaultComparer());
+                                }
+
+                                // update HPID object to enable further data flow
+                                _ACTION.hpid.data = currentColl;
+                                if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
+                            }
+
+
 
                             function prepareContextualSorting_I_2L() {
                                 // exclude properties that were used as keys in the very previous sorting
@@ -1703,6 +2097,43 @@
                                 _DATA.sortOrderSelectors.serializeIntermediateSortedCollection(_ENUM.UPDATE, propNameValuePair_array_array);
                             }
                     }
+                },
+
+                executeMergeFilter : function(jlc, collectionOrItem, enumValue) {
+                    return execute_MF_I_1L(jlc, collectionOrItem, enumValue);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function execute_MF_I_1L(jlc, collectionOrItem, enumValue) {
+                        // get contextually current collection within history array
+                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
+
+                        if(enumValue === _ENUM.APPEND) {
+                            // append item to the end of current data flow collection
+                            currentColl.push(collectionOrItem);
+                        }
+                        else if(enumValue === _ENUM.PREPEND) {
+                            // declare new current flow data collection
+                            var new_dirty_data = [collectionOrItem];
+
+                            // merge new current flow data collection with old current flow data collection
+                            Array.prototype.push.apply(new_dirty_data, currentColl);
+
+                            // replace the existing current data flow collection with new current data flow collection
+                            currentColl = new_dirty_data;
+                        }
+                        else if(enumValue === _ENUM.CONCAT) {
+                            // merge new data collection with current flow data collection
+                            Array.prototype.push.apply(currentColl, collectionOrItem);
+                        }
+
+                        // update HPID object to enable further data flow
+                        _ACTION.hpid.data = currentColl;
+                        if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
+                    }
                 }
         };
 
@@ -1735,7 +2166,7 @@
                                         passed = applyUdfPredicate_I_2L(predicate, currentObject, elementIndex);
                                     }
 
-                                    // check ASAP if object failed the filter
+                                    // check ASAP if object failed the filter for other query method
                                     if(!passed)
                                         break;
                                 }
@@ -1787,10 +2218,13 @@
                                         var propOrVal;
 
                                         // determine if the current object is primitive one, i.e. int, string, number, etc.
-                                        if((propName.trim().length === 0 || propName.trim().length === 1) && propName === '_')
+                                        var isPrimitive = _COMMON.isPrimitiveType(typeof currentObject, propName, false);
+
+                                        // if is primitive...
+                                        if(isPrimitive)
                                             propOrVal = currentObject;
                                         else
-                                            // seek the destination property
+                                            // otherwise seek the destination property
                                             propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter(currentObject, propName, true);
 
                                         // run native comparison
@@ -1859,19 +2293,16 @@
                          * Local helper functions
                         */
                         function apply_AAF_I_1L(jlc, predicateArray, enumValue) {
-                                // for given predicates
-                                if(predicateArray) {
-                                    // execute the "IF" filter
-                                    var passed = _LOGICAL_FILTER.applyLogicalWhereFilter(jlc, predicateArray, enumValue);
-
-                                    // return the result
-                                    return passed;
-                                }
-                                // for no given predicates
-                                else {
-                                    // check if there are any items in the sequence (contextually current collection within history array)
-                                    return _DATA.fetch(jlc._ctx.coll_index).collection.length > 0;
-                                }
+                            // for given predicates
+                            if(predicateArray) {
+                                // execute the "IF" filter and return the result
+                                return _LOGICAL_FILTER.applyLogicalWhereFilter(jlc, predicateArray, enumValue);
+                            }
+                            // for no given predicates
+                            else {
+                                // check if there are any items in the sequence (contextually current collection within history array)
+                                return _DATA.fetch(jlc._ctx.coll_index).collection.length > 0;
+                            }
                         }
                 },
 
@@ -1999,40 +2430,7 @@
 
                 add_t : function(collectionOrItem, enumValue) {
                     // invoke core logic
-                    return add_CI_I_1L(this, collectionOrItem, enumValue);
-
-
-
-                    /**
-                     * Local helper functions 
-                    */
-                    function add_CI_I_1L(jlc, collectionOrItem, enumValue) {
-                        // get contextually current collection within history array
-                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
-
-                        if(enumValue === _ENUM.APPEND) {
-                            // append item to the end of current data flow collection
-                            currentColl.push(collectionOrItem);
-                        }
-                        else if(enumValue === _ENUM.PREPEND) {
-                            // declare new current flow data collection
-                            var new_dirty_data = [collectionOrItem];
-
-                            // merge new current flow data collection with old current flow data collection
-                            Array.prototype.push.apply(new_dirty_data, currentColl);
-
-                            // replace the existing current data flow collection with new current data flow collection
-                            currentColl = new_dirty_data;
-                        }
-                        else if(enumValue === _ENUM.CONCAT) {
-                            // merge new data collection with current flow data collection
-                            Array.prototype.push.apply(currentColl, collectionOrItem);
-                        }
-
-                        // update HPID object to enable further data flow
-                        _ACTION.hpid.data = currentColl;
-                        if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
-                    }
+                    _PHYSICAL_FILTER.executeMergeFilter(this, collectionOrItem, enumValue);
                 },
 
                 skip_or_take : function(count, predicateArray, enumValue) {

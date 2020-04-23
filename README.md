@@ -21,7 +21,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
- - DPR #10:&nbsp;2020-04-19 &nbsp;&nbsp;3:35 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 2**&nbsp;:heavy_check_mark:
+ - DPR #11:&nbsp;2020-04-23 &nbsp;&nbsp;5:19 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 3**&nbsp;:heavy_check_mark:
+    - the-already implemented methods are GA methods !&nbsp;:bell:
+      - orderBy && orderByDescending are RC methods !
+    - methods left to be implemented before releasing RC version are :
+        - thenBy, thenByDescending, reverse, reverseExt, select, selectMany, join, leftJoin, contains, distinct, except, defaultIfEmpty, min, max, average, intersect ?, union ?
+ - DPR #10:&nbsp;2020-04-19 &nbsp;&nbsp;3:35 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 2*
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy && orderByDescending are RC methods ! 
     - methods left to be implemented before releasing RC version are :
