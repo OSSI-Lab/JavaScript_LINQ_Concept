@@ -21,7 +21,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
- - DPR #12:&nbsp;2020-04-26 &nbsp;&nbsp;7:29 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 4**&nbsp;:heavy_check_mark:
+ - DPR #12:&nbsp;2020-04-26 &nbsp;&nbsp;7:31 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture**&nbsp;:bell: )&nbsp;**Enhancement 4**&nbsp;:heavy_check_mark:
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy, orderByDescending, thenBy, thenByDescending are UAD methods !
     - methods left to be implemented before releasing RC version are :
