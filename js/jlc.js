@@ -231,7 +231,7 @@
                     // array for storing physical intermediate data
                     data : [],
 
-                    sorting : {
+                    sorting : {                        
                         // sort input type
                         sit : undefined, 
 
@@ -244,7 +244,22 @@
                         // whether to carry out further sorting operations or not
                         stop : false,
 
-                        // this objct drives the sorting of second-level sorting, i.e. thenBy || thenByDescending
+                        // if 1st level sorting took place, enable 2nd level sorting
+                        firstLevelCtx : {
+                            // is 1st level sorting available
+                            present : false,
+
+                            check : function() {
+                                if(!_ACTION.hpid.sorting.firstLevelCtx.present)
+                                    throw new Error('You can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !');
+                            },
+
+                            set : function(flag) {
+                                _ACTION.hpid.sorting.firstLevelCtx.present = flag;
+                            }
+                        },
+
+                        // this object drives the second-level sorting, i.e. thenBy || thenByDescending
                         sortSet : {
                             // initialize this object once with the first new invocation of second-level sorting 
                             is_initialized : false,
@@ -275,58 +290,113 @@
                             getSortSet : function (userColumnSet) {
                                 // check if this sorting is still required from the data flow point of view (if further sorting makes sense)
                                 if(!_ACTION.hpid.sorting.stop) {
-                                    // create sort set
-                                    var sort_set = get_SS_I_1L(userColumnSet);
+                                    // get only valid column names from user sort set
+                                    var ovc = _ACTION.hpid.sorting.extractOVC(userColumnSet);
 
                                     // check if current sort set defines 'unique value', aka 'the key' that will discard subsequent sorting operations
-                                    var isUnique = is_UV_I_1L(sort_set.ovc);
+                                    var is_unique = _ACTION.hpid.sorting.isUniqueSortPhrase(ovc);
 
                                     // if current sort set is unique, then discard subsequent sorting operations
-                                    if(isUnique)
+                                    if(is_unique)
                                         _ACTION.hpid.sorting.stop = true;
                                     // otherwise update sorting metadata
                                     else {
                                         // add current sorting columns to already-used sorting columns
-                                        Array.prototype.push.apply(_ACTION.hpid.sorting.sortSet.sort_columns, sort_set.ovc);
+                                        Array.prototype.push.apply(_ACTION.hpid.sorting.sortSet.sort_columns, ovc);
 
                                         // remove current sorting columns from already-used result set columns
-                                        _ACTION.hpid.sorting.sortSet.result_set_columns.length = _ACTION.hpid.sorting.sortSet.result_set_columns.length - sort_set.ovc.length;
-                                    }
-
-
-
-                                    /**
-                                     * Local helper functions 
-                                    */
-                                    function get_SS_I_1L(userColumnSet) {
-                                        // define output object
-                                        var o = {
-                                            // phrase used to sort the sort set
-                                            phrase : '',
-                                            
-                                            // only valid columns extracted from the user column set
-                                            ovc : []
-                                        };
-
-                                        // fulfill the output object
-
-
-                                        // return output object
-                                        return o;
-                                    }
-
-                                    function is_UV_I_1L(ovc) {
-                                        // let's assume that is unique
-                                        var unique = true;
-
-                                        // along the way try to prove that this set of columns is not unique one
-
-                                        // return if it's unique
-                                        return unique;
+                                        _ACTION.hpid.sorting.sortSet.result_set_columns.length = _ACTION.hpid.sorting.sortSet.result_set_columns.length - ovc.length; // CHECK IT !!!!
                                     }
                                 }
                             }
                         },
+
+                        isUniqueSortPhrase : function (ovc, safeFetch, coll_index) {
+                            // let's assume that phrase is unique
+                            var unique = true;
+
+                            /**
+                             * Along the way try to prove that this set of columns is not unique one 
+                            */
+
+                            // declare object holding all groupped phrases
+                            var phrase_groupper = {};
+                            
+                            var hpid_cache;
+                            // try to get data from HPID in the first place, otherwise fetch from internal storage
+                            if(safeFetch) {
+                                // if HPID is not ready
+                                if(!_ACTION.hpid.isOn) {
+                                    // update HPID object to enable further data flow
+                                    _ACTION.hpid.data = _DATA.fetch(coll_index).collection;
+                                    _ACTION.hpid.isOn = true;
+                                }
+
+                                // cache current data to be sorted
+                                hpid_cache = _ACTION.hpid.data;
+                            }
+                            else {
+                                // cache current data to be sorted
+                                hpid_cache = _ACTION.hpid.data;
+                            }
+
+                            var c_o;
+                            // loop over all user column set 
+                            for(var i = 0; i < hpid_cache.length; i++) {
+                                // access current object
+                                c_o = hpid_cache[i];
+
+                                var phrase = '';
+                                // loop over all user column set 
+                                for(var j = 0; j < ovc.length; j++) {
+                                    // build phrase
+                                    phrase += c_o[ovc[j]] + '-'; 
+                                }
+                                
+                                // remove the last dash - phrase joining sign
+                                phrase = phrase.substring(0, phrase.length - 1);
+
+                                // when current object phrase is built, check phrase's uniqness
+                                var value_arr = phrase_groupper[phrase] || [];
+
+                                // store some value as small as possible
+                                value_arr.push(true);
+
+                                // break 'unique phrase' checking ASAP
+                                if(value_arr.length > 1) {
+                                    // mark that phrase is not unique
+                                    unique = false;
+
+                                    // break further collection's checking
+                                    break;
+                                }
+                                else
+                                    // otherwise group current phrase
+                                    phrase_groupper[phrase] = value_arr;
+                            }
+
+                            // return if it's unique
+                            return unique;
+                        },                            
+
+                        extractOVC : function(userColumnSet) {
+                            // define output object - only valid columns extracted from the user column set
+                            var ovc = [];
+
+                            // loop over current user column set
+                            for(var i = 0; i < userColumnSet.length; i++) {
+                                // access current column metadata
+                                var ccm = userColumnSet[i];
+
+                                // only extract real - i.e. physical - columns by examining the second value (true/false)
+                                if(ccm[1])
+                                    // store real column, aka object property name
+                                    ovc.push(ccm[0]);
+                            }
+
+                            // return output object
+                            return ovc;
+                        },                        
 
                         // reset all so-far used sorting
                         clear : function() {
@@ -600,6 +670,9 @@
                              *  - udfComparer
                             */
                             orderBy : function(params) {
+                                // set the 1st level sorting context
+                                _ACTION.hpid.sorting.firstLevelCtx.set(true);
+
                                 // handle "default" parameter
                                 if (params === undefined) params = {};
 
@@ -623,6 +696,9 @@
                              *  - udfComparer
                             */
                             orderByDescending : function(params) {
+                                // set the 1st level sorting context
+                                _ACTION.hpid.sorting.firstLevelCtx.set(true);
+
                                 // handle "default" parameter
                                 if (params === undefined) params = {};
 
@@ -638,6 +714,58 @@
                                                         System.Linq.Context.orderByDescending
                                                      );
                             },                            
+
+                            /**
+                             * Serves the same purpose as ThenBy method in LINQ from C#.
+                             * @param {object} params contains all possible params used by this method :
+                             *  - keyPartSelectorArray
+                             *  - udfComparer
+                            */
+                            thenBy : function(params) {
+                                // evaluate the 1st level sorting context
+                                _ACTION.hpid.sorting.firstLevelCtx.check();
+
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(
+                                                        this._ctx,
+                                                        _CORE.order_asc_or_desc.bind(
+                                                                                        this,
+                                                                                        params['keyPartSelectorArray'],
+                                                                                        params['udfComparer'],
+                                                                                        _ENUM.ORDER.By.THEN_ASC
+                                                                                    ),
+                                                        System.Linq.Context.orderBy
+                                                    );
+                            },
+
+                            /**
+                            * Serves the same purpose as ThenByDescending method in LINQ from C#.
+                            * @param {object} params contains all possible params used by this method :
+                            *  - keyPartSelectorArray
+                            *  - udfComparer
+                            */                    
+                            thenByDescending : function(params) {
+                                // evaluate the 1st level sorting context
+                                _ACTION.hpid.sorting.firstLevelCtx.check();
+
+                                // handle "default" parameter
+                                if (params === undefined) params = {};
+
+                                // create action and proceed with further flow
+                                return _ACTION.create(
+                                                        self._ctx,
+                                                        _CORE.order_asc_or_desc.bind(
+                                                                                        self,
+                                                                                        params['keyPartSelectorArray'],
+                                                                                        params['udfComparer'],
+                                                                                        _ENUM.ORDER.By.THEN_DESC
+                                                                                    ),
+                                                        System.Linq.Context.orderByDescending
+                                                     );
+                            },
 
                             /**
                              * Serves the same purpose as Concat method in LINQ from C#.
@@ -1023,7 +1151,7 @@
                                 var keyPart, itemCurrentValue = '', itemPreviousValue = '';
 
                                 // get the array of sorting key parts
-                                var key_array = _COMMON.createGroupingOrSortingKey(_ACTION.hpid.sorting.sort_keys[0]);
+                                var key_array = _COMMON.createGroupingOrSortingKey(_ACTION.hpid.sorting.sort_keys[0]); // right now hard-coded sorting - always by the first stored phrase !!!! - UAD (Under Active Development)
 
                                 // loop over key parts and apply the comparison logic
                                 for(var j = 0; j < key_array.length; j++) {
@@ -1142,7 +1270,62 @@
                      * Local helper functions
                     */
                     function fetch_OSKs_I_1L(obj) {
+                        // declare array of object's keys
+                        var o_key_arr = [];
+                        
+                        // retrieve current level keys
+                        getKeys_I_2L('', obj, o_key_arr);
 
+                        // return array of object's keys
+                        return o_key_arr;
+
+
+
+                        /**
+                         * Local helper functions 
+                        */
+                        function getKeys_I_2L(parent, d_obj, output_arr) {
+                            // declare output array of object's keys
+                            var primitives = [];
+
+                            // declare internal array of object's keys pointing to nested objects
+                            var objects = [];
+
+                            // fetch current level prop names
+                            var keys = Object.getOwnPropertyNames(d_obj);
+
+                            var key;
+                            // loop over all keys
+                            for(var i = 0 ; i < keys.length; i++) {
+                                // get current key
+                                key = keys[i];
+                                
+                                // reference object's value stored under this key
+                                var value = d_obj[key];
+
+                                // if it's a primitive type
+                                if(typeof value !== 'object')
+                                    primitives.push(parent + key);
+                                // if it's an object
+                                else if(typeof value === 'object')
+                                    objects.push(key);
+                            }
+
+                            // if at current level are any nested objects, drill down to process their properties
+                            if(objects.length) {
+                                // loop over all keys pointing to nested objects
+                                for(var j = 0 ; j < objects.length; j++) {
+                                    // get current key
+                                    var c_k = objects[j];
+
+                                    // inspect nested object
+                                    getKeys_I_2L(c_k + '.', d_obj[c_k], output_arr);
+                                }
+                            }
+
+                            // store current level properties - return properly constructed paths
+                            Array.prototype.push.apply(output_arr, primitives);                            
+                        }
                     }
                 },
 
@@ -1182,70 +1365,70 @@
                      * Local helper functions
                     */
                     function execute_WF_I_1L(jlc, predicateArray, skipOrTakeEnum) {
-                            // declare current intermediate collection
-                            var c_i_c = [];
+                        // declare current intermediate collection
+                        var c_i_c = [];
 
-                            // create input collection cache
-                            var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
+                        // create input collection cache
+                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                            // if we're dealing with skipWhile...
-                            if(skipOrTakeEnum === _ENUM.SKIP) {
-                                // loop over current collection and apply filters
-                                for(var i = 0; i < currentColl.length; i++) {
-                                    // access current object
-                                    var c_o = currentColl[i];
+                        // if we're dealing with skipWhile...
+                        if(skipOrTakeEnum === _ENUM.SKIP) {
+                            // loop over current collection and apply filters
+                            for(var i = 0; i < currentColl.length; i++) {
+                                // access current object
+                                var c_o = currentColl[i];
 
-                                    // apply where filter(s) and get the result
-                                    var passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
+                                // apply where filter(s) and get the result
+                                var passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
 
-                                    // if object didn't pass the filter
-                                    if(!passed) {
-                                        // take the rest of the collection
-                                        c_i_c = currentColl.slice(i);
+                                // if object didn't pass the filter
+                                if(!passed) {
+                                    // take the rest of the collection
+                                     c_i_c = currentColl.slice(i);
 
-                                        // and break further skipping 
-                                        break;
-                                    }
+                                     // and break further skipping 
+                                     break;
                                 }
                             }
-                            // if we're dealing with takeWhile...                            
-                            else if(skipOrTakeEnum === _ENUM.TAKE) {
-                                // loop over current collection and apply filters
-                                for(var i = 0; i < currentColl.length; i++) {
-                                    // access current object
-                                    var c_o = currentColl[i];
+                        }
+                        // if we're dealing with takeWhile...                            
+                        else if(skipOrTakeEnum === _ENUM.TAKE) {
+                            // loop over current collection and apply filters
+                            for(var i = 0; i < currentColl.length; i++) {
+                                // access current object
+                                var c_o = currentColl[i];
 
-                                    // apply where filter(s) and get the result
-                                    var passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
+                                // apply where filter(s) and get the result
+                                var passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
 
-                                    // if object passed the filter
-                                    if(passed)
-                                        c_i_c.push(c_o);
-                                    // if object didn't pass the filter
-                                    else
-                                        // and break further taking 
-                                        break;
-                                }
+                                // if object passed the filter
+                                if(passed)
+                                    c_i_c.push(c_o);
+                                // if object didn't pass the filter
+                                else
+                                    // and break further taking 
+                                    break;
                             }
-                            // otherwise we're dealing with 'normal where' case
-                            else {
-                                // loop over current collection and apply filters
-                                for(var i = 0; i < currentColl.length; i++) {
-                                    // access current object
-                                    var c_o = currentColl[i];
+                        }
+                        // otherwise we're dealing with 'normal where' case
+                        else {
+                            // loop over current collection and apply filters
+                            for(var i = 0; i < currentColl.length; i++) {
+                                // access current object
+                                var c_o = currentColl[i];
 
-                                    // apply where filter(s) and get the result
-                                    passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
+                                // apply where filter(s) and get the result
+                                passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
 
-                                    // based on filtering result (true/false) pass object further down the flow
-                                    if(passed)
-                                        c_i_c.push(c_o);
-                                }
+                                // based on filtering result (true/false) pass object further down the flow
+                                if(passed)
+                                    c_i_c.push(c_o);
                             }
+                        }
 
-                            // update HPID object to enable further data flow
-                            _ACTION.hpid.data = c_i_c;
-                            if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
+                        // update HPID object to enable further data flow
+                        _ACTION.hpid.data = c_i_c;
+                        if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
                     }
                 },
 
@@ -1258,355 +1441,355 @@
                      * Local helper functions
                     */
                     function execute_GBF_I_1L(jlc, predicateArray, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext) {
-                            // check if grouping key is present
-                            if(predicateArray) {
-                                // create the key
-                                var key_array = _COMMON.createGroupingOrSortingKey(predicateArray);
+                        // check if grouping key is present
+                        if(predicateArray) {
+                            // create the key
+                            var key_array = _COMMON.createGroupingOrSortingKey(predicateArray);
 
-                                // declare groups object being an array !
-                                var groups = [];
+                            // declare groups object being an array !
+                            var groups = [];
 
-                                // get contextually current collection within history array
-                                var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
+                            // get contextually current collection within history array
+                            var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                                // reference first object in the collection and determine the type ASAP
-                                var o = currentColl[0];
+                            // reference first object in the collection and determine the type ASAP
+                            var o = currentColl[0];
                                 
-                                // do grouping of primitives
-                                if(typeof o !== 'object')
-                                    currentColl.forEach(groupPrimitives_I_2L);
-                                else
-                                // do grouping of objects
-                                    currentColl.forEach(groupObjects_I_2L);
+                            // do grouping of primitives
+                            if(typeof o !== 'object')
+                                currentColl.forEach(groupPrimitives_I_2L);
+                            // do grouping of objects
+                            else
+                                currentColl.forEach(groupObjects_I_2L);
 
 
-                                // sort the groups by using user-defined or a default comparer
-                                if(udfEqualityComparer)
+                            // sort the groups by using user-defined or a default comparer
+                            if(udfEqualityComparer)
                                 groups = sortGroups_I_2L(udfEqualityComparer);
 
-                                // update HPID object to enable further data flow
-                                _ACTION.hpid.data = groups;
-                                if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;                                
+                            // update HPID object to enable further data flow
+                            _ACTION.hpid.data = groups;
+                            if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;                                
 
-                                // check if terminate data flow
-                                if(terminateFlowAndReturnData)
-                                    _ACTION.hpid.done = true;
-                            }
-                            // otherwise throw error
-                            else {
-                                throw Error("groupBy requires a grouping key to be present. Current invocation is missing the key !");
-                            }
+                            // check if terminate data flow
+                            if(terminateFlowAndReturnData)
+                                _ACTION.hpid.done = true;
+                        }
+                        // otherwise throw error
+                        else {
+                            throw Error("groupBy requires a grouping key to be present. Current invocation is missing the key !");
+                        }
 
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function groupPrimitives_I_2L(item) {
+                            // get the group id
+                            var id = item;
+
+                            // project group id if required
+                            if(udfGroupProjector)
+                                id = (udfGroupProjector.bind(id))();
+
+                            // project group elements if required
+                            if(udfGroupElementsProjector)
+                                item = (udfGroupElementsProjector.bind(item))();
 
 
                             /**
-                             * Local helper functions
+                             * Distinguish between dictionary and grouped objects
+                             *  - dictionary keys has to be unique
+                             *  - values are primitives values or objects, not single elements of array 
                             */
-                            function groupPrimitives_I_2L(item) {
-                                // get the group id
-                                var id = item;
+                            if(isDictionaryContext && getGrouping_I_2L(id, groups).arr)
+                                throw Error('Item with the same key was already added to this dictionary object !');
 
-                                // project group id if required
-                                if(udfGroupProjector)
-                                    id = (udfGroupProjector.bind(id))();
+                            // create pure empty object
+                            var eo = Object.create(null);
 
-                                // project group elements if required
-                                if(udfGroupElementsProjector)
-                                    item = (udfGroupElementsProjector.bind(item))();
-
-
-                                /**
-                                 * Distinguish between dictionary and grouped objects
-                                 *  - dictionary keys has to be unique
-                                 *  - values are primitives values or objects, not single elements of array 
-                                */
-                                if(isDictionaryContext && getGrouping_I_2L(id, groups).arr)
-                                    throw Error('Item with the same key was already added to this dictionary object !');
-
-                                // create pure empty object
-                                var eo = Object.create(null);
-
-                                // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
-                                if(isDictionaryContext) {
-                                    // define object as a KVP object (KeyValuePair)
-                                    eo.key = id;
-                                    eo.value = item;
+                            // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
+                            if(isDictionaryContext) {
+                                // define object as a KVP object (KeyValuePair)
+                                eo.key = id;
+                                eo.value = item;
                                         
-                                    // store KVP object
-                                    groups.push(eo);
+                                // store KVP object
+                                groups.push(eo);
+                            }
+                            else {
+                                // get grouping seeker object from the group
+                                var gso = getGrouping_I_2L(id, groups);
+
+                                // reference the list of elements if any
+                                if (gso.arr) {
+                                    // add object to this grouping object
+                                    gso.arr.push(item);
+
+                                    // update grouping object
+                                    setGrouping_I_2L(id, gso, groups);
                                 }
+                                // otherwise create a new grouping object
                                 else {
-                                    // get grouping seeker object from the group
-                                    var gso = getGrouping_I_2L(id, groups);
+                                    // define a dictionary-like object
+                                    eo.idx = -1;
+                                    eo.arr = [item];
 
-                                    // reference the list of elements if any
-                                    if (gso.arr) {
-                                        // add object to this grouping object
-                                        gso.arr.push(item);
-
-                                        // update grouping object
-                                        setGrouping_I_2L(id, gso, groups);
-                                    }
-                                    // otherwise create a new grouping object
-                                    else {
-                                        // define a dictionary-like object
-                                        eo.idx = -1;
-                                        eo.arr = [item];
-
-                                        // add object to this grouping object
-                                        setGrouping_I_2L(id, eo, groups);
-                                    }
+                                    // add object to this grouping object
+                                    setGrouping_I_2L(id, eo, groups);
                                 }
                             }
+                        }
 
-                            function groupObjects_I_2L(item) {
-                                // get the group id
-                                var id = getTheKeyValue_I_2L(item);
+                        function groupObjects_I_2L(item) {
+                            // get the group id
+                            var id = getTheKeyValue_I_2L(item);
 
-                                // project group id if required
-                                if(udfGroupProjector)
-                                    id = (udfGroupProjector.bind(id))();
+                            // project group id if required
+                            if(udfGroupProjector)
+                                id = (udfGroupProjector.bind(id))();
 
-                                // project group elements if required
-                                if(udfGroupElementsProjector)
-                                    item = (udfGroupElementsProjector.bind(item))();
+                            // project group elements if required
+                            if(udfGroupElementsProjector)
+                                item = (udfGroupElementsProjector.bind(item))();
 
                                     
-                                /**
-                                 * Distinguish between dictionary and grouped objects
-                                 *  - dictionary keys has to be unique
-                                 *  - values are primitives values or objects, not single elements of array 
-                                */
-                                if(isDictionaryContext && getGrouping_I_2L(id, groups).arr)
-                                    throw Error('Item with the same key was already added to this dictionary object !');
+                            /**
+                             * Distinguish between dictionary and grouped objects
+                             *  - dictionary keys has to be unique
+                             *  - values are primitives values or objects, not single elements of array 
+                            */
+                            if(isDictionaryContext && getGrouping_I_2L(id, groups).arr)
+                                throw Error('Item with the same key was already added to this dictionary object !');
 
-                                // create pure empty object
-                                var eo = Object.create(null);
+                            // create pure empty object
+                            var eo = Object.create(null);
 
                                 // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
-                                if(isDictionaryContext) {
-                                    // define object as a KVP object (KeyValuePair)
-                                    eo.key = id;
-                                    eo.value = item;
+                            if(isDictionaryContext) {
+                                // define object as a KVP object (KeyValuePair)
+                                eo.key = id;
+                                eo.value = item;
                                         
-                                    // store KVP object
-                                    groups.push(eo);
+                                // store KVP object
+                                groups.push(eo);
+                            }
+                            else {
+                                // get grouping seeker object from the group
+                                var gso = getGrouping_I_2L(id, groups);
+
+                                // reference the list of elements if any
+                                if (gso.arr) {
+                                    // add object to this grouping object
+                                    gso.arr.push(item);
+
+                                    // update grouping object
+                                    setGrouping_I_2L(id, gso, groups);
                                 }
+                                // otherwise create a new grouping object
                                 else {
-                                    // get grouping seeker object from the group
-                                    var gso = getGrouping_I_2L(id, groups);
+                                    // define a dictionary-like object
+                                    eo.idx = -1;
+                                    eo.arr = [item];
 
-                                    // reference the list of elements if any
-                                    if (gso.arr) {
-                                        // add object to this grouping object
-                                        gso.arr.push(item);
-
-                                        // update grouping object
-                                        setGrouping_I_2L(id, gso, groups);
-                                    }
-                                    // otherwise create a new grouping object
-                                    else {
-                                        // define a dictionary-like object
-                                        eo.idx = -1;
-                                        eo.arr = [item];
-
-                                        // add object to this grouping object
-                                        setGrouping_I_2L(id, eo, groups);
-                                    }
+                                    // add object to this grouping object
+                                    setGrouping_I_2L(id, eo, groups);
                                 }
                             }
+                        }
 
-                            function getGrouping_I_2L(key_id, groups_obj) {
-                                // create pure empty object
-                                var gso = Object.create(null);
+                        function getGrouping_I_2L(key_id, groups_obj) {
+                            // create pure empty object
+                            var gso = Object.create(null);
 
-                                // define grouping seeker object
-                                gso.idx = -1;                       // index of grouping object in the group
-                                gso.arr = undefined;                // list of grouped values
+                            // define grouping seeker object
+                            gso.idx = -1;                       // index of grouping object in the group
+                            gso.arr = undefined;                // list of grouped values
 
-                                // loop over groups' object
-                                for(var i = 0; i < groups_obj.length; i++) {
-                                    // access grouping object
-                                    var item = groups_obj[i];
+                            // loop over groups' object
+                            for(var i = 0; i < groups_obj.length; i++) {
+                                // access grouping object
+                                var item = groups_obj[i];
 
-                                    // find the right one with key id
-                                    if(item.key === key_id) {
-                                        // store index of grouping object in the group
-                                        gso.idx = i;
+                                // find the right one with key id
+                                if(item.key === key_id) {
+                                    // store index of grouping object in the group
+                                    gso.idx = i;
 
-                                        // reference the list of grouped values and yield them on demand (right here right now)
-                                        gso.arr = item.resultsView;
+                                    // reference the list of grouped values and yield them on demand (right here right now)
+                                    gso.arr = item.resultsView;
                                         
-                                        // discard further search
-                                        break;
-                                    }
+                                    // discard further search
+                                    break;
                                 }
-
-                                // return grouping seeker object
-                                return gso;
                             }
 
-                            function setGrouping_I_2L(key_id, gso, groups_obj) {
-                                // create pure empty object
-                                var grouping_obj = Object.create(null);
+                            // return grouping seeker object
+                            return gso;
+                        }
 
-                                // define grouping object
-                                grouping_obj.key = key_id;
+                        function setGrouping_I_2L(key_id, gso, groups_obj) {
+                            // create pure empty object
+                            var grouping_obj = Object.create(null);
 
-                                /**
-                                 * Declare resultsView function
-                                 *  - declare non-public components called '_privateList'
-                                */
-                                var _privateList = gso.arr;
-                                Object.defineProperty(
-                                                        grouping_obj,
-                                                        "resultsView",
-                                                        {
-                                                            // only override getter
-                                                            get: function() { return _privateList; }
-                                                        }
-                                                     );
+                            // define grouping object
+                            grouping_obj.key = key_id;
 
-                                // store grouping object at the right position
-                                if(gso.idx === -1)
-                                    groups_obj.push(grouping_obj);
-                                else
-                                    groups_obj[gso.idx] = grouping_obj;
-                            }
+                            /**
+                             * Declare resultsView function
+                             *  - declare non-public components called '_privateList'
+                            */
+                            var _privateList = gso.arr;
+                            Object.defineProperty(
+                                                    grouping_obj,
+                                                    "resultsView",
+                                                    {
+                                                        // only override getter
+                                                        get: function() { return _privateList; }
+                                                    }
+                                                 );
 
-                            function getTheKeyValue_I_2L(itemCurrent) {
-                                // declare a real key
-                                var key;
+                            // store grouping object at the right position
+                            if(gso.idx === -1)
+                                groups_obj.push(grouping_obj);
+                            else
+                                groups_obj[gso.idx] = grouping_obj;
+                        }
 
-                                // loop over key parts and apply the comparison logic
-                                for(var i = 0; i < key_array.length; i++) {
-                                    // reference the key part
-                                    keyPart = key_array[i];
+                        function getTheKeyValue_I_2L(itemCurrent) {
+                            // declare a real key
+                            var key;
 
-                                    // is it complex ?
-                                    if(keyPart.isValidProperty && keyPart.isComplex) {
-                                        // if key is already initialized
-                                        if(key)
-                                            // get the property value from both, the current and the previous object
-                                            key += _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value);
-                                        else {
-                                            // get the key value - get the property value from both, the current and the previous object
-                                            var rkv = _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value);
+                            // loop over key parts and apply the comparison logic
+                            for(var i = 0; i < key_array.length; i++) {
+                                // reference the key part
+                                keyPart = key_array[i];
 
-                                            // initialize a key with a default value
-                                            key = getDefaultOf_I_3L(rkv);
-                                            key += rkv;
-                                        }
-                                    }
-                                    // is it simple ?
-                                    else if(keyPart.isValidProperty) {
-                                        // if key is already initialized
-                                        if(key)
-                                            key += itemCurrent[keyPart.value];
-                                        else {
-                                            // get the key value
-                                            var rkv = itemCurrent[keyPart.value];
-
-                                            // initialize a key with a default value
-                                            key = getDefaultOf_I_3L(rkv);
-                                            key += rkv;
-                                        }
-                                    }
-                                    // otherwise apply some part that is not a property of an object
+                                // is it complex ?
+                                if(keyPart.isValidProperty && keyPart.isComplex) {
+                                    // if key is already initialized
+                                    if(key)
+                                        // get the property value from both, the current and the previous object
+                                        key += _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value);
                                     else {
-                                        key += keyPart.value;
+                                        // get the key value - get the property value from both, the current and the previous object
+                                        var rkv = _LOGICAL_FILTER.applyPropertyValueFilter(itemCurrent, keyPart.value);
+
+                                        // initialize a key with a default value
+                                        key = getDefaultOf_I_3L(rkv);
+                                        key += rkv;
                                     }
                                 }
+                                // is it simple ?
+                                else if(keyPart.isValidProperty) {
+                                    // if key is already initialized
+                                    if(key)
+                                        key += itemCurrent[keyPart.value];
+                                    else {
+                                        // get the key value
+                                        var rkv = itemCurrent[keyPart.value];
 
-                                // return the key from object
-                                return key;
+                                        // initialize a key with a default value
+                                        key = getDefaultOf_I_3L(rkv);
+                                        key += rkv;
+                                    }
+                                }
+                                // otherwise apply some part that is not a property of an object
+                                else {
+                                    key += keyPart.value;
+                                }
+                            }
+
+                            // return the key from object
+                            return key;
                                 
+
+
+                            /**
+                             * Local helper functions 
+                            */
+                            function getDefaultOf_I_3L(value) {
+                                // determine the type of value
+                                var type = getType_I_4L(value);
+
+                                // type must be a string
+                                if (typeof type !== 'string') throw new TypeError('Type must be a string.');
+                                
+                                // handle simple types (primitives and plain function/object)
+                                switch (type) {
+                                    case 'boolean'   : return false;
+                                    case 'function'  : return function () {};
+                                    case 'null'      : return null;
+                                    case 'number'    : return 0;
+                                    case 'object'    : return {};
+                                    case 'string'    : return "";
+                                    case 'symbol'    : return Symbol();
+                                    case 'undefined' : return void 0;
+                                }
+                                
+                                try
+                                {
+                                    // look for constructor in this or current scope
+                                    var ctor = typeof this[type] === 'function'
+                                                                                    ? this[type]
+                                                                                    : eval(type);
+                                    return new ctor;
+                                }
+                                // constructor not found, return new object
+                                catch (e)
+                                {
+                                    return {};
+                                }
+
 
 
                                 /**
                                  * Local helper functions 
                                 */
-                                function getDefaultOf_I_3L(value) {
+                                    
+                                function getType_I_4L(value) {
                                     // determine the type of value
-                                    var type = getType_I_4L(value);
-
-                                    // type must be a string
-                                    if (typeof type !== 'string') throw new TypeError('Type must be a string.');
-                                
-                                    // handle simple types (primitives and plain function/object)
-                                    switch (type) {
-                                        case 'boolean'   : return false;
-                                        case 'function'  : return function () {};
-                                        case 'null'      : return null;
-                                        case 'number'    : return 0;
-                                        case 'object'    : return {};
-                                        case 'string'    : return "";
-                                        case 'symbol'    : return Symbol();
-                                        case 'undefined' : return void 0;
-                                    }
-                                
-                                    try
-                                    {
-                                        // look for constructor in this or current scope
-                                        var ctor = typeof this[type] === 'function'
-                                                                                    ? this[type]
-                                                                                    : eval(type);
-                                        return new ctor;
-                                    }
-                                    // constructor not found, return new object
-                                    catch (e)
-                                    {
-                                        return {};
-                                    }
-
-
-
-                                    /**
-                                     * Local helper functions 
-                                    */
+                                    var type = typeof value;
                                     
-                                    function getType_I_4L(value) {
-                                        // determine the type of value
-                                        var type = typeof value;
-                                    
-                                        // primitive or function
-                                        if (type !== 'object') return type;
+                                    // primitive or function
+                                    if (type !== 'object') return type;
 
-                                        // null
-                                        if (value === null) return 'null';
+                                    // null
+                                    if (value === null) return 'null';
                                     
-                                        // everything else, check for a constructor
-                                        var ctor = value.constructor;
-                                        var name = typeof ctor === 'function' && ctor.name;
+                                    // everything else, check for a constructor
+                                    var ctor = value.constructor;
+                                    var name = typeof ctor === 'function' && ctor.name;
                                     
-                                        return typeof name === 'string' && name.length > 0 ? name : 'object';
-                                    }
+                                    return typeof name === 'string' && name.length > 0 ? name : 'object';
                                 }
-                            }                            
-
-                            function sortGroups_I_2L(equalityComparer) {
-                                // declare array of group keys
-                                var keys = [];
-
-                                // loop over all groups
-                                for(var gk in groups)
-                                    // store current group key
-                                    keys.push(gk);
-
-                                // sort the keys
-                                keys.sort(equalityComparer);
-
-                                // declare object holding sorted groups
-                                var sorted_groups = {};
-
-                                // store grouped objects sorted in a proper way into new object
-                                keys.forEach(function(key) {
-                                    sorted_groups[key] = groups[key];
-                                });
-
-                                // return sorted groups
-                                return sorted_groups;
                             }
+                        }                            
+                        // CHECK IT !!!!
+                        function sortGroups_I_2L(equalityComparer) {
+                            // declare array of group keys
+                            var keys = [];
+
+                            // loop over all groups
+                            for(var gk in groups)
+                                // store current group key
+                                 keys.push(gk);
+
+                            // sort the keys
+                            keys.sort(equalityComparer);
+
+                            // declare object holding sorted groups
+                            var sorted_groups = {};
+
+                            // store grouped objects sorted in a proper way into new object
+                            keys.forEach(function(key) {
+                                sorted_groups[key] = groups[key];
+                            });
+
+                            // return sorted groups
+                            return sorted_groups;
+                        }
                     }
                 },
 
@@ -1619,160 +1802,159 @@
                      * Local helper functions
                     */
                     function extR_I_1L(jlc, predicateArray, index, count, enumValue) {
-                            if(predicateArray) {
-                                // execute the "WHERE" filter
-                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray, enumValue);
+                        if(predicateArray) {
+                            // execute the "WHERE" filter
+                            _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray, enumValue);
 
-                                // check the result
-                                return getResult_I_2L(true);
-                            }
-                            // for no given predicates
-                            else {
-                                // check the result
-                                return getResult_I_2L(false);
-                            }
+                            // check the result
+                            return getResult_I_2L(true);
+                        }
+                        // for no given predicates
+                        else {
+                            // check the result
+                            return getResult_I_2L(false);
+                        }
 
 
 
-                            /**
-                             * Local helper functions
-                            */
-                            function getResult_I_2L(withPredicates) {
-                                // get contextually current collection within history array
-                                var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
+                        /**
+                         * Local helper functions
+                        */
+                        function getResult_I_2L(withPredicates) {
+                            // get contextually current collection within history array
+                            var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                                // if the sequence contains elements
-                                if(currentColl.length) {
-                                    // declare array of reversed sequence
-                                    var r_seq = [];
+                            // if the sequence contains elements
+                            if(currentColl.length) {
+                                // declare array of reversed sequence
+                                var r_seq = [];
 
-                                    // loop indexes
-                                    var i, j;
+                                // loop indexes
+                                var i, j;
 
-                                    switch (enumValue) {
-                                        case _ENUM.REVERSE:
-                                        case _ENUM.REVERSE_EXT:
-                                            // determine the valid range of sequence to reverse
-                                            if((index || index === 0) && count) {
-                                                if(index + count - 1 > currentColl.length - 1)
-                                                    throw Error("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !");
-                                                else if(index + count - 1 === currentColl.length - 1)
-                                                    i = currentColl.length - 1;
-                                                else if(index + count - 1 < currentColl.length - 1)
-                                                    i = index + count - 1;
+                                switch (enumValue) {
+                                    case _ENUM.REVERSE:
+                                    case _ENUM.REVERSE_EXT:
+                                        // determine the valid range of sequence to reverse
+                                        if((index || index === 0) && count) {
+                                            if(index + count - 1 > currentColl.length - 1)
+                                                throw Error("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !");
+                                            else if(index + count - 1 === currentColl.length - 1)
+                                                i = currentColl.length - 1;
+                                            else if(index + count - 1 < currentColl.length - 1)
+                                                i = index + count - 1;
 
-                                                // reverse the sequence
-                                                for(i; i >= index; i--)
-                                                    r_seq.push(currentColl[i]);
+                                            // reverse the sequence
+                                            for(i; i >= index; i--)
+                                                r_seq.push(currentColl[i]);
 
-                                                // replace original sequence with the reversed sequence
-                                                for(j = 0; j < r_seq.length; j++)
+                                            // replace original sequence with the reversed sequence
+                                            for(j = 0; j < r_seq.length; j++)
                                                 currentColl[j + index] = r_seq[j];
-                                            }
-                                            else if((index || index === 0) && enumValue === _ENUM.REVERSE_EXT) {
-                                                // reverse the sequence
-                                                for(i = currentColl.length - 1; i >= index; i--)
-                                                    r_seq.push(currentColl[i]);
+                                        }
+                                        else if((index || index === 0) && enumValue === _ENUM.REVERSE_EXT) {
+                                            // reverse the sequence
+                                            for(i = currentColl.length - 1; i >= index; i--)
+                                                r_seq.push(currentColl[i]);
 
-                                                // replace original sequence with the reversed sequence
-                                                for(j = 0; j < r_seq.length; j++)
+                                            // replace original sequence with the reversed sequence
+                                            for(j = 0; j < r_seq.length; j++)
                                                 currentColl[j + index] = r_seq[j];
-                                            }
-                                            else if(count && enumValue === _ENUM.REVERSE_EXT) {
-                                                // determine the start index
-                                                index = currentColl.length - 1 - count;
+                                        }
+                                        else if(count && enumValue === _ENUM.REVERSE_EXT) {
+                                            // determine the start index
+                                            index = currentColl.length - 1 - count;
 
-                                                // reverse the sequence
-                                                for(i = currentColl.length - 1; i > index; i--)
-                                                    r_seq.push(currentColl[i]);
+                                            // reverse the sequence
+                                            for(i = currentColl.length - 1; i > index; i--)
+                                                r_seq.push(currentColl[i]);
 
-                                                // increment the starting index by 1 because of condition i > index
-                                                index++;
-                                                // replace original sequence with the reversed sequence
-                                                for(j = 0; j < r_seq.length; j++)
+                                            // increment the starting index by 1 because of condition i > index
+                                            index++;
+                                            // replace original sequence with the reversed sequence
+                                            for(j = 0; j < r_seq.length; j++)
                                                 currentColl[j + index] = r_seq[j];
+                                        }
+                                        else {
+                                            if(enumValue === _ENUM.REVERSE && (index || count)) {
+                                                console.warn("Invoking Reverse with only one of the parameters defaults to parameterless Reverse !");
+                                                console.warn("If you wanna use only one of the parameters resort to ReverseExt instead !");
                                             }
-                                            else {
-                                                if(enumValue === _ENUM.REVERSE && (index || count)) {
-                                                    console.warn("Invoking Reverse with only one of the parameters defaults to parameterless Reverse !");
-                                                    console.warn("If you wanna use only one of the parameters resort to ReverseExt instead !");
-                                                }
-                                                // reverse the whole sequence
-                                                for(i = currentColl.length - 1; i >= 0; i--)
+                                            // reverse the whole sequence
+                                            for(i = currentColl.length - 1; i >= 0; i--)
+                                                r_seq.push(currentColl[i]);
+
+                                            // replace original sequence with the reversed sequence
+                                            currentColl = r_seq;
+                                        }
+
+                                        break;
+
+                                    case _ENUM.SKIP:
+                                        // process skip only (no predicates, just count), because skipWhile was handled by executing the "WHERE" filter in the parent method
+                                        if(!withPredicates) {
+                                            // for null or undefined count just throw an error
+                                            if(!count && count !== 0)
+                                                throw Error("Supply required parameter called count !");
+
+                                            // determine the valid range of sequence to extract
+                                            if(count > 0 && count < currentColl.length) {
+                                                for(i = count; i < currentColl.length; i++)
                                                     r_seq.push(currentColl[i]);
+                                            }
+                                            // skip the whole sequence
+                                            else if(count >= currentColl.length)
+                                                ;
+                                            // skip nothing, which means taking whole sequence
+                                            else if(count < 0)
+                                                r_seq = currentColl;
 
-                                                // replace original sequence with the reversed sequence
-                                                currentColl = r_seq;
+                                            // skip the first element with index equal to 0
+                                            else if(count === 0) {
+                                                for(i = 1; i < currentColl.length; i++)
+                                                    r_seq.push(currentColl[i]);
                                             }
 
-                                            break;
+                                            // replace original sequence with the new sequence
+                                            currentColl = r_seq;
+                                        }
 
-                                        case _ENUM.SKIP:
-                                                // process skip only (no predicates, just count), because skipWhile was handled by executing the "WHERE" filter in the parent method
-                                                if(!withPredicates) {
-                                                    // for null or undefined count just throw an error
-                                                    if(!count && count !== 0)
-                                                        throw Error("Supply required parameter called count !");
+                                        break;
 
-                                                    // determine the valid range of sequence to extract
-                                                    if(count > 0 && count < currentColl.length) {
-                                                        for(i = count; i < currentColl.length; i++)
-                                                            r_seq.push(currentColl[i]);
-                                                    }
-                                                    // skip the whole sequence
-                                                    else if(count >= currentColl.length)
-                                                        ;
-                                                    // skip nothing, which means taking whole sequence
-                                                    else if(count < 0)
-                                                        r_seq = currentColl;
+                                    case _ENUM.TAKE:
+                                        // process take only (no predicates, just count), because takeWhile was handled by executing the "WHERE" filter in the parent method
+                                        if(!withPredicates) {
+                                            // for null or undefined count just throw an error
+                                            if(!count)
+                                                throw Error("Supply required parameter called count !");
 
-                                                    // skip the first element with index equal to 0
-                                                    else if(count === 0) {
-                                                        for(i = 1; i < currentColl.length; i++)
-                                                            r_seq.push(currentColl[i]);
-                                                    }
+                                            // determine the valid range of sequence to extract
+                                            if(count >= currentColl.length)
+                                                r_seq = currentColl;
 
+                                            else if(count > 0 && count < currentColl.length) {
+                                                for(i = 0; i < count; i++)
+                                                    r_seq.push(currentColl[i]);
+                                            }
+                                            // take nothing which means no any processing required
+                                            else if(count <= 0)
+                                                ;
 
-                                                    // replace original sequence with the new sequence
-                                                    currentColl = r_seq;
-                                                }
+                                            // replace original sequence with the new sequence
+                                            currentColl = r_seq;
+                                        }
 
-                                                break;
+                                        break;
 
-                                        case _ENUM.TAKE:
-                                                // process take only (no predicates, just count), because takeWhile was handled by executing the "WHERE" filter in the parent method
-                                                if(!withPredicates) {
-                                                    // for null or undefined count just throw an error
-                                                    if(!count)
-                                                        throw Error("Supply required parameter called count !");
-
-                                                    // determine the valid range of sequence to extract
-                                                    if(count >= currentColl.length)
-                                                        r_seq = currentColl;
-
-                                                    else if(count > 0 && count < currentColl.length) {
-                                                        for(i = 0; i < count; i++)
-                                                            r_seq.push(currentColl[i]);
-                                                    }
-                                                    // take nothing which means no any processing required
-                                                    else if(count <= 0)
-                                                        ;
-
-                                                    // replace original sequence with the new sequence
-                                                    currentColl = r_seq;
-                                                }
-
-                                                break;
-
-                                        default:
-                                            throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
-                                    }
-
-                                    // update HPID object to enable further data flow
-                                    _ACTION.hpid.data = currentColl;
-                                    if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
+                                    default:
+                                        throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
                                 }
+
+                                // update HPID object to enable further data flow
+                                _ACTION.hpid.data = currentColl;
+                                if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
                             }
+                        }
                     }
                 },
 
@@ -1785,81 +1967,82 @@
                      * Local helper functions
                     */
                     function get_FLSA_I_1L(jlc, predicateArray, fallbackOnDefault, enumValue) {
-                            // for given predicates
-                            if(predicateArray) {
-                                // execute the "WHERE" filter
-                                _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray);
+                        // for given predicates
+                        if(predicateArray) {
+                            // execute the "WHERE" filter
+                            _PHYSICAL_FILTER.executeWhereFilter(jlc, predicateArray);
 
-                                // check the result
-                                return getResult_I_2L(true);
-                            }
-                            // for no given predicates
-                            else {
-                                // check the result
-                                return getResult_I_2L(false);
-                            }
+                            // check the result
+                            return getResult_I_2L(true);
+                        }
+                        // for no given predicates
+                        else {
+                            // check the result
+                            return getResult_I_2L(false);
+                        }
 
 
 
-                            /**
-                             * Local helper functions
-                            */
-                            function getResult_I_2L(withPredicates) {
-                                // get contextually current collection from history array
-                                var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
+                        /**
+                         * Local helper functions
+                        */
+                        function getResult_I_2L(withPredicates) {
+                            // get contextually current collection from history array
+                            var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                                // if the sequence contains elements
-                                if(currentColl.length) {
-                                    switch (enumValue) {
-                                        case _ENUM.FIRST:
-                                            // return the first item from the sequence
+                            // if the sequence contains elements
+                            if(currentColl.length) {
+                                switch (enumValue) {
+                                    case _ENUM.FIRST:
+                                        // return the first item from the sequence
+                                        return currentColl[0];
+
+                                    case _ENUM.LAST:
+                                        // return the last item from the sequence
+                                        return currentColl[currentColl.length - 1];
+
+                                    case _ENUM.SINGLE:
+                                        if(currentColl.length === 1)
+                                            // return the single item from the sequence
                                             return currentColl[0];
-
-                                        case _ENUM.LAST:
-                                            // return the last item from the sequence
-                                            return currentColl[currentColl.length - 1];
-
-                                        case _ENUM.SINGLE:
-                                            if(currentColl.length === 1)
-                                                // return the single item from the sequence
-                                                return currentColl[0];
-                                            else
-                                                throw Error("Sequence contains more than one element !");
-
-                                        case _ENUM.ALL:
-                                            // this flag tells to discard returned result
-                                            _ACTION.hpid.done = true;
-                                            break;
-
-                                        default:
-                                            throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
-                                    }
-                                }
-                                // if the sequence contains no elements
-                                else {
-                                    // return an empty array
-                                    if(fallbackOnDefault && (enumValue === _ENUM.ALL)) {
-                                        // this flag tells to discard returned result and go for hpid's data
-                                        _ACTION.hpid.done = true;
-                                        return;
-                                    }
-                                    // return default of 'JavaScript's var variable', which is simply value of undefined
-                                    else if(fallbackOnDefault)
-                                        return undefined; 
-                                    // throw valid error
-                                    else {
-                                        if(withPredicates && (enumValue === _ENUM.SINGLE))
-                                            throw Error("Sequence contains no elements !");
-                                        else if(withPredicates)
-                                            throw Error("Sequence contains no matching element !");
-                                        else if(enumValue === _ENUM.REVERSE)
-                                            throw Error("Source is null !");
                                         else
-                                            throw Error("Sequence contains no elements !");
-                                    }
+                                            throw Error("Sequence contains more than one element !");
+
+                                    case _ENUM.ALL:
+                                        // this flag tells to discard returned result
+                                        _ACTION.hpid.done = true;
+                                        break;
+
+                                    default:
+                                        throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
                                 }
-                                // NO NEED TO SWITCH hpid's isOn flag ON, BECAUSE WE IMMEDIATELY RETURN 'SINGLE' ITEM FROM COLLECTION, BE IT hpid OR ORIGINAL ONE !
                             }
+                            // if the sequence contains no elements
+                            else {
+                                // return an empty array
+                                if(fallbackOnDefault && (enumValue === _ENUM.ALL)) {
+                                    // this flag tells to discard returned result and go for hpid's data
+                                    _ACTION.hpid.done = true;
+                                    return;
+                                }
+                                // return default of 'JavaScript's var variable', which is simply value of undefined
+                                else if(fallbackOnDefault)
+                                    return undefined; 
+                                // throw valid error
+                                else {
+                                    if(withPredicates && (enumValue === _ENUM.SINGLE))
+                                        throw Error("Sequence contains no elements !");
+                                    else if(withPredicates)
+                                        throw Error("Sequence contains no matching element !");
+                                    else if(enumValue === _ENUM.REVERSE)
+                                        throw Error("Source is null !");
+                                    else
+                                        throw Error("Sequence contains no elements !");
+                                }
+                            }
+
+                            // NO NEED TO SWITCH hpid's isOn flag ON, BECAUSE WE IMMEDIATELY RETURN 'SINGLE' ITEM FROM COLLECTION, BE IT hpid OR ORIGINAL ONE !
+                        }
                     }
                 },
 
@@ -1872,230 +2055,148 @@
                      * Local helper functions
                     */
                     function apply_O_I_1L(jlc, keyPartSelectorArray, udfComparer, enumValue) {
-                            // if first-level sorting required, always reset all so-far used sorting
-                            if(enumValue === _ENUM.ORDER.By.ASC || enumValue === _ENUM.ORDER.By.DESC) {
-                                // by default clear all sorting metadata
-                                _ACTION.hpid.sorting.clear();
+                        // if first-level sorting required, always reset all so-far used sorting
+                        if(enumValue === _ENUM.ORDER.By.ASC || enumValue === _ENUM.ORDER.By.DESC) {
+                            // by default clear all sorting metadata
+                            _ACTION.hpid.sorting.clear();
 
-                                // setup sorting context
-                                var cc = setup_1st_LevelSortingContext_I_2L();
+                            // setup sorting context
+                            setup_1st_LevelSortingContext_I_2L();
 
-                                // do the real sorting over current data collection
-                                executeCurrentSort_I_2L(cc);
-                            }
-                            // second-level sorting requires first-level sorting to take place in the first place, hence takes into account the previous sorting operations
-                            else if(enumValue === _ENUM.ORDER.By.THEN_ASC || enumValue === _ENUM.ORDER.By.THEN_DESC) {
-                                // if second-level sorting still required, and when the first time you invoke thenBy || thenByDescending, you have to initialize the sortSet
-                                if(!_ACTION.hpid.sorting.stop && !_ACTION.hpid.sorting.sortSet.is_initialized) {
-                                    // reference a first object in a collection
-                                    var f_o = (_ACTION.hpid.isOn ? _ACTION.hpid.data[0] : _DATA.fetch(jlc._ctx.coll_index).collection[0]) || {};
+                            // do the real sorting over current data collection
+                            executeCurrentSort_I_2L();
+                        }
+                        // second-level sorting requires first-level sorting to take place in the first place, hence takes into account the previous sorting operations
+                        else if(enumValue === _ENUM.ORDER.By.THEN_ASC || enumValue === _ENUM.ORDER.By.THEN_DESC) {
+                            // if second-level sorting still required, and when the first time you invoke thenBy || thenByDescending, you have to initialize the sortSet
+                            if(!_ACTION.hpid.sorting.stop && !_ACTION.hpid.sorting.sortSet.is_initialized) {
+                                // reference a first object in a collection
+                                var f_o = (_ACTION.hpid.isOn ? _ACTION.hpid.data[0] : _DATA.fetch(jlc._ctx.coll_index).collection[0]) || {};
                                         
-                                    // initialize the sortSet by passing a reference to a first object in a collection
-                                    _ACTION.hpid.sorting.sortSet.init(f_o);
+                                // initialize the sortSet by passing a reference to a first object in a collection
+                                _ACTION.hpid.sorting.sortSet.init(f_o);
 
-                                    // if so, setup 2nd level sorting context
-                                    setup_2nd_LevelSortingContext_I_2L();
-                                }
-                                //if second-level sorting still required
-                                else if(!_ACTION.hpid.sorting.stop) {
-                                    // if so, setup 2nd level sorting context
-                                    setup_2nd_LevelSortingContext_I_2L();
-                                }
-                                // proceed with second-level sorting operations by applying result from the very last sorting
-                                /*
-                                        // prepare sequence for this-context type of sorting
-                                        prepareContextualSorting_I_2L();
-
-                                        // invoke actual sorting
-                                        doDefaultSorting_I_2L();
-
-                                        // store intermediate sorted collection as the input for next sort order
-                                        storeContextualSorting_I_2L();
-
-                                        // perform kind of T-SQL-like property lookup, and return array of arrays of current flow data objects' stripped down props looked up from respective lookup objects
-                                        var propNameValuePair_array_array = includeOmittedProps_I_2L();
-
-                                        // update contextual sorting object
-                                        updateContextualSorting_I_2L(propNameValuePair_array_array);
-                                */
+                                // if so, setup 2nd level sorting context
+                                setup_2nd_LevelSortingContext_I_2L();
+                            }
+                            //if second-level sorting still required
+                            else if(!_ACTION.hpid.sorting.stop) {
+                                // if so, setup 2nd level sorting context
+                                setup_2nd_LevelSortingContext_I_2L();
                             }
 
+                            // proceed with second-level sorting operations by applying result from the very last sorting
+                        }
 
 
-                            /**
-                             * Local helper functions
-                            */
-                            function setup_1st_LevelSortingContext_I_2L() {
-                                // create input collection cache
-                                var coll = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                                // first object holder
-                                var foh = {
-                                    isPrimitive : false,
-                                    obj : undefined
-                                };
-
-                                // reference first object in the collection
-                                var o = coll[0];
-                                
-                                // determine the type ASAP
-                                if(o) {
-                                    foh.obj = o;
-                                    foh.isPrimitive = _COMMON.isPrimitiveType(typeof o, keyPartSelectorArray[0][0], true);
-                                }
-                                
-                                // For primitive types is available only 1st level sorting due to their nature.
-                                // If it's primitive or a collection is empty, discard further ordering during further data flow
-                                if(foh.isPrimitive || foh.obj === undefined)
-                                    _ACTION.hpid.sorting.stop = true;
-                                else {
-                                    // detect type of data object
-                                    var sortInputType = detectDataObjectType_I_3L(coll.length === 0, foh.obj);
-
-                                    // if any valid, then store it and adjust logic of the default comparer
-                                    if(sortInputType) {
-                                        // store current sort input type of data objects
-                                        _ACTION.hpid.sorting.sit = sortInputType;
-                                    }
-                                    else
-                                        // otherwise mark that further sorting is not required
-                                        _ACTION.hpid.sorting.stop = true;
-                                }
-                                
-                                // return data to be sorted
-                                return coll;
-                                
-                                
-                                
-                                /**
-                                 * Local helper functions 
-                                */
-                                function detectDataObjectType_I_3L(isCollectionEmpty, collectionItem) {
-                                    // if collection has any object
-                                    if(!isCollectionEmpty) {
-                                        // get all prop names
-                                        var propNames = Object.getOwnPropertyNames(collectionItem);
-
-                                        // if it's KVP
-                                        if(propNames.indexOf('key') > -1)
-                                            return _ENUM.ORDER.InputType.KVP;
-                                        
-                                        // if not KVP, then check for GROUPING
-                                        var groupingObjectValue = collectionItem[propNames[0]];
-                                        if(Array.isArray(groupingObjectValue))
-                                            return _ENUM.ORDER.InputType.GROUPING;
-
-                                        // otherwise it must be PLAIN
-                                        return _ENUM.ORDER.InputType.PLAIN;
-                                    }
-                                }
-                            }
-
-                            function setup_2nd_LevelSortingContext_I_2L() {
-                                // if so, setup sorting context
-                                var cc = setup_1st_LevelSortingContext_I_2L();
-
-                                // do the real sorting over current data collection
-                                executeCurrentSort_I_2L(cc);
-                            }                            
-
-                            function executeCurrentSort_I_2L(currentColl) {
-                                // if user defined his own comparer
-                                if(udfComparer) {
-                                    // just invoke it
-                                    currentColl.sort(udfComparer);
-                                }
-                                // otherwise do the sorting using default comparer
-                                else {
-                                    // store current sorting metadata
-                                    _ACTION.hpid.sorting.sort_order = enumValue;
-                                    _ACTION.hpid.sorting.sort_keys.push(keyPartSelectorArray);
-                                    
-                                    // invoke actual sorting - just invoke the default comparer
-                                    currentColl.sort(_COMMON.useDefaultComparer());
-                                }
-
+                        /**
+                         * Local helper functions
+                        */
+                        function setup_1st_LevelSortingContext_I_2L() {
+                            // if HPID is not ready
+                            if(!_ACTION.hpid.isOn) {
                                 // update HPID object to enable further data flow
-                                _ACTION.hpid.data = currentColl;
-                                if(!_ACTION.hpid.isOn) _ACTION.hpid.isOn = true;
+                                _ACTION.hpid.data = _DATA.fetch(jlc._ctx.coll_index).collection;
+                                _ACTION.hpid.isOn = true;
                             }
 
+                            // first object holder
+                            var foh = {
+                                isPrimitive : false,
+                                obj : undefined
+                            };
 
 
-                            function prepareContextualSorting_I_2L() {
-                                // exclude properties that were used as keys in the very previous sorting
-                                _DATA.sortOrderSelectors.excludeCurrentSelectors();
+                            // reference the collection
+                            var coll = _ACTION.hpid.data;
+                            // reference first object in the collection
+                            var o = coll[0];
+                                
+                            // determine the type ASAP
+                            if(o) {
+                                foh.obj = o;
+                                foh.isPrimitive = _COMMON.isPrimitiveType(typeof o, keyPartSelectorArray[0][0], true);
                             }
+                                
+                            // For primitive types is available only 1st level sorting due to their nature.
+                            // If it's primitive or a collection is empty, discard further ordering during further data flow
+                            if(foh.isPrimitive || foh.obj === undefined)
+                                _ACTION.hpid.sorting.stop = true;
+                            else {
+                                // detect type of data object
+                                var sortInputType = detectDataObjectType_I_3L(coll.length === 0, foh.obj);
 
-                            function storeContextualSorting_I_2L() {
-                                // cache data for next sort order
-                                _DATA.sortOrderSelectors.serializeIntermediateSortedCollection(_ENUM.SAVE);
-                            }
+                                // if any valid, then store it and adjust logic of the default comparer
+                                if(sortInputType) {
+                                    // store current sort input type of data objects
+                                    _ACTION.hpid.sorting.sit = sortInputType;
 
-                            function includeOmittedProps_I_2L() {
-                                // reference backup object of current flow data - serving as a lookup object - by invoking real shallow cloning
-                                _DATA.createShallowCloneOrPrepare(true);
+                                    // get only valid column names from user sort set
+                                    var ovc = _ACTION.hpid.sorting.extractOVC(keyPartSelectorArray);
 
-                                // declare array of arrays of current object's stripped down props looked up from lookup object
-                                var propNameValuePair_array_array = [];
+                                    // detect uniqueness of the current sorting phrase
+                                    is_unique = _ACTION.hpid.sorting.isUniqueSortPhrase(ovc);
 
-                                // include properties that were used as keys in the very previous sorting
-                                for(var i = 0; i < _DATA.dirty_data.length; i++) {
-                                    // reference current object
-                                    var c_o = _DATA.dirty_data[i];
-
-                                    // reference backup object of current flow data serving as a lookup object
-                                    var l_o = _DATA.dirty_data_temp[c_o._priv_id];
-
-                                    // add required props from lookup object to current flow sequence object, and then return array of stripped down looked up properties of current flow sequence object
-                                    var propNameValuePair_array = addRequiredPropsFromLookup_I_3L(c_o, l_o);
-
-                                    // store array of current object's stripped down props looked up from lookup object
-                                    propNameValuePair_array_array.push(propNameValuePair_array);
-
-                                    // remove internal id from next flow sequence
-                                    delete c_o._priv_id;
+                                    // for objects mark that further sorting is not required provided that current sorting phrase is a unique value 
+                                    if(is_unique)
+                                        _ACTION.hpid.sorting.stop = true;                                        
                                 }
+                                else
+                                    // otherwise - for primitive types - mark that further sorting is not required
+                                    _ACTION.hpid.sorting.stop = true;
+                            }
+                                
+                                
+                                
+                            /**
+                             * Local helper functions 
+                            */
+                            function detectDataObjectType_I_3L(isCollectionEmpty, collectionItem) {
+                                // if collection has any object
+                                if(!isCollectionEmpty) {
+                                    // get all prop names
+                                    var propNames = Object.getOwnPropertyNames(collectionItem);
 
-                                // return array of arrays of current object's stripped down props looked up from lookup object
-                                return propNameValuePair_array_array;
+                                    // if it's KVP
+                                    if(propNames.indexOf('key') > -1)
+                                        return _ENUM.ORDER.InputType.KVP;
+                                        
+                                    // if not KVP, then check for GROUPING
+                                    var groupingObjectValue = collectionItem[propNames[0]];
+                                    if(Array.isArray(groupingObjectValue))
+                                        return _ENUM.ORDER.InputType.GROUPING;
 
-
-
-                                /**
-                                 * Local helper functions
-                                */
-                                function addRequiredPropsFromLookup_I_3L(currentObject, lookupObject) {
-                                    // get the very last selectors
-                                    var lastSelectors = _DATA.sortOrderSelectors.getLastUsedSelectors();
-
-                                    // declare array of stripped down looked up properties of current object
-                                    var propNameValuePair_array = [];
-
-                                    // if there are any
-                                    if(lastSelectors) {
-                                        // loop over lastly used selectors
-                                        for(var i = 0; i < lastSelectors.length; i++) {
-                                            // reference the current selector
-                                            var selector = lastSelectors[i];
-
-                                            // from lookup object add current selector (property) value to current object
-                                            var propNameValuePair = _DATA.sortOrderSelectors.includeOrExcludePropOnDemand(selector, currentObject, lookupObject, false);
-
-                                            // add to array
-                                            propNameValuePair_array.push(propNameValuePair);
-                                        }
-                                    }
-
-                                    // return array of stripped down looked up properties of current object
-                                    return propNameValuePair_array;
+                                    // otherwise it must be PLAIN
+                                    return _ENUM.ORDER.InputType.PLAIN;
                                 }
                             }
+                        }
 
-                            function updateContextualSorting_I_2L(propNameValuePair_array_array) {
-                                // update cache data for next sort order
-                                _DATA.sortOrderSelectors.serializeIntermediateSortedCollection(_ENUM.UPDATE, propNameValuePair_array_array);
+                        function setup_2nd_LevelSortingContext_I_2L() {
+                            // if so, setup sorting context
+                            setup_1st_LevelSortingContext_I_2L();
+
+                            // do the real sorting over current data collection
+                            executeCurrentSort_I_2L();
+                        }
+
+                        function executeCurrentSort_I_2L() {
+                            // if user defined his own comparer
+                            if(udfComparer) {
+                                // just invoke it
+                                _ACTION.hpid.data.sort(udfComparer);
                             }
+                            // otherwise do the sorting using default comparer
+                            else {
+                                // store current sorting metadata
+                                _ACTION.hpid.sorting.sort_order = enumValue;
+                                _ACTION.hpid.sorting.sort_keys.push(keyPartSelectorArray);
+                                    
+                                // invoke actual sorting - just invoke the default comparer
+                                _ACTION.hpid.data.sort(_COMMON.useDefaultComparer());
+                            }
+                        }
                     }
                 },
 
@@ -2140,99 +2241,99 @@
         // declare a private logical filters object
         var _LOGICAL_FILTER = {
                 applyLogicalBoolFilter : function(currentObject, predicateArray, elementIndex) {
-                        return apply_LBF_I_1L(currentObject, predicateArray, elementIndex);
+                    return apply_LBF_I_1L(currentObject, predicateArray, elementIndex);
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function apply_LBF_I_1L(currentObject, predicateArray, elementIndex) {
+                        // flag that tells whether object passes or fails the filter
+                        var passed = true;
+
+                        // loop over predicates
+                        for(var i = 0; i < predicateArray.length; i++) {
+                            // access current filter
+                            var predicate = predicateArray[i];
+
+                            // determine the type of filter, i.e. user-defined function or a primitive one (string, int, float)
+                            if(typeof predicate === 'object') {
+                                // apply pre-defined basic comparison operators
+                                passed = applyPrimitivePredicate_I_2L(predicate, currentObject);
+                            }
+                            else if(typeof predicate === 'function') {
+                                // apply pre-defined user-defined comparison function
+                                passed = applyUdfPredicate_I_2L(predicate, currentObject, elementIndex);
+                            }
+
+                            // check ASAP if object failed the filter for other query method
+                             if(!passed)
+                                break;
+                        }
+
+                        // return filtering result (true/false)
+                        return passed;
 
 
 
                         /**
                          * Local helper functions
                         */
-                        function apply_LBF_I_1L(currentObject, predicateArray, elementIndex) {
-                                // flag that tells whether object passes or fails the filter
-                                var passed = true;
+                        function applyPrimitivePredicate_I_2L(predicate, currentObject) {
+                            // filtering property name
+                            var propName = predicate[0];
 
-                                // loop over predicates
-                                for(var i = 0; i < predicateArray.length; i++) {
-                                    // access current filter
-                                    var predicate = predicateArray[i];
+                            // is filtering property value type set to float ?
+                            var propValueFloat = (predicate.length === 4) && predicate[3];
 
-                                    // determine the type of filter, i.e. user-defined function or a primitive one (string, int, float)
-                                    if(typeof predicate === 'object') {
-                                        // apply pre-defined basic comparison operators
-                                        passed = applyPrimitivePredicate_I_2L(predicate, currentObject);
-                                    }
-                                    else if(typeof predicate === 'function') {
-                                        // apply pre-defined user-defined comparison function
-                                        passed = applyUdfPredicate_I_2L(predicate, currentObject, elementIndex);
-                                    }
+                            // filtering property value
+                            var propValue;
 
-                                    // check ASAP if object failed the filter for other query method
-                                    if(!passed)
-                                        break;
-                                }
+                            // process float
+                            if(propValueFloat)
+                                propValue = parseFloat(predicate[2]);
+                            // process Boolean
+                            else if(predicate[2] === true || predicate[2] === false)
+                                propValue = predicate[2];
+                            // process string
+                            else if(typeof predicate[2] === 'string')
+                                propValue = predicate[2];
+                            // by default try parsing as Int32
+                            else
+                             propValue = parseInt(predicate[2]);
 
-                                // return filtering result (true/false)
-                                return passed;
+                             // filtering operator
+                             var propOperator = predicate[1];
 
-
-
-                                /**
-                                 * Local helper functions
-                                */
-                                function applyPrimitivePredicate_I_2L(predicate, currentObject) {
-                                    // filtering property name
-                                    var propName = predicate[0];
-
-                                    // is filtering property value type set to float ?
-                                    var propValueFloat = (predicate.length === 4) && predicate[3];
-
-                                    // filtering property value
-                                    var propValue;
-
-                                    // process float
-                                    if(propValueFloat)
-                                        propValue = parseFloat(predicate[2]);
-                                    // process Boolean
-                                    else if(predicate[2] === true || predicate[2] === false)
-                                        propValue = predicate[2];
-                                    // process string
-                                    else if(typeof predicate[2] === 'string')
-                                        propValue = predicate[2];
-                                    // by default try parsing as Int32
-                                    else
-                                        propValue = parseInt(predicate[2]);
-
-                                    // filtering operator
-                                    var propOperator = predicate[1];
-
-                                    // navigate to the destination property of the current object, execute the filter and return the filter bool result
-                                    return executePrimitivePredicate_I_3L();
+                             // navigate to the destination property of the current object, execute the filter and return the filter bool result
+                             return executePrimitivePredicate_I_3L();
 
 
 
-                                    /**
-                                     * Local helper functions
-                                    */
-                                    function executePrimitivePredicate_I_3L() {
-                                        // input value to compare
-                                        var propOrVal;
+                             /**
+                              * Local helper functions
+                             */
+                             function executePrimitivePredicate_I_3L() {
+                                // input value to compare
+                                var propOrVal;
 
-                                        // determine if the current object is primitive one, i.e. int, string, number, etc.
-                                        var isPrimitive = _COMMON.isPrimitiveType(typeof currentObject, propName, false);
+                                // determine if the current object is primitive one, i.e. int, string, number, etc.
+                                var isPrimitive = _COMMON.isPrimitiveType(typeof currentObject, propName, false);
 
-                                        // if is primitive...
-                                        if(isPrimitive)
-                                            propOrVal = currentObject;
-                                        else
-                                            // otherwise seek the destination property
-                                            propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter(currentObject, propName, true);
+                                // if is primitive...
+                                if(isPrimitive)
+                                    propOrVal = currentObject;
+                                else
+                                    // otherwise seek the destination property
+                                    propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter(currentObject, propName, true);
 
-                                        // run native comparison
-                                        return _OPERATORS.checkValue(propOrVal, propOperator, propValue);
-                                    }
-                                }
+                                    // run native comparison
+                                    return _OPERATORS.checkValue(propOrVal, propOperator, propValue);
+                             }
+                        }
 
-                                function applyUdfPredicate_I_2L(predicate, currentObject, elementIndex) {
+                        function applyUdfPredicate_I_2L(predicate, currentObject, elementIndex) {
                                     /**
                                      * 1. Bind current collection object to user-defined function - having some pre-defined values - with 'bind' keyword
                                      *
@@ -2245,90 +2346,90 @@
                                     */
 
                                     return predicate.bind(null, currentObject, elementIndex)();
-                                }
                         }
+                    }
                 },                
 
                 applyLogicalWhereFilter : function(jlc, predicateArray, enumValue) {
-                        return apply_LWF_I_1L(jlc, predicateArray, enumValue);
+                    return apply_LWF_I_1L(jlc, predicateArray, enumValue);
 
 
 
-                        /**
-                         * Local helper functions
-                        */
-                        function apply_LWF_I_1L(jlc, predicateArray, enumValue) {
-                                // declare the bool filter result
-                                var passed = false;
+                    /**
+                     * Local helper functions
+                    */
+                    function apply_LWF_I_1L(jlc, predicateArray, enumValue) {
+                        // declare the bool filter result
+                        var passed = false;
 
-                                // create input collection cache
-                                var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
+                        // create input collection cache
+                        var currentColl = _DATA.fetch(jlc._ctx.coll_index).collection;
 
-                                // loop over current collection and apply filters
-                                for(var i = 0; i < currentColl.length; i++) {
-                                    // access current object
-                                    var c_o = currentColl[i];
+                        // loop over current collection and apply filters
+                        for(var i = 0; i < currentColl.length; i++) {
+                            // access current object
+                            var c_o = currentColl[i];
 
-                                    // apply where filter(s) and get the result
-                                    passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
+                            // apply where filter(s) and get the result
+                            passed = _LOGICAL_FILTER.applyLogicalBoolFilter(c_o, predicateArray, i);
 
-                                    // based on filtering result (true/false) trigger further action
-                                    if(enumValue === _ENUM.ALL && !passed)
-                                        break;
-                                    else if(enumValue === _ENUM.ANY && passed)
-                                        break;
-                                }
-
-                                // return the bool filter result
-                                return passed;
+                            // based on filtering result (true/false) trigger further action
+                             if(enumValue === _ENUM.ALL && !passed)
+                                break;
+                            else if(enumValue === _ENUM.ANY && passed)
+                                break;
                         }
+
+                        // return the bool filter result
+                        return passed;
+                    }
                 },
 
                 applyAllAnyFilter : function(jlc, predicateArray, enumValue) {
-                        return apply_AAF_I_1L(jlc, predicateArray, enumValue);
+                    return apply_AAF_I_1L(jlc, predicateArray, enumValue);
 
 
 
-                        /**
-                         * Local helper functions
-                        */
-                        function apply_AAF_I_1L(jlc, predicateArray, enumValue) {
-                            // for given predicates
-                            if(predicateArray) {
-                                // execute the "IF" filter and return the result
-                                return _LOGICAL_FILTER.applyLogicalWhereFilter(jlc, predicateArray, enumValue);
-                            }
-                            // for no given predicates
-                            else {
-                                // check if there are any items in the sequence (contextually current collection within history array)
-                                return _DATA.fetch(jlc._ctx.coll_index).collection.length > 0;
-                            }
+                    /**
+                     * Local helper functions
+                    */
+                    function apply_AAF_I_1L(jlc, predicateArray, enumValue) {
+                        // for given predicates
+                        if(predicateArray) {
+                            // execute the "IF" filter and return the result
+                            return _LOGICAL_FILTER.applyLogicalWhereFilter(jlc, predicateArray, enumValue);
                         }
+                        // for no given predicates
+                        else {
+                            // check if there are any items in the sequence (contextually current collection within history array)
+                            return _DATA.fetch(jlc._ctx.coll_index).collection.length > 0;
+                        }
+                    }
                 },
 
                 applyPropertyValueFilter : function(currentObject, propertyName, returnValue) {
-                        return apply_PVF_I_1L(currentObject, propertyName, returnValue);
+                    return apply_PVF_I_1L(currentObject, propertyName, returnValue);
 
 
 
-                        /**
-                         * Local helper functions
-                        */
-                        function apply_PVF_I_1L(currentObject, propertyName, returnValue) {
-                                // create array of prop's path
-                                var pathArray = propertyName.split('.');
+                    /**
+                     * Local helper functions
+                    */
+                    function apply_PVF_I_1L(currentObject, propertyName, returnValue) {
+                        // create array of prop's path
+                        var pathArray = propertyName.split('.');
 
-                                // define property value holder
-                                var propertyOrValue = null;
+                        // define property value holder
+                        var propertyOrValue = null;
 
-                                // loop over array of prop's path to seek the destination property and/or return its value
-                                for(var i = 0, length = returnValue ? pathArray.length : pathArray.length - 1; i < length; i++) {
-                                    propertyOrValue = propertyOrValue ? propertyOrValue[pathArray[i]] : currentObject[pathArray[i]];
-                                }
-
-                                // return value of the property or property
-                                return propertyOrValue;
+                        // loop over array of prop's path to seek the destination property and/or return its value
+                        for(var i = 0, length = returnValue ? pathArray.length : pathArray.length - 1; i < length; i++) {
+                            propertyOrValue = propertyOrValue ? propertyOrValue[pathArray[i]] : currentObject[pathArray[i]];
                         }
+
+                        // return value of the property or property
+                        return propertyOrValue;
+                    }
                 }
         };
 
@@ -2365,57 +2466,6 @@
 
                     // store dynamically the current array of selectors
                     //_DATA.sortOrderSelectors.add(keyPartSelectorArray, udfComparer);
-
-                    // preserve this context
-                    var self = this;
-
-                    // inject dynamically contextual method called thenBy
-                    /**
-                     * Serves the same purpose as OrderBy method in LINQ from C#.
-                     * @param {object} params contains all possible params used by this method :
-                     *  - keyPartSelectorArray
-                     *  - udfComparer
-                    */
-                    this.thenBy = this.thenBy || function(params) {
-                                                    // handle "default" parameter
-                                                    if (params === undefined) params = {};
-
-                                                    // create action and proceed with further flow
-                                                    return _ACTION.create(
-                                                                            self._ctx,
-                                                                            _CORE.order_asc_or_desc.bind(
-                                                                                                            self,
-                                                                                                            params['keyPartSelectorArray'],
-                                                                                                            params['udfComparer'],
-                                                                                                            _ENUM.ORDER.By.THEN_ASC
-                                                                                                        ),
-                                                                            System.Linq.Context.orderBy
-                                                                         );
-                    };
-
-                    // inject dynamically contextual method called thenByDescending
-                    /**
-                     * Serves the same purpose as OrderBy method in LINQ from C#.
-                     * @param {object} params contains all possible params used by this method :
-                     *  - keyPartSelectorArray
-                     *  - udfComparer
-                    */                    
-                    this.thenByDescending = this.thenByDescending || function(params) {
-                                                                        // handle "default" parameter
-                                                                        if (params === undefined) params = {};
-
-                                                                        // create action and proceed with further flow
-                                                                        return _ACTION.create(
-                                                                                                self._ctx,
-                                                                                                _CORE.order_asc_or_desc.bind(
-                                                                                                                                self,
-                                                                                                                                params['keyPartSelectorArray'],
-                                                                                                                                params['udfComparer'],
-                                                                                                                                _ENUM.ORDER.By.THEN_DESC
-                                                                                                                            ),
-                                                                                                System.Linq.Context.orderByDescending
-                                                                                             );
-                    };
                 },
 
                 list_t : function(fallbackOnDefault) {
@@ -2614,6 +2664,9 @@
                 
                 Funcs : {
                     useJLC : function() {
+                        // do required initial 'configuration cleanup'
+                        doSetupCleanup_I_3L();
+
                         // get token associated with current collection, aka root token
                         var rootToken = new Date().getTime();
                         
@@ -2632,8 +2685,12 @@
 
 
                         /**
-                         * Local helper functions 
+                         * Local helper functions
                         */
+                        function doSetupCleanup_I_3L() {
+                            _ACTION.hpid.sorting.firstLevelCtx.set(false);
+                        }
+
                         function over_I_1L(inputCollection) {
                             // check if current collection is stored internally
                             var index = _DATA.exists(inputCollection._rootToken);

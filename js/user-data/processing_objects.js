@@ -15,6 +15,38 @@
             {id: 10, name : "Object 4", ne : {ne_id : 10, ne_name : "NO 10"}, valid : true, lite : true, descr : "Descr 4", quality : "A"}
         ];
         
+        /**
+         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * ⚠️ But right now comparer used to do the physical sorting is 'hard-coded' to sort by the frst sort key available !
+         *    In this example it uses sort keys from [ orderByDescending ] method !
+         *  
+        */
+        var example_where_orderByDescending_thenBy_1 = coll_1.usingLinq()
+                                                                         .where(
+                                                                                    {
+                                                                                        'predicateArray' :	[
+                                                                                                                ["ne.ne_id", "<", 100, true]
+                                                                                                            ]
+                                                                                    }
+                                                                               )
+                                                                         .orderByDescending(
+                                                                                                {
+                                                                                                    'keyPartSelectorArray' :	[
+                                                                                                                                    ["name", true]
+                                                                                                                                ]
+                                                                                                }
+                                                                                           )
+                                                                         .thenBy(
+                                                                                    {
+                                                                                        'keyPartSelectorArray' :	[
+                                                                                                                        ["id", true],
+                                                                                                                        ["-"], // second parameter 'false' is not required as either 'false' or 'undefined' evaluates to something falsy after all
+                                                                                                                        ["quality", true]
+                                                                                                                    ]
+                                                                                    }
+                                                                                )    
+                                                                         .toArray();
+
         
         var example_where = coll_1.usingLinq()
                                               .where(
@@ -278,6 +310,8 @@
                                                                                   )
                                                                 .toArray();
 
+
+        
 
         var new_coll = [
             {id: 11, name : "Object 4", ne : {ne_id : 11, ne_name : "NO 11"}, valid : true, lite : true, descr : "Descr 4", quality : "A"},
