@@ -17,9 +17,6 @@
         
         /**
          * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
-         * ⚠️ But right now comparer used to do the physical sorting is 'hard-coded' to sort by the frst sort key available !
-         *    In this example it uses sort keys from [ orderByDescending ] method !
-         *  
         */
         var example_where_orderByDescending_thenBy_1 = coll_1.usingLinq()
                                                                          .where(
@@ -39,12 +36,24 @@
                                                                          .thenBy(
                                                                                     {
                                                                                         'keyPartSelectorArray' :	[
-                                                                                                                        ["id", true],
+                                                                                                                        ["quality", true],
                                                                                                                         ["-"], // second parameter 'false' is not required as either 'false' or 'undefined' evaluates to something falsy after all
-                                                                                                                        ["quality", true]
+                                                                                                                        ["id", true]
                                                                                                                     ]
                                                                                     }
-                                                                                )    
+                                                                                )
+                                                                         /**
+                                                                          * In this example this thrid sorting in a row is already not necessary !
+                                                                          * The previous sorting that took place sorted the data using "the key", i.e. unique value !
+                                                                          * Hence, the further sorting doesn't make sense !  
+                                                                         */
+                                                                         .thenByDescending(
+                                                                                                {
+                                                                                                    'keyPartSelectorArray' :	[
+                                                                                                                                    ["lite", true]
+                                                                                                                                ]
+                                                                                                }
+                                                                                          )
                                                                          .toArray();
 
         
