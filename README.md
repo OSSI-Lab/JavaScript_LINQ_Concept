@@ -23,8 +23,8 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
  - DPR #14:&nbsp;2020-05-?? &nbsp;&nbsp;??:?? ?M Local Time &nbsp;:no_entry:&nbsp;( GA architecture )&nbsp;Enhancement 6&nbsp;:no_entry:
     - features:
-      - enabling creating partial queries with preserved dependency relationship between 1st & 2nd sorting methods ! 
- - DPR #13:&nbsp;2020-05-02 &nbsp;&nbsp;2:52 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture &nbsp; Enhancement 1** &nbsp;:bell: )&nbsp;**Enhancement 5**&nbsp;:heavy_check_mark:
+      - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods ! 
+ - DPR #13:&nbsp;2020-05-02 &nbsp;&nbsp;2:54 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture &nbsp; Enhancement 1** &nbsp;:bell: )&nbsp;**Enhancement 5**&nbsp;:heavy_check_mark:
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy, orderByDescending, thenBy, thenByDescending are RC methods (sorting data with preserved dependency relationship between 1st & 2nd sorting methods) !
       - intorducing syntax checking
