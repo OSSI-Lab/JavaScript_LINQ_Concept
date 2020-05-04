@@ -28,6 +28,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy, orderByDescending, thenBy, thenByDescending are RC methods (sorting data with preserved dependency relationship between 1st & 2nd level sorting methods) !
       - introducing syntax checking
+      - declaring action constraints
     - methods left to be implemented before releasing RC version are :
         - reverse, reverseExt, select, selectMany, join, leftJoin, contains, distinct, except, defaultIfEmpty, min, max, average, intersect ?, union ?
  - DPR #12:&nbsp;2020-04-26 &nbsp;&nbsp;7:31 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 4*
