@@ -23,7 +23,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
  - DPR #14:&nbsp;2020-05-?? &nbsp;&nbsp;??:?? ?M Local Time &nbsp;:no_entry:&nbsp;( GA architecture )&nbsp;Enhancement 6&nbsp;:no_entry:
     - features:
-      - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods! 
+      - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints ! 
  - DPR #13:&nbsp;2020-05-04 &nbsp;&nbsp;10:05 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture** &nbsp; ~~Enhancement 1~~ &nbsp;:bell: )&nbsp;**Enhancement 5**&nbsp;:heavy_check_mark:
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy, orderByDescending, thenBy, thenByDescending are RC methods (sorting data with preserved dependency relationship between 1st & 2nd level sorting methods) !
