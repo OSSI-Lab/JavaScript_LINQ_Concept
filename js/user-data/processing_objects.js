@@ -16,7 +16,22 @@
         ];
         
         /**
-         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * Who you are ?
+         * https://thesaurus.yourdictionary.com/childish 
+        */
+        var coll_toString = [
+            {id: 1, name : "False software engineer", descr : "Earning a lot, learning nothing !", quality : "D", toString() {return "#" + this.id + "-" + this.descr + "-" + this.quality; }},
+            {id: 2, name : "False software developer", descr : "Earning quite a lot, playing new computer games !", quality : "F", toString() {return "#" + this.id + "-" + this.descr + "-" + this.quality; }},
+            {id: 3, name : "False software architect", descr : "Earning huge money, creating huge stupidity!", quality : "E", toString() {return "#" + this.id + "-" + this.descr + "-" + this.quality; }},
+            {id: 4, name : "False adolescent immature the rest ", descr : "Knowing nothing, learning nothing, being nothing !", quality : "D", toString() {return "#" + this.id + "-" + this.descr + "-" + this.quality; }}
+        ];
+
+        /**
+         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them (classic example)!
+         * 
+         * CIT -> PLAIN
+         * 
+         * ✔️
         */
         var example_where_orderByDescending_thenBy_1 = coll_1.usingLinq()
                                                                          .where(
@@ -43,7 +58,7 @@
                                                                                     }
                                                                                 )
                                                                          /**
-                                                                          * In this example this thrid sorting in a row is already not necessary !
+                                                                          * In this example this thrid sorting in a row (second 2nd level sorting) is already not necessary !
                                                                           * The previous sorting that took place sorted the data using "the key", i.e. unique value !
                                                                           * Hence, the further sorting doesn't make sense !  
                                                                          */
@@ -55,6 +70,240 @@
                                                                                                 }
                                                                                           )
                                                                          .toArray();
+
+
+
+        /**
+         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 
+         * CIT -> KVP -> Value -> PLAIN
+         * 
+         * ✔️
+        */
+        var example_toDictionary_orderBy_ValuePLAIN = coll_toString.usingLinq()
+                                                                               .toDictionary(
+                                                                                                {
+                                                                                                    'predicateArray' :	[
+                                                                                                                            ["id", true]
+                                                                                                                        ]
+                                                                                                }
+                                                                                            )
+                                                                   .usingLinq()
+                                                                               /**
+                                                                                * In this example this first-level sorting uses valid syntax for sorting KVPs, here by value's property called 'quality' !
+                                                                                * The syntax for sorting KVPs, here by value's property, is ["value.property_name", true]
+                                                                                * 
+                                                                                * This is normal PLAIN sorting in the context of KVP's Value object ! 
+                                                                                * Hence, the attempt to sort succeeds !
+                                                                               */
+                                                                               .orderBy(
+                                                                                            {
+                                                                                                'keyPartSelectorArray' :	[
+                                                                                                                                ["value.quality", true]
+                                                                                                                            ]
+                                                                                            }
+                                                                                       )
+                                                                               /**
+                                                                                * In this example this second-level sorting is necessary !
+                                                                                * The previous sorting that took place, sorted the data using "the non-key" called "value.quality", i.e. non-unique value !
+                                                                                * Hence, the further sorting does make sense !
+                                                                               */
+                                                                               .thenByDescending(
+                                                                                                    {
+                                                                                                        'keyPartSelectorArray' :	[
+                                                                                                                                        ["key", true]
+                                                                                                                                    ]
+                                                                                                    }
+                                                                                                )
+                                                                               .toArray();
+
+
+
+        /**
+         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 
+         * CIT -> KVP -> Value
+         * 
+         * ⚠️ Objects must implement toString() method that returns unique value of the object !
+         * ✔️ In this case the do have such method.
+        */
+        var example_toDictionary_orderBy_Value_valid = coll_toString.usingLinq()
+                                                                                .toDictionary(
+                                                                                                {
+                                                                                                    'predicateArray' :	[
+                                                                                                                            ["id", true]
+                                                                                                                        ]
+                                                                                                }
+                                                                                             )
+                                                                    .usingLinq()
+                                                                                /**
+                                                                                 * In this example this first-level sorting uses valid syntax for sorting KVPs, here by value object itself !
+                                                                                 * The syntax for sorting KVPs, here by value object, is ["value.", true]  
+                                                                                 * Objects that are required to have implementation of method "toString()" - which by design must return unique value - do implement it !
+                                                                                 * Hence, the attempt to sort succeeds !
+                                                                                */                                                                    
+                                                                                .orderBy(
+                                                                                            {
+                                                                                                'keyPartSelectorArray' :	[
+                                                                                                                                ["value.", true]
+                                                                                                                            ]
+                                                                                            }
+                                                                                        )
+                                                                                /**
+                                                                                 * In this example this second-level sorting is already not necessary !
+                                                                                 * The previous sorting that took place, sorted the data using "the key" called "value.", i.e. unique value !
+                                                                                 * Hence, the further sorting doesn't make sense !
+                                                                                */
+                                                                                .thenBy(
+                                                                                                {
+                                                                                                    'keyPartSelectorArray' :	[
+                                                                                                                                    ["key", true]
+                                                                                                                                ]
+                                                                                                }
+                                                                                        )
+                                                                                .toArray();
+
+
+
+        /**
+         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 
+         * CIT -> GROUPING -> Key
+         * 
+         * ✔️
+        */    
+        var example_where_groupBy = coll_1.usingLinq()
+                                                      .groupBy(
+                                                                    {
+                                                                        'predicateArray' :	[
+                                                                                                ["id", true],
+                                                                                                [" - ", false],
+                                                                                                ["descr", true]
+                                                                                            ],
+
+                                                                        'udfEqualityComparer' : udf_commons.udfEqualityComparer
+                                                                    }
+                                                              )
+                                                      /**
+                                                       * In this example this first-level sorting uses valid syntax for sorting KVPs, here by value object itself !
+                                                       * The syntax for sorting KVPs, here by value object, is ["value.", true]  
+                                                       * Objects that are required to have implementation of method "toString()" - which by design must return unique value - do implement it !
+                                                       * Hence, the attempt to sort succeeds !
+                                                      */                                                                    
+                                                      .orderBy(
+                                                                    {
+                                                                        'keyPartSelectorArray' :	[
+                                                                                                        ["key", true]
+                                                                                                    ]
+                                                                    }
+                                                              )
+                                                      /**
+                                                       * In this example this second-level sorting is already not necessary !
+                                                       * The previous sorting that took place, sorted the data using "the key" called "key", i.e. unique value !
+                                                       * Moreover, second-level sorting would only allow to sort according to the key again as it is with grouped objects !
+                                                       * Hence, the further sorting doesn't make sense !
+                                                      */
+                                                      .thenBy(
+                                                                    {
+                                                                        'keyPartSelectorArray' :	[
+                                                                                                        ["key", true]
+                                                                                                    ]
+                                                                    }
+                                                             )
+                                                      .toArray();
+
+
+
+        /**
+         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 
+         * CIT -> KVP -> Value
+         * 
+         * ⚠️ Objects must implement toString() method that returns unique value of the object !
+         * 🛑  In this case they lack such method.
+        */
+        var example_toDictionary_orderBy_Value_invalid = coll_1.usingLinq()
+                                                                           .toDictionary(
+                                                                                            {
+                                                                                                'predicateArray' :	[
+                                                                                                                        ["id", true],
+                                                                                                                        [" - ", false],
+                                                                                                                        ["quality", true]
+                                                                                                                    ]
+                                                                                            }
+                                                                                        )
+                                                               .usingLinq()
+                                                                           /**
+                                                                            * In this example this first-level sorting uses valid syntax for sorting KVPs, here by value object itself !
+                                                                            * The syntax for sorting KVPs, here by value object, is ["value.", true]  
+                                                                            * But objects that are required to have implementation of method "toString()" - which by design must return unique value - are missing it !
+                                                                            * Hence, the attempt to sort fails !
+                                                                           */                                                                    
+                                                                           .orderBy(
+                                                                                        {
+                                                                                            'keyPartSelectorArray' :	[
+                                                                                                                            ["value.", true]
+                                                                                                                        ]
+                                                                                        }
+                                                                                   )
+                                                                           /**
+                                                                            * In this example this second-level sorting  - that will never take place - is already not necessary !
+                                                                            * The previous sorting failed trying to sort the data using "the key" called "value.", i.e. unique value due to the above requirement for all collection objects to have implementation of "toString()" !
+                                                                            * Nevertheless, even if the previous sorting would have been succeeded, further sorting wouldn't make sense !
+                                                                           */
+                                                                           .thenBy(
+                                                                                        {
+                                                                                            'keyPartSelectorArray' :	[
+                                                                                                                            ["key", true]
+                                                                                                                        ]
+                                                                                        }
+                                                                                  )
+                                                                           .toArray();
+
+
+
+        /**
+         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 
+         * CIT -> PLAIN -> Value
+         * 
+         * 🛑 Objects of type CIT === PLAIN do not allow sorting by their own value ! 
+         * 🛑 Objects must implement toString() method that returns unique value of the object !
+         * 🛑 In this case they lack such method. 
+        */
+        var example_where_orderBy_value = coll_1.usingLinq()
+                                                            /**
+                                                             * In this example this first-level sorting uses invalid syntax for sorting PLAINs, here by value object itself !
+                                                             * The syntax for sorting PLAINs is ["object's property_name", true] || ["object's nested object's property_name", true]
+                                                             * Hence, the attempt to sort fails !
+                                                            */
+                                                            .orderBy(
+                                                                        {
+                                                                            'keyPartSelectorArray' :	[
+                                                                                                            ["value.", true]
+                                                                                                        ]
+                                                                        }
+                                                                    )
+                                                            /**
+                                                             * In this example this second-level sorting would have never taken place !
+                                                             * The previous sorting failed trying to sort the data using "the key" called "value.", i.e. unique value due to the invalid syntax !
+                                                             * Hence, the attempt to sort fails !
+                                                            */                                                     
+                                                            .thenBy(
+                                                                        {
+                                                                            'keyPartSelectorArray' :	[
+                                                                                                            ["quality", true],
+                                                                                                             ["-"], // second parameter 'false' is not required as either 'false' or 'undefined' evaluates to something falsy after all
+                                                                                                             ["id", true]
+                                                                                                        ]
+                                                                        }
+                                                                   )
+                                                            .toArray();
+
+
+
+
+        
 
         
         var example_where = coll_1.usingLinq()

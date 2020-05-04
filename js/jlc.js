@@ -221,11 +221,32 @@
                             return b_op.call(propOrVal, propValue);
                         // in case you provided 'not-implemented' one, throw an error
                         else
-                            throw new Error("Unsupported operator [ " + propOperator + " ] !");                
+                            throw Error('\r\nUnsupported operator [ ' + propOperator + ' ] !\r\n\r\n');                
                     }
                     else
                         return false;
                 }
+        };
+
+        // declare a private constraints object
+        var _CONSTRAINTS = {
+            // object holding all constraint funcs of all required contexts grouped by context
+            _context_constraints : {},
+
+            // adds constraint func or constraint func array for given context, f.e. 'where', 'groupBy', 'take', etc.
+            add : function (context, constr_func_or_arr) {
+
+            },
+
+            // 
+            createActionConstraint : function() {
+
+            },
+
+            // get all active constraint functions associated with passed context, o.f. 'where', 'groupBy', 'take', etc.
+            getAllActive : function(context) {
+
+            },
         };
 
         // declare a private syntax object
@@ -310,7 +331,7 @@
 
                             // throw error about invalid number of predicate values
                             if(length !== 2 && length !== 3 && length !== 4)
-                                throw new SyntaxError('\r\nDealing with primitive types requires providing only 2, 3, or 4 values all starting with empty string - "" !');
+                                throw SyntaxError('\r\nDealing with primitive types requires providing only 2, 3, or 4 values all starting with empty string - "" !\r\n\r\n');
                             
                             /**
                              *  For the following operations
@@ -324,7 +345,7 @@
                              *  the filter syntax called 'predicateArray' is just an empty string with second parameter set to true -> ["", true] 
                             */
                             if(length === 2 && (user_filter[0].trim() !== "" || user_filter[1] !== true))
-                                throw new SyntaxError('\r\nDealing with primitive types in the context of THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} \r\nrequires providing only empty string predicate with second parameter set to true ! \r\n\r\nExamplary usage -> ["", true]\r\n\r\n');
+                                throw SyntaxError('\r\nDealing with primitive types in the context of THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} \r\nrequires providing only empty string predicate with second parameter set to true ! \r\n\r\nExamplary usage -> ["", true]\r\n\r\n');
 
                             /**
                              * Other operations require from 3 to 4 parameters to be present 
@@ -333,7 +354,7 @@
                             // handling 3 filter parameters with special case where 3rd parameter is equal to 0 (which logically in JavaScript evaluates to false)
                             else if(length === 3 && (user_filter[0].trim() !== "" || user_filter[1].trim() === "" || !user_filter[2] && user_filter[2] !== 0))
                                 // throw error about invalid parameters
-                                throw new SyntaxError(
+                                throw SyntaxError(
                                     '\r\nDealing with primitive types in the context of NOT THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} \r\nrequires providing empty string predicate, second parameter set to non-empty string, and third parameter being some kind of valid stuff (number, UDF, user string) ! \r\n\r\nExamplary usage -> ["", "<", 7]\r\n\r\n'
                                 );
 
@@ -343,7 +364,7 @@
                                                     )
                                    )
                                 // throw error about invalid parameters
-                                throw new SyntaxError(
+                                throw SyntaxError(
                                     '\r\nDealing with primitive types in the context of NOT THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} with specifying 4th parameter, \r\nrequires providing empty string predicate, second parameter set to non-empty string, third parameter being some kind of valid stuff (number, UDF, user string) and forth parameter being boolean value (true/false) ! \r\n\r\nExamplary usage -> ["", "<", 7, true]\r\n\r\n'
                                 );
                         }
@@ -371,7 +392,7 @@
                                 // if it's not valid
                                 if(!valid)
                                     // throw error about invalid column name called 'key' when dealing with GROUPING objects
-                                    throw new SyntaxError('Dealing with objects of type [' + _ENUM.CIT.GROUPING + '] requires providing only "key" property !');
+                                    throw SyntaxError('\r\nDealing with objects of type [' + _ENUM.CIT.GROUPING + '] requires providing only "key" property !\r\n\r\n');
                         }
                         else if(_ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP) {
                             // this metadata is required only in the sorting context and only when sorting KVP
@@ -383,26 +404,35 @@
                                 metadata = Object.create(null);
         
                                 // sort KVP by 'key'
-                                metadata.byKey = (user_filter_array.length === 1 && user_filter_array[0].length === 2 && user_filter_array[0][0].trim() === 'key' && user_filter_array[0][1].trim() === true);
+                                metadata.byKey = (user_filter_array.length === 1 && user_filter_array[0].length === 2 && user_filter_array[0][0].trim() === 'key' && user_filter_array[0][1] === true);
         
                                 // sort KVP by 'value.'
-                                metadata.byValue = (user_filter_array.length === 1 && user_filter_array[0].length !== 2 && user_filter_array[0][0].trim() === 'value.' && user_filter_array[0][1].trim() === true);
+                                metadata.byValue = (user_filter_array.length === 1 && user_filter_array[0].length === 2 && user_filter_array[0][0].trim() === 'value.' && user_filter_array[0][1] === true);
         
-                                // sort KVP by 'value.PLAIN'
-                                metadata.byValuePLAIN = false;
+                                // sort KVP by 'value.PLAIN' - first check
+                                metadata.byValuePLAIN = (user_filter_array.length === 1 && user_filter_array[0].length === 2 && user_filter_array[0][0].trim() !== 'value.' && user_filter_array[0][0].trim().substring(0, 6) === 'value.' && user_filter_array[0][1] === true);
                             }
                                 
                             // user provide 'key' filter with 2+ more parameters
-                            if(user_filter_array.length === 1 && user_filter_array[0].length !== 2 && user_filter_array[0][0].trim() === 'key') {
+                            if(user_filter_array.length === 1 && user_filter_array[0].length !== 2 && user_filter_array[0].length > 2 && user_filter_array[0][0].trim() === 'key') {
                                 // throw error about invalid syntax when dealing with KVP objects and using "key" predicate
-                                throw new SyntaxError('Dealing with objects of type [' + _ENUM.CIT.KVP + '] using "key" requires the following syntax ["key", true] !');
+                                throw SyntaxError('\r\nDealing with objects of type [' + _ENUM.CIT.KVP + '] using "key" requires the following syntax ["key", true] !\r\n\r\n');
                             }
                             // user provide 'value.' filter with 2+ more parameters
-                            else if(user_filter_array.length === 1 && user_filter_array[0].length !== 2 && user_filter_array[0][0].trim() === 'value.') {
+                            else if(user_filter_array.length === 1 && user_filter_array[0].length !== 2 && user_filter_array[0].length > 2 && user_filter_array[0][0].trim() === 'value.') {
                                 // throw error about invalid syntax when dealing with KVP objects and using "value." predicate, which means comparing whole objects
-                                throw new SyntaxError('Dealing with objects of type [' + _ENUM.CIT.KVP + '] using "value." requires the following syntax ["value.", true] !');
+                                throw SyntaxError('\r\nDealing with objects of type [' + _ENUM.CIT.KVP + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n');
                             }
-                            // user provide many filters
+                            /**
+                             * If neither 'key' nor 'value.', user must have provided many filters - in the context of KVP it basically means f.e. such valid filters :
+                             *  -> [value.name, true]
+                             *  -> [value.quality, true]
+                             *  -> [value.description, true]
+                             *              .
+                             *              .
+                             *              .
+                             *              etc
+                            */
                             else if(user_filter_array.length > 1) {
                                 // loop over all filters and check for 'key' or 'value.' filters, so it doesn't make sense
                                 for(var i = 0; i < user_filter_array.length; i++) {
@@ -411,15 +441,18 @@
                                     // if it's key, throw error
                                     if(predicateArray[0].trim() === 'key' || predicateArray[0].trim() === 'value.')
                                         // throw error about 'key' filter presence among other filters
-                                        throw new SyntaxError(
-                                                'Dealing with objects of type [' + _ENUM.CIT.KVP + '] using "' +
-                                                predicateArray[0] + '" among other filters does not make sense !'
+                                        throw SyntaxError(
+                                                '\r\nDealing with objects of type [' + _ENUM.CIT.KVP + '] using "' +
+                                                predicateArray[0] + '" among other filters does not make sense !\r\n\r\n'
                                         );
                                 }
         
-                                // if this is sorting context
+                                // if this is sorting context and we have arrived in this place
                                 if(sortingContext)
-                                    // store in metadata that we're dealing with PLAIN objects in the context of KVP 
+                                    /**
+                                     * Store in metadata that we're basically dealing with PLAIN objects in the context of KVP. 
+                                     *  => sort KVP by 'value.PLAIN' - second check
+                                    */
                                     metadata.byValuePLAIN = true;
         
                                 // if there is neither 'key' nor 'value.' filter, we are dealing with value's PLAIN
@@ -434,7 +467,7 @@
                             ; // with collection input type set to UNKNOWN do nothing as the collection is empty
                         else
                             // throw error about unsupported collection input type !
-                            throw new Error('This JLC sit called "' + _ACTION.hpid.columnSet.cit + '" is not supported !');
+                            throw Error('\r\nThis sorting input type (sit) called "' + _ACTION.hpid.columnSet.cit + '" is not supported !\r\n\r\n');
                             
                             
                             
@@ -455,9 +488,9 @@
                                     if(!valid)
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the PLAIN context
                                         throw ReferenceError(
-                                            'Dealing with objects of type [' + cit + '] in the context of ' + ctx +
+                                            '\r\nDealing with objects of type [' + cit + '] in the context of ' + ctx + ' ' +
                                             'requires providing valid column name or column path !' +
-                                            '\r\nThis column called "' + user_ovc[i] + '" is not a valid column name or column path (property name or property path) !'
+                                            '\r\nThis column called "' + user_ovc[i] + '" is not a valid column name or column path (property name or property path) !\r\n\r\n'
                                         );
                                 }
                             }
@@ -471,7 +504,7 @@
                                     if(!valid)
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the KVP context
                                         throw ReferenceError(
-                                            'Dealing with objects of type [' + cit + '] in the context of ' + ctx +
+                                            'Dealing with objects of type [' + cit + '] in the context of ' + ctx + ' ' +
                                             'requires providing valid column path !' +
                                             '\r\nThis column called "' + user_ovc[i] + '" is not a valid column path (property path) !' +
                                             '\r\nValid column paths should be constracted in this way: "value.obj_prop_name" or "value.nested_obj.nested_obj_prop_name"'
@@ -536,6 +569,9 @@
                             else if(_ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP) {
                                 // get value all object property names at all levels
                                 propNames = _COMMON.fetchObjectStructureKeys(obj.value);
+
+                                // prepend value.
+                                propNames.unshift('value.');
 
                                 // prepend key
                                 propNames.unshift('key');
@@ -604,7 +640,7 @@
                             // get grouping-by util object
                             var gbo = _COMMON.getGroupingBy();
 
-                            // declare object holding all groupped phrases
+                            // declare object holding all grouped phrases
                             var phrase_groupper = {};
                             // declare current object of the collection 
                             var c_o;
@@ -643,22 +679,29 @@
                                 ;
                             // check the sorting phrase uniqueness based on KVP
                             else if(_ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP) {
-                                // if you use the key - "key", "value". - by default, kvp objects must return unique values !
-                                if(phrase_source_arr.length === 1)
+                                // if you use the key - "key", "value." - by default, kvp objects must return unique values !
+                                if(phrase_source_arr.length === 1 && (phrase_source_arr[0].trim() === 'key' || phrase_source_arr[0].trim() === 'value.'))
                                     ;
-                                // otherwise check the sorting phrase uniqueness based on value's PLAIN
+                                // if you use the key - "key", "value." - among other, by default kvp objects must return unique values !                                    
+                                else if(
+                                        phrase_source_arr.length !== 1 && phrase_source_arr.length > 1 &&
+                                        (phrase_source_arr.indexOf('key') > -1 || phrase_source_arr.indexOf('value.') > -1) 
+                                )
+                                    ;
+
+                                // otherwise check the sorting phrase uniqueness solely based on value object of type PLAIN
                                 else {
+                                    // fetch all value's PLAIN property names
+                                    var value_plain_columns = phrase_source_arr.map(
+                                                                                        function(sort_col) {
+                                                                                                return sort_col.substring(sort_col.indexOf('.') + 1)
+                                                                                        }
+                                                                                   );
+
                                     // loop over current data to be sorted
                                     for(var i = 0; i < hpid_cache.length; i++) {
                                         // access current object
                                         c_o = hpid_cache[i];
-
-                                        // fetch all value's PLAIN property names
-                                        var value_plain_columns = phrase_source_arr.map(
-                                                                                            function(sort_col) {
-                                                                                                    return sort_col.substring(sort_col.indexOf('.') + 1)
-                                                                                            }
-                                                                                       );
 
                                         // define a sorting phrase
                                         var phrase = gbo.buildPhrase(c_o.value, value_plain_columns);
@@ -706,7 +749,7 @@
 
                             check : function() {
                                 if(!_ACTION.hpid.sorting.firstLevelCtx.present)
-                                    throw new Error('You can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !');
+                                    throw Error('\r\nYou can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !\r\n\r\n');
                             },
 
                             set : function(flag) {
@@ -1336,8 +1379,8 @@
                             */
                             all : function(params) {
                                 // handle missing params object
-                                if (params === undefined) throw ReferenceError("Method [ all ] has to have 'params' object provided !");
-                                if(params['predicateArray'] === undefined) throw TypeError("Method [ all ] with 'params' object provided is missing 'predicateArray' array !");
+                                if (params === undefined) throw ReferenceError('\r\nMethod [ all ] has to have "params" object provided !\r\n\r\n');
+                                if(params['predicateArray'] === undefined) throw TypeError('\r\nMethod [ all ] with "params" object provided is missing "predicateArray" array !\r\n\r\n');
 
                                 // create action and proceed with further flow
                                 return _ACTION.create(this._ctx, _CORE.all_or_any.bind(this, params['predicateArray'], _ENUM.ALL), System.Linq.Context.all, true);
@@ -1369,7 +1412,7 @@
                                     return is_on;
                                 }
                                 else {
-                                    throw Error('JLC 1.0 Query Debugger not initialized !');
+                                    throw Error('\r\nJLC 1.0 Query Conditional Debug Code not initialized !\r\n\r\n');
                                 }
                             }
                         };
@@ -1635,24 +1678,24 @@
                                      * User must provide implementation of toString method if sorting by the object itself is required ⚠️
                                      * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
                                     */
-                                   if(itemCurrent.toString === Object.prototype.toString)
-                                        throw new ReferenceError(
-                                                                    'Sorting KVP Value by itself requires presence of custom method "toString()" !\r\n Source : ' + itemCurrent
-                                                                );
+                                   if(!itemCurrent.value.toString || (itemCurrent.value.toString === Object.prototype.toString))
+                                        throw ReferenceError(
+                                                                '\r\nSorting KVP Value by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
+                                        );
 
-                                   if(itemPrevious.toString === Object.prototype.toString)
-                                        throw new ReferenceError(
-                                                                    'Sorting KVP Value by itself requires presence of custom method "toString()" !\r\n Source : ' + itemPrevious
-                                                                );                                                                
+                                   if(!itemPrevious.value.toString || (itemPrevious.value.toString === Object.prototype.toString))
+                                        throw ReferenceError(
+                                                                '\r\nSorting KVP Value by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
+                                        );
 
 
                                     // if both objects have custom methods toString(), just invoke basic boolean comparison
-                                    return boolean_comparator_I_2L(itemCurrent.toString(), itemPrevious.toString());
+                                    return boolean_comparator_I_2L(itemCurrent.value.toString(), itemPrevious.value.toString());
                                 }
                                 // by 'value' object itself
                                 else if(sortMetadata.byValuePLAIN) {
                                     // invoke PLAIN comparator private function
-                                    return PLAIN_Comparator_I_2L(itemCurrent, itemPrevious, _ENUM.CIT.KVP);    
+                                    return PLAIN_Comparator_I_2L(itemCurrent, itemPrevious, _ENUM.CIT.KVP);
                                 }
                             },
 
@@ -1743,12 +1786,12 @@
                                     oP = itemPrevious.value;
                                 }
                                 else
-                                    throw new Error(
-                                                    'This collection input type (cit) called "' + citCtx +
-                                                    '" is not supported by PLAIN comparator ! Valid contexts are [' +
+                                    throw Error(
+                                                    '\r\nThis collection input type (cit) called "' + citCtx +
+                                                    '" is not supported by PLAIN comparator !\r\nValid contexts are [' +
                                                                                                                         _ENUM.CIT.PLAIN + ', ' +
                                                                                                                         _ENUM.CIT.KVP +
-                                                                                                                '] !'
+                                                                                                                   '] !\r\n\r\n'
                                     );
                                 
                                 var sortCol;
@@ -1808,7 +1851,7 @@
                                         return 1;
 
                                 default:
-                                    throw Error("Unsupported sorting order [ " + sort_mode + " ] !");
+                                    throw Error('\r\nUnsupported sorting order [ ' + sort_mode + ' ] !\r\n\r\n');
                             }
                         }
                     }
@@ -1857,7 +1900,7 @@
                                 var value = d_obj[key];
 
                                 // if it's a primitive type
-                                if(typeof value !== 'object')
+                                if(typeof value !== 'object' && typeof value !== 'function')
                                     primitives.push(parent + key);
                                 // if it's an object
                                 else if(typeof value === 'object')
@@ -2043,7 +2086,7 @@
                         }
                         // otherwise throw error
                         else {
-                            throw Error("groupBy requires a grouping key to be present. Current invocation is missing the key !");
+                            throw Error('\r\n"groupBy" method requires a grouping key to be present. Current invocation is missing the key !\r\n\r\n');
                         }
 
 
@@ -2073,7 +2116,7 @@
                              *  - values are primitives values or objects, not single elements of array 
                             */
                             if(isDictionaryContext && gbo.getGrouping(id, groups).arr)
-                                throw Error('Item with the same key was already added to this dictionary object !');
+                                throw Error('\r\nItem with the same key was already added to this dictionary object !\r\n\r\n');
 
                             // create pure empty object
                             var eo = Object.create(null);
@@ -2133,7 +2176,7 @@
                              *  - values are primitives values or objects, not single elements of array 
                             */
                             if(isDictionaryContext && gbo.getGrouping(id, groups).arr)
-                                throw Error('Item with the same key was already added to this dictionary object !');
+                                throw Error('\r\nItem with the same key was already added to this dictionary object !\r\n\r\n');
 
                             // create pure empty object
                             var eo = Object.create(null);
@@ -2228,7 +2271,7 @@
                                 var type = getType_I_4L(value);
 
                                 // type must be a string
-                                if (typeof type !== 'string') throw new TypeError('Type must be a string.');
+                                if (typeof type !== 'string') throw TypeError('\r\nType must be a string.\r\n\r\n');
                                 
                                 // handle simple types (primitives and plain function/object)
                                 switch (type) {
@@ -2279,8 +2322,8 @@
                                     return typeof name === 'string' && name.length > 0 ? name : 'object';
                                 }
                             }
-                        }                            
-                        // CHECK IT !!!!
+                        }
+
                         function sortGroups_I_2L(equalityComparer) {
                             // declare array of group keys
                             var keys = [];
@@ -2305,7 +2348,7 @@
                                 var gso = gbo.getGrouping(key, groups);
 
                                 // update grouping object
-                                gbo.setGrouping(id, gso, sorted_groups);
+                                gbo.setGrouping(key, gso, sorted_groups);
                             });
 
                             // return sorted groups
@@ -2359,7 +2402,7 @@
                                         // determine the valid range of sequence to reverse
                                         if((index || index === 0) && count) {
                                             if(index + count - 1 > currentColl.length - 1)
-                                                throw Error("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !");
+                                                throw Error('\r\nOffset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !\r\n\r\n');
                                             else if(index + count - 1 === currentColl.length - 1)
                                                 i = currentColl.length - 1;
                                             else if(index + count - 1 < currentColl.length - 1)
@@ -2416,7 +2459,7 @@
                                         if(!withPredicates) {
                                             // for null or undefined count just throw an error
                                             if(!count && count !== 0)
-                                                throw Error("Supply required parameter called count !");
+                                                throw Error('\r\nSupply required parameter called "count" !\r\n\r\n');
 
                                             // determine the valid range of sequence to extract
                                             if(count > 0 && count < currentColl.length) {
@@ -2447,7 +2490,7 @@
                                         if(!withPredicates) {
                                             // for null or undefined count just throw an error
                                             if(!count)
-                                                throw Error("Supply required parameter called count !");
+                                                throw Error('\r\nSupply required parameter called "count" !\r\n\r\n');
 
                                             // determine the valid range of sequence to extract
                                             if(count >= currentColl.length)
@@ -2468,7 +2511,7 @@
                                         break;
 
                                     default:
-                                        throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
+                                        throw Error('\r\nUnrecognized logical type of collection item [ ' + enumValue +  ' ] !\r\n\r\n');
                                 }
 
                                 // update HPID object to enable further data flow
@@ -2527,7 +2570,7 @@
                                             // return the single item from the sequence
                                             return currentColl[0];
                                         else
-                                            throw Error("Sequence contains more than one element !");
+                                            throw Error('\r\nSequence contains more than one element !\r\n\r\n');
 
                                     case _ENUM.ALL:
                                         // this flag tells to discard returned result
@@ -2535,7 +2578,7 @@
                                         break;
 
                                     default:
-                                        throw Error("Unrecognized logical type of collection item [ " + enumValue +  " ] !");
+                                        throw Error('\r\nUnrecognized logical type of collection item [ ' + enumValue +  ' ] !\r\n\r\n');
                                 }
                             }
                             // if the sequence contains no elements
@@ -2552,13 +2595,13 @@
                                 // throw valid error
                                 else {
                                     if(withPredicates && (enumValue === _ENUM.SINGLE))
-                                        throw Error("Sequence contains no elements !");
+                                        throw Error('\r\nSequence contains no elements !\r\n\r\n');
                                     else if(withPredicates)
-                                        throw Error("Sequence contains no matching element !");
+                                        throw Error('\r\nSequence contains no matching element !\r\n\r\n');
                                     else if(enumValue === _ENUM.REVERSE)
-                                        throw Error("Source is null !");
+                                        throw Error('\r\nSource is null !\r\n\r\n');
                                     else
-                                        throw Error("Sequence contains no elements !");
+                                        throw Error('\r\nSequence contains no elements !\r\n\r\n');
                                 }
                             }
 
@@ -2743,7 +2786,7 @@
                             // declare second-level sorted array !
                             var sls_arr = [];
                             var sls_item;
-                            // sort groupped data according to the current-invocation sorting columns (ovc)
+                            // sort grouped data according to the current-invocation sorting columns (ovc)
                             for(var j = 0; j < groups.length; j++) {
                                 // get current group
                                 sls_item = groups[j].resultsView;
@@ -3107,27 +3150,13 @@
         // declare a private data object holding all data flows of all collections passed to JLC
         var _DATA = {
                 // index that tracks contextually current collection within history array 
-                _index : -1,
+                index : -1,
 
                 // root token array holding root tokens of each collection
                 root_token_array : [],
 
                 // collection history array
                 collection_array : [],
-
-                reserveIndex : function() {
-                    // reserve array position
-                    this.root_token_array.push(undefined);
-
-                    // reserve array position
-                    this.collection_array.push(undefined);
-
-                    // increase collection index
-                    this._index++;
-
-                    // return collection index
-                    return this._index;
-                },
 
                 // check if contextually current collection is stored internally for data flows
                 exists : function(rootToken) {
@@ -3138,7 +3167,7 @@
                     for (var i = 0; i < this.root_token_array.length; i++) {
                         var rto = this.root_token_array[i];
                         
-                        if(rto && rto.root_token === rootToken) {
+                        if(rto.root_token === rootToken) {
                             index = rto.collection_index;
                             break;
                         }
@@ -3149,17 +3178,24 @@
                 },
 
                 // store collection
-                store : function (collection, index) {
-                    // store contextually unique token of this collection
-                    this.root_token_array[index] =
-                                                    {
-                                                        root_token : collection.dirty_data._rootToken,
+                store : function (collection) {
+                    // increase collection index
+                    this.index++;
 
-                                                        collection_index : index
-                                                    };
+                    // store contextually unique token of this collection
+                    this.root_token_array.push(
+                                                {
+                                                    root_token : collection.dirty_data._rootToken,
+
+                                                    collection_index : this.index
+                                                }
+                                            );
 
                     // store collection
-                    this.collection_array[index] = collection;
+                    this.collection_array.push(collection);
+
+                    // get index of this contextually current collection
+                    return this.index;
                 },
 
                 // fetch metadata object of contextually current collection from history array
@@ -3209,8 +3245,8 @@
                          * Local helper functions 
                         */
                         function createLinqContext_I_2L() {
-                            // bind JLC to Array type
-                            Array.prototype.usingLinq = _SETUP.Funcs.useJLC;
+                            // extend JavaScript Array type with JavaScript LINQ Concept, in short called JLC
+                            Array.prototype.usingLinq = _SETUP.Funcs.applyJLC;
 
                             // create Linq context objects
                             window.System = window.System || {};
@@ -3226,17 +3262,9 @@
                                                                                                             _DATA.root_token_array.length = 0;
 
                                                                                                             // reset collections' index
-                                                                                                            _DATA._index = -1;
+                                                                                                            _DATA.index = -1;
                                                                                                           }
                                                                                            }
-
-                            // add entry point method
-                            
-                            // add method to Linq context object
-                            System.Linq.Context['JLC'] = 'JLC';
-
-                            // store information whether this method produces physical result or a logical one
-                            System.Linq.QueryResult['JLC'] = false;                            
 
                             // add methods to Linq context objects
                             addLinqMethodsToContext_I_3L(
@@ -3273,108 +3301,77 @@
                 },
                 
                 Funcs : {
-                    useJLC : function() {
-                        // create lazy copy of this collection
-                        var bound_d_f = copyData_I_1L.bind(this);
+                    applyJLC : function() {
+                        // do required initial 'configuration cleanup'
+                        doSetupCleanup_I_3L();
 
-                        // get api
-                        var jlc_api = setupJLC_I_1L();
+                        // get token associated with current collection, aka root token
+                        var rootToken = new Date().getTime();
+                        
+                        // create copy of this collection
+                        var _this = this.slice(0);
 
-                        // create action and proceed with further flow
-                        return _ACTION.create(
-                                                jlc_api._ctx,
-                                                createEntryPointAction_I_1L.bind(
-                                                                                    bound_d_f,
-                                                                                    jlc_api._ctx.coll_index,
-                                                                                    jlc_api._ctx.root_token
-                                                                                ),
-                                                System.Linq.Context.JLC
-                        );
+                        // assign token to collection
+                        _this._rootToken = rootToken;
+
+                        // pass data in to the mechanism - 'this' refers to the calling client data array !
+                        var coll_idx = over_I_1L(_this);
+                        
+                        // get JLC API instance
+                        return _COMMON.jlcNew({coll_index : coll_idx, root_token : rootToken, parent : null});
 
 
 
                         /**
                          * Local helper functions
                         */
-                        function setupJLC_I_1L() {
-                            // get id of future-flow-data stored internally !
-                            var coll_idx = _DATA.reserveIndex();
-
-                            // get token associated with current collection, aka root token
-                            var rootToken = new Date().getTime();
-
-                            // return JLC API instance
-                            return _COMMON.jlcNew({coll_index : coll_idx, root_token : rootToken, parent : null});
+                        function doSetupCleanup_I_3L() {
+                            _ACTION.hpid.sorting.firstLevelCtx.set(false);
                         }
 
-                        function copyData_I_1L() {
-                            // create copy of contextually current collection
-                            return this.slice(0);
-                        }
+                        function over_I_1L(inputCollection) {
+                            // check if current collection is stored internally
+                            var index = _DATA.exists(inputCollection._rootToken);
 
-                        function createEntryPointAction_I_1L(coll_idx, rootToken) {
-                            // do required initial 'configuration cleanup'
-                            doSetupCleanup_I_2L();
-
-                            // "unbox" itslef 😀😉
-                            _this = this();
-
-                            // assign token to collection
-                            _this._rootToken = rootToken;
-
-                            // pass contextually source collection
-                            over_I_2L(_this, coll_idx);
-
-
-
-                            /**
-                             * Local helper functions 
-                            */
-
-                            function doSetupCleanup_I_2L() {
-                                _ACTION.hpid.sorting.firstLevelCtx.set(false);
-                            }
-    
-                            function over_I_2L(inputCollection, coll_index) {
-                                // check if current collection is stored internally
-                                var index = _DATA.exists(inputCollection._rootToken);
-    
-                                // store this collection if a new one
-                                if(index === -1) {
-                                    // declare a private data object holding data collection of current JLC instance, aka static or shared instance
-                                    var coll_data = {
-                                        dirty_data : null,   // current flow data
-                                        dirty_data_temp : [],
-                                        data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
-                                        type : {
-                                            source : null,
-                                            makeItEmpty : false,
-                                            isReady : false,
-                                            output : null
-                                        }
-                                    };
-    
-    
-                                    // store the collection to iterate over
-                                    coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
-    
-                                    // otherwise create an empty object based on inputCollection's first item
-                                    if(coll_data.dirty_data.length) {
-                                        coll_data.type.source = coll_data.dirty_data[0];
-                                        coll_data.type.makeItEmpty = true;
+                            // store this collection if a new one
+                            if(index === -1) {
+                                // declare a private data object holding data collection of current JLC instance, aka static or shared instance
+                                var coll_data = {
+                                    dirty_data : null,   // current flow data
+                                    dirty_data_temp : [],
+                                    data : null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
+                                    type : {
+                                        source : null,
+                                        makeItEmpty : false,
+                                        isReady : false,
+                                        output : null
                                     }
-                                    // or default to an empty JavaScript object
-                                    else {
-                                        coll_data.type.output = {};
-                                        coll_data.type.isReady = true;
-                                    }
-    
-                                    /**
-                                     * Store current collection into collection history array.
-                                    */
-                                    _DATA.store(coll_data, coll_index);
+                                };
+
+
+                                // store the collection to iterate over
+                                coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
+
+                                // otherwise create an empty object based on inputCollection's first item
+                                if(coll_data.dirty_data.length) {
+                                    coll_data.type.source = coll_data.dirty_data[0];
+                                    coll_data.type.makeItEmpty = true;
                                 }
+                                // or default to an empty JavaScript object
+                                else {
+                                    coll_data.type.output = {};
+                                    coll_data.type.isReady = true;
+                                }
+
+                                /**
+                                 * Store current collection into collection history array.
+                                 * Return index of this collection from collection history array.
+                                */
+                                return _DATA.store(coll_data);
                             }
+                            
+                            // return index of this collection from collection history array
+                            return index;                            
                         }
                     }
                 }
