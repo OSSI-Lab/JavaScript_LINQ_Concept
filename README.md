@@ -21,7 +21,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
- # - 2020-05-16 -> 🤫 (Spring break) 💋
+ # 🍽️ 2020-05-16 -> 🤫 (Spring break) 💋
  - DPR #14:&nbsp;2020-05-14 &nbsp;&nbsp;??:?? ?M Local Time &nbsp;:no_entry:&nbsp;( GA architecture )&nbsp;Enhancement 6&nbsp;:no_entry:
     - features:
       - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints ! 
