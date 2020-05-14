@@ -22,7 +22,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
 ## Streamlined:&nbsp;YES
  # 🍽️ 2020-05-16 ... 🤫 (Spring break) 💋
- - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;??:?? PM Local Time &nbsp;:no_entry:&nbsp;( GA architecture - API Layer redesign v2 )6&nbsp;:no_entry:
+ - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;??:?? PM Local Time &nbsp;:no_entry:&nbsp;( GA architecture - API Layer redesign v2 )&nbsp;:no_entry:
     - features:
       - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints !
       - enabling defining new methods in a declarative way !&nbsp;:bell:
