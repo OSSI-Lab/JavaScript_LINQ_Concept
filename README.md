@@ -28,7 +28,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
       - enabling defining new methods in a declarative way !&nbsp;:bell:
       - decoupling layers from each other, i.e. API Layer (AL), Logical Operations Layer (LOL) & Physical Operations Layer (POL) !&nbsp;:bell:
   	    - moving syntax checking to LOL (all checks are being done over metadata, not physical data !)
-	    - physical data operations are happening only in POL (final methods - the ones that produce output are the only methods that touch physical data)
+	    - physical data operations are happening only in POL (final methods - the ones that produce output are the only methods that touch physical data !)
  - DPR #13:&nbsp;2020-05-04 &nbsp;&nbsp;10:05 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( **GA architecture** &nbsp; ~~Enhancement 1~~ &nbsp;:bell: )&nbsp;**Enhancement 5**&nbsp;:heavy_check_mark:
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy, orderByDescending, thenBy, thenByDescending are RC methods (sorting data with preserved dependency relationship between 1st & 2nd level sorting methods) !
