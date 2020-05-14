@@ -26,6 +26,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
     - features:
       - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints !
       - enabling defining new methods in a declarative way !&nbsp;:bell:
+        - JLC LINQ API is being built dynamically from methods' metadata (you declare method behaviour - that why it's called 'declarative way')
       - decoupling layers from each other, i.e. API Layer (AL), Logical Operations Layer (LOL) & Physical Operations Layer (POL) !&nbsp;:bell:
   	    - moving syntax checking to LOL (all checks are being done over metadata, not physical data !)
 	    - physical data operations are happening only in POL (final methods - the ones that produce output are the only methods that touch physical data !)
