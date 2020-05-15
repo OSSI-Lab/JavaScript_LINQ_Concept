@@ -251,6 +251,7 @@
 
         // declare a private syntax object
         var _SYNTAX = {
+            
             check : function(coll_index, user_filter_array, sortingContext) {
                 return c_I_1L(coll_index, user_filter_array, sortingContext);
 
@@ -270,7 +271,7 @@
                     /**
                      * To enable syntax check, fetch object structure (all keys at all levels).
                      * Fetch them provided that collection is not empty !
-                     * Along the way cache the collection ! 
+                     * Along the way cache the collection !
                     */
                 
                     // if HPID is not ready

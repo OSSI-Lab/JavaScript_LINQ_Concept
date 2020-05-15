@@ -1,12 +1,13 @@
 (function () {
+    window.goto_Objects_SortingRelationshipUsage = window.goto_Objects_SortingRelationshipUsage || function() {
+        console.log('Objects - sorting relationship');
 
-    window.goToObjects = window.goToObjects || function() {
 
         var coll_1 = [
             {id: 1, name : "Object 1", ne : {ne_id : 1, ne_name : "NO 1"}, valid : true, lite : false, descr : "Descr 1", quality : "A"},
             {id: 7, name : "Object 7", ne : {ne_id : 7, ne_name : "NO 7"}, valid : true, lite : false, descr : "Descr 7", quality : "D"},
             {id: 8, name : "Object 8", ne : {ne_id : 8, ne_name : "NO 8"}, valid : true, lite : false, descr : "Descr 8", quality : "E"},
-            {id: 9, name : "Object 9", ne : {ne_id : 9, ne_name : "NO 9"}, valid : true, lite : true, descr : "Descr 9", quality : "F"},			
+            {id: 9, name : "Object 9", ne : {ne_id : 9, ne_name : "NO 9"}, valid : true, lite : true, descr : "Descr 9", quality : "F"},
             {id: 2, name : "Object 2", ne : {ne_id : 2, ne_name : "NO 2"}, valid : true, lite : false, descr : "Descr 2", quality : "A"},
             {id: 3, name : "Object 3", ne: null, 						   valid : false, lite : false, descr: "Descr 3", quality: "C" },
             {id: 4, name : "Object 4", ne : {ne_id : 4, ne_name : "NO 4"}, valid : true, lite : false, descr : "Descr 4", quality : "B"},
@@ -26,21 +27,161 @@
             {id: 4, name : "False adolescent immature the rest ", descr : "Knowing nothing, learning nothing, being nothing !", quality : "D", toString() {return "#" + this.id + "-" + this.descr + "-" + this.quality; }}
         ];
 
+
+        // 1. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 1
+        var example_partial_1st_2nd_part1 = coll_1.usingLinq()
+                                                              .orderBy(
+                                                                            {
+                                                                                'keyPartSelectorArray' :	[
+                                                                                                                ["name", true]
+                                                                                                            ]
+                                                                            }
+                                                                      );
+        // 1. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 2
+        var example_partial_1st_2nd_part2 = example_partial_1st_2nd_part1
+                                                              .thenBy(
+                                                                        {
+                                                                            'keyPartSelectorArray' :	[
+                                                                                                            ["quality", true],
+                                                                                                            ["-"], // second parameter 'false' is not required as either 'false' or 'undefined' evaluates to something falsy after all
+                                                                                                            ["id", true]
+                                                                                                        ]
+                                                                        }
+                                                                     );
+        // 1. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 3
+        example_partial_1st_2nd_part2 = example_partial_1st_2nd_part2.toArray();
+
+
+
+        // 2. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 1
+        var example_2_partial_1st_2nd_part1 = coll_1.usingLinq()
+                                                                .orderBy(
+                                                                            {
+                                                                                'keyPartSelectorArray' :	[
+                                                                                                                ["name", true]
+                                                                                                            ]
+                                                                            }
+                                                                        );
+
+        // new query flow doesn't affect the partial query sorting involving 1st and 2nd sorting operations and the relationship between them !
+        var example_between_1_and_2 = coll_1.usingLinq()
+                                                        .take(4);
+
+        // 2. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 2
+        var example_2_partial_1st_2nd_part2 = example_2_partial_1st_2nd_part1
+                                                                .thenBy(
+                                                                            {
+                                                                                'keyPartSelectorArray' :	[
+                                                                                                                ["quality", true],
+                                                                                                                ["-"], // second parameter 'false' is not required as either 'false' or 'undefined' evaluates to something falsy after all
+                                                                                                                ["id", true]
+                                                                                                            ]
+                                                                            }
+                                                                       );
+         // 2. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 3
+        example_2_partial_1st_2nd_part2 = example_2_partial_1st_2nd_part2.toArray();
+
+
+
         /**
-         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them (classic example)!
+         * ⚠️
+         * The following two examples will throw an error due to the violation of sorting rules that involve 1st & 2nd sorting operations and the relationship between them !
+         * 
+         * -  🛑 example 3. shows the "injection" of 'take' query method between 'orderBy' and 'thenBy' which causes the error !
+         * 
+         * -  example 4. is splitted into two partial queries:
+         *     ✔️ - part 1 marks that 'orderBy' will be used to sort the data in the first place
+         *     🛑 - part 2 marks that 'thenBy' will be used to sort the data in the second place, but it is preceded by 'take' query method which causes the error !
+         * 
+         * Comment out these two queries - 3. & 4. - to proceed with other examples !
+        */
+/*
+        // 3. sorting involving 1st & 2nd sorting operations and the relationship between them - whole query
+        var example_3_partial_1st_2nd_part1 = coll_1.usingLinq()
+                                                                .orderBy(
+                                                                            {
+                                                                                'keyPartSelectorArray' :	[
+                                                                                                                ["name", true]
+                                                                                                            ]
+                                                                            }
+                                                                        )
+                                                                
+                                                                // any non-sorting operations always reset the 1st level sorting regardless of whether such 1st level sorting took place or not
+                                                                .take(4)
+                                                                .thenBy(
+                                                                            {
+                                                                                'keyPartSelectorArray' :	[
+                                                                                                                ["quality", true],
+                                                                                                                ["-"], // second parameter 'false' is not required as either 'false' or 'undefined' evaluates to something falsy after all
+                                                                                                                ["id", true]
+                                                                                                            ]
+                                                                            }
+                                                                       )
+                                                                .toArray();
+
+
+
+        // 4. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 1
+        var example_4_partial_1st_2nd_part1 = coll_1.usingLinq()
+                                                                .orderBy(
+                                                                            {
+                                                                                'keyPartSelectorArray' :	[
+                                                                                                                ["name", true]
+                                                                                                            ]
+                                                                            }
+                                                                        );
+        // 4. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 2
+        var example_4_partial_1st_2nd_part2 = example_4_partial_1st_2nd_part1
+                                                                             // any non-sorting operations always reset the 1st level sorting regardless of whether such 1st level sorting took place or not
+                                                                             .take(4)
+                                                                             .thenBy(
+                                                                                        {
+                                                                                            'keyPartSelectorArray' :	[
+                                                                                                                            ["quality", true],
+                                                                                                                            ["-"], // second parameter 'false' is not required as either 'false' or 'undefined' evaluates to something falsy after all
+                                                                                                                            ["id", true]
+                                                                                                                        ]
+                                                                                        }
+                                                                                    );
+        // 4. partial sorting involving 1st & 2nd sorting operations and the relationship between them - part 3
+        example_4_partial_1st_2nd_part2 = example_4_partial_1st_2nd_part2.toArray();
+*/
+
+
+        // 5. the classic example  - sorting collection in ASC way
+        var example_where_orderByAscending = coll_1.usingLinq()
+                                                               .orderBy(
+                                                                            {
+                                                                                'keyPartSelectorArray' :	[
+                                                                                                                ["id", true]
+                                                                                                            ]
+                                                                            }
+                                                                       )
+                                                               .toArray();
+
+
+
+        // 6. the classic example  - sorting collection in DESC way
+        var example_where_orderByDescending = coll_1.usingLinq()
+                                                                .orderByDescending(
+                                                                                        {
+                                                                                            'keyPartSelectorArray' :	[
+                                                                                                                            ["id", true]
+                                                                                                                        ]
+                                                                                        }
+                                                                                  )
+                                                                .toArray();
+
+
+
+        /**
+         * 7. The following example shows the usage of 1st & 2nd level sorting operations and the reationship between them (classic example)!
          * 
          * CIT -> PLAIN
          * 
          * ✔️
         */
         var example_where_orderByDescending_thenBy_1 = coll_1.usingLinq()
-                                                                         .where(
-                                                                                    {
-                                                                                        'predicateArray' :	[
-                                                                                                                ["ne.ne_id", "<", 100, true]
-                                                                                                            ]
-                                                                                    }
-                                                                               )
                                                                          .orderByDescending(
                                                                                                 {
                                                                                                     'keyPartSelectorArray' :	[
@@ -74,7 +215,7 @@
 
 
         /**
-         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 8. The following example shows the usage of 1st & 2nd level sorting operations and the reationship between them !
          * 
          * CIT -> KVP -> Value -> PLAIN
          * 
@@ -120,12 +261,12 @@
 
 
         /**
-         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 9. The following example shows the usage of 1st & 2nd level sorting operations and the reationship between them !
          * 
          * CIT -> KVP -> Value
          * 
          * ⚠️ Objects must implement toString() method that returns unique value of the object !
-         * ✔️ In this case the do have such method.
+         * ✔️ In this case they do have such method.
         */
         var example_toDictionary_orderBy_Value_valid = coll_toString.usingLinq()
                                                                                 .toDictionary(
@@ -166,12 +307,12 @@
 
 
         /**
-         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 10. The following example shows the usage of 1st & 2nd level sorting operations and the reationship between them !
          * 
          * CIT -> GROUPING -> Key
          * 
          * ✔️
-        */    
+        */
         var example_where_groupBy = coll_1.usingLinq()
                                                       .groupBy(
                                                                     {
@@ -189,7 +330,7 @@
                                                        * The syntax for sorting KVPs, here by value object, is ["value.", true]  
                                                        * Objects that are required to have implementation of method "toString()" - which by design must return unique value - do implement it !
                                                        * Hence, the attempt to sort succeeds !
-                                                      */                                                                    
+                                                      */
                                                       .orderBy(
                                                                     {
                                                                         'keyPartSelectorArray' :	[
@@ -215,7 +356,7 @@
 
 
         /**
-         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 11. The following example shows the usage of 1st & 2nd level sorting operations and the reationship between them !
          * 
          * CIT -> KVP -> Value
          * 
@@ -238,7 +379,7 @@
                                                                             * The syntax for sorting KVPs, here by value object, is ["value.", true]  
                                                                             * But objects that are required to have implementation of method "toString()" - which by design must return unique value - are missing it !
                                                                             * Hence, the attempt to sort fails !
-                                                                           */                                                                    
+                                                                           */
                                                                            .orderBy(
                                                                                         {
                                                                                             'keyPartSelectorArray' :	[
@@ -263,7 +404,7 @@
 
 
         /**
-         * The following example shows the usage of 1st && 2nd level sorting operations and the reationship between them !
+         * 12. The following example shows the usage of 1st & 2nd level sorting operations and the reationship between them !
          * 
          * CIT -> PLAIN -> Value
          * 
@@ -288,7 +429,7 @@
                                                              * In this example this second-level sorting would have never taken place !
                                                              * The previous sorting failed trying to sort the data using "the key" called "value.", i.e. unique value due to the invalid syntax !
                                                              * Hence, the attempt to sort fails !
-                                                            */                                                     
+                                                            */
                                                             .thenBy(
                                                                         {
                                                                             'keyPartSelectorArray' :	[
@@ -301,305 +442,7 @@
                                                             .toArray();
 
 
-
-
-        
-
-        
-        var example_where = coll_1.usingLinq()
-                                              .where(
-                                                        {									
-                                                            'predicateArray' :	[
-                                                                                    ["id", ">=", 2, true],
-                                                                                    ["ne.ne_id", "<", 10, true]
-                                                                                ]
-                                                        }
-                                                    );
-        
-        var example_where_groupBy = example_where
-                                                 .groupBy(
-                                                            {
-                                                                'predicateArray' :	[
-                                                                                        ["id", true],
-                                                                                        [" - ", false],
-                                                                                        ["descr", true]
-                                                                                    ]
-                                                            }
-                                                         );
-
-        var example_where_groupBy_with_empty_joiner = example_where
-                                                                   .groupBy(
-                                                                                {
-                                                                                    'predicateArray' :	[
-                                                                                                            ["id", true],
-                                                                                                            ["                ", false],
-                                                                                                            ["descr", true]
-                                                                                                        ]
-                                                                                }
-                                                                           )
-                                                                   .toArray();
-        var example_where_groupBy_with_empty_joiner_yield_on_demand = example_where
-                                                                                   .groupBy(
-                                                                                                {
-                                                                                                    'predicateArray' :	[
-                                                                                                                            ["id", true],
-                                                                                                                            ["                ", false],
-                                                                                                                            ["descr", true]
-                                                                                                                        ]
-                                                                                                }
-                                                                                           );
-        // process pre-yielded grouping objects of 'groupBy' query method
-        udf_commons.process_GroupBy_result(example_where_groupBy_with_empty_joiner);
-
-        // process on-demand-yielded grouping objects of 'groupBy' query method
-        udf_commons.process_GroupBy_result(example_where_groupBy_with_empty_joiner_yield_on_demand, true);
-
-
-
-        var example_where_groupBy_array = example_where_groupBy
-                                                               .toArray();
-        
-        var example_where_groupBy_array_2 = example_where
-                                                         .groupBy(
-                                                                    {
-                                                                        'predicateArray' :	[
-                                                                                                ["id", true],
-                                                                                                [" - ", false],
-                                                                                                ["descr", true]
-                                                                                            ]
-                                                                    }
-                                                                 )
-                                                         .toArray();
-        
-        var example_where_take_5 = example_where
-                                                .take(
-                                                        {
-                                                            'count' : 5
-                                                        }
-                                                     );
-        
-        var example_where_skip_3 = example_where
-                                                .skip(
-                                                        {
-                                                            'count' : 3
-                                                        }
-                                                     );
-        
-        var example_where_take_2 = example_where
-                                                .take(
-                                                        {
-                                                            'count' : 2
-                                                        }
-                                                     );
-
-        var example_where_take_2_skip_3 = example_where_take_2
-                                                              .skip(
-                                                                        {
-                                                                            'count' : 3
-                                                                        }
-                                                                   );
-        
-        
-        
-        
-        var example_where_array = example_where
-                                               .toArray();
-        
-        var example_where_take_5_array = example_where_take_5
-                                                             .toArray();
-
-        var example_where_take_5_first_or_default = example_where_take_5
-                                                                        .firstOrDefault(
-                                                                                            {
-                                                                                                'predicateArray' :	[
-                                                                                                                        ["id", ">", 1234567890]
-                                                                                                                    ]
-                                                                                            }
-                                                                                       );
-        var example_where_take_5_last = example_where_take_5
-                                                            .last();
-        var example_where_take_5_last_or_default = example_where_take_5
-                                                                       .lastOrDefault(
-                                                                                        {
-                                                                                            'predicateArray' :	[
-                                                                                                                    ["id", ">", 7],
-                                                                                                                    ["id", "<", 9]
-                                                                                                                ]
-                                                                                        }
-                                                                                     );
-
-        var example_where_take_5_last_or_default_2 = example_where_take_5
-                                                                         .lastOrDefault(
-                                                                                            {
-                                                                                                'predicateArray' :	[
-                                                                                                                        ["id", ">", 5],
-                                                                                                                        ["id", "<", 7]
-                                                                                                                    ]
-                                                                                            }
-                                                                                       );
-        
-        // running whole query at once rather than breaking it into partial ones
-        var example_where_take_5_last_or_default_3 = coll_1.usingLinq()
-                                                                       .where(
-                                                                                {
-                                                                                    'predicateArray' :	[
-                                                                                                            ["id", ">=", 2, true],
-                                                                                                            ["ne.ne_id", "<", 10, true]
-                                                                                                        ]
-                                                                                }
-                                                                             )
-                                                                       .take(
-                                                                                {
-                                                                                    'count' : 5
-                                                                                }
-                                                                            )
-                                                                       .lastOrDefault(
-                                                                                        {									
-                                                                                            'predicateArray' :	[
-                                                                                                                    ["id", ">", 5],
-                                                                                                                    ["id", "<", 7]
-                                                                                                                ]
-                                                                                        }
-                                                                                     );
-        
-        
-        var example_where_skip_3_array = example_where_skip_3
-                                                             .toArray();
-        var example_where_skip_3_dictionary = example_where_skip_3
-                                                                  .toDictionary(
-                                                                                    {
-                                                                                        'predicateArray' :	[
-                                                                                                                ["id", true],
-                                                                                                                [" - ", false],
-                                                                                                                ["quality", true]
-                                                                                                            ]
-                                                                                    }
-                                                                               );
-        var example_where_skip_3_dictionary_arrayList = example_where_skip_3
-                                                                            .toDictionary(
-                                                                                            {
-                                                                                                'predicateArray' :	[
-                                                                                                                        ["id", true],
-                                                                                                                        [" - ", false],
-                                                                                                                        ["quality", true]
-                                                                                                                    ]
-                                                                                            }
-                                                                                         );
-        var example_where_skip_3_groupBy = example_where_skip_3
-                                                               .groupBy(
-                                                                            {
-                                                                                'predicateArray' :	[
-                                                                                                        ["id", true],
-                                                                                                        [" - ", false],
-                                                                                                        ["quality", true]
-                                                                                                    ]
-                                                                            }
-                                                                       )
-                                                               .toArray();
-        
-        var example_where_skip_3_groupBy_3 = coll_1.usingLinq()
-                                                               .groupBy(
-                                                                            {
-                                                                                'predicateArray' :	[
-                                                                                                        ["name", true]
-                                                                                                    ]
-                                                                            }
-                                                                       )
-                                                               .toArray();
-        
-        // process pre-yielded grouping objects of 'groupBy' query method
-        udf_commons.process_GroupBy_result(example_where_skip_3_groupBy_3);
-
-        
-        
-        var example_take_2_skip_array = example_where_take_2_skip_3
-                                                                   .toArray();
-        
-        
-        var example_where_skip_3_usingLinq_where = example_where_skip_3
-                                                                       .toArray()
-                                                                       /**
-                                                                        * Enable Linq after producing final result with invocation of toArray()
-                                                                        * 
-                                                                        * Guess why it's the natural and logical way of enabling continuation of Linq in JavaScript 
-                                                                       */
-                                                                       .usingLinq()
-                                                                       .where(
-                                                                                {									
-                                                                                    'predicateArray' :	[
-                                                                                                            ["id", ">=", 2, true],
-                                                                                                            ["ne.ne_id", "<", 10, true]
-                                                                                                        ]
-                                                                                }
-                                                                             )
-                                                                       .toArray();
-        
-        var example_where_orderByAscending = coll_1.usingLinq()
-                                                               .where(
-                                                                        {									
-                                                                            'predicateArray' :	[
-                                                                                                    ["ne.ne_id", "<", 10, true]
-                                                                                                ]
-                                                                        }
-                                                                     )
-                                                               .orderBy(
-                                                                            {									
-                                                                                'keyPartSelectorArray' :	[
-                                                                                                                ["name", true]
-                                                                                                            ]
-                                                                            }
-                                                                       )
-                                                               .toArray();
-        
-        var example_where_orderByDescending = coll_1.usingLinq()
-                                                                .where(
-                                                                            {
-                                                                                'predicateArray' :	[
-                                                                                                        ["ne.ne_id", "<", 10, true]
-                                                                                                    ]
-                                                                            }
-                                                                      )
-                                                                .orderByDescending(
-                                                                                        {
-                                                                                            'keyPartSelectorArray' :	[
-                                                                                                                            ["name", true]
-                                                                                                                        ]
-                                                                                        }
-                                                                                  )
-                                                                .toArray();
-
-
-        
-
-        var new_coll = [
-            {id: 11, name : "Object 4", ne : {ne_id : 11, ne_name : "NO 11"}, valid : true, lite : true, descr : "Descr 4", quality : "A"},
-            {id: 12, name : "Object 3", ne : {ne_id : 12, ne_name : "NO 12"}, valid : true, lite : true, descr : "Descr 3", quality : "A"}
-        ];
-
-
-        var coll_1_merged = coll_1.usingLinq()
-                                              .concat(
-                                                        {
-                                                            'inputCollection' : new_coll
-                                                        }
-                                                     )
-                                              .toArray();
-        
-        var coll_1_merged_append = coll_1_merged.usingLinq()
-                                                            .append(
-                                                                        {
-                                                                            'collectionItem' : {id: 13, name : "Object 1", ne : {ne_id : 13, ne_name : "NO 13"}, valid : true, lite : true, descr : "Descr 1", quality : "F"}
-                                                                        }
-                                                                   )
-                                                            .toArray();
-        
-        var coll_1_merged_append_prepend = coll_1_merged_append.usingLinq()
-                                                                          .prepend(
-                                                                                        {
-                                                                                            'collectionItem' : {id: -1, name : "----", ne : {ne_id : -1, ne_name : "NO -1"}, valid : false, lite : false, descr : "Descr -1", quality : "-"}
-                                                                                        }
-                                                                                  )
-                                                                          .toArray();
+        console.log('~ Objects - sorting relationship');
     }
 }
 )();
