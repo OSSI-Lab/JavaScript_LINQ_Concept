@@ -5,10 +5,9 @@
 This library is aimed to work in FCU or in the FrontEnd apps in general and will serve the same purpose as LINQ in C# ! \
 The parameters of methods of the same names like C#'s LINQ are exactly the same or as close as possible. \
 \
-My goal is to "copy" functionality from LINQ in C# and transfer it stright into plain JavaScript. \
-\
-I am not sure whether *the great* **Anders Hejlsberg** of *Microsoft* will welcome it or not, but for sure I am not breaking any rules of good software development.
-
+My goal was to provide the exact functionality from LINQ in C# and transfer it stright into plain JavaScript from the user point of view. \
+JavaScript LINQ is the real thing since 2020-06-08 ! \
+If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to [Ms. Angelica Dąbrowska](https://github.com/C4B-Solutions/The-Family-Blog-Official/blob/master/family/posts/1.bio_of_Angelica.md#who-is-angelica- "Officially the PR manager of mine.").
 
 I highly encourage reading this amazing article treating about [C# LINQ in detail](https://www.codeproject.com/Articles/383749/How-does-it-work-in-Csharp-Part-3-Csharp-LINQ-in-d "How does it work in C# ?") to better understand inner workings of LINQ ! \
 By the way, taking advantage of the occasion there are 3 books that every C#-oriented developer should have on his/her shelf... \
@@ -19,15 +18,25 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;UAD&nbsp;[ Development ]&nbsp;:pushpin:
-## Streamlined:&nbsp;YES
- # 🍽️ 2020-05-16 ... 🤫 (Spring break) 💋
+## Status:&nbsp;GA&nbsp;[ --- ]&nbsp;:heavy_check_mark:
+## Streamlined:&nbsp;NO
+ #
+ - DPR #15:&nbsp;2020-06-08 &nbsp;&nbsp;11:44 AM Local Time &nbsp;:no_entry:&nbsp;:lock:
+    - features:
+      - architecture [ Dynamic API Layer ]
+        - each new - not present yet in the flow chain - query method being invoked on API object is being built dynamically and on demand, aka on-the-fly
+        - subsequent invocation of such already-invoked-method in the flow chain is retrieved directly from the API object
+        - there are two levels of method cache - L1 & L2 - to boost the execution speed
+      - architecture levels
+        - DynamicAPI Layer
+        - Logical Operations Layer
+        - Physical Operations Layer
  - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;5:18 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( GA architecture - API Layer redesign v2 RC)&nbsp;:heavy_check_mark:
     - features:
       - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints !
-      - enabling defining new methods in a declarative way !&nbsp;:bell:
-        - JLC LINQ API is being built dynamically from methods' metadata (you declare method behaviour - that why it's called 'declarative way', AFAIU !)
-      - decoupling layers from each other, i.e. API Layer (AL), Logical Operations Layer (LOL) & Physical Operations Layer (POL) !&nbsp;:bell:
+      - enabling defining new methods in a declarative way !
+        - JavaScript LINQ API is being built dynamically from methods' metadata (you declare method behaviour - that why it's called 'declarative way', AFAIK !)
+      - decoupling layers from each other, i.e. API Layer (AL), Logical Operations Layer (LOL) & Physical Operations Layer (POL) !
   	    - moving syntax checking to LOL (all checks are being done over metadata, not physical data !)
 	    - physical data operations are happening only in POL (final methods - the ones that produce output are the only methods that touch physical data !)
  - DPR #13:&nbsp;2020-05-04 &nbsp;&nbsp;10:05 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture* &nbsp; ~~Enhancement 1~~ &nbsp;:bell: )&nbsp;*Enhancement 5*&nbsp;:heavy_check_mark:
@@ -77,8 +86,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 
  - DPR #1:&nbsp;2020-03-14 11:19 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
-## Release Candidate Version Proposal: 2020-07-01 Local Time &nbsp;:bell:&nbsp;:heavy_check_mark:
-# GA Version Proposal: 2020-08-01 Local Time &nbsp;:bell:&nbsp;:heavy_check_mark:
+# GA Version (available to download): 2020-12-06 Local Time &nbsp;:heavy_check_mark:
 
 #
 ## Download&nbsp;:lock:
