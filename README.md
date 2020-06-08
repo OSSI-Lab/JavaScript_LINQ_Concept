@@ -22,8 +22,8 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;GA&nbsp;[ --- ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;NO
- #
- - DPR #15:&nbsp;2020-06-08 &nbsp;&nbsp;12:00 PM Local Time &nbsp;:no_entry:&nbsp;:lock:
+#
+ - DPR #15:&nbsp;2020-06-08 &nbsp;&nbsp;12:11 PM Local Time &nbsp;:no_entry:&nbsp;:lock:
     - features:
       - architecture [ DynamicAPI Layer ]
         - each new - not present yet in the flow chain - query method being invoked on API object is being built dynamically and on demand, aka on-the-fly
@@ -33,6 +33,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - DynamicAPI Layer
         - Logical Operations Layer
         - Physical Operations Layer
+    - [Watch JavaScript LINQ in action](https://drive.google.com/drive/folders/1puGA_zuvLC-z9w93ajHtQepa8-PEl1-2 "How impossible was made possible.").
  - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;5:18 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( GA architecture - API Layer redesign v2 RC)&nbsp;:heavy_check_mark:
     - features:
       - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints !
