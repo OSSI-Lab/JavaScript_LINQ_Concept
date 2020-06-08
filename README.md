@@ -8,7 +8,7 @@ The parameters of methods of the same names like C#'s LINQ are exactly the same 
 My goal was to provide the exact functionality from LINQ in C# and transfer it stright into plain JavaScript from the user point of view. \
 JavaScript LINQ is the real thing since 2020-06-08 !
 
-If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to [Ms. Angelica Dąbrowska](https://github.com/C4B-Solutions/The-Family-Blog-Official/blob/master/family/posts/1.bio_of_Angelica.md#who-is-angelica- "Officially the PR manager of mine.").
+If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to [**Ms. Angelica Dąbrowska**](https://github.com/C4B-Solutions/The-Family-Blog-Official/blob/master/family/posts/1.bio_of_Angelica.md#who-is-angelica- "Officially the PR manager of mine.").
 
 I highly encourage reading this amazing article treating about [C# LINQ in detail](https://www.codeproject.com/Articles/383749/How-does-it-work-in-Csharp-Part-3-Csharp-LINQ-in-d "How does it work in C# ?") to better understand inner workings of LINQ ! \
 By the way, taking advantage of the occasion there are 3 books that every C#-oriented developer should have on his/her shelf... \
