@@ -6,7 +6,7 @@ This library is aimed to work in FCU or in the FrontEnd apps in general and will
 The parameters of methods of the same names like C#'s LINQ are exactly the same or as close as possible. \
 \
 My goal was to provide the exact functionality from LINQ in C# and transfer it stright into plain JavaScript from the user point of view. \
-JavaScript LINQ is the real thing since 2020-06-08 ! \
+JavaScript LINQ is the real thing since 2020-06-08 !
 
 If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to [Ms. Angelica Dąbrowska](https://github.com/C4B-Solutions/The-Family-Blog-Official/blob/master/family/posts/1.bio_of_Angelica.md#who-is-angelica- "Officially the PR manager of mine.").
 
