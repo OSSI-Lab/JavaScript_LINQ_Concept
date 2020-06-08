@@ -5,7 +5,10 @@
 This library is aimed to work in FCU or in the FrontEnd apps in general and will serve the same purpose as LINQ in C# ! \
 The parameters of methods of the same names like C#'s LINQ are exactly the same or as close as possible. \
 \
-My goal was to provide the exact functionality from LINQ in C# and transfer it stright into plain JavaScript from the user point of view. \
+My goal was to:
+ - provide the exact functionality from LINQ in C# and transfer it stright into plain JavaScript from the user point of view.
+ - chose the methods that I considered the JavaScript-logical ones
+
 JavaScript LINQ is the real thing since 2020-06-08 !
 
 If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to \
@@ -23,7 +26,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA&nbsp;[ --- ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;NO
 #
- - DPR #15:&nbsp;2020-06-08 &nbsp;&nbsp;12:11 PM Local Time &nbsp;:no_entry:&nbsp;:lock:
+ - DPR #15:&nbsp;2020-06-08 &nbsp;&nbsp;12:19 PM Local Time &nbsp;:no_entry:&nbsp;:lock:
     - features:
       - architecture [ DynamicAPI Layer ]
         - each new - not present yet in the flow chain - query method being invoked on API object is being built dynamically and on demand, aka on-the-fly
