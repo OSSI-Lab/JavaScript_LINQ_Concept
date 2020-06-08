@@ -33,7 +33,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - DynamicAPI Layer
         - Logical Operations Layer
         - Physical Operations Layer
- - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;5:18 PM Local Time &nbsp;( GA architecture - API Layer redesign v2 RC)
+ - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;5:18 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( GA architecture - API Layer redesign v2 RC)&nbsp;:heavy_check_mark:
     - features:
       - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints !
       - enabling defining new methods in a declarative way !
