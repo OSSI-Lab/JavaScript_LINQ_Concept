@@ -26,13 +26,13 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA&nbsp;[ --- ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;NO
 #
- - DPR #15:&nbsp;2020-06-08 &nbsp;&nbsp;12:19 PM Local Time &nbsp;:no_entry:&nbsp;:lock:
+ - DPR #15:&nbsp;2020-06-12 &nbsp;&nbsp;5:28 AM Local Time &nbsp;:no_entry:&nbsp;:lock:
     - features:
       - architecture [ DynamicAPI Layer ]
         - each new - not present yet in the flow chain - query method being invoked on API object is being built dynamically and on demand, aka on-the-fly
         - subsequent invocation of such already-invoked-method in the flow chain is retrieved directly from the API object
         - there are two levels of method cache - L1 & L2 - to boost the execution speed
-      - architecture levels
+      - 3-Tier architecture
         - DynamicAPI Layer
         - Logical Operations Layer
         - Physical Operations Layer
