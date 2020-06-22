@@ -24,9 +24,9 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ##
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV ]&nbsp;:heavy_check_mark:&nbsp; on explicit request by :family: :blush: &nbsp;:exclamation:
-## Streamlined:&nbsp;YES&nbsp;:sweat_drops:&nbsp: Tak proszę Pani - nie potrafię kłamać - Rodzina, zawsze rodzina !
+## Streamlined:&nbsp;YES &nbsp;:sweat_drops:&nbsp; Tak proszę Pani - nie potrafię kłamać - Rodzina, zawsze rodzina !
 #
- - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;8:04 AM Local Time &nbsp;:heavy_check_mark
+ - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;8:05 AM Local Time &nbsp;:heavy_check_mark
     - features:
       - architecture [ DynamicAPI Layer ]
         - each new - not present yet in the flow chain - query method being invoked on API object is being built dynamically and on demand, aka on-the-fly
