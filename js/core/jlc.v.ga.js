@@ -3720,7 +3720,7 @@
                         }
                         // apply LDF
                         else if(selectorArray.length === 1) {
-                            // current array item processed by UDF selector
+                            // current array item processed by LDF selector
                             var item;
                             // iterate over whole collection
                             for(var i = 0; i < currentColl.length; i++) {
@@ -3753,27 +3753,58 @@
                                 throw Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
 
                             // current array item processed by UDF selector
-                            var item;
+                            var item, ci, interimArr;
                             // iterate over whole collection
                             for(var i = 0; i < currentColl.length; i++) {
-                                // process current array item
-                                item = udfSelector(currentColl[i], incorporateIndex ? i : undefined);
+                                // declare array for this loop iteration
+                                interimArr = [];
 
-                                // store item in the array
-                                result.push(item);
+                                // access current item
+                                ci = currentColl[i];
+
+                                // process current array item
+                                item = udfSelector(ci, incorporateIndex ? i : undefined);
+                                interimArr.push(item);
+
+                                /**
+								 * If udfResultSelector is NOT NULL :
+                                 *  a) then just iterate over all array and apply UDF Result Selector to each item
+                                 *  b) otherwise just iterate over all array and flatten it
+                                */
+                                
+                                // a)
+                                if(udfResultSelector) {
+                                    // iterate over all array
+                                    for(var j = 0; j < interimArr.length; j++) {
+                                        // apply UDF Result Selector to each item
+                                        item = udfResultSelector(ci, interimArr[j]);
+
+                                        // store transformed item in the array
+                                        result.push(item);
+                                    }
+                                }
+                                // b)
+                                else {
+                                    // iterate over all array and flatten it
+                                    for(var j = 0; j < interimArr.length; j++)
+                                        // store item in the array
+                                        result.push(interimArr[j]);
+                                }
                             }
                         }
                         // apply LDF
                         else if(selectorArray.length === 1) {
-                            // current array item processed by UDF selector
+                            // current array item processed by LDF selector
                             var item;
                             // iterate over whole collection
                             for(var i = 0; i < currentColl.length; i++) {
                                 // process current array item
                                 item = ldfSelector_I_2L(currentColl[i], undefined, incorporateIndex ? i : undefined);
 
-                                // store item in the array
-                                result.push(item);
+                                // iterate over whole subcollection
+                                for(var j = 0; j < item.length; j++)
+                                        // store subitem in the array
+                                    result.push(item[j]);
                             }
                         }
 
@@ -3781,45 +3812,56 @@
                         return result;
                     }
 
-                    function ldfSelector_I_2L(item, item2, addIndex) {
+                    function ldfSelector_I_2L(item, item2, arrPosIdx) {
+                        // extract property
+                        var prop = extractTargetProp_I_3L(selectorArray[0]);
+
                         // declare values to be fetched from item(s)
-                        var prapVals = Object.create(null);
+                        var propVals = Object.create(null);
+
+                        // add optional position of item in the array
+                        propVals.arrayItemIndex = arrPosIdx;
 
                         // this case is bound to JOIN || LEFT JOIN only
                         if(item2) {
-                            prapVals.value = getPropValue_I_3L(item);
-                            prapVals.value2 = getPropValue_I_3L(item2);
+                            propVals.value = getPropValue_I_3L(item);
+                            propVals.value2 = getPropValue_I_3L(item2);
                         }
                         // this case is bound to SELECT || SELECT MANY only
                         else {
-                            prapVals.value = getPropValue_I_3L(item);
+                            propVals.value = getPropValue_I_3L(item);
                         }
 
-                        // return values
-                        return prapVals;
+                        // return an array
+                        return [propVals];
+
 
 
                         /**
                          * Local helper functions
                         */
-                        function getPropValue_I_3L(prop) {
-                            // determine whether prop is simple or complex
-                            if(prop.contains('.'))
-                                return extractFromComplex_I_4L();
-                            else return extractFromSimple_I_4L()
+                        function extractTargetProp_I_3L(prop) {
+                            // is it a complex property
+                            if(prop.contains('.')) {
+                                // convert prop path to array
+                                var prop_arr = prop.split('.');
 
+                                var destProp;
+                                // get to the target prop
+                                for(var i = 0; i < prop_arr.length - 1; i++)
+                                    destProp = prop_arr[i];
 
-
-                            /**
-                             * Local helper functions
-                            */
-                            function extractFromComplex_I_4L() {
-
+                                // return target prop
+                                return destProp;
                             }
+                            // or is it a current-level property
+                            else
+                             return prop;
+                        }
 
-                            function extractFromSimple_I_4L() {
-
-                            }
+                        function getPropValue_I_3L(obj) {
+                            // get property value
+                            return obj[prop];
                         }
                     }
                 }
