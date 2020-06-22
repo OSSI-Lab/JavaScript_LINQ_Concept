@@ -23,10 +23,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;GA&nbsp;[ --- ]&nbsp;:heavy_check_mark:
-## Streamlined:&nbsp;NO
+## Status:&nbsp;GA/DEV&nbsp;[ DEV ]&nbsp;:heavy_check_mark:&nbsp; on explicit request by :family: :blush: &nbsp;:exclamation:
+## Streamlined:&nbsp;YES&nbsp;:sweat_drops:
 #
- - DPR #15:&nbsp;2020-06-12 &nbsp;&nbsp;5:28 AM Local Time &nbsp;:no_entry:&nbsp;:lock:
+ - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;7:51 AM Local Time &nbsp;:heavy_check_mark
     - features:
       - architecture [ DynamicAPI Layer ]
         - each new - not present yet in the flow chain - query method being invoked on API object is being built dynamically and on demand, aka on-the-fly
@@ -92,7 +92,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 
  - DPR #1:&nbsp;2020-03-14 11:19 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
-## GA Version (available to download): 2020-12-06 Local Time &nbsp;:heavy_check_mark:
+## GA Version (available to download): 2020-12-06 || ASAP Local Time &nbsp;:heavy_check_mark:
 
 #
 ## Download&nbsp;:lock:
