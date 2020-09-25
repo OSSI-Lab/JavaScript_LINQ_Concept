@@ -25,7 +25,6 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV ]&nbsp;:heavy_check_mark:&nbsp; on explicit request by :family: :blush: &nbsp;:exclamation:
 ## Streamlined:&nbsp;YES
-### :sweat_drops:&nbsp; Tak proszę Pani - nie potrafię kłamać - Rodzina, zawsze rodzina !
 #
  - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;3:09 PM Local Time &nbsp;:heavy_check_mark:
     - features:
