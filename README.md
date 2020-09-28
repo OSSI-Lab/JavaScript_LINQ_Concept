@@ -25,9 +25,11 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #16:&nbsp;2020-09-28 &nbsp;&nbsp;3:39 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #16:&nbsp;2020-09-28 &nbsp;&nbsp;5:07 PM Local Time &nbsp;:heavy_check_mark:
     - features:
       - development of the following methods: select, selectMany, join, leftJoin
+    - methods left to be implemented before releasing RC version are :
+        - reverse, reverseExt, select, selectMany, join, leftJoin, intersect ?, union ?
  - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;3:09 PM Local Time &nbsp;:heavy_check_mark:
     - features:
       - architecture [ DynamicAPI Layer ]

@@ -2510,6 +2510,56 @@
                 );
             },
 
+        select_ops: /**
+         * @param {any} selectorArray
+         * @param {any} enumValue
+         * @param {any} udfSelector
+         * @param {any} udfResultSelector
+         * @param {any} incorporateIndex
+         */
+            // @ts-ignore
+            function ( params )
+            {
+                // invoke core logic
+                _PHYSICAL_FILTER.executeSelectFilter(
+                    this,
+                    params.selectorArray,
+                    params.enumValue,
+                    params.udfSelector,
+                    params.udfResultSelector,
+                    params.incorporateIndex
+                    );
+            },
+
+        join_ops: /**
+         * @param {any} innerColl
+         * @param {any} outerSelectorArray
+         * @param {any} outerUdfSelector
+         * @param {any} innerSelectorArray
+         * @param {any} innerUdfSelector
+         * @param {any} enumValue
+         * @param {any} udfResultSelector
+         * @param {any} udfEqualityComparer
+         * @param {any} strongUnmatch
+         */
+            // @ts-ignore
+            function ( params )
+            {
+                // invoke core logic
+                _PHYSICAL_FILTER.executeJoinFilter(
+                    this,
+                    params.innerColl,
+                    params.outerSelectorArray,
+                    params.outerUdfSelector,
+                    params.innerSelectorArray,
+                    params.innerUdfSelector,
+                    params.enumValue,
+                    params.udfResultSelector,
+                    params.udfEqualityComparer,
+                    params.strongUnmatch
+                    );
+            },
+
         skip_or_take: /**
          * @param {Object} params
          *  - count
@@ -3715,7 +3765,7 @@
                             // iterate over whole collection
                             for(var i = 0; i < currentColl.length; i++) {
                                 // process current array item
-                                item = ldfSelector_I_2L(currentColl[i], undefined, incorporateIndex ? i : undefined);
+                                item = ldfSelector_I_2L(currentColl[i], incorporateIndex ? i : undefined);
 
                                 // store item in the array
                                 result.push(item);
@@ -3787,7 +3837,7 @@
                             // iterate over whole collection
                             for(var i = 0; i < currentColl.length; i++) {
                                 // process current array item
-                                item = ldfSelector_I_2L(currentColl[i], undefined, incorporateIndex ? i : undefined);
+                                item = ldfSelector_I_2L(currentColl[i], incorporateIndex ? i : undefined);
 
                                 // iterate over whole subcollection
                                 for(var j = 0; j < item.length; j++)
@@ -3800,7 +3850,7 @@
                         return result;
                     }
 
-                    function ldfSelector_I_2L(item, item2, arrPosIdx) {
+                    function ldfSelector_I_2L(item, arrPosIdx) {
                         // extract property
                         var prop = extractTargetProp_I_3L(selectorArray[0]);
 
@@ -3810,15 +3860,8 @@
                         // add optional position of item in the array
                         propVals.arrayItemIndex = arrPosIdx;
 
-                        // this case is bound to JOIN || LEFT JOIN only
-                        if(item2) {
-                            propVals.value = getPropValue_I_3L(item);
-                            propVals.value2 = getPropValue_I_3L(item2);
-                        }
-                        // this case is bound to SELECT || SELECT MANY only
-                        else {
-                            propVals.value = getPropValue_I_3L(item);
-                        }
+                        // get the property value from the object in question
+                        propVals.value = getPropValue_I_3L(item);
 
                         // return an array
                         return [propVals];
@@ -4680,7 +4723,7 @@
          * 
          * For new query methods that require new _CORE methods you need to:
          *  - go to _CORE object and define appropriate core method
-         *  - follow the logic from there when defining all core methods requirements
+         *  - follow the logic from there when defining all core methods' requirements
         */
         udlm : {
             where : {
@@ -6372,6 +6415,30 @@
 
                 // method runs in the sorting context
                 is_sort_ctx: false
+            },
+
+            reverse : {
+
+            },
+
+            reverseExt : {
+
+            },
+
+            select : {
+
+            },
+
+            selectMany : {
+
+            },
+
+            join : {
+
+            },
+
+            leftJoin : {
+                
             },
 
             defaultIfEmpty : {
