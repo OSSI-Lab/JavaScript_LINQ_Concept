@@ -11,7 +11,8 @@ My goal was to:
 
 JavaScript LINQ is the real thing since 2020-06-08 !
 
-If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to me.
+If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to \
+[**Ms. Angelica Dąbrowska**](https://github.com/C4B-Solutions/The-Family-Blog-Official/blob/master/family/posts/1.bio_of_Angelica.md#who-is-angelica- "Officially the PR Manager of mine.").
 
 I highly encourage reading this amazing article treating about [C# LINQ in detail](https://www.codeproject.com/Articles/383749/How-does-it-work-in-Csharp-Part-3-Csharp-LINQ-in-d "How does it work in C# ?") to better understand inner workings of LINQ ! \
 By the way, taking advantage of the occasion there are 3 books that every C#-oriented developer should have on his/her shelf... \
@@ -22,9 +23,13 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;GA/DEV&nbsp;[ DEV ]&nbsp;:heavy_check_mark:
+## Status:&nbsp;GA/DEV&nbsp;[ DEV ]&nbsp;:heavy_check_mark:&nbsp; on explicit request by :family: :blush: &nbsp;:exclamation:
 ## Streamlined:&nbsp;YES
+### :sweat_drops:&nbsp; Tak proszę Pani - nie potrafię kłamać - Rodzina, zawsze rodzina !
 #
+ - DPR #16:&nbsp;2020-09-28 &nbsp;&nbsp;3:39 PM Local Time &nbsp;:heavy_check_mark:
+    - features:
+      - development of the following methods: select, selectMany, join, leftJoin
  - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;3:09 PM Local Time &nbsp;:heavy_check_mark:
     - features:
       - architecture [ DynamicAPI Layer ]

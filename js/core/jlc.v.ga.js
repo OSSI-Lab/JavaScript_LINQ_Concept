@@ -13,7 +13,10 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #15 -> 3-Tier Architecture [GA/DEV]
+ *      ⚠️ DPR #16 -> 3-Tier Architecture [GA/DEV]
+ *                      - changes in _PHYSICAL_FILTER object:
+ *                          1. modified executeSelectFilter method
+ *                          2. added executeJoinFilter method
  * 
  * 
  * 
@@ -3629,23 +3632,22 @@
                 }
             },
 
-        executeSelectJoinFilter: /**
+        executeSelectFilter: /**
          * @param {any} jlc
          * @param {any} selectorArray
-         * @param {any} strongUnmatch
          * @param {any} enumValue
          * @param {any} udfSelector
          * @param {any} incorporateIndex
          */
-            function (jlc, selectorArray, strongUnmatch, enumValue, udfSelector, udfResultSelector, incorporateIndex) {
-                return execute_SJF_I_1L( jlc, selectorArray, strongUnmatch, enumValue, udfSelector, udfResultSelector, incorporateIndex );
+            function (jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex) {
+                return execute_SF_I_1L( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function execute_SJF_I_1L( jlc, selectorArray, strongUnmatch, enumValue, udfSelector, udfResultSelector, incorporateIndex ) {
+                function execute_SF_I_1L( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex ) {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
 
@@ -3662,18 +3664,6 @@
                             case _ENUM.SELECT_MANY:
                                 // compute distinct collection
                                 currentColl = processSelectMany_I_2L(currentColl, selectorArray, udfSelector, udfResultSelector, incorporateIndex);
-
-                                break;
-        
-                            case _ENUM.JOIN:
-                                // compare two sequences (collections) and find those elements which are not present in second sequence
-                                currentColl = []; //
-
-                                break;
-
-                            case _ENUM.LEFT_JOIN:
-                                // compare two sequences (collections) and find those elements which are not present in second sequence
-                                currentColl = []; //
 
                                 break;
         
@@ -3785,10 +3775,8 @@
                                 }
                                 // b)
                                 else {
-                                    // iterate over all array and flatten it
-                                    for(var j = 0; j < interimArr.length; j++)
-                                        // store item in the array
-                                        result.push(interimArr[j]);
+                                    // just concat this interim array to the output array
+                                    result.concat(interimArr);
                                 }
                             }
                         }
@@ -3864,6 +3852,124 @@
                             return obj[prop];
                         }
                     }
+                }
+            },
+
+        executeJoinFilter: /**
+         * @param {any} jlc
+         * @param {any} innerColl
+         * @param {any} outerSelectorArray
+         * @param {any} outerUdfSelector
+         * @param {any} innerSelectorArray
+         * @param {any} innerUdfSelector
+         * @param {any} enumValue
+         * @param {any} udfResultSelector
+         * @param {any} udfEqualityComparer
+         * @param {any} strongUnmatch
+         */
+            function (jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch) {
+                return execute_JF_I_1L( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch );
+   
+   
+   
+                /**
+                 * Local helper functions
+                */
+                function execute_JF_I_1L( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch ) {
+                    // get contextually current collection within history array
+                    var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+   
+                       // if the sequence contains elements
+                       if ( currentColl.length )
+                       {
+                           switch(enumValue) {
+                               case _ENUM.JOIN:
+                                   // join two sequences (collections) based on keys present in both sequences
+                                   currentColl = processJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer );
+   
+                                   break;
+   
+                               case _ENUM.LEFT_JOIN:
+                                   // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
+                                   currentColl = processLeftJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch );
+   
+                                   break;
+           
+                               default:
+                                   throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                           }
+   
+                           // update HPID object to enable further data flow
+                           _ACTION.hpid.data = currentColl;
+                           if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                       }
+   
+   
+   
+                       /**
+                        * Local helper functions
+                       */
+   
+                       function processJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer) {
+                           
+                       }
+   
+                       function processLeftJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch) {
+                           
+                       }
+   
+                       function ldfSelector_I_2L(item, item2, arrPosIdx) {
+                           // extract property
+                           var prop = extractTargetProp_I_3L(selectorArray[0]);
+   
+                           // declare values to be fetched from item(s)
+                           var propVals = Object.create(null);
+   
+                           // add optional position of item in the array
+                           propVals.arrayItemIndex = arrPosIdx;
+   
+                           // this case is bound to JOIN || LEFT JOIN only
+                           if(item2) {
+                               propVals.value = getPropValue_I_3L(item);
+                               propVals.value2 = getPropValue_I_3L(item2);
+                           }
+                           // this case is bound to SELECT || SELECT MANY only
+                           else {
+                               propVals.value = getPropValue_I_3L(item);
+                           }
+   
+                           // return an array
+                           return [propVals];
+   
+   
+   
+                           /**
+                            * Local helper functions
+                           */
+                           function extractTargetProp_I_3L(prop) {
+                               // is it a complex property
+                               if(prop.contains('.')) {
+                                   // convert prop path to array
+                                   var prop_arr = prop.split('.');
+   
+                                   var destProp;
+                                   // get to the target prop
+                                   for(var i = 0; i < prop_arr.length - 1; i++)
+                                       destProp = prop_arr[i];
+   
+                                   // return target prop
+                                   return destProp;
+                               }
+                               // or is it a current-level property
+                               else
+                                return prop;
+                           }
+   
+                           function getPropValue_I_3L(obj) {
+                               // get property value
+                               return obj[prop];
+                           }
+                       }
                 }
             },
 
