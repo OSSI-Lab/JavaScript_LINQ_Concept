@@ -96,7 +96,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 
  - DPR #1:&nbsp;2020-03-14 11:19 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
-## GA Version (available to download): ASAP || 2020-12-06 Local Time &nbsp;:heavy_check_mark:
+## GA Version (available to download): ASAP Local Time &nbsp;:heavy_check_mark:
 
 #
 ## Download&nbsp;:lock:
