@@ -3956,7 +3956,6 @@
                     /**
                      * Local helper functions
                     */
-   
                     function handleJoinOrLeftJoinOperation_I_2L(isCollectionFixed) {
                         // if 'right-side' operand is not null
                         if(innerColl.length) {
@@ -3967,105 +3966,15 @@
                             if(!isCollectionFixed) {
                                 // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                                 if(outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                    var l_item;
-                                    // loop over 'left-side' collection to join it to to the 'right-side' one
-                                    for(var i = 0; i < currentColl.length; i++) {
-                                        // get current item from 'left-side' collection
-                                        l_item = currentColl[i];
-
-                                        // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
-                                        var lskv = outerUdfSelector(l_item, outerSelectorArray);
-
-                                        var r_item;
-                                        // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
-                                        for(var j = 0; j < innerColl.length; j++) {
-                                            // get current item from 'right-side' collection
-                                            r_item = innerColl[i];
-
-                                            // perform 'right-side' key lookup
-                                            var found = innerUdfSelector(r_item, innerSelectorArray, lskv);
-
-                                            // if 'right-side' key lookup found, go to create result object
-                                            if(found) break;
-                                        }
-
-                                        // create joined object if UDF Result Selector provided
-                                        if(udfResultSelector) {
-                                            result.push( udfResultSelector(l_item, r_item) );
-                                        }
-                                        // otherwise perfom default object merge operation 
-                                        else {
-                                            result.push( { ...l_item, ...r_item } );
-                                        }
-                                    }
+                                    executeJoinOperation_I_3L(outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray);
                                 }
                                 // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
                                 else if(outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector) {
-                                    var l_item;
-                                    // loop over 'left-side' collection to join it to to the 'right-side' one
-                                    for(var i = 0; i < currentColl.length; i++) {
-                                        // get current item from 'left-side' collection
-                                        l_item = currentColl[i];
-
-                                        // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
-                                        var lskv = outerUdfSelector(l_item, outerSelectorArray);
-
-                                        var r_item;
-                                        // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
-                                        for(var j = 0; j < innerColl.length; j++) {
-                                            // get current item from 'right-side' collection
-                                            r_item = innerColl[i];
-
-                                            // perform 'right-side' key lookup
-                                            var found = outerUdfSelector(r_item, outerSelectorArray, lskv);
-
-                                            // if 'right-side' key lookup found, go to create result object
-                                            if(found) break;
-                                        }
-
-                                        // create joined object if UDF Result Selector provided
-                                        if(udfResultSelector) {
-                                            result.push( udfResultSelector(l_item, r_item) );
-                                        }
-                                        // otherwise perfom default object merge operation 
-                                        else {
-                                            result.push( { ...l_item, ...r_item } );
-                                        }
-                                    }
+                                    executeJoinOperation_I_3L(outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray);
                                 }
                                 // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                                 else if(!outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                    var l_item;
-                                    // loop over 'left-side' collection to join it to to the 'right-side' one
-                                    for(var i = 0; i < currentColl.length; i++) {
-                                        // get current item from 'left-side' collection
-                                        l_item = currentColl[i];
-
-                                        // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
-                                        var lskv = innerUdfSelector(l_item, innerSelectorArray);
-
-                                        var r_item;
-                                        // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
-                                        for(var j = 0; j < innerColl.length; j++) {
-                                            // get current item from 'right-side' collection
-                                            r_item = innerColl[i];
-
-                                            // perform 'right-side' key lookup
-                                            var found = innerUdfSelector(r_item, innerSelectorArray, lskv);
-
-                                            // if 'right-side' key lookup found, go to create result object
-                                            if(found) break;
-                                        }
-
-                                        // create joined object if UDF Result Selector provided
-                                        if(udfResultSelector) {
-                                            result.push( udfResultSelector(l_item, r_item) );
-                                        }
-                                        // otherwise perfom default object merge operation 
-                                        else {
-                                            result.push( { ...l_item, ...r_item } );
-                                        }
-                                    }
+                                    executeJoinOperation_I_3L(innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray);
                                 }
                             }
                             // handle LEFT JOIN case
@@ -4079,6 +3988,45 @@
                         // in case 'right-side' operand being null just return the 'left-side' operand
                         else
                             return currentColl;
+                        
+                        
+                        
+                        /**
+                         * Local helper functions
+                        */
+                        function executeJoinOperation_I_3L(leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray) {
+                            var l_item;
+                            // loop over 'left-side' collection to join it to to the 'right-side' one
+                            for(var i = 0; i < currentColl.length; i++) {
+                                // get current item from 'left-side' collection
+                                l_item = currentColl[i];
+
+                                // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
+                                var lskv = leftSideUdfSelector(l_item, leftSideSelectorArray);
+
+                                var r_item;
+                                // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
+                                for(var j = 0; j < innerColl.length; j++) {
+                                    // get current item from 'right-side' collection
+                                    r_item = innerColl[i];
+
+                                    // perform 'right-side' key lookup
+                                    var found = rightSideUdfSelector(r_item, rightSideSelectorArray, lskv);
+
+                                    // if 'right-side' key lookup found, go to create result object
+                                    if(found) break;
+                                }
+
+                                // create joined object if UDF Result Selector provided
+                                if(udfResultSelector) {
+                                    result.push( udfResultSelector(l_item, r_item) );
+                                }
+                                // otherwise perfom default object merge operation 
+                                else {
+                                    result.push( { ...l_item, ...r_item } );
+                                }
+                            }
+                        }
                     }
 
                     function ldfSelector_I_2L(item, item2, arrPosIdx) {
