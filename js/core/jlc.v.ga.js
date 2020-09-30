@@ -3966,16 +3966,26 @@
                             if(!isCollectionFixed) {
                                 // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                                 if(outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                    executeJoinOperation_I_3L(outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray);
+                                    executeJoinOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray);
                                 }
                                 // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
                                 else if(outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector) {
-                                    executeJoinOperation_I_3L(outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray);
+                                    executeJoinOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray);
                                 }
                                 // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                                 else if(!outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                    executeJoinOperation_I_3L(innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray);
+                                    executeJoinOperation_UDF_I_3L(innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray);
                                 }
+                                // user provided only 'left-side' && 'right-side' metadata keys to perform JOIN operation
+                                else if(outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector) {
+                                    executeJoinOperation_LDF_I_3L(outerSelectorArray, innerSelectorArray);
+                                }
+                                // user provided only 'left-side' && 'right-side' metadata key extractors to perform JOIN operation
+                                else if(!outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector) {
+                                    executeJoinOperation_LDF_I_3L(outerUdfSelector, innerUdfSelector);
+                                }
+                                else
+                                    throw Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
                             }
                             // handle LEFT JOIN case
                             else {
@@ -3994,7 +4004,7 @@
                         /**
                          * Local helper functions
                         */
-                        function executeJoinOperation_I_3L(leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray) {
+                        function executeJoinOperation_UDF_I_3L(leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray) {
                             var l_item;
                             // loop over 'left-side' collection to join it to to the 'right-side' one
                             for(var i = 0; i < currentColl.length; i++) {
@@ -4015,6 +4025,7 @@
 
                                     // if 'right-side' key lookup found, go to create result object
                                     if(found) break;
+                                    else r_item = undefined;
                                 }
 
                                 // create joined object if UDF Result Selector provided
@@ -4025,6 +4036,17 @@
                                 else {
                                     result.push( { ...l_item, ...r_item } );
                                 }
+                            }
+                        }
+
+                        function executeJoinOperation_LDF_I_3L(leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf) {
+                            // deal with metadata key extractors
+                            if(typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function') {
+
+                            }
+                            // deal with metadata keys
+                            else {
+
                             }
                         }
                     }
