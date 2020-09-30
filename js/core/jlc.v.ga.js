@@ -3918,50 +3918,170 @@
                 /**
                  * Local helper functions
                 */
-                function execute_JF_I_1L( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch ) {
+                function execute_JF_I_1L(
+                                            jlc,
+                                            innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector,
+                                            enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch
+                                        ) {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
    
-                       // if the sequence contains elements
-                       if ( currentColl.length )
-                       {
-                           switch(enumValue) {
-                               case _ENUM.JOIN:
-                                   // join two sequences (collections) based on keys present in both sequences
-                                   currentColl = processJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer );
+                    // if the sequence contains elements
+                    if ( currentColl.length )
+                    {
+                        switch(enumValue) {
+                            case _ENUM.JOIN:
+                                // join two sequences (collections) based on keys present in both sequences
+                                currentColl = handleJoinOrLeftJoinOperation_I_2L(false);
    
-                                   break;
+                                break;
    
-                               case _ENUM.LEFT_JOIN:
-                                   // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
-                                   currentColl = processLeftJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch );
+                            case _ENUM.LEFT_JOIN:
+                                // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
+                                currentColl = handleJoinOrLeftJoinOperation_I_2L(true);
    
-                                   break;
+                                break;
            
-                               default:
-                                   throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
-                           }
+                            default:
+                                throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                        }
    
-                           // update HPID object to enable further data flow
-                           _ACTION.hpid.data = currentColl;
-                           if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
-                       }
+                        // update HPID object to enable further data flow
+                        _ACTION.hpid.data = currentColl;
+                        if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                    }
    
    
    
-                       /**
-                        * Local helper functions
-                       */
+                    /**
+                     * Local helper functions
+                    */
    
-                       function processJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer) {
-                           
-                       }
-   
-                       function processLeftJoin_I_2L(innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch) {
-                           
-                       }
-   
-                       function ldfSelector_I_2L(item, item2, arrPosIdx) {
+                    function handleJoinOrLeftJoinOperation_I_2L(isCollectionFixed) {
+                        // if 'right-side' operand is not null
+                        if(innerColl.length) {
+                            // declare output array
+                            var result = [];
+
+                            // handle JOIN case
+                            if(!isCollectionFixed) {
+                                // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
+                                if(outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector) {
+                                    var l_item;
+                                    // loop over 'left-side' collection to join it to to the 'right-side' one
+                                    for(var i = 0; i < currentColl.length; i++) {
+                                        // get current item from 'left-side' collection
+                                        l_item = currentColl[i];
+
+                                        // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
+                                        var lskv = outerUdfSelector(l_item, outerSelectorArray);
+
+                                        var r_item;
+                                        // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
+                                        for(var j = 0; j < innerColl.length; j++) {
+                                            // get current item from 'right-side' collection
+                                            r_item = innerColl[i];
+
+                                            // perform 'right-side' key lookup
+                                            var found = innerUdfSelector(r_item, innerSelectorArray, lskv);
+
+                                            // if 'right-side' key lookup found, go to create result object
+                                            if(found) break;
+                                        }
+
+                                        // create joined object if UDF Result Selector provided
+                                        if(udfResultSelector) {
+                                            result.push( udfResultSelector(l_item, r_item) );
+                                        }
+                                        // otherwise perfom default object merge operation 
+                                        else {
+                                            result.push( { ...l_item, ...r_item } );
+                                        }
+                                    }
+                                }
+                                // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
+                                else if(outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector) {
+                                    var l_item;
+                                    // loop over 'left-side' collection to join it to to the 'right-side' one
+                                    for(var i = 0; i < currentColl.length; i++) {
+                                        // get current item from 'left-side' collection
+                                        l_item = currentColl[i];
+
+                                        // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
+                                        var lskv = outerUdfSelector(l_item, outerSelectorArray);
+
+                                        var r_item;
+                                        // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
+                                        for(var j = 0; j < innerColl.length; j++) {
+                                            // get current item from 'right-side' collection
+                                            r_item = innerColl[i];
+
+                                            // perform 'right-side' key lookup
+                                            var found = outerUdfSelector(r_item, outerSelectorArray, lskv);
+
+                                            // if 'right-side' key lookup found, go to create result object
+                                            if(found) break;
+                                        }
+
+                                        // create joined object if UDF Result Selector provided
+                                        if(udfResultSelector) {
+                                            result.push( udfResultSelector(l_item, r_item) );
+                                        }
+                                        // otherwise perfom default object merge operation 
+                                        else {
+                                            result.push( { ...l_item, ...r_item } );
+                                        }
+                                    }
+                                }
+                                // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
+                                else if(!outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector) {
+                                    var l_item;
+                                    // loop over 'left-side' collection to join it to to the 'right-side' one
+                                    for(var i = 0; i < currentColl.length; i++) {
+                                        // get current item from 'left-side' collection
+                                        l_item = currentColl[i];
+
+                                        // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
+                                        var lskv = innerUdfSelector(l_item, innerSelectorArray);
+
+                                        var r_item;
+                                        // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
+                                        for(var j = 0; j < innerColl.length; j++) {
+                                            // get current item from 'right-side' collection
+                                            r_item = innerColl[i];
+
+                                            // perform 'right-side' key lookup
+                                            var found = innerUdfSelector(r_item, innerSelectorArray, lskv);
+
+                                            // if 'right-side' key lookup found, go to create result object
+                                            if(found) break;
+                                        }
+
+                                        // create joined object if UDF Result Selector provided
+                                        if(udfResultSelector) {
+                                            result.push( udfResultSelector(l_item, r_item) );
+                                        }
+                                        // otherwise perfom default object merge operation 
+                                        else {
+                                            result.push( { ...l_item, ...r_item } );
+                                        }
+                                    }
+                                }
+                            }
+                            // handle LEFT JOIN case
+                            else {
+
+                            }
+
+                            // return result
+                            return result;
+                        }
+                        // in case 'right-side' operand being null just return the 'left-side' operand
+                        else
+                            return currentColl;
+                    }
+
+                    function ldfSelector_I_2L(item, item2, arrPosIdx) {
                            // extract property
                            var prop = extractTargetProp_I_3L(selectorArray[0]);
    
@@ -4012,7 +4132,7 @@
                                // get property value
                                return obj[prop];
                            }
-                       }
+                    }
                 }
             },
 
