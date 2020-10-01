@@ -22,9 +22,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;GA/DEV&nbsp;[ DEV ]&nbsp;:heavy_check_mark:
+## Status:&nbsp;GA/DEV&nbsp;[ DEV out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - DPR #18:&nbsp;2020-10-01 &nbsp;&nbsp;9:48 PM Local Time &nbsp;:heavy_check_mark:
+    - features (what has changed since DPR #17):
+      - development of the following methods: join, leftJoin
  - DPR #17:&nbsp;2020-09-30 &nbsp;&nbsp;7:45 AM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #16):
       - development of the following methods: join, leftJoin
