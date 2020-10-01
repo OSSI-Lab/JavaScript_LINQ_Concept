@@ -3908,10 +3908,9 @@
          * @param {any} enumValue
          * @param {any} udfResultSelector
          * @param {any} udfEqualityComparer
-         * @param {any} strongUnmatch
          */
-            function (jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch) {
-                return execute_JF_I_1L( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch );
+            function (jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer) {
+                return execute_JF_I_1L( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer );
    
    
    
@@ -3921,7 +3920,7 @@
                 function execute_JF_I_1L(
                                             jlc,
                                             innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector,
-                                            enumValue, udfResultSelector, udfEqualityComparer, strongUnmatch
+                                            enumValue, udfResultSelector, udfEqualityComparer
                                         ) {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
@@ -3962,35 +3961,28 @@
                             // declare output array
                             var result = [];
 
-                            // handle JOIN case
-                            if(!isCollectionFixed) {
-                                // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
-                                if(outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                    executeJoinOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray);
-                                }
-                                // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
-                                else if(outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector) {
-                                    executeJoinOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray);
-                                }
-                                // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
-                                else if(!outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                    executeJoinOperation_UDF_I_3L(innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray);
-                                }
-                                // user provided only 'left-side' && 'right-side' metadata keys to perform JOIN operation
-                                else if(outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector) {
-                                    executeJoinOperation_LDF_I_3L(outerSelectorArray, innerSelectorArray);
-                                }
-                                // user provided only 'left-side' && 'right-side' metadata key extractors to perform JOIN operation
-                                else if(!outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector) {
-                                    executeJoinOperation_LDF_I_3L(outerUdfSelector, innerUdfSelector);
-                                }
-                                else
-                                    throw Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
+                            // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
+                            if(outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector) {
+                                executeOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray);
                             }
-                            // handle LEFT JOIN case
-                            else {
-
+                            // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
+                            else if(outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector) {
+                                executeOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray);
                             }
+                            // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
+                            else if(!outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector) {
+                                executeOperation_UDF_I_3L(innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray);
+                            }
+                            // user provided only 'left-side' && 'right-side' keys to perform JOIN operation
+                            else if(outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector) {
+                                executeJoinOperation_LDF_I_3L(outerSelectorArray, innerSelectorArray);
+                            }
+                            // user provided only 'left-side' && 'right-side' key extractors to perform JOIN operation
+                            else if(!outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector) {
+                                executeJoinOperation_LDF_I_3L(outerUdfSelector, innerUdfSelector);
+                            }
+                            else
+                                throw Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
 
                             // return result
                             return result;
@@ -4004,7 +3996,7 @@
                         /**
                          * Local helper functions
                         */
-                        function executeJoinOperation_UDF_I_3L(leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray) {
+                        function executeOperation_UDF_I_3L(leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray) {
                             var l_item;
                             // loop over 'left-side' collection to join it to to the 'right-side' one
                             for(var i = 0; i < currentColl.length; i++) {
@@ -4028,6 +4020,11 @@
                                     else r_item = undefined;
                                 }
 
+                                // check for 'LEFT JOIN' case
+                                if(isCollectionFixed && !r_item) {
+                                    r_item = assignDefaultValues_I_4L(l_item, leftSideSelectorArray, rightSideSelectorArray);
+                                }
+
                                 // create joined object if UDF Result Selector provided
                                 if(udfResultSelector) {
                                     result.push( udfResultSelector(l_item, r_item) );
@@ -4037,71 +4034,61 @@
                                     result.push( { ...l_item, ...r_item } );
                                 }
                             }
+
+
+
+                            /**
+                             * Local helper functions
+                            */
+                            function assignDefaultValues_I_4L(sourceItem, sourceItemPropArray, outputItemPropArray) {
+                                // check if props match in corresponding objects
+                                if(sourceItemPropArray.length !== outputItemPropArray.length)
+                                    throw Error( '\r\nInvalid number of keys in either "left-side" or "right-side" array !\r\n\r\n' );
+
+                                // create output object
+                                var outputItem = Object.create(null);
+
+                                var default_value;
+                                // loop over object props to discover defaults
+                                for(var i = 0; i < sourceItemPropArray.length; i++) {
+                                    // determine default value for current object prop
+                                    default_value = _COMMON.getDefaultValueOf(sourceItem[sourceItemPropArray[i]]);
+
+                                    // store this value in output object under "the proper" prop taken from the output object array of props
+                                    outputItem[outputItemPropArray[i]] = default_value;
+                                }
+
+                                // return output object
+                                return outputItem;
+                            }
                         }
 
                         function executeJoinOperation_LDF_I_3L(leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf) {
-                            // deal with metadata key extractors
+                            // deal with keys extractors
                             if(typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function') {
+                                var joinedObj, l_obj, r_obj;
+                                // loop over 'left-side' and 'right-side' collections
+                                for(var i = 0; i < currentColl.length; i++) {
+                                    // get the 'left-side' partial object
+                                    l_obj = leftSideSelectorArrayOrUdf(currentColl[i]);
 
+                                    // get the 'right-side' partial object
+                                    r_obj = rightSideSelectorArrayOrUdf(innerColl[i]);
+
+                                    // 
+
+                                    // create joined object
+                                    joinedObj = { ...l_obj, ...r_obj };
+
+                                    // store joined object in the final output array
+                                    result.push(joinedObj);
+                                }
                             }
-                            // deal with metadata keys
+                            // deal with keys
                             else {
-
+                                
                             }
                         }
-                    }
-
-                    function ldfSelector_I_2L(item, item2, arrPosIdx) {
-                           // extract property
-                           var prop = extractTargetProp_I_3L(selectorArray[0]);
-   
-                           // declare values to be fetched from item(s)
-                           var propVals = Object.create(null);
-   
-                           // add optional position of item in the array
-                           propVals.arrayItemIndex = arrPosIdx;
-   
-                           // this case is bound to JOIN || LEFT JOIN only
-                           if(item2) {
-                               propVals.value = getPropValue_I_3L(item);
-                               propVals.value2 = getPropValue_I_3L(item2);
-                           }
-                           // this case is bound to SELECT || SELECT MANY only
-                           else {
-                               propVals.value = getPropValue_I_3L(item);
-                           }
-   
-                           // return an array
-                           return [propVals];
-   
-   
-   
-                           /**
-                            * Local helper functions
-                           */
-                           function extractTargetProp_I_3L(prop) {
-                               // is it a complex property
-                               if(prop.contains('.')) {
-                                   // convert prop path to array
-                                   var prop_arr = prop.split('.');
-   
-                                   var destProp;
-                                   // get to the target prop
-                                   for(var i = 0; i < prop_arr.length - 1; i++)
-                                       destProp = prop_arr[i];
-   
-                                   // return target prop
-                                   return destProp;
-                               }
-                               // or is it a current-level property
-                               else
-                                return prop;
-                           }
-   
-                           function getPropValue_I_3L(obj) {
-                               // get property value
-                               return obj[prop];
-                           }
                     }
                 }
             },
