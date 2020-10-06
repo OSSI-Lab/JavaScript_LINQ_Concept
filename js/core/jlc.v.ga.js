@@ -2371,6 +2371,49 @@
             }
     };
 
+    // private extension object
+    var _EXTENSION = {
+        array_equals: /**
+         * To compare arrays of primitive values, loop through them and compare every value.
+         *
+         * Source: https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+         */
+           function ()
+           {
+                // warn if overriding existing method
+                if(Array.prototype.equals)
+                    console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+                
+                // attach the .equals method to Array's prototype to call it on any array
+                Array.prototype.equals = function (array) {
+                    // if the other array is a falsy value, return
+                    if (!array)
+                        return false;
+
+                    // compare lengths - can save a lot of time 
+                    if (this.length != array.length)
+                        return false;
+
+                    for (var i = 0, l=this.length; i < l; i++) {
+                        // check if we have nested arrays
+                        if (this[i] instanceof Array && array[i] instanceof Array) {
+                            // recurse into the nested arrays
+                            if (!this[i].equals(array[i]))
+                                return false;       
+                        }           
+                        else if (this[i] != array[i]) { 
+                            // warning - two different object instances will never be equal: {x:20} != {x:20}
+                            return false;   
+                        }           
+                    }
+
+                    return true;
+                }
+                // hide method from for-in loops
+                Object.defineProperty(Array.prototype, "equals", {enumerable: false});
+           }
+    };
+
 
 
     // private core object
@@ -3975,11 +4018,11 @@
                             }
                             // user provided only 'left-side' && 'right-side' keys to perform JOIN operation
                             else if(outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector) {
-                                executeJoinOperation_LDF_I_3L(outerSelectorArray, innerSelectorArray);
+                                executeOperation_LDF_I_3L(outerSelectorArray, innerSelectorArray);
                             }
                             // user provided only 'left-side' && 'right-side' key extractors to perform JOIN operation
                             else if(!outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector) {
-                                executeJoinOperation_LDF_I_3L(outerUdfSelector, innerUdfSelector);
+                                executeOperation_LDF_I_3L(outerUdfSelector, innerUdfSelector);
                             }
                             else
                                 throw Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
@@ -4017,12 +4060,13 @@
 
                                     // if 'right-side' key lookup found, go to create result object
                                     if(found) break;
+                                    // otherwise mark that 'left-side' item has no match in the 'right-side' collection
                                     else r_item = undefined;
                                 }
 
                                 // check for 'LEFT JOIN' case
                                 if(isCollectionFixed && !r_item) {
-                                    r_item = assignDefaultValues_I_4L(l_item, leftSideSelectorArray, rightSideSelectorArray);
+                                    r_item = assignDefaultValues_I_3L(l_item, leftSideSelectorArray, rightSideSelectorArray);
                                 }
 
                                 // create joined object if UDF Result Selector provided
@@ -4034,60 +4078,180 @@
                                     result.push( { ...l_item, ...r_item } );
                                 }
                             }
-
-
-
-                            /**
-                             * Local helper functions
-                            */
-                            function assignDefaultValues_I_4L(sourceItem, sourceItemPropArray, outputItemPropArray) {
-                                // check if props match in corresponding objects
-                                if(sourceItemPropArray.length !== outputItemPropArray.length)
-                                    throw Error( '\r\nInvalid number of keys in either "left-side" or "right-side" array !\r\n\r\n' );
-
-                                // create output object
-                                var outputItem = Object.create(null);
-
-                                var default_value;
-                                // loop over object props to discover defaults
-                                for(var i = 0; i < sourceItemPropArray.length; i++) {
-                                    // determine default value for current object prop
-                                    default_value = _COMMON.getDefaultValueOf(sourceItem[sourceItemPropArray[i]]);
-
-                                    // store this value in output object under "the proper" prop taken from the output object array of props
-                                    outputItem[outputItemPropArray[i]] = default_value;
-                                }
-
-                                // return output object
-                                return outputItem;
-                            }
                         }
 
-                        function executeJoinOperation_LDF_I_3L(leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf) {
+                        function executeOperation_LDF_I_3L(leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf) {
                             // deal with keys extractors
                             if(typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function') {
-                                var joinedObj, l_obj, r_obj;
-                                // loop over 'left-side' and 'right-side' collections
+                                // if user failed to provide equality UDF 
+                                if(!udfEqualityComparer)
+                                    throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" key extractors only, you need to provide equality UDF !\r\n\r\n' );
+
+                                var l_obj, r_obj, isJoin;
+                                // loop over 'left-side' collection
                                 for(var i = 0; i < currentColl.length; i++) {
                                     // get the 'left-side' partial object
                                     l_obj = leftSideSelectorArrayOrUdf(currentColl[i]);
 
-                                    // get the 'right-side' partial object
-                                    r_obj = rightSideSelectorArrayOrUdf(innerColl[i]);
+                                    // unmark joined object
+                                    isJoin = false;
 
-                                    // 
+                                    // loop over 'right-side' collection
+                                    for(var i = 0; i < innerColl.length; i++) {
+                                        // get the 'right-side' partial object
+                                        r_obj = rightSideSelectorArrayOrUdf(innerColl[i]);
 
-                                    // create joined object
-                                    joinedObj = { ...l_obj, ...r_obj };
+                                        // if equality UDF provided and objects match given the key 
+                                        if(udfEqualityComparer(l_obj, r_obj)) {
+                                            // store joined object in the final output array
+                                            result.push({ ...l_obj, ...r_obj });
 
-                                    // store joined object in the final output array
-                                    result.push(joinedObj);
+                                            // mark joined object
+                                            isJoin = true;
+                                            // break the 'right-side' collection loop
+                                            break;
+                                        }
+                                    }
+
+                                    // check for 'LEFT JOIN' case
+                                    if(isCollectionFixed && !isJoin) {
+                                        // get the object keys
+                                        var keys = Object.getOwnPropertyNames(l_obj);
+
+                                        // assign default values
+                                        r_obj = assignDefaultValues_I_3L(l_obj, keys, keys);
+
+                                        // store joined object in the final output array
+                                        result.push({ ...l_obj, ...r_obj });
+                                    }
                                 }
                             }
                             // deal with keys
                             else {
-                                
+                                var l_obj, r_obj, isJoin;
+                                // loop over 'left-side' collection
+                                for(var i = 0; i < currentColl.length; i++) {
+                                    // get the 'left-side' partial object
+                                    l_obj = currentColl[i];
+
+                                    // unmark joined object
+                                    isJoin = false;
+
+                                    // loop over 'right-side' collection
+                                    for(var i = 0; i < innerColl.length; i++) {
+                                        // get the 'right-side' partial object
+                                        r_obj = innerColl[i];
+
+                                        // if objects match given the key 
+                                        if(ldfEqualityComparer_I_4L(l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf)) {
+                                            // store joined object in the final output array
+                                            result.push({ ...l_obj, ...r_obj });
+
+                                            // mark joined object
+                                            isJoin = true;
+                                            // break the 'right-side' collection loop
+                                            break;
+                                        }
+                                    }
+
+                                    // check for 'LEFT JOIN' case
+                                    if(isCollectionFixed && !isJoin) {
+                                        // get the object keys
+                                        var keys = Object.getOwnPropertyNames(l_obj);
+
+                                        // assign default values
+                                        r_obj = assignDefaultValues_I_3L(l_obj, keys, keys);
+
+                                        // store joined object in the final output array
+                                        result.push({ ...l_obj, ...r_obj });
+                                    }
+                                }
                             }
+                        
+                        
+                        
+                            /**
+                             * Local helper functions
+                            */
+                            function ldfEqualityComparer_I_4L(left_obj, right_obj, left_key_arr, right_key_arr) {
+                                // is match
+                                var isMatch = false;
+
+                                // both arrays has to have matching keys
+                                if(left_key_arr.length !== right_key_arr.length)
+                                    throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" keys only, both arrays has to have matching keys !\r\n\r\n' );
+
+                                // arrays of key values from both objects
+                                var left_key_value_arr = [], right_key_value_arr = []; 
+                            
+                                // loop over 'left-side' and 'right-side' keys
+                                for(var k = 0; k < left_key_arr.length; k++) {
+                                    // get key value from 'left-side' object
+                                    left_key_value_arr.push(getObjectValue_I_5L(left_key_arr[i], left_obj));
+
+                                    // get key value from 'right-side' object
+                                    right_key_value_arr.push(getObjectValue_I_5L(right_key_arr[i], right_obj));
+                                }
+
+                                /**
+                                 * Compare two array - use custom extension method called Array.equals.
+                                 * See object called _EXTENSION in this library.
+                                 *
+                                */
+                                // check if there is a 'join' condition met by comparing two arrays
+                                isMatch = left_key_value_arr.equals(right_key_value_arr) === true;
+
+                                // just return object value
+                                return isMatch;
+
+
+
+                                /**
+                                 * Local helper functions 
+                                */
+                                function getObjectValue_I_5L(propName, obj) {
+                                    // value from object based on given property name, aka key
+                                    var value;
+
+                                    // is it a complex property
+                                    if(propName.contains('.')) {
+                                        // convert prop path to array
+                                        var prop_arr = propName.split('.');
+
+                                        // get to the target prop
+                                        for(var i = 0; i < prop_arr.length; i++)
+                                            value = value ? value[prop_arr[i]] : obj[prop_arr[i]];
+                                    }
+                                    // or is it a current-level property
+                                    else
+                                        value = obj[propName];
+
+                                    // return value
+                                    return value;
+                                }
+                            }
+                        }
+
+                        function assignDefaultValues_I_3L(sourceItem, sourceItemPropArray, outputItemPropArray) {
+                            // check if props match in corresponding objects
+                            if(sourceItemPropArray.length !== outputItemPropArray.length)
+                                throw Error( '\r\nInvalid number of keys in either "left-side" or "right-side" array !\r\n\r\n' );
+
+                            // create output object
+                            var outputItem = Object.create(null);
+
+                            var default_value;
+                            // loop over object props to discover defaults
+                            for(var i = 0; i < sourceItemPropArray.length; i++) {
+                                // determine default value for current object prop
+                                default_value = _COMMON.getDefaultValueOf(sourceItem[sourceItemPropArray[i]]);
+
+                                // store this value in output object under "the proper" prop taken from the output object array of props
+                                outputItem[outputItemPropArray[i]] = default_value;
+                            }
+
+                            // return output object
+                            return outputItem;
                         }
                     }
                 }
@@ -8115,6 +8279,9 @@
                     // initialize LINQ
                     init_LINQ_I_2L();
 
+                    // enable custom polyfills, aka extensions
+                    enableExtensions_I_2L();
+
 
 
                     /**
@@ -8183,6 +8350,16 @@
                                 Object.setPrototypeOf( Array.prototype, proto );
                             }
                         };
+                    }
+
+                    function enableExtensions_I_2L() {
+                        // get all extensions' keys
+                        var ext_key_arr = Object.getOwnPropertyNames(_EXTENSION);
+
+                        // loop over all extensions one by one
+                        for(var i = 0; i < ext_key_arr.length; i++)
+                            // enable this extension
+                            _EXTENSION[ext_key_arr[i]]();
                     }
                 }
             },
