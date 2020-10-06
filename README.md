@@ -25,7 +25,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #19:&nbsp;2020-10-06 &nbsp;&nbsp;8:37 AM Local Time &nbsp;:heavy_check_mark:
+ - DPR #19:&nbsp;2020-10-06 &nbsp;&nbsp;4:00 PM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #18):
       - development of the following methods: join, leftJoin -> to be tested !
  - DPR #18:&nbsp;2020-10-01 &nbsp;&nbsp;9:48 PM Local Time &nbsp;:heavy_check_mark:

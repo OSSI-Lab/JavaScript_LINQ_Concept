@@ -13,10 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #16 -> 3-Tier Architecture [GA/DEV]
- *                      - changes in _PHYSICAL_FILTER object:
- *                          1. modified executeSelectFilter method
- *                          2. added executeJoinFilter method
+ *      ⚠️ DPR #19 -> 3-Tier Architecture [GA/DEV] -> DEV / DEV|TEST|RELEASE
  * 
  * 
  * 
@@ -83,7 +80,7 @@
                 THEN_DESC: "then_desc"
             }
         },
-        // COLLECTION INPUT TYPE
+        // collection input type
         CIT: {
             PRIMITIVE: "primitive_type",
             PLAIN: "plain_object",
@@ -674,7 +671,7 @@
                      * name : name of the function to access
                      * key : 'predicateArray', 'collectionItem', 'count', etc.
                      * value : primitive value || UDF (user-defined function)
-                     * param_args : additional parameters to pass to UDF 
+                     * param_args : additional parameters to pass to UDF
                     */
 
                     defineCustomCheckMethod_I_1L(name, key, value, param_args);
@@ -696,7 +693,7 @@
                                         throw Error( '\r\nYou have to provide a function that will deliver custom syntax checking !\r\n\r\n' );
                                         
                                     // return a UDF to check custom syntax
-                                    return value.bind(null, user_filter_key, ...param_args)(); 
+                                    return value.bind(null, user_filter_key, ...param_args)();
                                 }
                             }
                         );
@@ -963,6 +960,7 @@
                         _present: false,
 
                         check:/**
+                         * Determine whether 1st level sorting took place
                         */
                             function ()
                             {
@@ -1008,6 +1006,9 @@
                         _metadataKVP: undefined,
 
                         getMetadata:/**
+                             * Get sorting metadata object for the current executing action
+                             * and all available contextual data from the query flow.
+                             * Applies for type KVP only !
                             */
                             function ()
                             {
@@ -1048,19 +1049,22 @@
                 {
                     // create second-level sorting context object
                     var sl_ctx = {
-                        // force second-level sorting
+                        // is second-level sorting forced
                         _force: false,
                         // columns used to perform second-level sorting only
                         ovc: [],
 
-                        /**
+                        check: /**
+                         * Force second-level sorting to take place
                         */
-                        check: function ()
-                        {
-                            return this._force;
-                        },
+                            function ()
+                            {
+                                return this._force;
+                            },
 
                         force: /**
+                         * Force second-level sorting to take place
+                         *
                          * @param {boolean} flag
                          * @param {any} caco
                         */
@@ -1076,7 +1080,7 @@
 
                 // reset all so-far used sorting
                 /**
-                * @param {any} sharedSecondLevelSortingContext
+                * @param {any} sharedSecondLevelSortingContext Shared sorting context of the 2nd level
                 */
                 clear: function ( sharedSecondLevelSortingContext )
                 {
@@ -1115,17 +1119,8 @@
             }
         },
 
-        create:/**
+        create: /**
          * Create action that represents filtering logic for given Linq's method.
-         * @param {{
-            coll_index: any;
-            root_token: any;
-            parent: any;
-        }} jlc_instance_ctx
-         * @param {() => any} core_method_bind
-         * @param {string | number} context
-         * @param {any} constraint_def
-         * @param {any} to_execute
          */
             function ( jlc_instance_ctx, core_method_bind, context, constraint_def, to_execute )
             {
@@ -1380,7 +1375,6 @@
 
         executeChain: /**
          * Execute all actions in the chain.
-         * @param {any} jlc_ctx
          */
             function ( jlc_ctx )
             {
@@ -3975,13 +3969,11 @@
                             case _ENUM.JOIN:
                                 // join two sequences (collections) based on keys present in both sequences
                                 currentColl = handleJoinOrLeftJoinOperation_I_2L(false);
-   
                                 break;
    
                             case _ENUM.LEFT_JOIN:
                                 // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
                                 currentColl = handleJoinOrLeftJoinOperation_I_2L(true);
-   
                                 break;
            
                             default:
@@ -4040,41 +4032,44 @@
                          * Local helper functions
                         */
                         function executeOperation_UDF_I_3L(leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray) {
-                            var l_item;
-                            // loop over 'left-side' collection to join it to to the 'right-side' one
+                            var l_item, lskv;
+                            // loop over 'left-side' collection to join it to the 'right-side' one
                             for(var i = 0; i < currentColl.length; i++) {
                                 // get current item from 'left-side' collection
                                 l_item = currentColl[i];
 
                                 // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
-                                var lskv = leftSideUdfSelector(l_item, leftSideSelectorArray);
+                                lskv = leftSideUdfSelector(l_item, leftSideSelectorArray);
 
-                                var r_item;
+                                var r_item, isJoin;
                                 // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
                                 for(var j = 0; j < innerColl.length; j++) {
                                     // get current item from 'right-side' collection
                                     r_item = innerColl[i];
 
                                     // perform 'right-side' key lookup
-                                    var found = rightSideUdfSelector(r_item, rightSideSelectorArray, lskv);
+                                    isJoin = rightSideUdfSelector(r_item, rightSideSelectorArray, lskv);
 
                                     // if 'right-side' key lookup found, go to create result object
-                                    if(found) break;
+                                    if(isJoin) break;
                                     // otherwise mark that 'left-side' item has no match in the 'right-side' collection
                                     else r_item = undefined;
                                 }
 
                                 // check for 'LEFT JOIN' case
                                 if(isCollectionFixed && !r_item) {
+                                    // discover default values for the 'right-side' collection object given current 'left-side' collection object
                                     r_item = assignDefaultValues_I_3L(l_item, leftSideSelectorArray, rightSideSelectorArray);
                                 }
 
                                 // create joined object if UDF Result Selector provided
                                 if(udfResultSelector) {
+                                    // store joined object in the output array
                                     result.push( udfResultSelector(l_item, r_item) );
                                 }
-                                // otherwise perfom default object merge operation 
+                                // otherwise perfom default object merge operation
                                 else {
+                                    // store merged object in the output array
                                     result.push( { ...l_item, ...r_item } );
                                 }
                             }
@@ -4083,7 +4078,7 @@
                         function executeOperation_LDF_I_3L(leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf) {
                             // deal with keys extractors
                             if(typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function') {
-                                // if user failed to provide equality UDF 
+                                // if user failed to provide equality UDF
                                 if(!udfEqualityComparer)
                                     throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" key extractors only, you need to provide equality UDF !\r\n\r\n' );
 
@@ -4101,13 +4096,14 @@
                                         // get the 'right-side' partial object
                                         r_obj = rightSideSelectorArrayOrUdf(innerColl[i]);
 
-                                        // if equality UDF provided and objects match given the key 
+                                        // if objects match given the key
                                         if(udfEqualityComparer(l_obj, r_obj)) {
                                             // store joined object in the final output array
                                             result.push({ ...l_obj, ...r_obj });
 
                                             // mark joined object
                                             isJoin = true;
+                                            
                                             // break the 'right-side' collection loop
                                             break;
                                         }
@@ -4142,13 +4138,14 @@
                                         // get the 'right-side' partial object
                                         r_obj = innerColl[i];
 
-                                        // if objects match given the key 
+                                        // if objects match given the key
                                         if(ldfEqualityComparer_I_4L(l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf)) {
                                             // store joined object in the final output array
                                             result.push({ ...l_obj, ...r_obj });
 
                                             // mark joined object
                                             isJoin = true;
+
                                             // break the 'right-side' collection loop
                                             break;
                                         }
@@ -4175,9 +4172,9 @@
                             */
                             function ldfEqualityComparer_I_4L(left_obj, right_obj, left_key_arr, right_key_arr) {
                                 // is match
-                                var isMatch = false;
+                                var isMatch;
 
-                                // both arrays has to have matching keys
+                                // both arrays have to have matching keys
                                 if(left_key_arr.length !== right_key_arr.length)
                                     throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" keys only, both arrays has to have matching keys !\r\n\r\n' );
 
@@ -4194,14 +4191,14 @@
                                 }
 
                                 /**
-                                 * Compare two array - use custom extension method called Array.equals.
+                                 * Compare two arrays - use custom extension method called Array.equals.
                                  * See object called _EXTENSION in this library.
                                  *
                                 */
-                                // check if there is a 'join' condition met by comparing two arrays
+                                // check if there is a 'JOIN' condition met by comparing two arrays
                                 isMatch = left_key_value_arr.equals(right_key_value_arr) === true;
 
-                                // just return object value
+                                // just return bool result, aka is there a 'JOIN' condition met
                                 return isMatch;
 
 
