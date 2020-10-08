@@ -25,7 +25,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #20:&nbsp;2020-10-08 &nbsp;&nbsp;4:20 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #20:&nbsp;2020-10-08 &nbsp;&nbsp;4:23 PM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #19):
       - development of the following methods: added defs for 'reverse', 'reverseExt', 'select', 'selectMany', 'join' & 'leftJoin'
     - pending (what is left to be done in the next DPRs):
