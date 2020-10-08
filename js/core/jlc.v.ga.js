@@ -2388,17 +2388,17 @@
                     if (this.length != array.length)
                         return false;
 
-                    for (var i = 0, l=this.length; i < l; i++) {
+                    for (var i = 0, l = this.length; i < l; i++) {
                         // check if we have nested arrays
                         if (this[i] instanceof Array && array[i] instanceof Array) {
                             // recurse into the nested arrays
                             if (!this[i].equals(array[i]))
-                                return false;       
-                        }           
+                                return false;
+                        }
                         else if (this[i] != array[i]) { 
                             // warning - two different object instances will never be equal: {x:20} != {x:20}
-                            return false;   
-                        }           
+                            return false;
+                        }
                     }
 
                     return true;
@@ -6655,6 +6655,97 @@
                 is_sort_ctx: false
             },
 
+            defaultIfEmpty : {
+                // Linq method name
+                lmn: 'defaultIfEmpty',
+
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : true,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [],
+
+                // requires syntax checking
+                rsc: false,
+                // user-provided query filter syntax
+                rsc_syntax: undefined,
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.list_t,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'defaultValue'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.DEFAULT
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp)
+                acp: {
+                    // functions to execute
+                    cpf: [
+                        // to determine the default value in the source collection if query flow will arrive in this method
+                        _COMMON.guessCollectionDefaultValue
+                    ],
+                    // metadata describing fetching the right params
+                    cpfdm: [
+                        [
+                            function() {
+                                return api;
+                            },
+                            function() {
+                                return ctx.fim.item;
+                            }
+                        ]
+                    ]
+                },
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
+            },
+
             reverse : {
                 // Linq method name
                 lmn: 'reverse',
@@ -7317,97 +7408,6 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
-                // action context object (aco)
-                aco: null,
-
-                // is writable - can you update state during query flow
-                writable: false,
-
-                // method runs in the sorting context
-                is_sort_ctx: false
-            },
-
-            defaultIfEmpty : {
-                // Linq method name
-                lmn: 'defaultIfEmpty',
-
-                // method returns data
-                mrd: {
-                    // does return data
-                    yes : true,
-
-                    // does produce final result which is a collection
-                    returns_collection : true,
-                },
-
-                // pre-defined internal constraint checking
-                internal_rcc: [],
-
-                // requires syntax checking
-                rsc: false,
-                // user-provided query filter syntax
-                rsc_syntax: undefined,
-
-                // requires constraint checking
-                rcc: {
-                    // constraint functions
-                    cf: [
-                        // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
-                    ],
-
-                    // constraint functions data
-                    cfd: [
-                        false
-                    ],
-
-                    // all invocation contexts that had to take place prior to this invocation context
-                    required_ctxs: []
-                },
-
-                // core JLC method behind the API (jcm)
-                jcm: _CORE.list_t,
-                // metadata of core JLC method parameters
-                jcm_this_excluded_params: {
-                    params: [
-                        {
-                            // position of the parameter in the method
-                            pos_idx: 1,
-
-                            name: 'defaultValue'
-                        }
-                    ],
-                    misc: [
-                        {
-                            // position of the parameter in the method
-                            pos_idx: 2,
-
-                            name: 'enumValue',
-
-                            value: _ENUM.DEFAULT
-                        }
-                    ]
-                },
-
-                // action custom prerequisites (acp)
-                acp: {
-                    // functions to execute
-                    cpf: [
-                        // to determine the default value in the source collection if query flow will arrive in this method
-                        _COMMON.guessCollectionDefaultValue
-                    ],
-                    // metadata describing fetching the right params
-                    cpfdm: [
-                        [
-                            function() {
-                                return api;
-                            },
-                            function() {
-                                return ctx.fim.item;
-                            }
-                        ]
-                    ]
-                },
                 // action context object (aco)
                 aco: null,
 
