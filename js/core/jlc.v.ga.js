@@ -3955,7 +3955,8 @@
                 */
                 function execute_JF_I_1L(
                                             jlc,
-                                            innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector,
+                                            innerColl,
+                                            outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector,
                                             enumValue, udfResultSelector, udfEqualityComparer
                                         ) {
                     // get contextually current collection within history array
@@ -7069,11 +7070,261 @@
             },
 
             join : {
+                // Linq method name
+                lmn: 'join',
 
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: true,
+                // user-provided query filter syntax
+                rsc_syntax: 'outerSelectorArray, innerSelectorArray',
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting,
+
+                        /**
+                         * By design syntax check is the last constraint to apply !
+                         * Don't try be clever !
+                        */
+                        _SYNTAX.check
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.join_ops,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'innerColl'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'outerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'outerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'innerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 5,
+
+                            name: 'innerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 7,
+
+                            name: 'udfResultSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 8,
+
+                            name: 'udfEqualityComparer'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 6,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.JOIN
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             leftJoin : {
-                
+                // Linq method name
+                lmn: 'leftJoin',
+
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: true,
+                // user-provided query filter syntax
+                rsc_syntax: 'outerSelectorArray, innerSelectorArray',
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting,
+
+                        /**
+                         * By design syntax check is the last constraint to apply !
+                         * Don't try be clever !
+                        */
+                        _SYNTAX.check
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.join_ops,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'innerColl'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'outerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'outerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'innerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 5,
+
+                            name: 'innerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 7,
+
+                            name: 'udfResultSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 8,
+
+                            name: 'udfEqualityComparer'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 6,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.LEFT_JOIN
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             defaultIfEmpty : {
