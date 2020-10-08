@@ -25,14 +25,14 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #20:&nbsp;2020-10-08 &nbsp;&nbsp;4:39 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #20:&nbsp;2020-10-08 &nbsp;&nbsp;4:41 PM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #19):
       - development of the following methods: added defs for 'reverse', 'reverseExt', 'select', 'selectMany', 'join' & 'leftJoin'
     - pending (what is left to be done in the next DPRs):
       - partial stuff to tested: reverse, reverseExt, select, selectMany, join, leftJoin
     - future consideration (in the JavaScript LINQ & JavaScript PLINQ - aka Parallel JavaScript LINQ)
       - groupJoin, intersect, union, (and maybe other methods)
-      - JavaScript PLINQ version to be available as of 01-06-2021&nbsp;:zap:&nbsp::bell:
+      - JavaScript PLINQ version to be available as of 01-06-2021&nbsp;:zap:&nbsp;:bell:
  - DPR #19:&nbsp;2020-10-06 &nbsp;&nbsp;4:00 PM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #18):
       - development of the following methods: join, leftJoin -> to tested !
