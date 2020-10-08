@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #19 -> 3-Tier Architecture [GA/DEV] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #20 -> 3-Tier Architecture [GA/DEV] -> DEV / DEV|TEST|RELEASE
  * 
  * 
  * 
@@ -2592,8 +2592,7 @@
                     params.innerUdfSelector,
                     params.enumValue,
                     params.udfResultSelector,
-                    params.udfEqualityComparer,
-                    params.strongUnmatch
+                    params.udfEqualityComparer
                     );
             },
 
@@ -3445,8 +3444,8 @@
                                     {
                                         if ( enumValue === _ENUM.REVERSE && ( index || count ) )
                                         {
-                                            console.warn( "Invoking Reverse with only one of the parameters defaults to parameterless Reverse !" );
-                                            console.warn( "If you wanna use only one of the parameters resort to ReverseExt instead !" );
+                                            console.warn( "Invoking 'reverse' method with only one of the parameters defaults to parameterless 'reverse' !" );
+                                            console.warn( "If you wanna use only one of the parameters resort to 'reverseExt' instead !" );
                                         }
                                         // reverse the whole sequence
                                         for ( i = currentColl.length - 1; i >= 0; i-- )
@@ -6656,19 +6655,417 @@
             },
 
             reverse : {
+                // Linq method name
+                lmn: 'reverse',
 
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: false,
+                // user-provided query filter syntax
+                rsc_syntax: undefined,
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.reverse_t,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'predicateArray',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'startingIndex',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'count',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.REVERSE
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             reverseExt : {
+                // Linq method name
+                lmn: 'reverseExt',
 
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: false,
+                // user-provided query filter syntax
+                rsc_syntax: undefined,
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.reverse_t,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'startingIndex'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'count'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'predicateArray',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.REVERSE_EXT
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             select : {
+                // Linq method name
+                lmn: 'select',
 
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: true,
+                // user-provided query filter syntax
+                rsc_syntax: 'selectorArray',
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting,
+
+                        /**
+                         * By design syntax check is the last constraint to apply !
+                         * Don't try be clever !
+                        */
+                        _SYNTAX.check
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.select_ops,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'selectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'udfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'udfResultSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 5,
+
+                            name: 'incorporateIndex'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.SELECT
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             selectMany : {
+                // Linq method name
+                lmn: 'selectMany',
 
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: true,
+                // user-provided query filter syntax
+                rsc_syntax: 'selectorArray',
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting,
+
+                        /**
+                         * By design syntax check is the last constraint to apply !
+                         * Don't try be clever !
+                        */
+                        _SYNTAX.check
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.select_ops,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'selectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'udfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'udfResultSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 5,
+
+                            name: 'incorporateIndex'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.SELECT_MANY
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             join : {
