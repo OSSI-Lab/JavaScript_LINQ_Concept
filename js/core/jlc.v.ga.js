@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #20 -> 3-Tier Architecture [GA/DEV] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #21 -> 3-Tier Architecture [GA/DEV] -> DEV / DEV|TEST|RELEASE
  * 
  * 
  * 
@@ -7482,6 +7482,14 @@
                 is_sort_ctx: false
             },
             
+            groupJoin : {
+
+            },
+
+            groupLeftJoin : {
+
+            },
+
             elementAt : {
                 // Linq method name
                 lmn: 'elementAt',
