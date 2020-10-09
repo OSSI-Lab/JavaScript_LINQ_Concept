@@ -54,8 +54,11 @@
         
         SELECT: "select",
         SELECT_MANY: "select_many",
+
         JOIN: "join",
         LEFT_JOIN: "left_join",
+        GROUP_JOIN: "group_join",
+        GROUP_LEFT_JOIN: "group_left_join",
         
         SAVE: "save",
         UPDATE: "update",
@@ -3078,6 +3081,9 @@
                         // reference first object in the collection and determine the type ASAP
                         var o = currentColl[ 0 ];
 
+                        // reference grouping-by util object
+                        var gbo = _COMMON.usingGroupingBy();
+
                         // do grouping of primitives
                         if ( _COMMON.isPrimitiveType( o ) )
                             currentColl.forEach( groupPrimitives_I_2L );
@@ -3131,7 +3137,7 @@
 
 
                         // reference grouping-by util object
-                        var gbo = _COMMON.usingGroupingBy();
+                        //var gbo = _COMMON.usingGroupingBy();
 
                         /**
                          * Distinguish between dictionary and grouped objects
@@ -3195,7 +3201,7 @@
 
 
                         // reference grouping-by util object
-                        var gbo = _COMMON.usingGroupingBy();
+                        //var gbo = _COMMON.usingGroupingBy();
 
                         /**
                          * Distinguish between dictionary and grouped objects
@@ -3968,12 +3974,22 @@
                         switch(enumValue) {
                             case _ENUM.JOIN:
                                 // join two sequences (collections) based on keys present in both sequences
-                                currentColl = handleJoinOrLeftJoinOperation_I_2L(false);
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(false);
                                 break;
    
                             case _ENUM.LEFT_JOIN:
                                 // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
-                                currentColl = handleJoinOrLeftJoinOperation_I_2L(true);
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(true);
+                                break;
+
+                            case _ENUM.GROUP_JOIN:
+                                // join two sequences (collections) based on keys present in both sequences, and subsequently group result by the key
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(false, true);
+                                break;
+
+                            case _ENUM.GROUP_LEFT_JOIN:
+                                // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence, and subsequently group result by the key
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(true, true);
                                 break;
            
                             default:
@@ -3990,7 +4006,7 @@
                     /**
                      * Local helper functions
                     */
-                    function handleJoinOrLeftJoinOperation_I_2L(isCollectionFixed) {
+                    function handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(isCollectionFixed, doGrouping) {
                         // if 'right-side' operand is not null
                         if(innerColl.length) {
                             // declare output array
@@ -4018,6 +4034,23 @@
                             }
                             else
                                 throw Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
+
+                            /**
+                             * Here we arrive with created JOIN result !
+                             * Hence right here we can apply grouping type of operation in the context of aforementioned created result set. 
+                            */
+                            
+                            // if grouping required (GROUP JOON || GROUP LEFT JOIN)
+                            if(doGrouping) {
+                                // declare groups object being an array !
+                                var groups = [];
+
+                                // reference grouping-by util object
+                                var gbo = _COMMON.usingGroupingBy();
+
+                                // loop over whole result set and apply grouping
+                                result.forEach( groupResultSet_I_3L );
+                            }
 
                             // return result
                             return result;
@@ -4249,6 +4282,37 @@
 
                             // return output object
                             return outputItem;
+                        }
+
+                        function groupResultSet_I_3L(item) {
+                            // get the group id
+                            var id = getTheKeyValue_I_2L( item ); // function getTheKeyValue_I_2L conceptually retrieves the key used in JOIN or LEFT JOIN
+
+                            // create pure empty object
+                            var eo = Object.create( null );
+
+                            // get grouping seeker object from the group
+                            var gso = gbo.getGrouping( id, groups );
+
+                            // reference the list of elements if any
+                            if ( gso.arr )
+                            {
+                                // add object to this grouping object
+                                gso.arr.push( item );
+
+                                // update grouping object
+                                gbo.setGrouping( id, gso, groups );
+                            }
+                            // otherwise create a new grouping object
+                            else
+                            {
+                                // define a dictionary-like object
+                                eo.idx = -1;
+                                eo.arr = [ item ];
+
+                                // add object to this grouping object
+                                gbo.setGrouping( id, eo, groups );
+                            }
                         }
                     }
                 }

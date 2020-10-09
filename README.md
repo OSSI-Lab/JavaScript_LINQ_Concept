@@ -22,10 +22,20 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;GA/DEV&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
+## Status:&nbsp;GA/DEV&nbsp;[ DEV -> TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #20:&nbsp;2020-10-08 &nbsp;&nbsp;11:41 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #21:&nbsp;2020-10-09 &nbsp;&nbsp;10:32 AM Local Time &nbsp;:heavy_check_mark:
+    - done (what has changed since DPR #20):
+      - development of the following methods: added defs of 'groupJoin' & 'groupLeftJoin' methods for _PHYSICAL_FILTER / executeJoinFilter 
+    - pending (what is left to be done in the next DPRs):
+      - finishing defs of 'groupJoin' & 'groupLeftJoin' methods for _PHYSICAL_FILTER / executeJoinFilter
+      - adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm
+      - testing whole library: all query methods
+    - future consideration (in the JavaScript LINQ & JavaScript PLINQ - aka Parallel JavaScript LINQ)
+      - intersect, union, (and maybe other methods)
+      - JavaScript PLINQ version to be available as of 01-06-2021&nbsp;:zap:&nbsp;:bell:
+ - DPR #20:&nbsp;2020-10-09 &nbsp;&nbsp;12:41 AM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #19):
       - development of the following methods: added defs for 'reverse', 'reverseExt', 'select', 'selectMany', 'join' & 'leftJoin'
     - pending (what is left to be done in the next DPRs):
@@ -33,16 +43,16 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
     - future consideration (in the JavaScript LINQ & JavaScript PLINQ - aka Parallel JavaScript LINQ)
       - groupJoin, intersect, union, (and maybe other methods)
       - JavaScript PLINQ version to be available as of 01-06-2021&nbsp;:zap:&nbsp;:bell:
- - DPR #19:&nbsp;2020-10-06 &nbsp;&nbsp;4:00 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #19:&nbsp;2020-10-06 &nbsp;&nbsp;5:00 PM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #18):
       - development of the following methods: join, leftJoin -> to tested !
- - DPR #18:&nbsp;2020-10-01 &nbsp;&nbsp;9:48 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #18:&nbsp;2020-10-01 &nbsp;&nbsp;10:48 PM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #17):
       - development of the following methods: join, leftJoin
- - DPR #17:&nbsp;2020-09-30 &nbsp;&nbsp;7:45 AM Local Time &nbsp;:heavy_check_mark:
+ - DPR #17:&nbsp;2020-09-30 &nbsp;&nbsp;8:45 AM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #16):
       - development of the following methods: join, leftJoin
- - DPR #16:&nbsp;2020-09-28 &nbsp;&nbsp;5:12 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #16:&nbsp;2020-09-28 &nbsp;&nbsp;6:12 PM Local Time &nbsp;:heavy_check_mark:
     - features:
       - orderBy, orderByDescending, thenBy, thenByDescending are RC methods (sorting data with preserved dependency relationship between 1st & 2nd level sorting methods) !
       - development of the following methods: select, selectMany, join, leftJoin
@@ -50,7 +60,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - reverse, reverseExt, select, selectMany, join, leftJoin, intersect ?, union ?
     - architecture [ DynamicAPI Layer ]
         - see DPR #15
- - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;3:09 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #15:&nbsp;2020-06-22 &nbsp;&nbsp;4:09 PM Local Time &nbsp;:heavy_check_mark:
     - features:
       - architecture [ DynamicAPI Layer ]
         - each new - not present yet in the flow chain - query method being invoked on API object is being built dynamically and on demand, aka on-the-fly
@@ -61,7 +71,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - Logical Operations Layer
         - Physical Operations Layer
     - [Watch JavaScript LINQ in action](https://drive.google.com/drive/folders/1puGA_zuvLC-z9w93ajHtQepa8-PEl1-2 "How impossible was made possible.").
- - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;5:18 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( GA architecture - API Layer redesign v2 RC)&nbsp;:heavy_check_mark:
+ - DPR #14:&nbsp;2020-05-15 &nbsp;&nbsp;6:18 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( GA architecture - API Layer redesign v2 RC)&nbsp;:heavy_check_mark:
     - features:
       - enabling creating partial queries with preserved dependency relationship between 1st & 2nd level sorting methods by introducing action constraints !
       - enabling defining new methods in a declarative way !
@@ -69,53 +79,53 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
       - decoupling layers from each other, i.e. API Layer (AL), Logical Operations Layer (LOL) & Physical Operations Layer (POL) !
   	    - moving syntax checking to LOL (all checks are being done over metadata, not physical data !)
 	    - physical data operations are happening only in POL (final methods - the ones that produce output are the only methods that touch physical data !)
- - DPR #13:&nbsp;2020-05-04 &nbsp;&nbsp;10:05 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture* &nbsp; ~~Enhancement 1~~ &nbsp;:bell: )&nbsp;*Enhancement 5*&nbsp;:heavy_check_mark:
+ - DPR #13:&nbsp;2020-05-04 &nbsp;&nbsp;11:05 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture* &nbsp; ~~Enhancement 1~~ &nbsp;:bell: )&nbsp;*Enhancement 5*&nbsp;:heavy_check_mark:
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy, orderByDescending, thenBy, thenByDescending are RC methods (sorting data with preserved dependency relationship between 1st & 2nd level sorting methods) !
       - introducing syntax checking
       - declaring action constraints
     - methods left to be implemented before releasing RC version are :
         - reverse, reverseExt, select, selectMany, join, leftJoin, contains, distinct, except, defaultIfEmpty, min, max, average, intersect ?, union ?
- - DPR #12:&nbsp;2020-04-26 &nbsp;&nbsp;7:31 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 4*
+ - DPR #12:&nbsp;2020-04-26 &nbsp;&nbsp;8:31 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 4*
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy, orderByDescending, thenBy, thenByDescending are UAD methods !
     - methods left to be implemented before releasing RC version are :
         - reverse, reverseExt, select, selectMany, join, leftJoin, contains, distinct, except, defaultIfEmpty, min, max, average, intersect ?, union ?
- - DPR #11:&nbsp;2020-04-23 &nbsp;&nbsp;5:19 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 3*
+ - DPR #11:&nbsp;2020-04-23 &nbsp;&nbsp;6:19 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 3*
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy && orderByDescending are UAD methods !
     - methods left to be implemented before releasing RC version are :
         - thenBy, thenByDescending, reverse, reverseExt, select, selectMany, join, leftJoin, contains, distinct, except, defaultIfEmpty, min, max, average, intersect ?, union ?
- - DPR #10:&nbsp;2020-04-19 &nbsp;&nbsp;3:35 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 2*
+ - DPR #10:&nbsp;2020-04-19 &nbsp;&nbsp;4:35 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 2*
     - the-already implemented methods are GA methods !&nbsp;:bell:
       - orderBy && orderByDescending are UAD methods ! 
     - methods left to be implemented before releasing RC version are :
         - thenBy, thenByDescending, reverse, reverseExt, select, selectMany, join, leftJoin, contains, distinct, except, defaultIfEmpty, min, max, average, intersect ?, union ?
- - DPR #9:&nbsp;2020-04-14 &nbsp;&nbsp;4:04 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 1*
+ - DPR #9:&nbsp;2020-04-14 &nbsp;&nbsp;5:04 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA architecture*&nbsp;:bell: )&nbsp;*Enhancement 1*
     - the-already implemented methods are GA methods !&nbsp;:bell:
 
- - DPR #8:&nbsp;2020-04-13 &nbsp;&nbsp;5:54 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α v3*
+ - DPR #8:&nbsp;2020-04-13 &nbsp;&nbsp;6:54 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α v3*
 
 
- - DPR #7:&nbsp;2020-04-12 &nbsp;&nbsp;7:02 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α v2*
+ - DPR #7:&nbsp;2020-04-12 &nbsp;&nbsp;8:02 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α v2*
 
 
- - DPR #6:&nbsp;2020-04-11 &nbsp;&nbsp;6:25 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α*
+ - DPR #6:&nbsp;2020-04-11 &nbsp;&nbsp;7:25 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*α*
 
 
- - DPR #5:&nbsp;2020-04-10 &nbsp;&nbsp;1:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*β*
+ - DPR #5:&nbsp;2020-04-10 &nbsp;&nbsp;2:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v3* )&nbsp;*β*
 
 
- - DPR #4:&nbsp;2020-04-05 &nbsp;&nbsp;1:29 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v2* )
+ - DPR #4:&nbsp;2020-04-05 &nbsp;&nbsp;2:29 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes v2* )
 
 
- - DPR #3:&nbsp;2020-03-28 &nbsp;&nbsp;4:01 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes* )
+ - DPR #3:&nbsp;2020-03-28 &nbsp;&nbsp;5:01 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *GA-towards design changes* )
 
 
- - DPR #2:&nbsp;2020-03-21 &nbsp;&nbsp;1:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *major design changes* )
+ - DPR #2:&nbsp;2020-03-21 &nbsp;&nbsp;2:15 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *major design changes* )
 
 
- - DPR #1:&nbsp;2020-03-14 11:19 AM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
+ - DPR #1:&nbsp;2020-03-14 12:19 PM Local Time &nbsp;:heavy_check_mark:&nbsp;( *initial version* )
 ## GA Version (available to download): ASAP &nbsp;:heavy_check_mark:
 
 #
