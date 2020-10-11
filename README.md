@@ -25,12 +25,14 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV -> TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #22:&nbsp;2020-10-11 &nbsp;&nbsp;10:19 AM Local Time &nbsp;:heavy_check_mark:
+ - DPR #22:&nbsp;2020-10-11 &nbsp;&nbsp;10:29 AM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #21):
       - development of the following methods: finishing defs of 'groupJoin' & 'groupLeftJoin' methods for _PHYSICAL_FILTER / executeJoinFilter 
     - pending (what is left to be done in the next DPRs):
       - adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm
       - testing whole library: all query methods
+    - architecture [ DynamicAPI Layer ]
+        - see DPR #15
     - future consideration (in the JavaScript LINQ & JavaScript PLINQ - aka Parallel JavaScript LINQ)
       - intersect, union, (and maybe other methods)
       - JavaScript PLINQ version to be available as of 01-06-2021&nbsp;:zap:&nbsp;:bell:
@@ -41,21 +43,31 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
       - finishing defs of 'groupJoin' & 'groupLeftJoin' methods for _PHYSICAL_FILTER / executeJoinFilter
       - adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm
       - testing whole library: all query methods
+    - architecture [ DynamicAPI Layer ]
+        - see DPR #15
  - DPR #20:&nbsp;2020-10-09 &nbsp;&nbsp;12:41 AM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #19):
       - development of the following methods: added defs for 'reverse', 'reverseExt', 'select', 'selectMany', 'join' & 'leftJoin'
     - pending (what is left to be done in the next DPRs):
       - testing whole library: all query methods
       - adding 'groupJoin' & 'groupLeftJoin'
+    - architecture [ DynamicAPI Layer ]
+        - see DPR #15
  - DPR #19:&nbsp;2020-10-06 &nbsp;&nbsp;5:00 PM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #18):
       - development of the following methods: join, leftJoin -> to tested !
+    - architecture [ DynamicAPI Layer ]
+        - see DPR #15
  - DPR #18:&nbsp;2020-10-01 &nbsp;&nbsp;10:48 PM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #17):
       - development of the following methods: join, leftJoin
+    - architecture [ DynamicAPI Layer ]
+        - see DPR #15
  - DPR #17:&nbsp;2020-09-30 &nbsp;&nbsp;8:45 AM Local Time &nbsp;:heavy_check_mark:
     - features (what has changed since DPR #16):
       - development of the following methods: join, leftJoin
+    - architecture [ DynamicAPI Layer ]
+        - see DPR #15
  - DPR #16:&nbsp;2020-09-28 &nbsp;&nbsp;6:12 PM Local Time &nbsp;:heavy_check_mark:
     - features:
       - orderBy, orderByDescending, thenBy, thenByDescending are RC methods (sorting data with preserved dependency relationship between 1st & 2nd level sorting methods) !
