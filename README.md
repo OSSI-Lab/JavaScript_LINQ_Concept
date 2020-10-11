@@ -9,7 +9,7 @@ My goal was to:
  - provide the exact functionality from LINQ in C# and transfer it stright into plain JavaScript from the user point of view
  - chose the methods that I considered the JavaScript-logical ones
 
-JavaScript LINQ is the real thing since 2020-06-08 !
+JavaScript LINQ is the real thing since 22-June-2020 !
 
 If you do not understand the architecture, do not understand what JavaScript LINQ stands for, or you are struggle to get to grips with figuring out engineering of the internal implementation, please request official explanation by making official inquary to me.
 
