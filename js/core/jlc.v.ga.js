@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #21 -> 3-Tier Architecture [GA/DEV] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #22 -> 3-Tier Architecture [GA/DEV] -> TEST / DEV|TEST|RELEASE
  * 
  * 
  * 
@@ -1807,6 +1807,76 @@
                 }
             },
 
+        fetchObjectKeyValue: /**
+        * Get the so-called key of the object passed as the input.
+        * The key can be a single value or an array of values.
+        * 
+        * @param {any} item Input object from which to get key value.
+        * @param {any} key_prop_arr Array of object properties, whose values form the key.
+        */
+            function ( item, key_prop_arr)
+            {
+                // declare a real key
+                var key, keyPart;
+
+                // loop over key parts and apply the comparison logic
+                for ( var i = 0; i < key_prop_arr.length; i++ )
+                {
+                    // reference the key part
+                    // @ts-ignore
+                    keyPart = key_prop_arr[ i ];
+
+                    // is it complex ?
+                    // @ts-ignore
+                    if ( keyPart.isValidProperty && keyPart.isComplex )
+                    {
+                        // if key is already initialized
+                        if ( key )
+                            // get the property value from both, the current and the previous object
+                            // @ts-ignore
+                            key += _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
+                        else
+                        {
+                            // get the key value - get the property value from both, the current and the previous object
+                            // @ts-ignore
+                            var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
+
+                            // initialize a key with a default value
+                            key = _COMMON.getDefaultValueOf( rkv );
+                            key += rkv;
+                        }
+                    }
+                    // is it simple ?
+                    // @ts-ignore
+                    else if ( keyPart.isValidProperty )
+                    {
+                        // if key is already initialized
+                        if ( key )
+                            // @ts-ignore
+                            key += item[ keyPart.value ];
+                        else
+                        {
+                            // get the key value
+                            // @ts-ignore
+                            var rkv = item[ keyPart.value ];
+
+                            // initialize a key with a default value
+                            key = _COMMON.getDefaultValueOf( rkv );
+                            key += rkv;
+                        }
+                    }
+                    // otherwise apply some part that is not a property of an object
+                    else
+                    {
+                        // @ts-ignore
+                        key += keyPart.value;
+                    }
+                }
+
+                // return the key from object
+                return key;
+            },
+
         createCompoundKey: /**
          * Create object being a key based on passed key-building-parts.
          *
@@ -3074,6 +3144,9 @@
                         var key_array;
                         if ( predicateArray )
                             key_array = _COMMON.createCompoundKey( predicateArray );
+                        else
+                            // otherwise define an empty array
+                            key_array = [];
 
                         // get contextually current collection within history array
                         var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
@@ -3136,9 +3209,6 @@
                             item = ( udfGroupElementsProjector.bind( null, item ) )();
 
 
-                        // reference grouping-by util object
-                        //var gbo = _COMMON.usingGroupingBy();
-
                         /**
                          * Distinguish between dictionary and grouped objects
                          *  - dictionary keys has to be unique
@@ -3189,7 +3259,7 @@
                     function groupObjects_I_2L ( item )
                     {
                         // get the group id
-                        var id = getTheKeyValue_I_2L( item );
+                        var id = _COMMON.fetchObjectKeyValue(item, key_array);
 
                         // project group id if required
                         if ( udfGroupProjector )
@@ -3199,9 +3269,6 @@
                         if ( udfGroupElementsProjector )
                             item = ( udfGroupElementsProjector.bind( null, item ) )();
 
-
-                        // reference grouping-by util object
-                        //var gbo = _COMMON.usingGroupingBy();
 
                         /**
                          * Distinguish between dictionary and grouped objects
@@ -3253,7 +3320,7 @@
                     function getTheKeyValue_I_2L ( itemCurrent )
                     {
                         // declare a real key
-                        var key;
+                        var key, keyPart;
 
                         // loop over key parts and apply the comparison logic
                         for ( var i = 0; i < key_array.length; i++ )
@@ -4012,25 +4079,64 @@
                             // declare output array
                             var result = [];
 
+                            // declare array of metadata, from which you create the joining key
+                            var predicateArray = [];
+
                             // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                             if(outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector) {
                                 executeOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray);
+
+                                // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
+                                if(doGrouping)
+                                    predicateArray = outerSelectorArray.forEach(
+                                                                            function(selectorItem) {
+                                                                                return [selectorItem, true];
+                                                                            }
+                                                                        );
                             }
                             // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
                             else if(outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector) {
                                 executeOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray);
+
+                                // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
+                                if(doGrouping)
+                                    predicateArray = outerSelectorArray.forEach(
+                                                                            function(selectorItem) {
+                                                                                return [selectorItem, true];
+                                                                            }
+                                                                        );
                             }
                             // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                             else if(!outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector) {
                                 executeOperation_UDF_I_3L(innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray);
+
+                                // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
+                                if(doGrouping)
+                                    predicateArray = innerSelectorArray.forEach(
+                                                                            function(selectorItem) {
+                                                                                return [selectorItem, true];
+                                                                            }
+                                                                        );
                             }
                             // user provided only 'left-side' && 'right-side' keys to perform JOIN operation
                             else if(outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector) {
                                 executeOperation_LDF_I_3L(outerSelectorArray, innerSelectorArray);
+
+                                // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
+                                if(doGrouping)
+                                    predicateArray = outerSelectorArray.forEach(
+                                                                            function(selectorItem) {
+                                                                                return [selectorItem, true];
+                                                                            }
+                                                                        );
                             }
                             // user provided only 'left-side' && 'right-side' key extractors to perform JOIN operation
                             else if(!outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector) {
                                 executeOperation_LDF_I_3L(outerUdfSelector, innerUdfSelector);
+
+                                // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
+                                if(doGrouping)
+                                    throw Error( '\r\nThe context of [ ' + enumValue + ' ] requires providing valid "outerSelectorArray" or "innerSelectorArray" !\r\n\r\n' );
                             }
                             else
                                 throw Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
@@ -4050,6 +4156,9 @@
 
                                 // loop over whole result set and apply grouping
                                 result.forEach( groupResultSet_I_3L );
+
+                                // return grouped joined object
+                                return groups;
                             }
 
                             // return result
@@ -4285,8 +4394,16 @@
                         }
 
                         function groupResultSet_I_3L(item) {
-                            // get the group id
-                            var id = getTheKeyValue_I_2L( item ); // function getTheKeyValue_I_2L conceptually retrieves the key used in JOIN or LEFT JOIN
+                            // create the key if key selector array defined
+                            var key_array;
+                            if ( predicateArray )
+                                key_array = _COMMON.createCompoundKey( predicateArray );
+                            else
+                                // otherwise define an empty array
+                                key_array = [];
+
+                            // get the group id, aka the key used in JOIN or LEFT JOIN
+                            var id = _COMMON.fetchObjectKeyValue(item, key_array);
 
                             // create pure empty object
                             var eo = Object.create( null );
