@@ -25,9 +25,11 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #23:&nbsp;2020-10-12 &nbsp;&nbsp;17:27 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #23:&nbsp;2020-10-12 &nbsp;&nbsp;17:40 PM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #22):
-      - development of the following methods: adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm 
+      - development of the following methods:
+	- adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm
+	- adding some code perf optimizations
     - pending (what is left to be done in the next DPRs):
       - testing whole library: all query methods
     - architecture [ DynamicAPI Layer ]
