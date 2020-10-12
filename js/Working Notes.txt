@@ -1,51 +1,8 @@
-"the same type of filtering logic" with some driving flags at the end of heavy filtering logic !
--------------------------------------------------------------------------------------------------
-where
-toArray
-toDictionary
-reverse
-first
-firstOrDefault
-last
-lastOrDefault
-single
-singleOrDefault
-any
-all
-skip
-skipWhile
-take
-takeWhile
-groupBy
-having
+1. Should resetting 1st level sorting be defined in a UDF or LDF ?
 
 
-"the same type of filtering logic" with some driving flags at the end of heavy filtering logic !
--------------------------------------------------------------------------------------------------
-contains
-join
-leftJoin
-concat
+2. How to handle rsc_syntax in _LINQ_CONTEXT when you have multimple values, e.g.
+    rsc_syntax: 'outerSelectorArray, innerSelectorArray',
 
-
-
-"the same type of filtering logic" with some driving flags at the end of heavy filtering logic !
--------------------------------------------------------------------------------------------------
-orderBy
-orderByDescending
-
-
-
-"the same type of filtering logic" with some driving flags at the end of heavy filtering logic !
--------------------------------------------------------------------------------------------------
-select
-append
-prepend
-distinct
-except
-
-// check the intersection by defining each product explicitly not implicitly
-intersect ?
-
-union ?
+and when one of them is defined or not
 
