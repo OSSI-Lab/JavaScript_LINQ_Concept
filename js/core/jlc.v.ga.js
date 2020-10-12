@@ -13,7 +13,17 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #22 -> 3-Tier Architecture [GA/DEV] -> TEST / DEV|TEST|RELEASE
+ *      ⚠️ DPR #23 -> 3-Tier Architecture [GA/TEST] -> TEST / DEV|TEST|RELEASE
+ *          What does it mean ?
+ *              It does mean, that this library is GA candidate in the version called TEST PHASE !
+ *              TEST PHASE refers to finished development and started testing of the whole library.
+ *              The last phase is the RELEASE PHASE marked by RELEASE keyword.
+ *              
+ *              In plain English, I have just finished development of this library and have started testing it !
+ *              When all will be working as expected, I will release the so-called GA version !
+ *              Any errors found during testing will be depicted by moving from [GA/TEST] -> TEST phase to [GA/TEST] -> DEV phase !
+ *              
+ *              Easy to grasp ?
  * 
  * 
  * 
@@ -2485,163 +2495,7 @@
 
     // private core object
     var _CORE = {
-        /**
-         * ALREADY IMPLEMENTED 
-        */
-
-        where: /**
-         * @param {Object} params
-         *  - predicateArray
-         */
-            function ( params )
-            {
-                // invoke core logic
-                // @ts-ignore
-                _PHYSICAL_FILTER.executeWhereFilter(
-                    this,
-                    params.predicateArray
-                );
-            },
-
-        group_by: /**
-         * @param {Object} params
-         *  - predicateArray
-         *  - udfGroupKeySelector
-         *  - udfEqualityComparer
-         *  - udfGroupProjector
-         *  - udfGroupElementsProjector
-         *  - udfGroupResultValueSelector
-         *  - terminateFlowAndReturnData
-         *  - isDictionaryContext
-         * @param {boolean} sharedSecondLevelSortingCtx
-         */
-            function ( params, sharedSecondLevelSortingCtx )
-            {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeGroupByFilter(
-                    this,
-                    params.predicateArray,
-                    params.udfGroupKeySelector,
-                    params.udfEqualityComparer,
-                    params.udfGroupProjector,
-                    params.udfGroupElementsProjector,
-                    params.udfGroupResultValueSelector,
-                    params.terminateFlowAndReturnData,
-                    params.isDictionaryContext
-                );
-            },
-
-        order_asc_or_desc: /**
-         * @param {Object} params
-         *  - keyPartSelectorArray
-         *  - udfComparer
-         *  - enumValue
-         * @param {Object} actionContext
-         */
-            function ( params, actionContext )
-            {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeOrderFilter(
-                    this,
-                    params.keyPartSelectorArray,
-                    params.udfComparer,
-                    params.enumValue,
-                    actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
-                    actionContext.sharedSecondLevelSortingCtx
-                );
-            },
-
-        list_t: /**
-         * @param {Object} params
-         *  - fallbackOnDefault
-         */
-            function ( params )
-            {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeOneItemFilter(
-                    this,
-                    params.predicateArray, // undefined by design
-                    params.fallbackOnDefault,
-                    params.enumValue
-                );
-            },
-
-        reverse_t: /**
-         * @param {Object} params
-         *  - startingIndex
-         *  - count
-         *  - enumValue
-         */
-            function ( params )
-            {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeRangeFilter(
-                    this,
-                    params.predicateArray, // undefined by design
-                    params.startingIndex,
-                    params.count,
-                    params.enumValue
-                );
-            },
-
-        add_t: /**
-         * @param {Object} params
-         *  - collectionOrItem
-         *  - enumValue
-         */
-            function ( params )
-            {
-                // considering different scenarios there should not be syntax checking
-
-                // invoke core logic
-                _PHYSICAL_FILTER.executeMergeFilter(
-                    this,
-                    params.collectionOrItem,
-                    params.enumValue
-                );
-            },
-
-        set_ops: /**
-         * @param {any} collectionOrItem
-         * @param {any} udfEqualityComparer
-         * @param {any} strongSearch
-         * @param {any} enumValue
-         */
-            // @ts-ignore
-            function ( params )
-            {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeSetFilter(
-                    this,
-                    params.collectionOrItem,
-                    params.udfEqualityComparer,
-                    params.strongSearch,
-                    params.enumValue
-                );
-            },
-
-        select_ops: /**
-         * @param {any} selectorArray
-         * @param {any} enumValue
-         * @param {any} udfSelector
-         * @param {any} udfResultSelector
-         * @param {any} incorporateIndex
-         */
-            // @ts-ignore
-            function ( params )
-            {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeSelectFilter(
-                    this,
-                    params.selectorArray,
-                    params.enumValue,
-                    params.udfSelector,
-                    params.udfResultSelector,
-                    params.incorporateIndex
-                    );
-            },
-
-        join_ops: /**
+        join_mtds: /**
          * @param {any} innerColl
          * @param {any} outerSelectorArray
          * @param {any} outerUdfSelector
@@ -2669,10 +2523,110 @@
                     );
             },
 
-        skip_or_take: /**
+        restriction_mtds: /**
          * @param {Object} params
-         *  - count
          *  - predicateArray
+         */
+            function ( params )
+            {
+                // invoke core logic
+                // @ts-ignore
+                _PHYSICAL_FILTER.executeWhereFilter(
+                    this,
+                    params.predicateArray
+                );
+            },
+
+        group_mtds: /**
+         * @param {Object} params
+         *  - predicateArray
+         *  - udfGroupKeySelector
+         *  - udfEqualityComparer
+         *  - udfGroupProjector
+         *  - udfGroupElementsProjector
+         *  - udfGroupResultValueSelector
+         *  - terminateFlowAndReturnData
+         *  - isDictionaryContext
+         * @param {boolean} sharedSecondLevelSortingCtx
+         */
+            function ( params, sharedSecondLevelSortingCtx )
+            {
+                // invoke core logic
+                _PHYSICAL_FILTER.executeGroupByFilter(
+                    this,
+                    params.predicateArray,
+                    params.udfGroupKeySelector,
+                    params.udfEqualityComparer,
+                    params.udfGroupProjector,
+                    params.udfGroupElementsProjector,
+                    params.udfGroupResultValueSelector,
+                    params.terminateFlowAndReturnData,
+                    params.isDictionaryContext
+                );
+            },
+
+        order_mtds: /**
+         * @param {Object} params
+         *  - keyPartSelectorArray
+         *  - udfComparer
+         *  - enumValue
+         * @param {Object} actionContext
+         */
+            function ( params, actionContext )
+            {
+                // invoke core logic
+                _PHYSICAL_FILTER.executeOrderFilter(
+                    this,
+                    params.keyPartSelectorArray,
+                    params.udfComparer,
+                    params.enumValue,
+                    actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
+                    actionContext.sharedSecondLevelSortingCtx
+                );
+            },
+
+        projection_mtds: /**
+         * @param {any} selectorArray
+         * @param {any} enumValue
+         * @param {any} udfSelector
+         * @param {any} udfResultSelector
+         * @param {any} incorporateIndex
+         */
+            // @ts-ignore
+            function ( params )
+            {
+                // invoke core logic
+                _PHYSICAL_FILTER.executeSelectFilter(
+                    this,
+                    params.selectorArray,
+                    params.enumValue,
+                    params.udfSelector,
+                    params.udfResultSelector,
+                    params.incorporateIndex
+                    );
+            },
+
+        paging_mtds: /**
+         * @param {Object} params
+         *  - predicateArray
+         *  - fallbackOnDefault
+         */
+            function ( params )
+            {
+                // invoke core logic
+                _PHYSICAL_FILTER.executeOneItemFilter(
+                    this,
+                    params.predicateArray,
+                    params.fallbackOnDefault,
+                    params.enumValue
+                );
+            },
+
+        range_mtds: /**
+         * @param {Object} params
+         *  - predicateArray
+         *  - index
+         *  - count
          *  - enumValue
          */
             function ( params )
@@ -2681,78 +2635,49 @@
                 _PHYSICAL_FILTER.executeRangeFilter(
                     this,
                     params.predicateArray,
-                    params.index, // undefined by design
+                    params.index,
                     params.count,
                     params.enumValue
                 );
             },
 
-        first_or_default: /**
+        merge_mtds: /**
          * @param {Object} params
-         *  - predicateArray
-         *  - fallbackOnDefault
+         *  - collectionOrItem
+         *  - enumValue
          */
             function ( params )
             {
+                // considering different scenarios there should not be syntax checking
+
                 // invoke core logic
-                return _PHYSICAL_FILTER.executeOneItemFilter(
+                _PHYSICAL_FILTER.executeMergeFilter(
                     this,
-                    params.predicateArray,
-                    params.fallbackOnDefault,
+                    params.collectionOrItem,
                     params.enumValue
                 );
             },
 
-        last_or_default: /**
-         * @param {Object} params
-         *  - predicateArray
-         *  - fallbackOnDefault
+        set_mtds: /**
+         * @param {any} collectionOrItem
+         * @param {any} udfEqualityComparer
+         * @param {any} strongSearch
+         * @param {any} enumValue
          */
+            // @ts-ignore
             function ( params )
             {
                 // invoke core logic
-                return _PHYSICAL_FILTER.executeOneItemFilter(
+                _PHYSICAL_FILTER.executeSetFilter(
                     this,
-                    params.predicateArray,
-                    params.fallbackOnDefault,
+                    params.collectionOrItem,
+                    params.udfEqualityComparer,
+                    params.strongSearch,
                     params.enumValue
                 );
             },
 
-        single_or_default: /**
-         * @param {Object} params
-         *  - predicateArray
-         *  - fallbackOnDefault
-         */
-            function ( params )
-            {
-                // invoke core logic
-                return _PHYSICAL_FILTER.executeOneItemFilter(
-                    this,
-                    params.predicateArray,
-                    params.fallbackOnDefault,
-                    params.enumValue
-                );
-            },
-
-        elementAt_or_default: /**
-         * @param {Object} params
-         *  - index
-         *  - fallbackOnDefault
-         */
-            function ( params )
-            {
-                // invoke core logic
-                return _PHYSICAL_FILTER.executeRangeFilter(
-                    this,
-                    params.predicateArray, // undefined by design
-                    params.index,
-                    params.fallbackOnDefault, // replace 'count' param with 'fallbackOnDefault' param
-                    params.enumValue
-                );
-            },
-
-        min_or_max_or_avg: /**
+        aggregate_mtds: /**
          * @param {Object} params
          *  - property
          * @param {Object} actionContext
@@ -2771,7 +2696,7 @@
                 );
             },
 
-        all_or_any: /**
+        quantifying_mtds: /**
          * @param {Object} params
          *  - predicateArray
          *  - enumValue
@@ -2779,7 +2704,7 @@
             function ( params )
             {
                 // invoke core logic
-                return _LOGICAL_FILTER.applyAllAnyFilter(
+                return _PHYSICAL_FILTER.executeAllAnyFilter(
                     this,
                     params.predicateArray,
                     params.enumValue
@@ -3628,6 +3553,7 @@
          * @param {any} jlc
          * @param {any} collectionOrItem
          * @param {any} udfEqualityComparer
+         * @param {any} strongSearch
          * @param {any} enumValue
          */
             function (jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue) {
@@ -4922,6 +4848,26 @@
                     _ACTION.hpid.data = currentColl;
                     if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
                 }
+            },
+
+        executeAllAnyFilter: /**
+         * @param {any} jlc
+         * @param {any} predicateArray
+         * @param {any} enumValue
+         */
+            function ( jlc, predicateArray, enumValue )
+            {
+                return execute_AAF_I_1L( jlc, predicateArray, enumValue );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function execute_AAF_I_1L ( jlc, predicateArray, enumValue )
+                {
+                    return _LOGICAL_FILTER.applyAllAnyFilter(jlc, predicateArray, enumValue);
+                }
             }
     };
 
@@ -5197,7 +5143,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.where,
+                jcm: _CORE.restriction_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -5276,7 +5222,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.group_by,
+                jcm: _CORE.group_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -5330,16 +5276,16 @@
                             name: 'terminateFlowAndReturnData',
 
                             value: true
-                        }//,
+                        },
 
-                        // {
-                        //     // position of the parameter in the method
-                        //     pos_idx: 8,
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 8,
 
-                        //     name: 'isDictionaryContext',
+                            name: 'isDictionaryContext',
 
-                        //     value : false
-                        // }
+                            value : false
+                        }
                     ]
                 },
 
@@ -5401,7 +5347,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.add_t,
+                jcm: _CORE.merge_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -5409,7 +5355,7 @@
                             // position of the parameter in the method
                             pos_idx: 1,
 
-                            name: 'inputCollection'
+                            name: 'collectionOrItem'
                         }
                     ],
                     misc: [
@@ -5482,7 +5428,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.add_t,
+                jcm: _CORE.merge_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -5490,7 +5436,7 @@
                             // position of the parameter in the method
                             pos_idx: 1,
 
-                            name: 'collectionItem'
+                            name: 'collectionOrItem'
                         }
                     ],
                     misc: [
@@ -5563,7 +5509,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.add_t,
+                jcm: _CORE.merge_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -5571,7 +5517,7 @@
                             // position of the parameter in the method
                             pos_idx: 1,
 
-                            name: 'collectionItem'
+                            name: 'collectionOrItem'
                         }
                     ],
                     misc: [
@@ -5650,7 +5596,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.set_ops,
+                jcm: _CORE.set_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -5666,6 +5612,13 @@
                             pos_idx: 2,
 
                             name: 'udfEqualityComparer'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'strongSearch'
                         }
                     ],
                     misc: [
@@ -5738,19 +5691,46 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.set_ops,
+                jcm: _CORE.set_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 2,
 
                             name: 'udfEqualityComparer'
                         },
                     ],
 
-                    misc: []
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'collectionOrItem',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'strongSearch',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.DISTINCT
+                        }
+                    ]
                 },
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
@@ -5791,7 +5771,7 @@
                 // requires syntax checking
                 rsc: true,
                 // user-provided query filter syntax
-                rsc_syntax: 'collection',
+                rsc_syntax: 'collectionOrItem',
 
                 // requires constraint checking
                 rcc: {
@@ -5817,7 +5797,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.set_ops,
+                jcm: _CORE.set_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -5849,7 +5829,7 @@
 
                             name: 'enumValue',
 
-                            value: _ENUM.CONTAINS
+                            value: _ENUM.EXCEPT
                         }
                     ]
                 },
@@ -5912,13 +5892,13 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.skip_or_take,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 3,
 
                             name: 'count'
                         }
@@ -5926,7 +5906,7 @@
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 2,
+                            pos_idx: 1,
 
                             name: 'predicateArray',
 
@@ -5935,7 +5915,16 @@
 
                         {
                             // position of the parameter in the method
-                            pos_idx: 3,
+                            pos_idx: 2,
+
+                            name: 'index',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
@@ -6008,13 +5997,13 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.skip_or_take,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 2,
+                            pos_idx: 1,
 
                             name: 'predicateArray'
                         }
@@ -6022,7 +6011,16 @@
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 2,
+
+                            name: 'index',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
 
                             name: 'count',
 
@@ -6031,7 +6029,7 @@
 
                         {
                             // position of the parameter in the method
-                            pos_idx: 3,
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
@@ -6098,13 +6096,13 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.skip_or_take,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 3,
 
                             name: 'count'
                         }
@@ -6112,7 +6110,7 @@
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 2,
+                            pos_idx: 1,
 
                             name: 'predicateArray',
 
@@ -6121,7 +6119,16 @@
 
                         {
                             // position of the parameter in the method
-                            pos_idx: 3,
+                            pos_idx: 2,
+
+                            name: 'index',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
@@ -6194,13 +6201,13 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.skip_or_take,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 2,
+                            pos_idx: 1,
 
                             name: 'predicateArray'
                         }
@@ -6208,7 +6215,16 @@
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 2,
+
+                            name: 'index',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
 
                             name: 'count',
 
@@ -6217,7 +6233,7 @@
 
                         {
                             // position of the parameter in the method
-                            pos_idx: 3,
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
@@ -6290,7 +6306,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.order_asc_or_desc,
+                jcm: _CORE.order_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -6384,7 +6400,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.order_asc_or_desc,
+                jcm: _CORE.order_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -6479,7 +6495,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.order_asc_or_desc,
+                jcm: _CORE.order_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -6574,7 +6590,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.order_asc_or_desc,
+                jcm: _CORE.order_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -6655,7 +6671,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.list_t,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [],
@@ -6664,18 +6680,18 @@
                             // position of the parameter in the method
                             pos_idx: 1,
 
-                            name: 'fallbackOnDefault',
+                            name: 'predicateArray',
 
-                            value: true
+                            value: undefined
                         },
 
                         {
                             // position of the parameter in the method
                             pos_idx: 2,
 
-                            name: 'predicateArray',
+                            name: 'fallbackOnDefault',
 
-                            value: undefined
+                            value: true
                         },
 
                         {
@@ -6753,7 +6769,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.group_by,
+                jcm: _CORE.group_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -6875,21 +6891,30 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.list_t,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 2,
 
-                            name: 'defaultValue'
+                            name: 'fallbackOnDefault'
                         }
                     ],
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 2,
+                            pos_idx: 1,
+
+                            name: 'predicateArray',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
 
                             name: 'enumValue',
 
@@ -6973,7 +6998,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.reverse_t,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [],
@@ -6991,7 +7016,7 @@
                             // position of the parameter in the method
                             pos_idx: 2,
 
-                            name: 'startingIndex',
+                            name: 'index',
 
                             value: undefined
                         },
@@ -7074,7 +7099,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.reverse_t,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -7082,7 +7107,7 @@
                             // position of the parameter in the method
                             pos_idx: 2,
 
-                            name: 'startingIndex'
+                            name: 'index'
                         },
 
                         {
@@ -7177,7 +7202,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.select_ops,
+                jcm: _CORE.projection_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -7285,7 +7310,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.select_ops,
+                jcm: _CORE.projection_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -7393,7 +7418,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.join_ops,
+                jcm: _CORE.join_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -7522,7 +7547,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.join_ops,
+                jcm: _CORE.join_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -7600,11 +7625,261 @@
             },
             
             groupJoin : {
+                // Linq method name
+                lmn: 'groupJoin',
 
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: true,
+                // user-provided query filter syntax
+                rsc_syntax: 'outerSelectorArray, innerSelectorArray',
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting,
+
+                        /**
+                         * By design syntax check is the last constraint to apply !
+                         * Don't try be clever !
+                        */
+                        _SYNTAX.check
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.join_mtds,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'innerColl'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'outerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'outerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'innerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 5,
+
+                            name: 'innerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 7,
+
+                            name: 'udfResultSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 8,
+
+                            name: 'udfEqualityComparer'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 6,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.GROUP_JOIN
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             groupLeftJoin : {
+                // Linq method name
+                lmn: 'groupLeftJoin',
 
+                // method returns data
+                mrd: {
+                    // does return data
+                    yes : false,
+
+                    // does produce final result which is a collection
+                    returns_collection : true,
+                },
+
+                // pre-defined internal constraint checking
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // prevent undefined error
+                        if ( params === undefined ) params = {};
+                        return params;
+                    }
+                ],
+
+                // requires syntax checking
+                rsc: true,
+                // user-provided query filter syntax
+                rsc_syntax: 'outerSelectorArray, innerSelectorArray',
+
+                // requires constraint checking
+                rcc: {
+                    // constraint functions
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        udf_constraints.handleResetFirstLevelSorting,
+
+                        /**
+                         * By design syntax check is the last constraint to apply !
+                         * Don't try be clever !
+                        */
+                        _SYNTAX.check
+                    ],
+
+                    // constraint functions data
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // core JLC method behind the API (jcm)
+                jcm: _CORE.join_mtds,
+                // metadata of core JLC method parameters
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'innerColl'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'outerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'outerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'innerSelectorArray'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 5,
+
+                            name: 'innerUdfSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 7,
+
+                            name: 'udfResultSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 8,
+
+                            name: 'udfEqualityComparer'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 6,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.GROUP_LEFT_JOIN
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - predefined if required, otherwise null
+                acp: null,
+                // action context object (aco)
+                aco: null,
+
+                // is writable - can you update state during query flow
+                writable: false,
+
+                // method runs in the sorting context
+                is_sort_ctx: false
             },
 
             elementAt : {
@@ -7653,13 +7928,13 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.elementAt_or_default,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 2,
 
                             name: 'index'
                         }
@@ -7667,16 +7942,25 @@
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 2,
+                            pos_idx: 1,
 
-                            name: 'fallbackOnDefault',
+                            name: 'predicateArray',
 
-                            value: false
+                            value: undefined
                         },
 
                         {
                             // position of the parameter in the method
                             pos_idx: 3,
+
+                            name: 'count',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
@@ -7743,13 +8027,13 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.elementAt_or_default,
+                jcm: _CORE.range_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 1,
+                            pos_idx: 2,
 
                             name: 'index'
                         }
@@ -7757,16 +8041,25 @@
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 2,
+                            pos_idx: 1,
 
-                            name: 'fallbackOnDefault',
+                            name: 'predicateArray',
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'count',
 
                             value: true
                         },
 
                         {
                             // position of the parameter in the method
-                            pos_idx: 3,
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
@@ -7856,7 +8149,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.first_or_default,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -7875,6 +8168,15 @@
                             name: 'fallbackOnDefault',
 
                             value: false
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.FIRST
                         }
                     ]
                 },
@@ -7943,7 +8245,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.first_or_default,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -7962,6 +8264,15 @@
                             name: 'fallbackOnDefault',
 
                             value: true
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.FIRST
                         }
                     ]
                 },
@@ -8030,7 +8341,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.last_or_default,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8049,6 +8360,15 @@
                             name: 'fallbackOnDefault',
 
                             value: false
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.LAST
                         }
                     ]
                 },
@@ -8117,7 +8437,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.last_or_default,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8136,6 +8456,15 @@
                             name: 'fallbackOnDefault',
 
                             value: true
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.LAST
                         }
                     ]
                 },
@@ -8204,7 +8533,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.single_or_default,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8223,6 +8552,15 @@
                             name: 'fallbackOnDefault',
 
                             value: false
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.SINGLE
                         }
                     ]
                 },
@@ -8291,7 +8629,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.single_or_default,
+                jcm: _CORE.paging_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8310,6 +8648,15 @@
                             name: 'fallbackOnDefault',
 
                             value: true
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.SINGLE
                         }
                     ]
                 },
@@ -8378,7 +8725,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.min_or_max_or_avg,
+                jcm: _CORE.aggregate_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8472,7 +8819,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.min_or_max_or_avg,
+                jcm: _CORE.aggregate_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8566,7 +8913,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.min_or_max_or_avg,
+                jcm: _CORE.aggregate_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8669,7 +9016,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.all_or_any,
+                jcm: _CORE.quantifying_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [
@@ -8756,7 +9103,7 @@
                 },
 
                 // core JLC method behind the API (jcm)
-                jcm: _CORE.all_or_any,
+                jcm: _CORE.quantifying_mtds,
                 // metadata of core JLC method parameters
                 jcm_this_excluded_params: {
                     params: [

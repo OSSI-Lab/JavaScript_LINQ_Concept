@@ -25,6 +25,16 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/DEV&nbsp;[ DEV -> TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - DPR #23:&nbsp;2020-10-12 &nbsp;&nbsp;17:17 PM Local Time &nbsp;:heavy_check_mark:
+    - done (what has changed since DPR #22):
+      - development of the following methods: adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm 
+    - pending (what is left to be done in the next DPRs):
+      - testing whole library: all query methods
+    - architecture [ DynamicAPI Layer ]
+        - see DPR #15
+    - future feature implementation (in the JavaScript LINQ & JavaScript PLINQ - aka Parallel JavaScript LINQ)
+      - intersect, union, sequenceEqual, count, sum, castnbsp;:zap:&nbsp;:bell:
+      - JavaScript PLINQ version to be available as of 01-06-2021&nbsp;:zap:&nbsp;:bell:
  - DPR #22:&nbsp;2020-10-11 &nbsp;&nbsp;10:29 AM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #21):
       - development of the following methods: finishing defs of 'groupJoin' & 'groupLeftJoin' methods for _PHYSICAL_FILTER / executeJoinFilter 
@@ -33,9 +43,6 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
       - testing whole library: all query methods
     - architecture [ DynamicAPI Layer ]
         - see DPR #15
-    - future consideration (in the JavaScript LINQ & JavaScript PLINQ - aka Parallel JavaScript LINQ)
-      - intersect, union, (and maybe other methods)
-      - JavaScript PLINQ version to be available as of 01-06-2021&nbsp;:zap:&nbsp;:bell:
  - DPR #21:&nbsp;2020-10-09 &nbsp;&nbsp;10:32 AM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #20):
       - development of the following methods: added defs of 'groupJoin' & 'groupLeftJoin' methods for _PHYSICAL_FILTER / executeJoinFilter 
