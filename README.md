@@ -22,10 +22,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;GA/DEV&nbsp;[ DEV -> TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
+## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #23:&nbsp;2020-10-12 &nbsp;&nbsp;17:22 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #23:&nbsp;2020-10-12 &nbsp;&nbsp;17:27 PM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #22):
       - development of the following methods: adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm 
     - pending (what is left to be done in the next DPRs):
