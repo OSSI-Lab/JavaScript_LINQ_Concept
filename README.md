@@ -25,7 +25,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #23:&nbsp;2020-10-12 &nbsp;&nbsp;17:42 PM Local Time &nbsp;:heavy_check_mark:
+ - DPR #24 - TEST #1:&nbsp;2020-10-13 &nbsp;&nbsp;11:28 PM Local Time &nbsp;:heavy_check_mark:
+    - FIXED:
+      - handling rsc_syntax in _LINQ_CONTEXT when you have multimple values, i.e. rsc_syntax: 'outerSelectorArray, innerSelectorArray'
+ - DPR #23:&nbsp;2020-10-12 &nbsp;&nbsp;5:42 PM Local Time &nbsp;:heavy_check_mark:
     - done (what has changed since DPR #22):
       - development of the following methods:
 		- adding defs of 'groupJoin' & 'groupLeftJoin' methods for _LINQ_CONTEXT / udlm

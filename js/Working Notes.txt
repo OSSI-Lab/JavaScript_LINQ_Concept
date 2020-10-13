@@ -1,8 +1,11 @@
 1. Should resetting 1st level sorting be defined in a UDF or LDF ?
 
+Answer: YOU CAN KEEP IT AS IT IS (UDF), OR CREATE SOME INTERNAL PRIVATE OBJECT TO HANDLE THAT ! (LDF)
 
-2. How to handle rsc_syntax in _LINQ_CONTEXT when you have multimple values, e.g.
-    rsc_syntax: 'outerSelectorArray, innerSelectorArray',
 
-and when one of them is defined or not
+
+2. How to handle rsc_syntax in _LINQ_CONTEXT when you have multimple values, i.e. rsc_syntax: 'outerSelectorArray, innerSelectorArray',
+and when one of them is defined or not ?
+
+Answer: FIXED
 

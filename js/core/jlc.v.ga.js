@@ -408,7 +408,12 @@
                      *  - otherwise if cit is not UNKNOWN run syntax checking for objects
                     */
                     if ( is_primitive )
-                        return c_P_I_1L( user_filter_array, sortingContext );
+                        return user_filter_array.forEach(
+                                                            function(user_syntax_arr) {
+                                                                if ( user_syntax_arr && typeof user_syntax_arr !== 'function' )
+                                                                    c_P_I_1L( user_syntax_arr, sortingContext );
+                                                            }
+                                                        );
                     else
                     {
                         if ( sortingContext )
@@ -417,6 +422,9 @@
                              * Only in sorting context you can access shared first-level sorting context.
                              * 
                              * Metadata is returned only for type KVP.
+                             * 
+                             * While in sorting context, 'user_filter_array' is a single array, not array of arrays !
+                             * This is due to design of JavaScript LINQ query methods in the context of sorting !
                             */
 
                             var metadataKVP = c_O_I_2L( user_filter_array, sortingContext );
@@ -424,7 +432,12 @@
                             thisAction.sortingMetadataCtx.setMetadata.call( thisAction.sortingMetadataCtx, metadataKVP, actionConstr );
                         }
                         else
-                            return c_O_I_2L( user_filter_array, sortingContext );
+                            return user_filter_array.forEach(
+                                                                function(user_syntax_arr) {
+                                                                    if ( user_syntax_arr && typeof user_syntax_arr !== 'function' )
+                                                                        c_O_I_2L( user_syntax_arr, sortingContext );
+                                                                }
+                                                            );
                     }
 
 
@@ -9308,13 +9321,25 @@
                         // define optional action constraint
                         var constr;
                         // check for optional method syntax checking
-                        if ( method_def_obj.rsc )
+                        if ( method_def_obj.rsc ) {
+                            // define an array of arrays of user-provided query filters
+                            var upqf_syntax_arr_of_arr = [];
+
+                            // create array of parameters that store user-provided query filters
+                            var rsc_syntax_arr = method_def_obj.rsc_syntax.split(',');
+
+                            // loop over array, fetch predicates and store them in the array
+                            for (let rsc_syntax of rsc_syntax_arr)
+                                upqf_syntax_arr_of_arr.push(params[ rsc_syntax ]);
+
+                            // create real action constraint
                             constr = _CONSTRAINT.createActionConstraint(
                                 // @ts-ignore
                                 System.Linq.Context[ method_def_obj.lmn ],
                                 method_def_obj.rcc.required_ctxs,
-                                params[ method_def_obj.rsc_syntax ]
+                                upqf_syntax_arr_of_arr // array of arrays
                             );
+                        }
 
 
 
