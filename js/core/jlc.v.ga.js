@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #23 -> 3-Tier Architecture [GA/TEST] -> TEST / DEV|TEST|RELEASE
+ *      ⚠️ DPR #24 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
