@@ -25,7 +25,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - DPR #24 - TEST #1:&nbsp;2020-10-13 &nbsp;&nbsp;11:39 PM Local Time &nbsp;:heavy_check_mark:
+ - TEST #1 - DPR #24:&nbsp;2020-10-13 &nbsp;&nbsp;11:42 PM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
       - handling rsc_syntax in _LINQ_CONTEXT when you have multimple values, i.e. rsc_syntax: 'outerSelectorArray, innerSelectorArray'
 #
