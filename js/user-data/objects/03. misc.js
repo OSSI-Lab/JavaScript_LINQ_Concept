@@ -284,7 +284,7 @@
         var coll_1_merged = coll_1.usingLinq()
                                               .concat(
                                                         {
-                                                            'inputCollection' : new_coll
+                                                            'collectionOrItem' : new_coll
                                                         }
                                                      )
                                               .toArray();

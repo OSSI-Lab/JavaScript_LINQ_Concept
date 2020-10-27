@@ -1,6 +1,12 @@
 1. Should resetting 1st level sorting be defined in a UDF or LDF ?
 
 Answer: YOU CAN KEEP IT AS IT IS (UDF), OR CREATE SOME INTERNAL PRIVATE OBJECT TO HANDLE THAT ! (LDF)
+    I have changed:
+        udf_constraints.handleFirstLevelSorting (UDF) -> _PROXY_TRAP.udlm._handleFirstLevelSorting (LDF)
+        
+        udf_constraints.handleSecondLevelSorting (UDF) -> _PROXY_TRAP.udlm._handleSecondLevelSorting (LDF)
+        
+        udf_constraints.handleResetFirstLevelSorting (UDF) -> _PROXY_TRAP.udlm._handleResetFirstLevelSorting (LDF)
 
 
 
@@ -8,4 +14,23 @@ Answer: YOU CAN KEEP IT AS IT IS (UDF), OR CREATE SOME INTERNAL PRIVATE OBJECT T
 and when one of them is defined or not ?
 
 Answer: FIXED
+    I have applied a forEach loop which doesn't provide break mechanism, but the logic of the method that runs with every invocation of the forEach method
+    provides "natural" - because logical - break functionality !
+
+
+
+==========================================================================================================================================
+
+TO BE FIXED:
+
+3. Optimization
+_LINQ_CONTEXT
+    _proxyTrapCommon
+        addActionConstraints
+            - what's the purpose of if's else part ?????????????
+            - in get with the same query method shouldn't be get from a cache right inside get ????????????????????????
+
+
+4. "Shared Results View" problem
+        -> _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView() 
 

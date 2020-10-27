@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #24 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #25 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -41,10 +41,10 @@
     var _ENUM = {
         FIRST: "first",
         LAST: "last",
-        
+
         SINGLE: "single",
         ELEMENT_AT: "element_at",
-        
+
         MIN: 'min',
         MAX: 'max',
         AVG: 'average',
@@ -53,15 +53,15 @@
 
         ALL: "all",
         ANY: "any",
-        
+
         DEFAULT: "default",
 
         REVERSE: "reverse",
         REVERSE_EXT: "reverse_ext",
-        
+
         SKIP: "skip",
         TAKE: "take",
-        
+
         SELECT: "select",
         SELECT_MANY: "select_many",
 
@@ -69,10 +69,10 @@
         LEFT_JOIN: "left_join",
         GROUP_JOIN: "group_join",
         GROUP_LEFT_JOIN: "group_left_join",
-        
+
         SAVE: "save",
         UPDATE: "update",
-        
+
         CONCAT: "concat",
         APPEND: "append",
         PREPEND: "prepend",
@@ -267,22 +267,22 @@
             * @param {string} lmn Query method name, f.e. 'where', 'groupBy' etc.
             */
             // @ts-ignore
-            function (lmn)
+            function ( lmn )
             {
-                return create_QFC_I_1L(lmn);
+                return create_QFC_I_1L( lmn );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function create_QFC_I_1L (lmn)
+                function create_QFC_I_1L ( lmn )
                 {
                     // declare query constraint property name
                     var queryPropertyName = _CONSTRAINT._placeholder + lmn;
 
                     // yield on demand query flow base constraints
-                    return _CONSTRAINT[queryPropertyName];
+                    return _CONSTRAINT[ queryPropertyName ];
                 }
             },
 
@@ -366,11 +366,11 @@
             },
 
 
-            // query flow constraint placeholder
-            _placeholder : '_bc_',
+        // query flow constraint placeholder
+        _placeholder: '_bc_',
 
-            // query flow constraint cache
-            _qfcc : Object.create(null)
+        // query flow constraint cache
+        _qfcc: Object.create( null )
     };
 
     // private syntax object
@@ -409,11 +409,12 @@
                     */
                     if ( is_primitive )
                         return user_filter_array.forEach(
-                                                            function(user_syntax_arr) {
-                                                                if ( user_syntax_arr && typeof user_syntax_arr !== 'function' )
-                                                                    c_P_I_1L( user_syntax_arr, sortingContext );
-                                                            }
-                                                        );
+                            function ( user_syntax_arr )
+                            {
+                                if ( user_syntax_arr && typeof user_syntax_arr !== 'function' )
+                                    c_P_I_1L( user_syntax_arr, sortingContext );
+                            }
+                        );
                     else
                     {
                         if ( sortingContext )
@@ -433,11 +434,12 @@
                         }
                         else
                             return user_filter_array.forEach(
-                                                                function(user_syntax_arr) {
-                                                                    if ( user_syntax_arr && typeof user_syntax_arr !== 'function' )
-                                                                        c_O_I_2L( user_syntax_arr, sortingContext );
-                                                                }
-                                                            );
+                                function ( user_syntax_arr )
+                                {
+                                    if ( user_syntax_arr && typeof user_syntax_arr !== 'function' )
+                                        c_O_I_2L( user_syntax_arr, sortingContext );
+                                }
+                            );
                     }
 
 
@@ -700,14 +702,15 @@
                      * param_args : additional parameters to pass to UDF
                     */
 
-                    defineCustomCheckMethod_I_1L(name, key, value, param_args);
+                    defineCustomCheckMethod_I_1L( name, key, value, param_args );
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function defineCustomCheckMethod_I_1L(property_name, user_filter_key, value, param_args) {
+                    function defineCustomCheckMethod_I_1L ( property_name, user_filter_key, value, param_args )
+                    {
                         Object.defineProperty(
                             _SYNTAX,
                             property_name,
@@ -715,11 +718,11 @@
                                 // only override getter
                                 get: function ()
                                 {
-                                    if(typeof value !== 'function')
+                                    if ( typeof value !== 'function' )
                                         throw Error( '\r\nYou have to provide a function that will deliver custom syntax checking !\r\n\r\n' );
-                                        
+
                                     // return a UDF to check custom syntax
-                                    return value.bind(null, user_filter_key, ...param_args)();
+                                    return value.bind( null, user_filter_key, ...param_args )();
                                 }
                             }
                         );
@@ -731,20 +734,20 @@
          * @param {any} method_name Name of the function to access
          */
             function ( method_name )
-               {
-                   return a_C_I_1L( method_name );
-   
-   
-   
-                   /**
-                    * Local helper functions
-                   */
-                   // @ts-ignore
-                   function a_C_I_1L (method_name)
-                   {
-                        // invoke UDF
-                        return _SYNTAX[method_name];
-                   }
+            {
+                return a_C_I_1L( method_name );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                // @ts-ignore
+                function a_C_I_1L ( method_name )
+                {
+                    // invoke UDF
+                    return _SYNTAX[ method_name ];
+                }
             }
     };
 
@@ -1163,16 +1166,16 @@
                  * Before proceeding with action chain execution or action chaining, run constraint checking for action chain up the road !
                  * Run constraint checking from this action up the root action itself !
                  * 
-                 * Constraint concept is designed to be independent of the above tandem, i.e. action && action-context and their relationship
+                 * Constraint concept is designed to be independent of the above tandem, i.e. action & action-context and their relationship !
                 */
                 runActionConstraintRecursively_I_1L( action_ctx, action_constraint );
 
 
-                // invoke real data filtering and produce output
+                // invoke real data filtering and produce output (when the last method in the chain is a final result method)
                 if ( to_execute )
                     // execute all actions
                     return this.executeChain( action_ctx );
-                // otherwise enable further flow of actions
+                // otherwise enable further flow of actions (when the last method in the chain is NOT a final result method)
                 else
                     // return JLC instance api and pass context of current action to provide chain of actions to execute
                     return _COMMON.jlcNew( action_ctx );
@@ -1239,6 +1242,9 @@
                     // collection token
                     taco.root_token = jlc_ctx.root_token;
 
+                    // collection fim (first item metadata)
+                    taco.fim = jlc_ctx.fim;
+
                     // get first-level sorting context shared across query flow
                     taco.sharedFirstLevelSortingCtx = jlc_ctx.sharedFirstLevelSortingCtx
                         ?
@@ -1284,19 +1290,21 @@
 
 
                         // store query flow shared constraints (qfsc)
-                        if(a_ctx.parentConstraint) {
+                        if ( a_ctx.parentConstraint )
+                        {
                             // get so-far created query flow shared constraints from parent
                             a_constr.qfsc = a_ctx.parentConstraint.qfsc;
 
                             // fetch query flow shared constraints for this action
-                            var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints(constr_def.name);
+                            var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
 
                             // merge qfsc with ta_qfsc
-                            Object.assign(a_constr.qfsc, ta_qfsc[constr_def.name]);
+                            Object.assign( a_constr.qfsc, ta_qfsc[ constr_def.name ] );
                         }
                         // create query flow shared constraints (qfsc) during the very first access
-                        else {
-                            a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints(constr_def.name);
+                        else
+                        {
+                            a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
                         }
                         // determine whether stop further drilling down of the parent chain
                         a_constr.stopDrillingDown = a_constr.qfsc[ constr_def.name ].isEnabled;
@@ -1461,8 +1469,6 @@
             }
     };
 
-
-
     // private common object
     var _COMMON = {
         jlcNew: /**
@@ -1481,11 +1487,14 @@
                 */
                 function j_I_I_1L ( ctx )
                 {
-                    // create proxied JLC instance
-                    var proxyAPI = new Proxy(_LINQ_CONTEXT._fromFactory, _LINQ_CONTEXT._proxyHandler);
+                    // create template object to clone current action context object
+                    var ctxClone = Object.create( null );
 
-                    // bind context to this proxied JLC instance
-                    proxyAPI._ctx = ctx;
+                    // do cloning
+                    ctxClone._ctx = _COMMON.deepCopyYesCR( ctx );
+
+                    // create and return proxied JLC instance
+                    var proxyAPI = new Proxy( ctxClone, _LINQ_CONTEXT._proxyHandler );
 
                     // return proxied JLC instance
                     return proxyAPI;
@@ -1587,12 +1596,39 @@
                 }
             },
 
+        isObjectEmpty: /**
+         * Test for an empty JavaScript object.
+         *
+         * Source: https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
+         */
+            function ( obj )
+            {
+                return is_OE_I_1L( obj );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function is_OE_I_1L ( o )
+                {
+                    /**
+                     * Handles these cases:
+                     *  a. var o = {};
+                     *  b. var o = Object.create(Object.prototype);
+                     *  c. var o = Object.create(null);
+                     */
+                    return Object.keys( o ).length === 0 && ( o.constructor && o.constructor === Object ||/** this handles case c. */ true );
+                }
+            },
+
         getDefaultValueOf: /**
         * Determine default value of inputItem.
         *
         * @param {any} inputItem
         */
-            function (inputItem) {
+            function ( inputItem )
+            {
                 return get_DV_I_1L( inputItem );
 
 
@@ -1660,6 +1696,58 @@
                 }
             },
 
+        deepCopyNoCR: /**
+        * Clone object without reference without circular references.
+        *
+        * Source: https://dev.to/ptasker/best-way-to-copy-an-object-in-javascript-827
+        * 
+        * @param {any} obj Object to clone content from.
+        */
+            function ( obj )
+            {
+                if ( obj && typeof obj === 'object' )
+                {
+                    return Object.keys( obj )
+                        .map( k => ( { [ k ]: _COMMON.deepCopyNoCR( obj[ k ] ) } ) )
+                        .reduce( ( a, c ) => Object.assign( a, c ), Object.create( null ) );
+                } else if ( Array.isArray( obj ) )
+                {
+                    return obj.map( _COMMON.deepCopyNoCR );
+                }
+                return obj;
+            },
+
+        deepCopyYesCR: /**
+            * Clone object without reference with circular references.
+            *
+            * Source: https://stackoverflow.com/questions/40291987/javascript-deep-clone-object-with-circular-references
+            * 
+            * @param {any} obj Object to clone content from.
+            */
+            function ( obj, hash = new WeakMap() )
+            {
+                // do not try to clone primitives or functions
+                if ( Object( obj ) !== obj || obj instanceof Function ) return obj;
+                if ( hash.has( obj ) ) return hash.get( obj ); // cyclic reference
+                try
+                { // try to run constructor (without arguments, as we don't know them)
+                    var result = new obj.constructor();
+                } catch ( e )
+                { // constructor failed, create object without running the constructor
+                    result = Object.create( Object.getPrototypeOf( obj ) );
+                }
+                // optional: support for some standard constructors (extend as desired)
+                if ( obj instanceof Map )
+                    Array.from( obj, ( [ key, val ] ) => result.set( _COMMON.deepCopyYesCR( key, hash ), _COMMON.deepCopyYesCR( val, hash ) ) );
+                else if ( obj instanceof Set )
+                    Array.from( obj, ( key ) => result.add( _COMMON.deepCopyYesCR( key, hash ) ) );
+                // register in hash
+                hash.set( obj, result );
+                // clone and assign enumerable own properties recursively
+                return Object.assign( result, ...Object.keys( obj ).map(
+                    key => ( { [ key ]: _COMMON.deepCopyYesCR( obj[ key ], hash ) } ) ) );
+            },
+
         guessCollectionDefaultValue: /**
         * Predict default value of a collection in the certain point in time during query flow.
         *
@@ -1672,44 +1760,49 @@
                  * if any data would have been available, when query flow had arrived in 'defaultIfEmpty' method.
                 */
 
-               // reference api object
-               var api = param_arr[0];
+                // reference api object
+                var api = param_arr[ 0 ];
 
                 // get source collection input item
-                var inputItem = param_arr[1];
+                var inputItem = param_arr[ 1 ];
 
                 // cache current query interceptor
                 var current_GET_interceptor = _LINQ_CONTEXT._proxyHandler.get;
 
                 // enable transparent object property access
-                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.default_GET;
+                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
 
                 // determine current query flow (all invoked methods up to this method)
                 var method_names = getQueryMethodNames_I_1L();
-                
+
                 var possible_type, method_name;
                 // iterate all query method names from the top of the chain
-                for(var i = method_names.length - 1; i > 0; i--) {
+                for ( var i = method_names.length - 1; i > 0; i-- )
+                {
                     // reference method name
-                    method_name = method_names[i];
+                    method_name = method_names[ i ];
 
                     // if it's dictionary then break it
-                    if(method_name === System.Linq.Context.toDictionary) {
+                    if ( method_name === System.Linq.Context.toDictionary )
+                    {
                         possible_type = _ENUM.CIT.KVP;
                         break;
                     }
                     // if it's grouping object then check it further down the chain
-                    else if(method_name === System.Linq.Context.groupBy) {
+                    else if ( method_name === System.Linq.Context.groupBy )
+                    {
                         possible_type = _ENUM.CIT.GROUPING;
 
                         var method_name_2;
                         // iterate all query method names from the current position in the chain towards the bottom
-                        for(var j = i - 1; j > 0; j--) {
+                        for ( var j = i - 1; j > 0; j-- )
+                        {
                             // reference method name
-                            method_name_2 = method_names[i];
-                    
+                            method_name_2 = method_names[ i ];
+
                             // if it's dictionary then break it
-                            if(method_name_2 === System.Linq.Context.toDictionary) {
+                            if ( method_name_2 === System.Linq.Context.toDictionary )
+                            {
                                 possible_type = _ENUM.CIT.KVP;
                                 break;
                             }
@@ -1718,16 +1811,18 @@
                 }
 
                 // for 'KVP' or 'GROUPING' default value is undefined
-                if(possible_type === _ENUM.CIT.KVP || possible_type === _ENUM.CIT.GROUPING) {
+                if ( possible_type === _ENUM.CIT.KVP || possible_type === _ENUM.CIT.GROUPING )
+                {
                     // define collection default value
                     api.jlc_ctx.cdv = undefined;
                 }
                 // it must be 'PLAIN' or 'PRIMITIVE'
-                else {
+                else
+                {
                     // define collection default value
-                    api.jlc_ctx.cdv = _COMMON.getDefaultValueOf(inputItem);
+                    api.jlc_ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
                 }
-                
+
                 // restore query flow context-default interceptor
                 _LINQ_CONTEXT._proxyHandler.get = current_GET_interceptor;
 
@@ -1736,19 +1831,42 @@
                 /**
                  * Local helper methods
                 */
-                function getQueryMethodNames_I_1L() {
+                function getQueryMethodNames_I_1L ()
+                {
                     // get all valid query names from the current flow
                     var queryNames = [];
 
                     // loop over api and store only query method names
-                    for(let [key, value] of api) {
-                        if(typeof value === 'function' && _LINQ_CONTEXT._all.indexOf(key) > -1)
-                            queryNames.push(key);
+                    for ( let [ key, value ] of api )
+                    {
+                        if ( typeof value === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
+                            queryNames.push( key );
                     }
 
                     // return all valid query method names
                     return queryNames;
                 }
+            },
+
+        updateColumnSetColsAndCIT: /**
+        * Updates collection metadata required by the current query flow.
+        * It detects current column input type (cit) and updates column set of the contextually current collection.
+        */
+            function ( length_gte_2, firstItem )
+            {
+                /**
+                    * To enable syntax check, fetch object structure (all keys at all levels).
+                    * Fetch them provided that collection is not empty !
+                */
+
+                // detect collection input data type to provide type of source of syntax checking
+                _ACTION.hpid.columnSet.cit = _COMMON.detectCIT( firstItem, !firstItem ? false : true, length_gte_2 );
+
+                // if cit is UNKNOWN, skip further operations
+                if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
+
+                // otherwise initialize column metadata set based on current collection
+                _ACTION.hpid.columnSet.init( firstItem );
             },
 
         fetchObjectStructureKeys: /**
@@ -1837,7 +1955,7 @@
         * @param {any} item Input object from which to get key value.
         * @param {any} key_prop_arr Array of object properties, whose values form the key.
         */
-            function ( item, key_prop_arr)
+            function ( item, key_prop_arr )
             {
                 // declare a real key
                 var key, keyPart;
@@ -2375,8 +2493,6 @@
             /**
              * Compare two objects to determine whether they have the same content (property name - property value).
              * 
-             * ⚠️ This method is not put in practice yet !
-             * 
              * @param {any} obj1
              * @param {any} obj2
              */
@@ -2468,40 +2584,75 @@
          *
          * Source: https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
          */
-           function ()
-           {
+            function ()
+            {
                 // warn if overriding existing method
-                if(Array.prototype.equals)
-                    console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
-                
+                if ( Array.prototype.equals )
+                    console.warn( "Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code." );
+
                 // attach the .equals method to Array's prototype to call it on any array
-                Array.prototype.equals = function (array) {
+                Array.prototype.equals = function ( array )
+                {
                     // if the other array is a falsy value, return
-                    if (!array)
+                    if ( !array )
                         return false;
 
                     // compare lengths - can save a lot of time 
-                    if (this.length != array.length)
+                    if ( this.length != array.length )
                         return false;
 
-                    for (var i = 0, l = this.length; i < l; i++) {
+                    for ( var i = 0, l = this.length; i < l; i++ )
+                    {
                         // check if we have nested arrays
-                        if (this[i] instanceof Array && array[i] instanceof Array) {
+                        if ( this[ i ] instanceof Array && array[ i ] instanceof Array )
+                        {
                             // recurse into the nested arrays
-                            if (!this[i].equals(array[i]))
+                            if ( !this[ i ].equals( array[ i ] ) )
                                 return false;
                         }
-                        else if (this[i] != array[i]) { 
+                        else if ( this[ i ] != array[ i ] )
+                        {
                             // warning - two different object instances will never be equal: {x:20} != {x:20}
                             return false;
                         }
                     }
 
                     return true;
-                }
+                };
                 // hide method from for-in loops
-                Object.defineProperty(Array.prototype, "equals", {enumerable: false});
-           }
+                Object.defineProperty( Array.prototype, "equals", { enumerable: false } );
+            },
+
+        object_clone: /**
+         * Clone object without reference.
+         * 
+         * Source: https://stackoverflow.com/questions/12690107/clone-object-without-reference-javascript
+         */
+            function ()
+            {
+                Object.prototype.clone = function ()
+                {
+                    if ( typeof ( this ) === "object" )
+                    {
+                        var clone = {};
+
+                        var v;
+                        for ( var prop in this )
+                        {
+                            if ( this.hasOwnProperty( prop ) )
+                            {
+                                v = this[ prop ];
+
+                                clone[ prop ] = _COMMON.isPrimitiveType( v ) ? v : v.clone();
+                            }
+                        }
+
+                        return clone;
+                    }
+                    else
+                        return this;
+                };
+            }
     };
 
 
@@ -2533,7 +2684,7 @@
                     params.enumValue,
                     params.udfResultSelector,
                     params.udfEqualityComparer
-                    );
+                );
             },
 
         restriction_mtds: /**
@@ -2616,7 +2767,7 @@
                     params.udfSelector,
                     params.udfResultSelector,
                     params.incorporateIndex
-                    );
+                );
             },
 
         paging_mtds: /**
@@ -3197,7 +3348,7 @@
                     function groupObjects_I_2L ( item )
                     {
                         // get the group id
-                        var id = _COMMON.fetchObjectKeyValue(item, key_array);
+                        var id = _COMMON.fetchObjectKeyValue( item, key_array );
 
                         // project group id if required
                         if ( udfGroupProjector )
@@ -3540,15 +3691,15 @@
                                     */
 
                                     // handle OutOfRangeException in the method called 'elementAt'
-                                    if((index < 0 || index >= currentColl.length) && !count)
+                                    if ( ( index < 0 || index >= currentColl.length ) && !count )
                                         throw Error( '\r\nThe index was out of range.\r\nIt must be non-negative and smaller than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
                                     // handle OutOfRangeException in the method called 'elementAtOrDefault'
-                                    else if((index < 0 || index >= currentColl.length) && count)
+                                    else if ( ( index < 0 || index >= currentColl.length ) && count )
                                         // return default value of the collection input type
                                         return jlc._ctx.is_prim ? jlc._ctx.cdv : undefined;
                                     // otherwise return element at the specified position
                                     else
-                                        return jlc.resultsView[index];
+                                        return jlc.resultsView[ index ];
 
                                 default:
                                     throw Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
@@ -3569,7 +3720,8 @@
          * @param {any} strongSearch
          * @param {any} enumValue
          */
-            function (jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue) {
+            function ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
+            {
                 return execute_SF_I_1L( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue );
 
 
@@ -3577,30 +3729,32 @@
                 /**
                  * Local helper functions
                 */
-                function execute_SF_I_1L( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue ) {
+                function execute_SF_I_1L ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
+                {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
 
                     // if the sequence contains elements
                     if ( currentColl.length )
                     {
-                        switch(enumValue) {
+                        switch ( enumValue )
+                        {
                             case _ENUM.CONTAINS:
                                 // determine whether source collection contains particular item
-                                return doesContain_I_2L(currentColl, collectionOrItem);
-        
+                                return doesContain_I_2L( currentColl, collectionOrItem );
+
                             case _ENUM.DISTINCT:
                                 // compute distinct collection
-                                currentColl = makeDistinct_I_2L(currentColl, udfEqualityComparer);
+                                currentColl = makeDistinct_I_2L( currentColl, udfEqualityComparer );
 
                                 break;
-        
+
                             case _ENUM.EXCEPT:
                                 // compare two sequences (collections) and find those elements which are not present in second sequence
-                                currentColl = applyExcept_I_2L(currentColl, collectionOrItem, udfEqualityComparer, strongSearch);
+                                currentColl = applyExcept_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
 
                                 break;
-        
+
                             default:
                                 throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
                         }
@@ -3615,39 +3769,44 @@
                     /**
                      * Local helper functions
                     */
-                    function doesContain_I_2L(coll, item, udfComparer) {
+                    function doesContain_I_2L ( coll, item, udfComparer )
+                    {
                         // declare whether match was found (match)
                         var match = {
-                            is : false,
+                            is: false,
 
-                            index : -1
+                            index: -1
                         };
 
                         // determine whether to use UDF comparer...
-                        if(udfComparer) {
+                        if ( udfComparer )
+                        {
                             // iterate over whole collection
-                            for(var i = 0; i < coll.length; i++) {
+                            for ( var i = 0; i < coll.length; i++ )
+                            {
                                 // determine the match success
-                                match.is = udfComparer(item, coll[i]);
+                                match.is = udfComparer( item, coll[ i ] );
 
                                 // store the index of the match
                                 match.index = i;
 
                                 // if match was found, break the checking
-                                if(match.is) return true;
+                                if ( match.is ) return true;
                             }
                         }
-                        else {
+                        else
+                        {
                             // iterate over whole collection
-                            for(var i = 0; i < coll.length; i++) {
+                            for ( var i = 0; i < coll.length; i++ )
+                            {
                                 // determine the match success
-                                match.is = _COMMON.useDefaultObjectContentComparer(item, coll[i]);
+                                match.is = _COMMON.useDefaultObjectContentComparer( item, coll[ i ] );
 
                                 // store the index of the match
                                 match.index = i;
 
                                 // if match was found, break the checking
-                                if(match.is) return true;
+                                if ( match.is ) return true;
                             }
                         }
 
@@ -3655,29 +3814,32 @@
                         return match;
                     }
 
-                    function makeDistinct_I_2L(coll, comparer) {
+                    function makeDistinct_I_2L ( coll, comparer )
+                    {
                         // filter the collection if there are any items
-                        if(coll.length) {
+                        if ( coll.length )
+                        {
                             // declare distinct collection holder
                             var distinct_coll = [];
 
                             // push the first item from a source collection 
-                            distinct_coll.push(coll[0]);
+                            distinct_coll.push( coll[ 0 ] );
 
                             // declare current item (ci) and match object (mo)
                             var ci, mo;
 
                             // iterate over whole collection starting from the second item in the collection
-                            for(var i = 1; i < coll.length; i++) {
+                            for ( var i = 1; i < coll.length; i++ )
+                            {
                                 // access current item in the collection
-                                ci = coll[i];
+                                ci = coll[ i ];
 
                                 // get the match
-                                mo = doesContain_I_2L(distinct_coll, ci, comparer);
+                                mo = doesContain_I_2L( distinct_coll, ci, comparer );
 
                                 // if match wasn't found, add such item to the distinct collection
-                                if(!mo.is)
-                                    distinct_coll.push(ci);
+                                if ( !mo.is )
+                                    distinct_coll.push( ci );
                             }
 
                             // return distinct collection
@@ -3687,26 +3849,30 @@
                         else return coll;
                     }
 
-                    function applyExcept_I_2L(coll, collection, comparer, strongSearch) {
+                    function applyExcept_I_2L ( coll, collection, comparer, strongSearch )
+                    {
                         // filter the collection called 'coll' if there are any items in the collection called 'collection'
-                        if(collection.length && coll.length) {
+                        if ( collection.length && coll.length )
+                        {
                             // store indices of items to be removed from the query flow collection
                             var indexes = [];
 
                             // declare current item (ci) and match object (mo)
                             var ci, mo;
                             // iterate over whole collection
-                            for(var i = 0; i < collection.length; i++) {
+                            for ( var i = 0; i < collection.length; i++ )
+                            {
                                 // access current item in the collection
-                                ci = collection[i];
+                                ci = collection[ i ];
 
                                 // get the match
-                                mo = doesContain_I_2L(coll, ci, comparer);
+                                mo = doesContain_I_2L( coll, ci, comparer );
 
                                 // if match was found
-                                if(mo.is) {
+                                if ( mo.is )
+                                {
                                     // add such item index to the indexes array
-                                    indexes.push(mo.index);
+                                    indexes.push( mo.index );
 
                                     /**
                                      * Check the search mode
@@ -3714,12 +3880,12 @@
                                      *  - false -> do collection scan until first match
                                     */
 
-                                    if(!strongSearch) break;
+                                    if ( !strongSearch ) break;
                                 }
                             }
 
                             // remove all required items
-                            indexes.forEach( index => { coll.splice(index, 1); } );
+                            indexes.forEach( index => { coll.splice( index, 1 ); } );
 
                             // return query flow collection without collection in question
                             return coll;
@@ -3737,7 +3903,8 @@
          * @param {any} udfSelector
          * @param {any} incorporateIndex
          */
-            function (jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex) {
+            function ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
+            {
                 return execute_SF_I_1L( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex );
 
 
@@ -3745,26 +3912,28 @@
                 /**
                  * Local helper functions
                 */
-                function execute_SF_I_1L( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex ) {
+                function execute_SF_I_1L ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
+                {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
 
                     // if the sequence contains elements
                     if ( currentColl.length )
                     {
-                        switch(enumValue) {
+                        switch ( enumValue )
+                        {
                             case _ENUM.SELECT:
                                 // determine whether source collection contains particular item
-                                currentColl = processSelect_I_2L(currentColl, selectorArray, udfSelector, incorporateIndex);
+                                currentColl = processSelect_I_2L( currentColl, selectorArray, udfSelector, incorporateIndex );
 
                                 break;
 
                             case _ENUM.SELECT_MANY:
                                 // compute distinct collection
-                                currentColl = processSelectMany_I_2L(currentColl, selectorArray, udfSelector, udfResultSelector, incorporateIndex);
+                                currentColl = processSelectMany_I_2L( currentColl, selectorArray, udfSelector, udfResultSelector, incorporateIndex );
 
                                 break;
-        
+
                             default:
                                 throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
                         }
@@ -3779,7 +3948,8 @@
                     /**
                      * Local helper functions
                     */
-                    function processSelect_I_2L(currentColl, selectorArray, udfSelector, incorporateIndex) {
+                    function processSelect_I_2L ( currentColl, selectorArray, udfSelector, incorporateIndex )
+                    {
                         // declare output array
                         var result = [];
 
@@ -3788,35 +3958,39 @@
                          *  - selectorArray.length > 1    ->  go for UDF (user-defined function)
                          *  - selectorArray.length === 1  ->  go for LDF (library-defined function)
                         */
-                        
+
                         // apply UDF
-                        if(selectorArray.length > 1) {
+                        if ( selectorArray.length > 1 )
+                        {
                             // if user failed to provide UDF selector
-                            if(!udfSelector)
+                            if ( !udfSelector )
                                 throw Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
 
                             // current array item processed by UDF selector
                             var item;
                             // iterate over whole collection
-                            for(var i = 0; i < currentColl.length; i++) {
+                            for ( var i = 0; i < currentColl.length; i++ )
+                            {
                                 // process current array item
-                                item = udfSelector(currentColl[i], incorporateIndex ? i : undefined);
+                                item = udfSelector( currentColl[ i ], incorporateIndex ? i : undefined );
 
                                 // store item in the array
-                                result.push(item);
+                                result.push( item );
                             }
                         }
                         // apply LDF
-                        else if(selectorArray.length === 1) {
+                        else if ( selectorArray.length === 1 )
+                        {
                             // current array item processed by LDF selector
                             var item;
                             // iterate over whole collection
-                            for(var i = 0; i < currentColl.length; i++) {
+                            for ( var i = 0; i < currentColl.length; i++ )
+                            {
                                 // process current array item
-                                item = ldfSelector_I_2L(currentColl[i], incorporateIndex ? i : undefined);
+                                item = ldfSelector_I_2L( currentColl[ i ], incorporateIndex ? i : undefined );
 
                                 // store item in the array
-                                result.push(item);
+                                result.push( item );
                             }
                         }
 
@@ -3824,7 +3998,8 @@
                         return result;
                     }
 
-                    function processSelectMany_I_2L(currentColl, selectorArray, udfSelector, udfResultSelector, incorporateIndex) {
+                    function processSelectMany_I_2L ( currentColl, selectorArray, udfSelector, udfResultSelector, incorporateIndex )
+                    {
                         // declare output array
                         var result = [];
 
@@ -3833,64 +4008,71 @@
                          *  - selectorArray.length > 1    ->  go for UDF (user-defined function)
                          *  - selectorArray.length === 1  ->  go for LDF (library-defined function)
                         */
-                        
+
                         // apply UDF
-                        if(selectorArray.length > 1) {
+                        if ( selectorArray.length > 1 )
+                        {
                             // if user failed to provide UDF selector
-                            if(!udfSelector)
+                            if ( !udfSelector )
                                 throw Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
 
                             // current array item processed by UDF selector
                             var item, ci, interimArr;
                             // iterate over whole collection
-                            for(var i = 0; i < currentColl.length; i++) {
+                            for ( var i = 0; i < currentColl.length; i++ )
+                            {
                                 // declare array for this loop iteration
                                 interimArr = [];
 
                                 // access current item
-                                ci = currentColl[i];
+                                ci = currentColl[ i ];
 
                                 // process current array item
-                                item = udfSelector(ci, incorporateIndex ? i : undefined);
-                                interimArr.push(item);
+                                item = udfSelector( ci, incorporateIndex ? i : undefined );
+                                interimArr.push( item );
 
                                 /**
-								 * If udfResultSelector is NOT NULL :
+                                 * If udfResultSelector is NOT NULL :
                                  *  a) then just iterate over all array and apply UDF Result Selector to each item
                                  *  b) otherwise just iterate over all array and flatten it
                                 */
-                                
+
                                 // a)
-                                if(udfResultSelector) {
+                                if ( udfResultSelector )
+                                {
                                     // iterate over all array
-                                    for(var j = 0; j < interimArr.length; j++) {
+                                    for ( var j = 0; j < interimArr.length; j++ )
+                                    {
                                         // apply UDF Result Selector to each item
-                                        item = udfResultSelector(ci, interimArr[j]);
+                                        item = udfResultSelector( ci, interimArr[ j ] );
 
                                         // store transformed item in the array
-                                        result.push(item);
+                                        result.push( item );
                                     }
                                 }
                                 // b)
-                                else {
+                                else
+                                {
                                     // just concat this interim array to the output array
-                                    result.concat(interimArr);
+                                    result.concat( interimArr );
                                 }
                             }
                         }
                         // apply LDF
-                        else if(selectorArray.length === 1) {
+                        else if ( selectorArray.length === 1 )
+                        {
                             // current array item processed by LDF selector
                             var item;
                             // iterate over whole collection
-                            for(var i = 0; i < currentColl.length; i++) {
+                            for ( var i = 0; i < currentColl.length; i++ )
+                            {
                                 // process current array item
-                                item = ldfSelector_I_2L(currentColl[i], incorporateIndex ? i : undefined);
+                                item = ldfSelector_I_2L( currentColl[ i ], incorporateIndex ? i : undefined );
 
                                 // iterate over whole subcollection
-                                for(var j = 0; j < item.length; j++)
-                                        // store subitem in the array
-                                    result.push(item[j]);
+                                for ( var j = 0; j < item.length; j++ )
+                                    // store subitem in the array
+                                    result.push( item[ j ] );
                             }
                         }
 
@@ -3898,49 +4080,53 @@
                         return result;
                     }
 
-                    function ldfSelector_I_2L(item, arrPosIdx) {
+                    function ldfSelector_I_2L ( item, arrPosIdx )
+                    {
                         // extract property
-                        var prop = extractTargetProp_I_3L(selectorArray[0]);
+                        var prop = extractTargetProp_I_3L( selectorArray[ 0 ] );
 
                         // declare values to be fetched from item(s)
-                        var propVals = Object.create(null);
+                        var propVals = Object.create( null );
 
                         // add optional position of item in the array
                         propVals.arrayItemIndex = arrPosIdx;
 
                         // get the property value from the object in question
-                        propVals.value = getPropValue_I_3L(item);
+                        propVals.value = getPropValue_I_3L( item );
 
                         // return an array
-                        return [propVals];
+                        return [ propVals ];
 
 
 
                         /**
                          * Local helper functions
                         */
-                        function extractTargetProp_I_3L(prop) {
+                        function extractTargetProp_I_3L ( prop )
+                        {
                             // is it a complex property
-                            if(prop.contains('.')) {
+                            if ( prop.contains( '.' ) )
+                            {
                                 // convert prop path to array
-                                var prop_arr = prop.split('.');
+                                var prop_arr = prop.split( '.' );
 
                                 var destProp;
                                 // get to the target prop
-                                for(var i = 0; i < prop_arr.length - 1; i++)
-                                    destProp = prop_arr[i];
+                                for ( var i = 0; i < prop_arr.length - 1; i++ )
+                                    destProp = prop_arr[ i ];
 
                                 // return target prop
                                 return destProp;
                             }
                             // or is it a current-level property
                             else
-                             return prop;
+                                return prop;
                         }
 
-                        function getPropValue_I_3L(obj) {
+                        function getPropValue_I_3L ( obj )
+                        {
                             // get property value
-                            return obj[prop];
+                            return obj[ prop ];
                         }
                     }
                 }
@@ -3957,64 +4143,69 @@
          * @param {any} udfResultSelector
          * @param {any} udfEqualityComparer
          */
-            function (jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer) {
+            function ( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer )
+            {
                 return execute_JF_I_1L( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer );
-   
-   
-   
+
+
+
                 /**
                  * Local helper functions
                 */
-                function execute_JF_I_1L(
-                                            jlc,
-                                            innerColl,
-                                            outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector,
-                                            enumValue, udfResultSelector, udfEqualityComparer
-                                        ) {
+                function execute_JF_I_1L (
+                    jlc,
+                    innerColl,
+                    outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector,
+                    enumValue, udfResultSelector, udfEqualityComparer
+                )
+                {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-   
+
                     // if the sequence contains elements
                     if ( currentColl.length )
                     {
-                        switch(enumValue) {
+                        switch ( enumValue )
+                        {
                             case _ENUM.JOIN:
                                 // join two sequences (collections) based on keys present in both sequences
-                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(false);
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L( false );
                                 break;
-   
+
                             case _ENUM.LEFT_JOIN:
                                 // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
-                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(true);
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L( true );
                                 break;
 
                             case _ENUM.GROUP_JOIN:
                                 // join two sequences (collections) based on keys present in both sequences, and subsequently group result by the key
-                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(false, true);
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L( false, true );
                                 break;
 
                             case _ENUM.GROUP_LEFT_JOIN:
                                 // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence, and subsequently group result by the key
-                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(true, true);
+                                currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L( true, true );
                                 break;
-           
+
                             default:
                                 throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
                         }
-   
+
                         // update HPID object to enable further data flow
                         _ACTION.hpid.data = currentColl;
                         if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
                     }
-   
-   
-   
+
+
+
                     /**
                      * Local helper functions
                     */
-                    function handleJoinOrLeftJoinOrGroupJoinOperation_I_2L(isCollectionFixed, doGrouping) {
+                    function handleJoinOrLeftJoinOrGroupJoinOperation_I_2L ( isCollectionFixed, doGrouping )
+                    {
                         // if 'right-side' operand is not null
-                        if(innerColl.length) {
+                        if ( innerColl.length )
+                        {
                             // declare output array
                             var result = [];
 
@@ -4022,59 +4213,68 @@
                             var predicateArray = [];
 
                             // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
-                            if(outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                executeOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray);
+                            if ( outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector )
+                            {
+                                executeOperation_UDF_I_3L( outerUdfSelector, outerSelectorArray, innerUdfSelector, innerSelectorArray );
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
-                                if(doGrouping)
+                                if ( doGrouping )
                                     predicateArray = outerSelectorArray.forEach(
-                                                                            function(selectorItem) {
-                                                                                return [selectorItem, true];
-                                                                            }
-                                                                        );
+                                        function ( selectorItem )
+                                        {
+                                            return [ selectorItem, true ];
+                                        }
+                                    );
                             }
                             // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
-                            else if(outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector) {
-                                executeOperation_UDF_I_3L(outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray);
+                            else if ( outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector )
+                            {
+                                executeOperation_UDF_I_3L( outerUdfSelector, outerSelectorArray, outerUdfSelector, outerSelectorArray );
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
-                                if(doGrouping)
+                                if ( doGrouping )
                                     predicateArray = outerSelectorArray.forEach(
-                                                                            function(selectorItem) {
-                                                                                return [selectorItem, true];
-                                                                            }
-                                                                        );
+                                        function ( selectorItem )
+                                        {
+                                            return [ selectorItem, true ];
+                                        }
+                                    );
                             }
                             // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
-                            else if(!outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector) {
-                                executeOperation_UDF_I_3L(innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray);
+                            else if ( !outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector )
+                            {
+                                executeOperation_UDF_I_3L( innerUdfSelector, innerSelectorArray, innerUdfSelector, innerSelectorArray );
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
-                                if(doGrouping)
+                                if ( doGrouping )
                                     predicateArray = innerSelectorArray.forEach(
-                                                                            function(selectorItem) {
-                                                                                return [selectorItem, true];
-                                                                            }
-                                                                        );
+                                        function ( selectorItem )
+                                        {
+                                            return [ selectorItem, true ];
+                                        }
+                                    );
                             }
                             // user provided only 'left-side' && 'right-side' keys to perform JOIN operation
-                            else if(outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector) {
-                                executeOperation_LDF_I_3L(outerSelectorArray, innerSelectorArray);
+                            else if ( outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector )
+                            {
+                                executeOperation_LDF_I_3L( outerSelectorArray, innerSelectorArray );
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
-                                if(doGrouping)
+                                if ( doGrouping )
                                     predicateArray = outerSelectorArray.forEach(
-                                                                            function(selectorItem) {
-                                                                                return [selectorItem, true];
-                                                                            }
-                                                                        );
+                                        function ( selectorItem )
+                                        {
+                                            return [ selectorItem, true ];
+                                        }
+                                    );
                             }
                             // user provided only 'left-side' && 'right-side' key extractors to perform JOIN operation
-                            else if(!outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector) {
-                                executeOperation_LDF_I_3L(outerUdfSelector, innerUdfSelector);
+                            else if ( !outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector )
+                            {
+                                executeOperation_LDF_I_3L( outerUdfSelector, innerUdfSelector );
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
-                                if(doGrouping)
+                                if ( doGrouping )
                                     throw Error( '\r\nThe context of [ ' + enumValue + ' ] requires providing valid "outerSelectorArray" or "innerSelectorArray" !\r\n\r\n' );
                             }
                             else
@@ -4084,9 +4284,10 @@
                              * Here we arrive with created JOIN result !
                              * Hence right here we can apply grouping type of operation in the context of aforementioned created result set. 
                             */
-                            
+
                             // if grouping required (GROUP JOON || GROUP LEFT JOIN)
-                            if(doGrouping) {
+                            if ( doGrouping )
+                            {
                                 // declare groups object being an array !
                                 var groups = [];
 
@@ -4106,123 +4307,139 @@
                         // in case 'right-side' operand being null just return the 'left-side' operand
                         else
                             return currentColl;
-                        
-                        
-                        
+
+
+
                         /**
                          * Local helper functions
                         */
-                        function executeOperation_UDF_I_3L(leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray) {
+                        function executeOperation_UDF_I_3L ( leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray )
+                        {
                             var l_item, lskv;
                             // loop over 'left-side' collection to join it to the 'right-side' one
-                            for(var i = 0; i < currentColl.length; i++) {
+                            for ( var i = 0; i < currentColl.length; i++ )
+                            {
                                 // get current item from 'left-side' collection
-                                l_item = currentColl[i];
+                                l_item = currentColl[ i ];
 
                                 // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
-                                lskv = leftSideUdfSelector(l_item, leftSideSelectorArray);
+                                lskv = leftSideUdfSelector( l_item, leftSideSelectorArray );
 
                                 var r_item, isJoin;
                                 // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
-                                for(var j = 0; j < innerColl.length; j++) {
+                                for ( var j = 0; j < innerColl.length; j++ )
+                                {
                                     // get current item from 'right-side' collection
-                                    r_item = innerColl[i];
+                                    r_item = innerColl[ i ];
 
                                     // perform 'right-side' key lookup
-                                    isJoin = rightSideUdfSelector(r_item, rightSideSelectorArray, lskv);
+                                    isJoin = rightSideUdfSelector( r_item, rightSideSelectorArray, lskv );
 
                                     // if 'right-side' key lookup found, go to create result object
-                                    if(isJoin) break;
+                                    if ( isJoin ) break;
                                     // otherwise mark that 'left-side' item has no match in the 'right-side' collection
                                     else r_item = undefined;
                                 }
 
                                 // check for 'LEFT JOIN' case
-                                if(isCollectionFixed && !r_item) {
+                                if ( isCollectionFixed && !r_item )
+                                {
                                     // discover default values for the 'right-side' collection object given current 'left-side' collection object
-                                    r_item = assignDefaultValues_I_3L(l_item, leftSideSelectorArray, rightSideSelectorArray);
+                                    r_item = assignDefaultValues_I_3L( l_item, leftSideSelectorArray, rightSideSelectorArray );
                                 }
 
                                 // create joined object if UDF Result Selector provided
-                                if(udfResultSelector) {
+                                if ( udfResultSelector )
+                                {
                                     // store joined object in the output array
-                                    result.push( udfResultSelector(l_item, r_item) );
+                                    result.push( udfResultSelector( l_item, r_item ) );
                                 }
                                 // otherwise perfom default object merge operation
-                                else {
+                                else
+                                {
                                     // store merged object in the output array
                                     result.push( { ...l_item, ...r_item } );
                                 }
                             }
                         }
 
-                        function executeOperation_LDF_I_3L(leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf) {
+                        function executeOperation_LDF_I_3L ( leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf )
+                        {
                             // deal with keys extractors
-                            if(typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function') {
+                            if ( typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function' )
+                            {
                                 // if user failed to provide equality UDF
-                                if(!udfEqualityComparer)
+                                if ( !udfEqualityComparer )
                                     throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" key extractors only, you need to provide equality UDF !\r\n\r\n' );
 
                                 var l_obj, r_obj, isJoin;
                                 // loop over 'left-side' collection
-                                for(var i = 0; i < currentColl.length; i++) {
+                                for ( var i = 0; i < currentColl.length; i++ )
+                                {
                                     // get the 'left-side' partial object
-                                    l_obj = leftSideSelectorArrayOrUdf(currentColl[i]);
+                                    l_obj = leftSideSelectorArrayOrUdf( currentColl[ i ] );
 
                                     // unmark joined object
                                     isJoin = false;
 
                                     // loop over 'right-side' collection
-                                    for(var i = 0; i < innerColl.length; i++) {
+                                    for ( var i = 0; i < innerColl.length; i++ )
+                                    {
                                         // get the 'right-side' partial object
-                                        r_obj = rightSideSelectorArrayOrUdf(innerColl[i]);
+                                        r_obj = rightSideSelectorArrayOrUdf( innerColl[ i ] );
 
                                         // if objects match given the key
-                                        if(udfEqualityComparer(l_obj, r_obj)) {
+                                        if ( udfEqualityComparer( l_obj, r_obj ) )
+                                        {
                                             // store joined object in the final output array
-                                            result.push({ ...l_obj, ...r_obj });
+                                            result.push( { ...l_obj, ...r_obj } );
 
                                             // mark joined object
                                             isJoin = true;
-                                            
+
                                             // break the 'right-side' collection loop
                                             break;
                                         }
                                     }
 
                                     // check for 'LEFT JOIN' case
-                                    if(isCollectionFixed && !isJoin) {
+                                    if ( isCollectionFixed && !isJoin )
+                                    {
                                         // get the object keys
-                                        var keys = Object.getOwnPropertyNames(l_obj);
+                                        var keys = Object.getOwnPropertyNames( l_obj );
 
                                         // assign default values
-                                        r_obj = assignDefaultValues_I_3L(l_obj, keys, keys);
+                                        r_obj = assignDefaultValues_I_3L( l_obj, keys, keys );
 
                                         // store joined object in the final output array
-                                        result.push({ ...l_obj, ...r_obj });
+                                        result.push( { ...l_obj, ...r_obj } );
                                     }
                                 }
                             }
                             // deal with keys
-                            else {
+                            else
+                            {
                                 var l_obj, r_obj, isJoin;
                                 // loop over 'left-side' collection
-                                for(var i = 0; i < currentColl.length; i++) {
+                                for ( var i = 0; i < currentColl.length; i++ )
+                                {
                                     // get the 'left-side' partial object
-                                    l_obj = currentColl[i];
+                                    l_obj = currentColl[ i ];
 
                                     // unmark joined object
                                     isJoin = false;
 
                                     // loop over 'right-side' collection
-                                    for(var i = 0; i < innerColl.length; i++) {
+                                    for ( var i = 0; i < innerColl.length; i++ )
+                                    {
                                         // get the 'right-side' partial object
-                                        r_obj = innerColl[i];
+                                        r_obj = innerColl[ i ];
 
                                         // if objects match given the key
-                                        if(ldfEqualityComparer_I_4L(l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf)) {
+                                        if ( ldfEqualityComparer_I_4L( l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
+                                        {
                                             // store joined object in the final output array
-                                            result.push({ ...l_obj, ...r_obj });
+                                            result.push( { ...l_obj, ...r_obj } );
 
                                             // mark joined object
                                             isJoin = true;
@@ -4233,42 +4450,45 @@
                                     }
 
                                     // check for 'LEFT JOIN' case
-                                    if(isCollectionFixed && !isJoin) {
+                                    if ( isCollectionFixed && !isJoin )
+                                    {
                                         // get the object keys
-                                        var keys = Object.getOwnPropertyNames(l_obj);
+                                        var keys = Object.getOwnPropertyNames( l_obj );
 
                                         // assign default values
-                                        r_obj = assignDefaultValues_I_3L(l_obj, keys, keys);
+                                        r_obj = assignDefaultValues_I_3L( l_obj, keys, keys );
 
                                         // store joined object in the final output array
-                                        result.push({ ...l_obj, ...r_obj });
+                                        result.push( { ...l_obj, ...r_obj } );
                                     }
                                 }
                             }
-                        
-                        
-                        
+
+
+
                             /**
                              * Local helper functions
                             */
-                            function ldfEqualityComparer_I_4L(left_obj, right_obj, left_key_arr, right_key_arr) {
+                            function ldfEqualityComparer_I_4L ( left_obj, right_obj, left_key_arr, right_key_arr )
+                            {
                                 // is match
                                 var isMatch;
 
                                 // both arrays have to have matching keys
-                                if(left_key_arr.length !== right_key_arr.length)
+                                if ( left_key_arr.length !== right_key_arr.length )
                                     throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" keys only, both arrays has to have matching keys !\r\n\r\n' );
 
                                 // arrays of key values from both objects
-                                var left_key_value_arr = [], right_key_value_arr = []; 
-                            
+                                var left_key_value_arr = [], right_key_value_arr = [];
+
                                 // loop over 'left-side' and 'right-side' keys
-                                for(var k = 0; k < left_key_arr.length; k++) {
+                                for ( var k = 0; k < left_key_arr.length; k++ )
+                                {
                                     // get key value from 'left-side' object
-                                    left_key_value_arr.push(getObjectValue_I_5L(left_key_arr[i], left_obj));
+                                    left_key_value_arr.push( getObjectValue_I_5L( left_key_arr[ i ], left_obj ) );
 
                                     // get key value from 'right-side' object
-                                    right_key_value_arr.push(getObjectValue_I_5L(right_key_arr[i], right_obj));
+                                    right_key_value_arr.push( getObjectValue_I_5L( right_key_arr[ i ], right_obj ) );
                                 }
 
                                 /**
@@ -4277,7 +4497,7 @@
                                  *
                                 */
                                 // check if there is a 'JOIN' condition met by comparing two arrays
-                                isMatch = left_key_value_arr.equals(right_key_value_arr) === true;
+                                isMatch = left_key_value_arr.equals( right_key_value_arr ) === true;
 
                                 // just return bool result, aka is there a 'JOIN' condition met
                                 return isMatch;
@@ -4287,22 +4507,24 @@
                                 /**
                                  * Local helper functions 
                                 */
-                                function getObjectValue_I_5L(propName, obj) {
+                                function getObjectValue_I_5L ( propName, obj )
+                                {
                                     // value from object based on given property name, aka key
                                     var value;
 
                                     // is it a complex property
-                                    if(propName.contains('.')) {
+                                    if ( propName.contains( '.' ) )
+                                    {
                                         // convert prop path to array
-                                        var prop_arr = propName.split('.');
+                                        var prop_arr = propName.split( '.' );
 
                                         // get to the target prop
-                                        for(var i = 0; i < prop_arr.length; i++)
-                                            value = value ? value[prop_arr[i]] : obj[prop_arr[i]];
+                                        for ( var i = 0; i < prop_arr.length; i++ )
+                                            value = value ? value[ prop_arr[ i ] ] : obj[ prop_arr[ i ] ];
                                     }
                                     // or is it a current-level property
                                     else
-                                        value = obj[propName];
+                                        value = obj[ propName ];
 
                                     // return value
                                     return value;
@@ -4310,29 +4532,32 @@
                             }
                         }
 
-                        function assignDefaultValues_I_3L(sourceItem, sourceItemPropArray, outputItemPropArray) {
+                        function assignDefaultValues_I_3L ( sourceItem, sourceItemPropArray, outputItemPropArray )
+                        {
                             // check if props match in corresponding objects
-                            if(sourceItemPropArray.length !== outputItemPropArray.length)
+                            if ( sourceItemPropArray.length !== outputItemPropArray.length )
                                 throw Error( '\r\nInvalid number of keys in either "left-side" or "right-side" array !\r\n\r\n' );
 
                             // create output object
-                            var outputItem = Object.create(null);
+                            var outputItem = Object.create( null );
 
                             var default_value;
                             // loop over object props to discover defaults
-                            for(var i = 0; i < sourceItemPropArray.length; i++) {
+                            for ( var i = 0; i < sourceItemPropArray.length; i++ )
+                            {
                                 // determine default value for current object prop
-                                default_value = _COMMON.getDefaultValueOf(sourceItem[sourceItemPropArray[i]]);
+                                default_value = _COMMON.getDefaultValueOf( sourceItem[ sourceItemPropArray[ i ] ] );
 
                                 // store this value in output object under "the proper" prop taken from the output object array of props
-                                outputItem[outputItemPropArray[i]] = default_value;
+                                outputItem[ outputItemPropArray[ i ] ] = default_value;
                             }
 
                             // return output object
                             return outputItem;
                         }
 
-                        function groupResultSet_I_3L(item) {
+                        function groupResultSet_I_3L ( item )
+                        {
                             // create the key if key selector array defined
                             var key_array;
                             if ( predicateArray )
@@ -4342,7 +4567,7 @@
                                 key_array = [];
 
                             // get the group id, aka the key used in JOIN or LEFT JOIN
-                            var id = _COMMON.fetchObjectKeyValue(item, key_array);
+                            var id = _COMMON.fetchObjectKeyValue( item, key_array );
 
                             // create pure empty object
                             var eo = Object.create( null );
@@ -4391,15 +4616,16 @@
                 /**
                  * Local helper functions
                 */
-                function execute_MF_I_1L( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingContext, roundEnumValue = _ENUM.AVG_MIN ) {
+                function execute_MF_I_1L ( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingContext, roundEnumValue = _ENUM.AVG_MIN )
+                {
                     // determine whether to use a UDF comparator...
-                    if(typeof udfValueSelector === 'function')
+                    if ( typeof udfValueSelector === 'function' )
                         // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
-                        _PHYSICAL_FILTER.executeOrderFilter(jlc, null, udfValueSelector, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
+                        _PHYSICAL_FILTER.executeOrderFilter( jlc, null, udfValueSelector, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
                     // ... or a internal comparator
                     else
                         // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
-                        _PHYSICAL_FILTER.executeOrderFilter(jlc, [propertyNameOrPath['property'] , true], null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
+                        _PHYSICAL_FILTER.executeOrderFilter( jlc, [ propertyNameOrPath[ 'property' ], true ], null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
 
                     // get the right item from the collection based on 'enumValue' and/or 'roundEnumValue' flags
                     return getResult_I_2L();
@@ -4409,21 +4635,23 @@
                     /**
                      * Local helper functions
                     */
-                    function getResult_I_2L() {
+                    function getResult_I_2L ()
+                    {
                         // compute 'min' value
-                        if(enumValue === _ENUM.MIN)
-                            return _ACTION.hpid.data[0];
+                        if ( enumValue === _ENUM.MIN )
+                            return _ACTION.hpid.data[ 0 ];
                         // compute 'max' value
-                        else if(enumValue === _ENUM.MAX)
-                            return _ACTION.hpid.data[_ACTION.hpid.data.length - 1];
+                        else if ( enumValue === _ENUM.MAX )
+                            return _ACTION.hpid.data[ _ACTION.hpid.data.length - 1 ];
                         // compute 'avg' value
-                        else if(enumValue === _ENUM.AVG) {
+                        else if ( enumValue === _ENUM.AVG )
+                        {
                             // precisely 'min avg'
-                            if(roundEnumValue === _ENUM.AVG_MIN)
-                                return _ACTION.hpid.data[Math.floor(_ACTION.hpid.data.length / 2)];
+                            if ( roundEnumValue === _ENUM.AVG_MIN )
+                                return _ACTION.hpid.data[ Math.floor( _ACTION.hpid.data.length / 2 ) ];
                             // precisely 'max avg'
-                            else if(roundEnumValue === _ENUM.AVG_MAX)
-                                return _ACTION.hpid.data[Math.ceil(_ACTION.hpid.data.length / 2)];
+                            else if ( roundEnumValue === _ENUM.AVG_MAX )
+                                return _ACTION.hpid.data[ Math.ceil( _ACTION.hpid.data.length / 2 ) ];
                         }
                     }
                 }
@@ -4474,7 +4702,7 @@
                         var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
 
                         // check for '_ENUM.DEFAULT' if collection != null
-                        if( (enumValue === _ENUM.DEFAULT) && !_ACTION.hpid.data )
+                        if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
                             throw Error( '\r\nSource collection is null !\r\n\r\n' );
 
                         // if the sequence contains elements
@@ -4499,7 +4727,7 @@
 
                                 case _ENUM.ALL:
                                 case _ENUM.DEFAULT:
-                                    // this flag tells to discard returned result
+                                    // this flag tells to discard returned result and go for hpid's data
                                     _ACTION.hpid.done = true;
                                     break;
 
@@ -4518,9 +4746,10 @@
                                 return;
                             }
                             // return a singleton array containing default value passed by the user
-                            else if( fallbackOnDefault && ( enumValue === _ENUM.DEFAULT ) ) {
+                            else if ( fallbackOnDefault && ( enumValue === _ENUM.DEFAULT ) )
+                            {
                                 // return default value passed by the user
-                                _ACTION.hpid.data.push(fallbackOnDefault);
+                                _ACTION.hpid.data.push( fallbackOnDefault );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -4530,9 +4759,10 @@
                             else if ( fallbackOnDefault )
                                 return undefined;
                             // get default value of collection input type
-                            else if( enumValue === _ENUM.DEFAULT ) {
+                            else if ( enumValue === _ENUM.DEFAULT )
+                            {
                                 // return default value passed by the user
-                                _ACTION.hpid.data.push(jlc._ctx.is_prim ? jlc._ctx.cdv : undefined);
+                                _ACTION.hpid.data.push( jlc._ctx.is_prim ? jlc._ctx.cdv : undefined );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -4879,7 +5109,7 @@
                 */
                 function execute_AAF_I_1L ( jlc, predicateArray, enumValue )
                 {
-                    return _LOGICAL_FILTER.applyAllAnyFilter(jlc, predicateArray, enumValue);
+                    return _LOGICAL_FILTER.applyAllAnyFilter( jlc, predicateArray, enumValue );
                 }
             }
     };
@@ -4976,119 +5206,192 @@
 
     // private Proxy trap object
     var _PROXY_TRAP = {
-        empty_GET : function () {},
+        // common internal types of traps to provide seamless query flow
+        trap: {
+            empty_GET: function () { },
 
-        /**
-         * @param {object} api JLC instance.
-         * @param {any} property Name of the query method in question.
-         * @param {any} receiver The object that should be used as this.
-        */
-        default_GET : function (api, property, receiver) {
-            // just get property value from api object
-            return api[property];
-        },
+            /**
+             * @param {object} api JLC instance.
+             * @param {any} property Name of the query method in question.
+             * @param {any} receiver The object that should be used as this.
+            */
+            default_GET: function ( api, property, receiver )
+            {
+                // just get property value from api object
+                return api[ property ];
+            },
 
-        /**
-         * @param {object} api JLC instance.
-         * @param {any} property Name of the query method in question.
-         * @param {any} receiver The object that should be used as this.
-        */
-        newSource_GET : function (api, property, receiver) {
-            // store data internally for this new query flow
-            _SETUP.Funcs.applyJLC(receiver);
+            /**
+             * @param {object} api JLC instance.
+             * @param {any} property Name of the query method in question.
+             * @param {any} receiver The object that should be used as this.
+            */
+            newSource_GET: function ( api, property, receiver )
+            {
+                // store data internally for this new query flow
+                api = _SETUP.Funcs.applyJLC( receiver );
+                //_SETUP.Funcs.applyJLC(receiver);
 
-            // get query method definition object
-            var m_def_obj = _LINQ_CONTEXT.udlm[property];
-            
-            // if there is such method, proceed with further logic
-            if(m_def_obj) {
-                // add current query method name to query method names' cache
-                _LINQ_CONTEXT._proxyTrapCommon.storeQueryMethodName(property);
+                // check for cached dynamically generated query method
+                if ( property in api )
+                    // you just have to return a proxy function
+                    return function ()
+                    {
+                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                    };
 
-                // add action constraints to this LINQ method
-                _LINQ_CONTEXT._proxyTrapCommon.addActionConstraints(m_def_obj);
+                // get query method definition object
+                var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
 
-                // store in api instance LINQ query method that is generated from query method definition
-                _LINQ_CONTEXT._proxyTrapCommon.generateQueryMethod(m_def_obj, api);
+                // if there is such method, proceed with further logic
+                if ( m_def_obj )
+                {
+                    // add current query method name to query method names' cache
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
 
-                // create intermediate results enumerator method for the whole api
-                _LINQ_CONTEXT._proxyTrapCommon.createIntermediateResultsEnumerator(m_def_obj, api);
+                    // add action constraints to this LINQ method
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
 
-                // you just have to return a proxy function
-                return function() {
-                    // enable transparent object property access
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.default_GET;
+                    // store in api instance LINQ query method that is generated from query method definition
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
 
-                    // invoke on demand the original query method with dynamically applied arguments
-                    var result = api[ property ].apply( receiver, arguments );
+                    // create intermediate results enumerator method for the whole api
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( m_def_obj, api );
 
-                    // is it an array of data
-                    if(Array.isArray(result))
-                        // mark that next query has to store its source into internal storage
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.newSource_GET;
-                    // is it a new api instance object
-                    else if(_LINQ_CONTEXT._isProxy(result))
-                        // mark that next query has to invoke api-based method
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.sameSource_GET;
+                    // you just have to return a proxy function
+                    return function ()
+                    {
+                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                    };
+                }
+            },
 
-                    // return output from original query method
-                    return result;
-                };
+            /**
+             * @param {object} api JLC instance.
+             * @param {any} property Name of the query method in question.
+             * @param {any} receiver The object that should be used as this.
+            */
+            sameSource_GET: function ( api, property, receiver )
+            {
+                /**
+                 * Check for new query flow new proxy instance 
+                */
+                // enable transparent object property access
+                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
+
+                // empty object stands for new query flow new proxy instance
+                if ( _COMMON.isObjectEmpty( api ) )
+                    // hence get conceptually latest (current) collection cached metadata
+                    api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateOrGetContextFor( receiver );
+
+                // restore current trap
+                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.sameSource_GET;
+
+
+
+                // check for cached dynamically generated query method
+                if ( property in api )
+                    // you just have to return a proxy function
+                    return function ()
+                    {
+                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                    };
+
+                // get query method definition object
+                var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
+
+                // if there is such method, proceed with further logic
+                if ( m_def_obj )
+                {
+                    // add current query method name to query method names' cache
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
+
+                    // add action constraints to this LINQ method
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
+
+                    // store in api instance LINQ query method that is generated from query method definition
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
+
+                    // create intermediate results enumerator method for the whole api
+                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( m_def_obj, api );
+
+                    // you just have to return a proxy function
+                    return function ()
+                    {
+                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                    };
+                }
+            },
+
+            prototype_GET: function ( key )
+            {
+                // return the type of the proxy object
+                return _LINQ_CONTEXT._proxiedType.prototype;
             }
         },
 
-        /**
-         * @param {object} api JLC instance.
-         * @param {any} property Name of the query method in question.
-         * @param {any} receiver The object that should be used as this.
-        */
-        sameSource_GET : function ( api, property, receiver )
-        {
-            // get query method definition object
-            var m_def_obj = _LINQ_CONTEXT.udlm[property];
-            
-            // if there is such method, proceed with further logic
-            if(m_def_obj) {
-                // add current query method name to query method names' cache
-                _LINQ_CONTEXT._proxyTrapCommon.storeQueryMethodName(property);
+        // common internal query method check constraints
+        udlm: {
+            _handleFirstLevelSorting: /**
+            * Invokes 1st level sorting set operations when a 1nd level sorting query method. i.e. orderBy or orderByDescending runs.
+            *
+            * @param {any} constr_params
+            */
+                function ( constr_params )
+                {
+                    // 'this' refers to the current action constraint object
+                    var self = this;
 
-                // add action constraints to this LINQ method
-                _LINQ_CONTEXT._proxyTrapCommon.addActionConstraints(m_def_obj);
+                    // reference first-level sorting context object (flsco)
+                    var flsco = self.actionContext.sharedFirstLevelSortingCtx;
 
-                // store in api instance LINQ query method that is generated from query method definition
-                _LINQ_CONTEXT._proxyTrapCommon.generateQueryMethod(m_def_obj, api);
+                    // apply required constraint logic
+                    flsco.set( constr_params, self );
 
-                // create intermediate results enumerator method for the whole api
-                _LINQ_CONTEXT._proxyTrapCommon.createIntermediateResultsEnumerator(m_def_obj, api);
 
-                // you just have to return a proxy function
-                return function() {
-                    // enable transparent object property access
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.default_GET;
+                    // you need to somehow get access to all constraint chain in order to do some updates up the chain
+                },
 
-                    // invoke on demand the original query method with dynamically applied arguments
-                    var result = api[ property ].apply( receiver, arguments );
+            _handleSecondLevelSorting: /**
+            * Invokes 2st level sorting check operations when a 2nd level sorting query method. i.e. thenBy or thenByDescending runs.
+            *
+            * @param {any} constr_params
+            */
+                function ( constr_params )
+                {
+                    // 'this' refers to the current action constraint object
+                    var self = this;
 
-                    // is it an array of data
-                    if(Array.isArray(result))
-                        // mark that next query has to store its source into internal storage
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.newSource_GET;
-                    // is it a new api instance object
-                    else if(_LINQ_CONTEXT._isProxy(result))
-                        // mark that next query has to invoke api-based method
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.sameSource_GET;
+                    // reference first-level sorting context object (flsco)
+                    var flsco = self.actionContext.sharedFirstLevelSortingCtx;
 
-                    // return output from original query method
-                    return result;
-                };
-            }
-        },
+                    // apply required constraint logic
+                    flsco.check();
 
-        prototype_GET : function(key) {
-            // return the type of the proxy object
-            return _LINQ_CONTEXT._proxiedType.prototype;
+                    // you need to somehow get access to all constraint chain in order to do some updates up the chain
+                },
+
+            _handleResetFirstLevelSorting: /**
+            * Reset 1st level sorting when the very next query method running after orderBy or orderByDescending
+            * is not a 2nd level sorting query method. i.e. thenBy or thenByDescending
+            * 
+            * @param {any} constr_params
+            */
+                function ( constr_params )
+                {
+                    // 'this' refers to the current action constraint object
+                    var self = this;
+
+                    // reference first-level sorting context object (flsco)
+                    var flsco = self.actionContext.sharedFirstLevelSortingCtx;
+
+                    // apply required constraint logic
+                    flsco.set( constr_params, self );
+
+                    // you need to somehow get access to all constraint chain in order to do some updates up the chain
+                }
         }
-    }
+    };
 
     // private Linq context object
     var _LINQ_CONTEXT = {
@@ -5103,18 +5406,18 @@
          *  - go to _CORE object and define appropriate core method
          *  - follow the logic from there when defining all core methods' requirements
         */
-        udlm : {
-            where : {
+        udlm: {
+            where: {
                 // Linq method name
                 lmn: 'where',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5137,7 +5440,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -5183,17 +5486,17 @@
                 is_sort_ctx: false
             },
 
-            groupBy : {
+            groupBy: {
                 // Linq method name
                 lmn: 'groupBy',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5216,7 +5519,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -5297,7 +5600,7 @@
 
                             name: 'isDictionaryContext',
 
-                            value : false
+                            value: false
                         }
                     ]
                 },
@@ -5314,17 +5617,17 @@
                 is_sort_ctx: false
             },
 
-            concat : {
+            concat: {
                 // Linq method name
                 lmn: 'concat',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5347,7 +5650,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -5395,17 +5698,17 @@
                 is_sort_ctx: false
             },
 
-            append : {
+            append: {
                 // Linq method name
                 lmn: 'append',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5428,7 +5731,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -5476,17 +5779,17 @@
                 is_sort_ctx: false
             },
 
-            prepend : {
+            prepend: {
                 // Linq method name
                 lmn: 'prepend',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5509,7 +5812,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -5557,17 +5860,17 @@
                 is_sort_ctx: false
             },
 
-            contains : {
+            contains: {
                 // Linq method name
                 lmn: 'contains',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5590,7 +5893,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -5658,17 +5961,17 @@
                 is_sort_ctx: false
             },
 
-            distinct : {
+            distinct: {
                 // Linq method name
                 lmn: 'distinct',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5691,7 +5994,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -5758,17 +6061,17 @@
                 is_sort_ctx: false
             },
 
-            except : {
+            except: {
                 // Linq method name
                 lmn: 'except',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5791,7 +6094,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -5859,17 +6162,17 @@
                 is_sort_ctx: false
             },
 
-            skip : {
+            skip: {
                 // Linq method name
                 lmn: 'skip',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5892,7 +6195,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -5958,17 +6261,17 @@
                 is_sort_ctx: false
             },
 
-            skipWhile : {
+            skipWhile: {
                 // Linq method name
                 lmn: 'skipWhile',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -5991,7 +6294,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -6063,17 +6366,17 @@
                 is_sort_ctx: false
             },
 
-            take : {
+            take: {
                 // Linq method name
                 lmn: 'take',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -6096,7 +6399,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -6162,17 +6465,17 @@
                 is_sort_ctx: false
             },
 
-            takeWhile : {
+            takeWhile: {
                 // Linq method name
                 lmn: 'takeWhile',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -6195,7 +6498,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -6267,17 +6570,17 @@
                 is_sort_ctx: false
             },
 
-            orderBy : {
+            orderBy: {
                 // Linq method name
                 lmn: 'orderBy',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -6300,7 +6603,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context
-                        udf_constraints.handleFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -6361,17 +6664,17 @@
                 is_sort_ctx: true
             },
 
-            orderByDescending : {
+            orderByDescending: {
                 // Linq method name
                 lmn: 'orderByDescending',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -6394,7 +6697,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context
-                        udf_constraints.handleFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -6455,17 +6758,17 @@
                 is_sort_ctx: true
             },
 
-            thenBy : {
+            thenBy: {
                 // Linq method name
                 lmn: 'thenBy',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -6488,7 +6791,7 @@
                     // constraint functions
                     cf: [
                         // to handle 2st level sorting context
-                        udf_constraints.handleSecondLevelSorting,
+                        _PROXY_TRAP.udlm._handleSecondLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -6550,17 +6853,17 @@
                 is_sort_ctx: true
             },
 
-            thenByDescending : {
+            thenByDescending: {
                 // Linq method name
                 lmn: 'thenByDescending',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -6583,7 +6886,7 @@
                     // constraint functions
                     cf: [
                         // to handle 2st level sorting context
-                        udf_constraints.handleSecondLevelSorting,
+                        _PROXY_TRAP.udlm._handleSecondLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -6645,17 +6948,17 @@
                 is_sort_ctx: true
             },
 
-            toArray : {
+            toArray: {
                 // Linq method name
                 lmn: 'toArray',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -6671,7 +6974,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -6730,17 +7033,17 @@
                 is_sort_ctx: false
             },
 
-            toDictionary : {
+            toDictionary: {
                 // Linq method name
                 lmn: 'toDictionary',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -6763,7 +7066,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -6865,17 +7168,17 @@
                 is_sort_ctx: false
             },
 
-            defaultIfEmpty : {
+            defaultIfEmpty: {
                 // Linq method name
                 lmn: 'defaultIfEmpty',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -6891,7 +7194,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -6946,10 +7249,12 @@
                     // metadata describing fetching the right params
                     cpfdm: [
                         [
-                            function() {
+                            function ()
+                            {
                                 return api;
                             },
-                            function() {
+                            function ()
+                            {
                                 return ctx.fim.item;
                             }
                         ]
@@ -6965,17 +7270,17 @@
                 is_sort_ctx: false
             },
 
-            reverse : {
+            reverse: {
                 // Linq method name
                 lmn: 'reverse',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -6998,7 +7303,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -7066,17 +7371,17 @@
                 is_sort_ctx: false
             },
 
-            reverseExt : {
+            reverseExt: {
                 // Linq method name
                 lmn: 'reverseExt',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -7099,7 +7404,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -7163,17 +7468,17 @@
                 is_sort_ctx: false
             },
 
-            select : {
+            select: {
                 // Linq method name
                 lmn: 'select',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -7196,7 +7501,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -7271,17 +7576,17 @@
                 is_sort_ctx: false
             },
 
-            selectMany : {
+            selectMany: {
                 // Linq method name
                 lmn: 'selectMany',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -7304,7 +7609,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -7379,17 +7684,17 @@
                 is_sort_ctx: false
             },
 
-            join : {
+            join: {
                 // Linq method name
                 lmn: 'join',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -7412,7 +7717,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -7508,17 +7813,17 @@
                 is_sort_ctx: false
             },
 
-            leftJoin : {
+            leftJoin: {
                 // Linq method name
                 lmn: 'leftJoin',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -7541,7 +7846,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -7636,18 +7941,18 @@
                 // method runs in the sorting context
                 is_sort_ctx: false
             },
-            
-            groupJoin : {
+
+            groupJoin: {
                 // Linq method name
                 lmn: 'groupJoin',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -7670,7 +7975,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -7766,17 +8071,17 @@
                 is_sort_ctx: false
             },
 
-            groupLeftJoin : {
+            groupLeftJoin: {
                 // Linq method name
                 lmn: 'groupLeftJoin',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : false,
+                    yes: false,
 
                     // does produce final result which is a collection
-                    returns_collection : true,
+                    returns_collection: true,
                 },
 
                 // pre-defined internal constraint checking
@@ -7799,7 +8104,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -7895,17 +8200,17 @@
                 is_sort_ctx: false
             },
 
-            elementAt : {
+            elementAt: {
                 // Linq method name
                 lmn: 'elementAt',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -7928,7 +8233,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -7994,17 +8299,17 @@
                 is_sort_ctx: false
             },
 
-            elementAtOrDefault : {
+            elementAtOrDefault: {
                 // Linq method name
                 lmn: 'elementAtOrDefault',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8027,7 +8332,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
                     // constraint functions data
@@ -8091,10 +8396,12 @@
                     // metadata describing fetching the right params
                     cpfdm: [
                         [
-                            function() {
+                            function ()
+                            {
                                 return api;
                             },
-                            function() {
+                            function ()
+                            {
                                 return ctx.fim.item;
                             }
                         ]
@@ -8110,17 +8417,17 @@
                 is_sort_ctx: false
             },
 
-            first : {
+            first: {
                 // Linq method name
                 lmn: 'first',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8143,7 +8450,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8206,17 +8513,17 @@
                 is_sort_ctx: false
             },
 
-            firstOrDefault : {
+            firstOrDefault: {
                 // Linq method name
                 lmn: 'firstOrDefault',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8239,7 +8546,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8302,17 +8609,17 @@
                 is_sort_ctx: false
             },
 
-            last : {
+            last: {
                 // Linq method name
                 lmn: 'last',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8335,7 +8642,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8398,17 +8705,17 @@
                 is_sort_ctx: false
             },
 
-            lastOrDefault : {
+            lastOrDefault: {
                 // Linq method name
                 lmn: 'lastOrDefault',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8431,7 +8738,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8494,17 +8801,17 @@
                 is_sort_ctx: false
             },
 
-            single : {
+            single: {
                 // Linq method name
                 lmn: 'single',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8527,7 +8834,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8590,17 +8897,17 @@
                 is_sort_ctx: false
             },
 
-            singleOrDefault : {
+            singleOrDefault: {
                 // Linq method name
                 lmn: 'singleOrDefault',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8623,7 +8930,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8686,17 +8993,17 @@
                 is_sort_ctx: false
             },
 
-            min : {
+            min: {
                 // Linq method name
                 lmn: 'min',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8719,7 +9026,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8780,17 +9087,17 @@
                 is_sort_ctx: true
             },
 
-            max : {
+            max: {
                 // Linq method name
                 lmn: 'max',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8813,7 +9120,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8874,17 +9181,17 @@
                 is_sort_ctx: true
             },
 
-            average : {
+            average: {
                 // Linq method name
                 lmn: 'average',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -8907,7 +9214,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -8977,17 +9284,17 @@
                 is_sort_ctx: true
             },
 
-            any : {
+            any: {
                 // Linq method name
                 lmn: 'any',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -9010,7 +9317,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -9064,17 +9371,17 @@
                 is_sort_ctx: false
             },
 
-            all : {
+            all: {
                 // Linq method name
                 lmn: 'all',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes : true,
+                    yes: true,
 
                     // does produce final result which is a collection
-                    returns_collection : false,
+                    returns_collection: false,
                 },
 
                 // pre-defined internal constraint checking
@@ -9097,7 +9404,7 @@
                     // constraint functions
                     cf: [
                         // to handle 1st level sorting context reset
-                        udf_constraints.handleResetFirstLevelSorting,
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
 
                         /**
                          * By design syntax check is the last constraint to apply !
@@ -9160,30 +9467,57 @@
          *
          * This is the only place where you define all internals that constitute JLC.
          *  - property called '_all' stores all names of so-far used methods in the query flow.
-         *  - property called '_proxyTrapCommon' stores common methods used for traps.
+         *  - property called '_proxyTrapsCommon' stores common methods used for traps.
          *  - property called '_arrayProto' stores the original prototype of an Array object.
-         *  - property called '_fromFactory' triggers generation of query method on demand from method definition.
+         *  - property called '_baseProxy' triggers generation of query method on demand from method definition.
          *  - property called '_proxyHandler' contains query methods' interceptor.
         */
 
         // all available query method names that are already present in the query flow
-        _all : [],
+        _all: [],
+
+        // private implementation - generating query method on demand from method definition !
+        _baseProxy: null,
+
+        // backups the original prototype of an Array object
+        _arrayProto: null,
 
         // common methods shared across all traps
-        _proxyTrapCommon : {
-            storeQueryMethodName : function(method_name) {
-                // cache query method name if it's not present in the cache
-                if(_LINQ_CONTEXT._all.indexOf(method_name) === -1)
-                    _LINQ_CONTEXT._all.push(method_name);
+        _proxyTrapsCommon: {
+            queryCreateOrGetContextFor: function ( input_coll )
+            {
+                // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
+                var ticgui = Object.getOwnPropertySymbols( input_coll )[ 0 ];
+
+                // if internally-stored one, then get the cached context associated with this collection
+                if ( ticgui )
+                {
+                    // and return JLC proxied instance
+                    return _COMMON.jlcNew( _SETUP._ccm[ ticgui ] );
+                }
+                // if a new one, index it
+                else
+                {
+                    // and return JLC proxied instance
+                    return _SETUP.Funcs.applyJLC( input_coll );
+                }
             },
 
-            addActionConstraints : function (method)
+            queryStoreName: function ( method_name )
+            {
+                // cache query method name if it's not present in the cache
+                if ( _LINQ_CONTEXT._all.indexOf( method_name ) === -1 )
+                    _LINQ_CONTEXT._all.push( method_name );
+            },
+
+            queryAddActionConstraints: function ( method )
             {
                 // query constraint property name
                 var qcpn = _CONSTRAINT._placeholder + method.lmn;
 
                 // define '_baseConstraints' on '_CONSTRAINT' object once... 
-                if(!(qcpn in _CONSTRAINT)) {
+                if ( !( qcpn in _CONSTRAINT ) )
+                {
                     // but create new instance of query flow base constraints (qfbc) for each query method that requires it, but only once
                     Object.defineProperty(
                         _CONSTRAINT,
@@ -9196,7 +9530,7 @@
                                 var qc = declareBaseActionConstraints_I_2L();
 
                                 // cache it
-                                _CONSTRAINT._qfcc[qcpn] = qc;
+                                _CONSTRAINT._qfcc[ qcpn ] = qc;
 
                                 // return query constraint
                                 return qc;
@@ -9204,9 +9538,10 @@
                         }
                     );
                 }
-                // ... and fetch it from a cache during subsequent attempts to get the same query constraint
-                else {
-                    return _CONSTRAINT._qfcc[qcpn];
+                // ... and fetch it from a cache during subsequent attempts to get the same query constraint (????????????????????????????????????????????????????)
+                else
+                {
+                    return _CONSTRAINT._qfcc[ qcpn ];
                 }
 
 
@@ -9276,7 +9611,7 @@
                 }
             },
 
-            generateQueryMethod : function (method, api)
+            queryGenerateImplementation: function ( method, api )
             {
                 // add method to Linq context object
                 // @ts-ignore
@@ -9321,16 +9656,17 @@
                         // define optional action constraint
                         var constr;
                         // check for optional method syntax checking
-                        if ( method_def_obj.rsc ) {
+                        if ( method_def_obj.rsc )
+                        {
                             // define an array of arrays of user-provided query filters
                             var upqf_syntax_arr_of_arr = [];
 
                             // create array of parameters that store user-provided query filters
-                            var rsc_syntax_arr = method_def_obj.rsc_syntax.split(',');
+                            var rsc_syntax_arr = method_def_obj.rsc_syntax.split( ',' );
 
                             // loop over array, fetch predicates and store them in the array
-                            for (let rsc_syntax of rsc_syntax_arr)
-                                upqf_syntax_arr_of_arr.push(params[ rsc_syntax ]);
+                            for ( let rsc_syntax of rsc_syntax_arr )
+                                upqf_syntax_arr_of_arr.push( params[ rsc_syntax ] );
 
                             // create real action constraint
                             constr = _CONSTRAINT.createActionConstraint(
@@ -9374,28 +9710,31 @@
                          * The implicit requirement for these custom prerequisites is that all params of functions can be fetched via 'Closures' feature !
                         */
 
-                        if(method_def_obj.acp) {
+                        if ( method_def_obj.acp )
+                        {
                             // iterate over all functions to execute
-                            for(var i = 0, length = method_def_obj.acp.cpf.length; i < length; i++) {
+                            for ( var i = 0, length = method_def_obj.acp.cpf.length; i < length; i++ )
+                            {
                                 // reference function to execute
-                                var func = method_def_obj.acp.cpf[i];
+                                var func = method_def_obj.acp.cpf[ i ];
 
                                 // function params
                                 var func_params = [];
 
                                 // iterate over all function params accessors
-                                for(var j = 0, fpa_length = method_def_obj.acp.cpfdm[i].length; j < fpa_length; j++) {
+                                for ( var j = 0, fpa_length = method_def_obj.acp.cpfdm[ i ].length; j < fpa_length; j++ )
+                                {
                                     // fetch function params
-                                    func_params.push(method_def_obj.acp.cpfdm[i][j]());
+                                    func_params.push( method_def_obj.acp.cpfdm[ i ][ j ]() );
                                 }
 
                                 // invoke function with given params
-                                func.call(null, func_params);
+                                func.call( null, func_params );
                             }
                         }
 
                         // switch proxy interceptor
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.empty_GET;
+                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
 
                         // @ts-ignore
                         // create action object
@@ -9410,58 +9749,82 @@
                             constr,
                             method_def_obj.mrd.yes
                         );
-                        
+
                         // return action object
                         return atn;
                     };
                 }
             },
 
-            createIntermediateResultsEnumerator : function (method, api)
+            queryGenerateInDebuggingModeResultsView: function ( method, api )
             {
                 /**
                  * This method is created only for query methods that DON'T produce final result.
                  * This method is shared by all query methods that DON'T produce final result.
                  * Hence, this intermediate results enumerator method is created during the very first creation of no producing-final-result method.
                 */
-                
-                if(!method.mrd.yes && !('resultsView' in api))
-                Object.defineProperty(
-                    api,
-                    'resultsView',
-                    {
-                        // only override getter
-                        get: function ()
+
+                if ( !method.mrd.yes && !( 'resultsView' in api ) )
+                    Object.defineProperty(
+                        api,
+                        'resultsView',
                         {
-                            /**
-                             * Get contextually current collection state from the collection history array.
-                             * _ctx will be injected further in the query flow ! 
-                            */
-                            return _DATA.fetch( api._ctx.coll_index ).collection;
+                            // only override getter
+                            get: function ()
+                            {
+                                /**
+                                 * Get contextually current collection state from the collection history array.
+                                 * api's _ctx will be injected further in the query flow ! 
+                                */
+
+                                // invoke real data filtering and produce output, i.e. execute all actions
+                                _ACTION.executeChain( api._ctx );
+
+                                // restore metadata of the contextually current collection state
+                                _COMMON.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+
+                                // return contextually current collection state
+                                return _ACTION.hpid.data;
+                            }
                         }
-                    }
-                );
+                    );
+            },
+
+            queryGetProxyFuncThenInvoke: function ( api, property, receiver, arguments )
+            {
+                // enable transparent object property access
+                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
+
+                // invoke on demand the original query method with dynamically applied arguments
+                var result = api[ property ].apply( receiver, arguments );
+
+                // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
+                if ( Array.isArray( result ) )
+                    // mark that next query has to store its source into internal storage
+                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.newSource_GET;
+                // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
+                else if ( _LINQ_CONTEXT._isProxy( result ) )
+                    // mark that next query has to invoke api-based method
+                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.sameSource_GET;
+
+                // return output from original query method
+                return result;
             }
         },
 
-        // backups the original prototype of an Array object
-        _arrayProto : null,
-
-        // private implementation - generating query method on demand from method definition !
-        _fromFactory : null,
-
         // this proxy handler is being invoked when accessing any query method (intercepts every query method invocation) !
-        _proxyHandler : {
-            get: _PROXY_TRAP.newSource_GET,
+        _proxyHandler: {
+            get: _PROXY_TRAP.trap.empty_GET,
 
-            getPrototypeOf: _PROXY_TRAP.prototype_GET
+            getPrototypeOf: _PROXY_TRAP.trap.prototype_GET
         },
 
         // define type of Proxy
-        _proxiedType : class {},
+        _proxiedType: class { },
 
         // detect if an object in question is a proxy
-        _isProxy : function(obj) {
+        _isProxy: function ( obj )
+        {
             return obj instanceof _LINQ_CONTEXT._proxiedType;
         }
     };
@@ -9488,6 +9851,9 @@
                     // enable custom polyfills, aka extensions
                     enableExtensions_I_2L();
 
+                    // update query method interceptor
+                    updateProxy_I_2L();
+
 
 
                     /**
@@ -9496,10 +9862,10 @@
                     function init_LINQ_I_2L ()
                     {
                         // create proxied prototype of an Array object
-                        _LINQ_CONTEXT._fromFactory = new Proxy(Object.create(null), _LINQ_CONTEXT._proxyHandler);
+                        _LINQ_CONTEXT._baseProxy = new Proxy( Object.create( null ), _LINQ_CONTEXT._proxyHandler );
 
                         // update prototype of an Array object
-                        Object.setPrototypeOf( Array.prototype, _LINQ_CONTEXT._fromFactory );
+                        Object.setPrototypeOf( Array.prototype, _LINQ_CONTEXT._baseProxy );
 
 
                         // create LINQ namespaces
@@ -9515,9 +9881,15 @@
                         window.System.Linq.Resources = window.System.Linq.Resources || Object.create( null );
 
 
+                        window.System.Linq.Context.tidyUp = function ( ...user_coll_arr )
+                        {
+                            // cleanup user collections if any
+                            _SETUP.Funcs.cleanupJLC( user_coll_arr );
+                        };
+
                         // enable disposing of LINQ resources
                         // @ts-ignore
-                        window.System.Linq.Resources.dispose = function ()
+                        window.System.Linq.Resources.dispose = function ( ...user_coll_arr )
                         {
                             // remove all collections
                             _DATA.collection_array.length = 0;
@@ -9529,43 +9901,60 @@
                             _DATA.index = -1;
 
                             // when you're done with LINQ, make any further array operations transparent ones !
-                            _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.empty_GET;
+                            _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.empty_GET;
 
                             // restore native prototype of Array.prototype
                             restore_APP_I_1L();
+
+                            // cleanup user collections if any
+                            cleanupUserCollections_I_1L();
 
 
 
                             /**
                              * Local helper methods
                             */
-                            function restore_APP_I_1L() {
+                            function restore_APP_I_1L ()
+                            {
                                 // create proto object
-                                var proto = Object.create(null);
+                                var proto = Object.create( null );
 
                                 // copy all available properties
-                                Object.getOwnPropertyNames(Object.prototype).forEach(
-                                                                                        function(prop) {
-                                                                                            proto[prop] = Object.prototype[prop];
-                                                                                        }
-                                                                                    );
+                                Object.getOwnPropertyNames( Object.prototype ).forEach(
+                                    function ( prop )
+                                    {
+                                        proto[ prop ] = Object.prototype[ prop ];
+                                    }
+                                );
                                 // remove null property called '__proto__'
-                                delete proto["__proto__"];
-                                
+                                delete proto[ "__proto__" ];
+
                                 // restore Array.prototype to its original value
                                 Object.setPrototypeOf( Array.prototype, proto );
+                            }
+
+                            function cleanupUserCollections_I_1L ()
+                            {
+                                _SETUP.Funcs.cleanupJLC( user_coll_arr );
                             }
                         };
                     }
 
-                    function enableExtensions_I_2L() {
+                    function enableExtensions_I_2L ()
+                    {
                         // get all extensions' keys
-                        var ext_key_arr = Object.getOwnPropertyNames(_EXTENSION);
+                        var ext_key_arr = Object.getOwnPropertyNames( _EXTENSION );
 
                         // loop over all extensions one by one
-                        for(var i = 0; i < ext_key_arr.length; i++)
+                        for ( var i = 0; i < ext_key_arr.length; i++ )
                             // enable this extension
-                            _EXTENSION[ext_key_arr[i]]();
+                            _EXTENSION[ ext_key_arr[ i ] ]();
+                    }
+
+                    function updateProxy_I_2L ()
+                    {
+                        // enable intercepting query method call
+                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.newSource_GET;
                     }
                 }
             },
@@ -9579,15 +9968,20 @@
                 // do necessary cleanup before starting current query flow
                 _COMMON.clearCache( undefined );
 
+                // create copy of source collection
+                var _this = source_collection;
 
+
+                // create globally unique identifier of this input collection
+                var ticgui = Symbol.for( '__jlc_i_idx' );
                 // get token associated with current collection, aka root token
                 var rootToken = new Date().getTime();
 
-                // create copy of source collection
-                var _this = source_collection.slice( 0 );
-
+                // assign globally unique identifier to this input collection
+                _this[ ticgui ] = rootToken;
                 // assign token to collection
                 _this._rootToken = rootToken;
+
 
                 // pass data in to the mechanism
                 var coll_idx = over_I_1L( _this );
@@ -9595,13 +9989,20 @@
 
                 // get first item from a collection
                 var firstItem = _this[ 0 ];
-                // store updated metadata about collection and return whether collection input type is primitive
-                var is_prim = update_CM_I_1L( _this.length > 1, firstItem );
+                // store updated metadata about collection
+                _COMMON.updateColumnSetColsAndCIT( _this.length > 1, firstItem );
+
+
+                // check type primitivity of collection input type
+                var is_prim = check_TP_I_1L();
+
                 // create context
                 var jlcCtx = create_JC_I_1L();
 
+                // cache collection context
+                _SETUP._ccm[ ticgui ] = jlcCtx;
 
-                // return JLC instance
+                // return JLC proxied instance
                 return _COMMON.jlcNew( jlcCtx );
 
 
@@ -9658,27 +10059,10 @@
                     return index;
                 }
 
-                function update_CM_I_1L ( length_gte_2, firstItem )
+                function check_TP_I_1L ()
                 {
-                    /**
-                     * To enable syntax check, fetch object structure (all keys at all levels).
-                     * Fetch them provided that collection is not empty !
-                    */
-
-                    // detect collection input data type to provide type of source of syntax checking
-                    _ACTION.hpid.columnSet.cit = _COMMON.detectCIT( firstItem, !firstItem ? false : true, length_gte_2 );
-
-                    // if cit is UNKNOWN, skip further operations
-                    if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
-
-                    // otherwise initialize column metadata set based on current collection
-                    _ACTION.hpid.columnSet.init( firstItem );
-
                     // is primitive type of this item
-                    var isPrimitive = _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE );
-
-                    // return true, otherwise false
-                    return isPrimitive;
+                    return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE );
                 }
 
                 function create_JC_I_1L ()
@@ -9694,14 +10078,50 @@
                     ctx.fim = Object.create( null );
                     ctx.fim.is_prim = is_prim;
                     ctx.fim.item = firstItem;
+                    ctx.fim.length_gte_2 = _this.length > 1;
 
+                    // initially parent set to null
                     ctx.parent = null;
 
                     // return JLC instance context object
                     return ctx;
                 }
+            },
+
+            /**
+             * @param {Array} user_coll_arr Query flow input collection and/or collections.
+            */
+            cleanupJLC: function ( user_coll_arr )
+            {
+                // if user provided valid array of collections
+                if ( user_coll_arr && Array.isArray( user_coll_arr ) )
+                    // cleanup any each and every collection
+                    user_coll_arr.forEach( cleanup_I_1L );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function cleanup_I_1L ( coll, index, arr )
+                {
+                    // handle array
+                    if ( Array.isArray( coll ) )
+                        arr[ index ] = Object.entries( coll )
+                            .reduce( ( acc, [ k, v ] ) => typeof k == "symbol" || k == "_rootToken" ? acc : ( acc[ k ] = v, acc ), [] );
+                    // handle object
+                    else
+                        arr[ index ] = Object.entries( coll )
+                            .reduce( ( acc, [ k, v ] ) => typeof k == "symbol" || k == "_rootToken" ? acc : ( acc[ k ] = v, acc ), Object.create( null ) );
+
+                    // return cleaned array
+                    return arr;
+                }
             }
-        }
+        },
+
+        // stores conceptually current collection metadata for new query flow new proxy instances
+        _ccm: Object.create( null )
     };
 
 

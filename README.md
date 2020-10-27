@@ -25,6 +25,9 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #2 - DPR #25:&nbsp;2020-10-27 &nbsp;&nbsp;12:54 PM Local Time &nbsp;:heavy_check_mark:
+    - FIXED:
+      - maximum call stack size exceeded error, adding some code perf optimizations
  - TEST #1 - DPR #24:&nbsp;2020-10-13 &nbsp;&nbsp;11:42 PM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
       - handling rsc_syntax in _LINQ_CONTEXT when you have multimple values, i.e. rsc_syntax: 'outerSelectorArray, innerSelectorArray'
