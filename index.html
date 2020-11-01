@@ -2,13 +2,39 @@
 <html lang="en">
  <head>
   <meta charset="utf-8" />
-  <meta name="description" content="JavaScript LINQ Concept by C4B Solutions Lab | Łukasz Dąbrowski - Inżynier Oprogramowania | Lukasz Dabrowski - Software Engineer" />
+  <meta name="description" content="JavaScript LINQ Concept by C4B Solutions Lab | Łukasz Dąbrowski - Inżynier Oprogramowania | Lucas Dabrowski - Software Engineer" />
   <title>JLC 1.0 by Solutions Lab</title>
-  <script src="js/jlc.js"></script>
-  <script src="js/user-defined-commons.js"></script>
-  <script src="js/user-defined-filters.js"></script>
-  <script src="js/user-data/processing_primitives.js"></script>
-  <script src="js/user-data/processing_objects.js"></script>
+
+  <!--
+	  LOAD ALL DEPS
+  -->
+  <!-- library consisting of user-defined shared functions to deliver various utilities -->
+  <script src="js/udf/user-defined-commons.js"></script>
+  <!-- library consisting of user-defined filter functions to deliver various filtering utilities --> 
+  <script src="js/udf/user-defined-filters.js"></script>
+  <!-- library consisting of user-defined constraint functions to deliver various checkings --> 
+  <script src="js/udf/user-defined-constraints.js"></script>
+
+
+
+  <!--
+	  LOAD JLC
+  -->
+  <!-- core JLC library -->
+  <script src="js/core/jlc.v.ga.js"></script>
+
+
+
+  <!--
+	  LOAD TEST CASES
+  -->
+  <!-- libraries consisting of exmaples dealing with objects -->
+  <script src="js/user-data/objects/test_objects.js"></script>
+
+  <!-- libraries consisting of exmaples dealing with objects -->
+  <script src="js/user-data/primitives/test_primitives.js"></script>
+
+  <!-- load necessary CSS -->
   <link href="css/css_jlc.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.css" rel="stylesheet" integrity="sha256-DVK12s61Wqwmj3XI0zZ9MFFmnNH8puF/eRHTB4ftKwk=" crossorigin="anonymous" />
  </head>
@@ -17,46 +43,36 @@
 		<div id="readme">
 			Clear the cache . Open the console . Hit Ctrl+R
 		</div>
-		<div id="devtool-status"><i class="far fa-caret-square-right"></i></div>
+		<div id="city"></div>
 		<div class="author"></div>
 	</div>
 
 	<script>
-		debugger;
-		/*
-
-		// test availability of the query debugger () enabling execution of conditional JavaScript code (almost like in C#)
-		var example_of_query_debugger = coll_1.usingLinq().reverse();
-
-
-		// in case it doesn't work, try using stepping into with F11 and waiting a few seconds. After all, this is just for pure debugging purposes !!!! 😀😉
-		var isDebugMode = example_of_query_debugger.ifConsoleDebug();
-		if(isDebugMode) {
-			console.log("Conditional code execution is available !");
-			var debug_data = example_of_query_debugger.debugResultsView();
-
-			console.log(debug_data);
-		}
-		else
-			console.log("Conditional code execution is not available.\r\nPlease open the console to enable execution of conditional JavaScript code !");
-
+		/**
+		 * Section INTRO
+		 * 
+		 * ⚠️
+		 * Exemplary usage at the same time serves the purpose of documentation !
+		 * 
+		 * To learn all available parameters of all query methods, go to :
+		 * 	=>  object:		_LINQ_CONTEXT
+		 * 	=> property:	udlm
 		*/
 
 
 
-
-
-
-
 		/**
+		 * Section LEGEND
+		 * 
+		 * 
 		 * The following methods work the same way:
 		 *  - methods not returning single value - primitive or a complex one - process not physical but logical data (action metadata about how to process physical data)
 		 *  - methods returning single value - primitive or a complex one - are the only methods processing physical data
 		 *  - methods returning data collections are the only following methods processing physical data
-		 * 		-> toArray(context)
-		 * 		-> toDictionary(..., context)
+		 * 		-> toArray()
+		 * 		-> toDictionary(...,)
+		 * 		-> defaultIfEmpty(...)
 		 * 
-		 * Context (to properly locate which actions should be execute in the action chain, are defined manually right now. They will be defined via JLC API)
 		 * 
 		 * Creating partial query not ended with toArray, toDictionary, or any method returning single value have no access to partial filtered data !!!!
 		 * The goal is to enable something like ResultsView in C# while debugging LINQ query !
@@ -65,60 +81,82 @@
 
 
 		/**
-		 * Some methods DO NOT produce immediate results !
-		 * Intermediate results via property called 'resultsView' WILL ONLY BE available WHILE DEBUGGING !
-		 *
-		 * 			Example:
-		 *  
-		 * 			var where = coll_1.usingLinq()
-		 *							  .where(...);
-		 *
+		 * Section DO_IR
 		 * 
-		 * 	The list of these methods is :
-		 * 		-  reverse
-		 * 		-  take
-		 * 		-  takeWhile
-		 * 		-  skip
-		 * 		-  skipWhile
 		 * 
-		*/
-
-
-		/**
 		 * Some methods DO produce immediate results !
 		 *
-		 * 			Example:
-		 *  
-		 * 			var where = coll_1.usingLinq()
-		 *							  .toArray();
+		 * 			Example: 
+		 * 					var whole_coll = coll_1.toArray();
 		 *
 		 * 
 		 * 	The list of these methods is :
 		 * 		-  toArray
 		 * 		-  toDictionary
+		 * 		-  defaultIfEmpty
+		 * 		-  elementAt
+		 * 		-  elementAtOrDefault
 		 * 		-  first
 		 * 		-  firstOrDefault
 		 * 		-  last
 		 * 		-  lastOrDefault
 		 * 		-  single
 		 * 		-  singleOrDefault
+		 * 		-  min
+		 * 		-  max
+		 * 		-  average
 		 * 		-  any
 		 * 		-  all
+		 * 		-  contains
 		 * 
 		*/
 
-		
+
 
 		/**
-		 * Exemplary usage at the same time serves the purpose of documentation ! ⚠️
+		 * Section DON_IR
+		 * 
+		 * 
+		 * Other methods DO NOT produce immediate results !
+		 * Intermediate results are available via property called 'resultsView' !
+		 *
+		 * 			Example:
+		 * 					var where = coll_1.where(...);
+		 *
+		 * 
+		 * 	The list of these methods is :
+		 * 		-  go to Section INTRO -> _LINQ_CONTEXT -> udlm - DO_IR
+		 * 
 		*/
 
-		// primitives
-		window.goToPrimitives();
+
+		debugger;
+
+		/**
+		 * Tip:
+		 * 		1. Watch the JavaScript LINQ in action [ https://drive.google.com/drive/folders/1puGA_zuvLC-z9w93ajHtQepa8-PEl1-2 ] 
+		 * 		2. Rewrite these examples on your own or come up with your own ones !
+		*/
+
+
+		/**
+		* ⚠️
+		*
+		* These examples
+		* 	-> js/user-data/objects/test_objects.js  		[ window.testObjects() ]
+		*	-> js/user-data/primitives/test_primitives.js 	[ window.testPrimitives() ]
+		* use query method current interface !
+		*
+		* Other examples provided in the js/user-data/objects/ & js/user-data/primitives/ directories
+		* are using query method previous interface, which may or may not be valid one in some cases !
+		* You can use it as kind of resource to learn some edge cases or something like that. 
+		*/
 
 		// objects
-		window.goToObjects();		
+		window.testObjects();
 
+		// primitives
+		window.testPrimitives();
 
 		// when you're done with all querying, you can free some memory up by removing all data stored in _DATA object
 		System.Linq.Resources.dispose();

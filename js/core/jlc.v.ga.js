@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #25 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #26 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -39,67 +39,76 @@
 {
     // private enum object
     var _ENUM = {
-        FIRST: "first",
-        LAST: "last",
+        FIRST: Symbol( 'first' ),
+        LAST: Symbol( 'last' ),
 
-        SINGLE: "single",
-        ELEMENT_AT: "element_at",
+        SINGLE: Symbol( 'single' ),
+        ELEMENT_AT: Symbol( 'element_at' ),
 
-        MIN: 'min',
-        MAX: 'max',
-        AVG: 'average',
-        AVG_MIN: 'average_min',
-        AVG_MAX: 'average_max',
+        MIN: Symbol( 'min' ),
+        MAX: Symbol( 'max' ),
+        AVG: Symbol( 'average' ),
+        AVG_MIN: Symbol( 'average_min' ),
+        AVG_MAX: Symbol( 'average_max' ),
 
-        ALL: "all",
-        ANY: "any",
+        ALL: Symbol( 'all' ),
+        ANY: Symbol( 'any' ),
 
-        DEFAULT: "default",
+        DEFAULT: Symbol( 'default' ),
 
-        REVERSE: "reverse",
-        REVERSE_EXT: "reverse_ext",
+        REVERSE: Symbol( 'reverse' ),
+        REVERSE_EXT: Symbol( 'reverse_ext' ),
 
-        SKIP: "skip",
-        TAKE: "take",
+        SKIP: Symbol( 'skip' ),
+        TAKE: Symbol( 'take' ),
 
-        SELECT: "select",
-        SELECT_MANY: "select_many",
+        SELECT: Symbol( 'select' ),
+        SELECT_MANY: Symbol( 'select_many' ),
 
-        JOIN: "join",
-        LEFT_JOIN: "left_join",
-        GROUP_JOIN: "group_join",
-        GROUP_LEFT_JOIN: "group_left_join",
+        JOIN: Symbol( 'join' ),
+        LEFT_JOIN: Symbol( 'left_join' ),
+        GROUP_JOIN: Symbol( 'group_join' ),
+        GROUP_LEFT_JOIN: Symbol( 'group_left_join' ),
 
-        SAVE: "save",
-        UPDATE: "update",
-
-        CONCAT: "concat",
-        APPEND: "append",
-        PREPEND: "prepend",
-        CONTAINS: "contains",
-        DISTINCT: "distinct",
-        EXCEPT: "except",
+        CONCAT: Symbol( 'concat' ),
+        APPEND: Symbol( 'append' ),
+        PREPEND: Symbol( 'prepend' ),
+        CONTAINS: Symbol( 'contains' ),
+        DISTINCT: Symbol( 'distinct' ),
+        EXCEPT: Symbol( 'except' ),
 
         ORDER: {
             Level: {
-                FIRST: "first_level",
-                SECOND: "second_level"
+                FIRST: Symbol( 'first_level' ),
+                SECOND: Symbol( 'second_level' )
             },
 
             By: {
-                ASC: "asc",
-                DESC: "desc",
-                THEN_ASC: "then_asc",
-                THEN_DESC: "then_desc"
+                ASC: Symbol( 'asc' ),
+                DESC: Symbol( 'desc' ),
+                THEN_ASC: Symbol( 'then_asc' ),
+                THEN_DESC: Symbol( 'then_desc' )
             }
         },
         // collection input type
         CIT: {
-            PRIMITIVE: "primitive_type",
-            PLAIN: "plain_object",
-            GROUPING: "grouping_object",
-            KVP: "key_value_pair_object",
-            UNKNOWN: "unknown"
+            PRIMITIVE: Symbol( 'primitive_type' ),
+            PLAIN: Symbol( 'plain_object' ),
+            GROUPING: Symbol( 'grouping_object' ),
+            KVP: Symbol( 'key_value_pair_object' ),
+            UNKNOWN: Symbol( 'unknown' )
+        },
+
+        FLOW_CONTEXT: {
+            RAW_SOURCE_CONTEXT: Symbol('raw_source_ctx'),
+            INDEX_SOURCE_CONTEXT: Symbol('apply_jlc_ctx'),
+            PROXY_SOURCE_CONTEXT: Symbol('proxy_source_ctx'),
+            ACTION_SOURCE_CONTEXT: Symbol('action_source_ctx')
+        },
+
+        MISC: {
+            _CTX: Symbol('_ctx'), // context of all actions defined for this proxied JLC instance
+            _QMI: Symbol('_qmi') // query method implementations
         }
     };
 
@@ -1151,7 +1160,7 @@
         create: /**
          * Create action that represents filtering logic for given Linq's method.
          */
-            function ( jlc_instance_ctx, core_method_bind, context, constraint_def, to_execute )
+            function ( jlc_instance_ctx, jlc_instance_qmi, core_method_bind, context, constraint_def, to_execute )
             {
                 // create an action
                 var action = createAction_I_1L( context, jlc_instance_ctx, core_method_bind );
@@ -1178,7 +1187,12 @@
                 // otherwise enable further flow of actions (when the last method in the chain is NOT a final result method)
                 else
                     // return JLC instance api and pass context of current action to provide chain of actions to execute
-                    return _COMMON.jlcNew( action_ctx );
+                    return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
+                                                                                            _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT,
+                                                                                            /* in this context we have no access to physical collection, so pass null */ null,
+                                                                                            action_ctx,
+                                                                                            jlc_instance_qmi
+                                                                                          )
 
 
 
@@ -1373,7 +1387,6 @@
 
 
 
-
                     /**
                      * Local helper functions
                     */
@@ -1474,21 +1487,25 @@
         jlcNew: /**
          * Create new instance of JLC.
          *
-         * @param {Object} ctx Context for this newly being created JLC instance.
+         * @param {Object} ctx Container of actions for this newly being created JLC instance.
+         * @param {Object} qmi Container of query method implementations for this newly being created JLC instance.
          */
-            function ( ctx )
+            function ( ctx, qmi )
             {
-                return j_I_I_1L( ctx );
+                return j_I_I_1L( ctx, qmi );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function j_I_I_1L ( ctx )
+                function j_I_I_1L ( ctx, qmi )
                 {
                     // create template object to clone current action context object
                     var ctxClone = Object.create( null );
+
+                    // cache already created query methods
+                    ctxClone[_ENUM.MISC._QMI] = qmi;
 
                     // do cloning
                     ctxClone._ctx = _COMMON.deepCopyYesCR( ctx );
@@ -1770,7 +1787,7 @@
                 var current_GET_interceptor = _LINQ_CONTEXT._proxyHandler.get;
 
                 // enable transparent object property access
-                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
+                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                 // determine current query flow (all invoked methods up to this method)
                 var method_names = getQueryMethodNames_I_1L();
@@ -5204,129 +5221,144 @@
 
 
 
-    // private Proxy trap object
+    // private proxy trap object
     var _PROXY_TRAP = {
         // common internal types of traps to provide seamless query flow
-        trap: {
-            empty_GET: function () { },
-
-            /**
-             * @param {object} api JLC instance.
-             * @param {any} property Name of the query method in question.
-             * @param {any} receiver The object that should be used as this.
-            */
-            default_GET: function ( api, property, receiver )
-            {
-                // just get property value from api object
-                return api[ property ];
-            },
-
-            /**
-             * @param {object} api JLC instance.
-             * @param {any} property Name of the query method in question.
-             * @param {any} receiver The object that should be used as this.
-            */
-            newSource_GET: function ( api, property, receiver )
-            {
-                // store data internally for this new query flow
-                api = _SETUP.Funcs.applyJLC( receiver );
-                //_SETUP.Funcs.applyJLC(receiver);
-
-                // check for cached dynamically generated query method
-                if ( property in api )
-                    // you just have to return a proxy function
-                    return function ()
-                    {
-                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                    };
-
-                // get query method definition object
-                var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
-
-                // if there is such method, proceed with further logic
-                if ( m_def_obj )
-                {
-                    // add current query method name to query method names' cache
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
-
-                    // add action constraints to this LINQ method
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
-
-                    // store in api instance LINQ query method that is generated from query method definition
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
-
-                    // create intermediate results enumerator method for the whole api
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( m_def_obj, api );
-
-                    // you just have to return a proxy function
-                    return function ()
-                    {
-                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                    };
-                }
-            },
-
-            /**
-             * @param {object} api JLC instance.
-             * @param {any} property Name of the query method in question.
-             * @param {any} receiver The object that should be used as this.
-            */
-            sameSource_GET: function ( api, property, receiver )
-            {
+        traps: {
+            get: {
+                EMPTY: function () { },
+    
                 /**
-                 * Check for new query flow new proxy instance 
+                 * @param {object} api JLC instance.
+                 * @param {any} property Name of the query method in question.
+                 * @param {any} receiver The object that should be used as this.
                 */
-                // enable transparent object property access
-                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
-
-                // empty object stands for new query flow new proxy instance
-                if ( _COMMON.isObjectEmpty( api ) )
-                    // hence get conceptually latest (current) collection cached metadata
-                    api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateOrGetContextFor( receiver );
-
-                // restore current trap
-                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.sameSource_GET;
-
-
-
-                // check for cached dynamically generated query method
-                if ( property in api )
-                    // you just have to return a proxy function
-                    return function ()
-                    {
-                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                    };
-
-                // get query method definition object
-                var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
-
-                // if there is such method, proceed with further logic
-                if ( m_def_obj )
+                DEFAULT: function ( api, property, receiver )
                 {
-                    // add current query method name to query method names' cache
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
+                    // just get property value from api object
+                    return api[ property ];
+                },
+    
+                /**
+                 * @param {object} api JLC instance.
+                 * @param {any} property Name of the query method in question.
+                 * @param {any} receiver The object that should be used as this.
+                */
+                RAW_SOURCE: function ( api, property, receiver )
+                {
+                    // enable transparent object property access
+                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
-                    // add action constraints to this LINQ method
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
+                    // store data internally for this new proxy instance of new query flow
+                    api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(_ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create(null), Object.create(null));
 
-                    // store in api instance LINQ query method that is generated from query method definition
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
+                    // check for cached dynamically generated query method
+                    if ( (_ENUM.MISC._QMI in api) && (property in api[_ENUM.MISC._QMI]) ) {
+                        // restore current trap
+                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
 
-                    // create intermediate results enumerator method for the whole api
-                    _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( m_def_obj, api );
+                        // you just have to return a proxy function
+                        return function ()
+                        {
+                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                        };
+                    }
 
-                    // you just have to return a proxy function
-                    return function ()
+
+
+                    // get query method definition object
+                    var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
+    
+                    // if there is such method, proceed with further logic
+                    if ( m_def_obj )
                     {
-                        return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                    };
-                }
-            },
+                        // add current query method name to query method names' cache
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
+    
+                        // add action constraints to this LINQ method
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
+    
+                        // store in api instance LINQ query method that is generated from query method definition
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
 
-            prototype_GET: function ( key )
-            {
-                // return the type of the proxy object
-                return _LINQ_CONTEXT._proxiedType.prototype;
+                        // evaluate the necessity of presence of intermediate results enumerator method
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryEvaluateResultsViewNecessity( m_def_obj, api );
+
+                        // restore current trap
+                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+
+                        // you just have to return a proxy function
+                        return function ()
+                        {
+                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                        };
+                    }
+                },
+    
+                /**
+                 * @param {object} api JLC instance.
+                 * @param {any} property Name of the query method in question.
+                 * @param {any} receiver The object that should be used as this.
+                */
+                PROXY_SOURCE: function ( api, property, receiver )
+                {
+                    // enable transparent object property access
+                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+    
+                    // empty object stands for new proxy instance of new query flow
+                    if ( _COMMON.isObjectEmpty( api ) )
+                        // hence get conceptually latest (current) collection cached metadata
+                        api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(_ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT, receiver, Object.create(null), Object.create(null));
+
+
+                    // check for cached dynamically generated query method
+                    if ( (_ENUM.MISC._QMI in api) && (property in api[_ENUM.MISC._QMI]) ) {
+                        // restore current trap
+                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+
+                        // you just have to return a proxy function
+                        return function ()
+                        {
+                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                        };
+                    }
+
+
+
+                    // get query method definition object
+                    var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
+    
+                    // if there is such method, proceed with further logic
+                    if ( m_def_obj )
+                    {
+                        // add current query method name to query method names' cache
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
+    
+                        // add action constraints to this LINQ method
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
+    
+                        // store in api instance LINQ query method that is generated from query method definition
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
+
+                        // evaluate the necessity of presence of intermediate results enumerator method
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryEvaluateResultsViewNecessity( m_def_obj, api );
+
+                        // restore current trap
+                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+
+                        // you just have to return a proxy function
+                        return function ()
+                        {
+                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                        };
+                    }
+                },
+    
+                PROTOTYPE: function ( key )
+                {
+                    // return the type of the proxy object
+                    return _LINQ_CONTEXT._proxiedType.prototype;
+                }
             }
         },
 
@@ -9484,22 +9516,42 @@
 
         // common methods shared across all traps
         _proxyTrapsCommon: {
-            queryCreateOrGetContextFor: function ( input_coll )
-            {
-                // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
-                var ticgui = Object.getOwnPropertySymbols( input_coll )[ 0 ];
+            queryCreateContinuumFlowContext: function(flowContext, collectionInQuestion, actionContextContainer, queryMethodContainer) {
+                // create new proxied JLC instance with proper action context and required query methods
+                return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateOrGetContextFor(flowContext, collectionInQuestion, actionContextContainer, queryMethodContainer );
+            },
 
-                // if internally-stored one, then get the cached context associated with this collection
-                if ( ticgui )
-                {
-                    // and return JLC proxied instance
-                    return _COMMON.jlcNew( _SETUP._ccm[ ticgui ] );
-                }
-                // if a new one, index it
-                else
-                {
-                    // and return JLC proxied instance
-                    return _SETUP.Funcs.applyJLC( input_coll );
+            queryCreateOrGetContextFor: function ( flow_ctx, input_coll, acn_ctr, qmi_ctr )
+            {
+                switch (flow_ctx) {
+                    case _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT:
+                        // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
+                        return _SETUP.Funcs.applyJLC( input_coll );
+
+                    case _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT:
+                    case _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT:
+                        // return JLC proxied instance
+                        return _COMMON.jlcNew( acn_ctr, qmi_ctr );
+
+                    case _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT:
+                        // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
+                        var ticgui = Object.getOwnPropertySymbols( input_coll )[ 0 ];
+
+                        // if internally-stored one (handle PROXY_SOURCE)
+                        if ( ticgui )
+                        {
+                            // then get the cached context associated with this collection and return JLC proxied instance
+                            return _COMMON.jlcNew( _SETUP._ccm[ ticgui ], qmi_ctr );
+                        }
+                        // if a new one (handle RAW_SOURCE)
+                        else
+                        {
+                            // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
+                            return _SETUP.Funcs.applyJLC( input_coll );
+                        }
+                
+                    default:
+                        throw Error('Invalid query flow context -> ["' + flow_ctx + '"]' );
                 }
             },
 
@@ -9526,8 +9578,16 @@
                             // only override getter
                             get: function ()
                             {
-                                // generate query constraint
-                                var qc = declareBaseActionConstraints_I_2L();
+                                // fetch query constraint from a cache during subsequent attempts to get the same query constraint
+                                var qc = _CONSTRAINT._qfcc[ qcpn ];
+
+                                // if present in cache
+                                if (qc)
+                                    return qc;
+                                
+
+                                // if not present in cache, generate query constraint
+                                var qc = declareActionDefaultConstraints_I_2L();
 
                                 // cache it
                                 _CONSTRAINT._qfcc[ qcpn ] = qc;
@@ -9538,21 +9598,16 @@
                         }
                     );
                 }
-                // ... and fetch it from a cache during subsequent attempts to get the same query constraint (????????????????????????????????????????????????????)
-                else
-                {
-                    return _CONSTRAINT._qfcc[ qcpn ];
-                }
 
 
 
                 /**
                  * Local helper methods
                 */
-                function declareBaseActionConstraints_I_2L ()
+                function declareActionDefaultConstraints_I_2L ()
                 {
-                    // declare base action constraints object
-                    var baco = Object.create( null );
+                    // declare action default constraints object (adco)
+                    var adco = Object.create( null );
 
                     // deal with any action constraints
                     var co = createConstraintObject_I_3L(
@@ -9564,11 +9619,11 @@
                         method.is_sort_ctx
                     );
 
-                    // add action constraint to base action constraints object (baco)
-                    baco[ method.lmn ] = co;
+                    // add action constraint to action default constraints object
+                    adco[ method.lmn ] = co;
 
-                    // return base action constraints object
-                    return baco;
+                    // return action default constraints object
+                    return adco;
 
 
 
@@ -9622,7 +9677,7 @@
                 System.Linq.QueryResult[ method.lmn ] = method.mrd.yes;
 
                 // create API method
-                api[ method.lmn ] = create_MI_I_2L( method );
+                api[_ENUM.MISC._QMI][ method.lmn ] = create_MI_I_2L( method );
 
 
 
@@ -9704,6 +9759,8 @@
 
                         // reference action context
                         var ctx = api._ctx;
+                        // reference query flow methods
+                        var qmi = api[_ENUM.MISC._QMI];
 
                         /**
                          * Run action custom prerequisites if there are any.
@@ -9733,13 +9790,11 @@
                             }
                         }
 
-                        // switch proxy interceptor
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
-
                         // @ts-ignore
                         // create action object
                         var atn = _ACTION.create(
                             ctx,
+                            qmi,
                             method_def_obj.jcm.bind(
                                 api,
                                 core_method_params
@@ -9756,56 +9811,81 @@
                 }
             },
 
-            queryGenerateInDebuggingModeResultsView: function ( method, api )
+            queryEvaluateResultsViewNecessity: function ( method, api )
+            {
+                /**
+                 * Evaluate resultsView necessity - is this query method that DOESN'T produce final result.
+                 * Set private flag in api (JLC proxy instance) called __rvn (results' view necessity). 
+                */
+
+                // is this a non-producing-final-result method
+                var isNonFinal = !method.mrd.yes;
+
+                // define results enumerator method for partial queries
+                if ( isNonFinal )
+                    Object.defineProperty(
+                        api,
+                        '__rvn',
+                        {
+                            value: isNonFinal
+                        }
+                    );
+            },
+
+            queryGenerateInDebuggingModeResultsView: function ( api )
             {
                 /**
                  * This method is created only for query methods that DON'T produce final result.
-                 * This method is shared by all query methods that DON'T produce final result.
-                 * Hence, this intermediate results enumerator method is created during the very first creation of no producing-final-result method.
+                 * Hence, this intermediate results enumerator method is created during the very last operation before returning proxy of no producing-final-result method.
                 */
 
-                if ( !method.mrd.yes && !( 'resultsView' in api ) )
-                    Object.defineProperty(
-                        api,
-                        'resultsView',
+                Object.defineProperty(
+                    api,
+                    'resultsView',
+                    {
+                        // only override getter
+                        get: function ()
                         {
-                            // only override getter
-                            get: function ()
-                            {
-                                /**
-                                 * Get contextually current collection state from the collection history array.
-                                 * api's _ctx will be injected further in the query flow ! 
-                                */
+                            /**
+                             * Get contextually current collection state from the collection history array.
+                             * api's _ctx will be injected further in the query flow ! 
+                            */
 
-                                // invoke real data filtering and produce output, i.e. execute all actions
-                                _ACTION.executeChain( api._ctx );
+                            // invoke real data filtering and produce output, i.e. execute all actions
+                            _ACTION.executeChain( api._ctx );
 
-                                // restore metadata of the contextually current collection state
-                                _COMMON.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+                            // restore metadata of the contextually current collection state
+                            _COMMON.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
 
-                                // return contextually current collection state
-                                return _ACTION.hpid.data;
-                            }
+                            // return contextually current collection state
+                            return _ACTION.hpid.data;
                         }
-                    );
+                    }
+                );
             },
 
             queryGetProxyFuncThenInvoke: function ( api, property, receiver, arguments )
             {
                 // enable transparent object property access
-                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.default_GET;
+                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                 // invoke on demand the original query method with dynamically applied arguments
-                var result = api[ property ].apply( receiver, arguments );
+                var result = api[_ENUM.MISC._QMI][ property ].apply( receiver, arguments );
 
                 // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
                 if ( Array.isArray( result ) )
                     // mark that next query has to store its source into internal storage
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.newSource_GET;
+                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
                 // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
-                else if ( _LINQ_CONTEXT._isProxy( result ) )
+                else if ( _LINQ_CONTEXT._isProxy( result ) ) {
+                    // is intermediate results enumerator method required
+                    if(api.__rvn)
+                        // create intermediate results enumerator method for this newly created JLC proxied instance
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView(result);
+
                     // mark that next query has to invoke api-based method
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.sameSource_GET;
+                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+                }
 
                 // return output from original query method
                 return result;
@@ -9814,9 +9894,9 @@
 
         // this proxy handler is being invoked when accessing any query method (intercepts every query method invocation) !
         _proxyHandler: {
-            get: _PROXY_TRAP.trap.empty_GET,
+            get: _PROXY_TRAP.traps.get.EMPTY,
 
-            getPrototypeOf: _PROXY_TRAP.trap.prototype_GET
+            getPrototypeOf: _PROXY_TRAP.traps.get.PROTOTYPE
         },
 
         // define type of Proxy
@@ -9901,7 +9981,7 @@
                             _DATA.index = -1;
 
                             // when you're done with LINQ, make any further array operations transparent ones !
-                            _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.empty_GET;
+                            _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.EMPTY;
 
                             // restore native prototype of Array.prototype
                             restore_APP_I_1L();
@@ -9954,7 +10034,7 @@
                     function updateProxy_I_2L ()
                     {
                         // enable intercepting query method call
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.trap.newSource_GET;
+                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
                     }
                 }
             },
@@ -10003,7 +10083,12 @@
                 _SETUP._ccm[ ticgui ] = jlcCtx;
 
                 // return JLC proxied instance
-                return _COMMON.jlcNew( jlcCtx );
+                return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
+                                                                                        _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT,
+                                                                                        /* this collection has just been stored, so pass it once again to fetch cached context */ _this,
+                                                                                        jlcCtx,
+                                                                                        Object.create(null)
+                                                                                      );
 
 
 
@@ -10108,11 +10193,11 @@
                     // handle array
                     if ( Array.isArray( coll ) )
                         arr[ index ] = Object.entries( coll )
-                            .reduce( ( acc, [ k, v ] ) => typeof k == "symbol" || k == "_rootToken" ? acc : ( acc[ k ] = v, acc ), [] );
+                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' || k == '_rootToken' ? acc : ( acc[ k ] = v, acc ), [] );
                     // handle object
                     else
                         arr[ index ] = Object.entries( coll )
-                            .reduce( ( acc, [ k, v ] ) => typeof k == "symbol" || k == "_rootToken" ? acc : ( acc[ k ] = v, acc ), Object.create( null ) );
+                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' || k == '_rootToken' ? acc : ( acc[ k ] = v, acc ), Object.create( null ) );
 
                     // return cleaned array
                     return arr;
@@ -10120,7 +10205,7 @@
             }
         },
 
-        // stores conceptually current collection metadata for new query flow new proxy instances
+        // stores conceptually current (at some point of invocation) collection metadata for new query flow
         _ccm: Object.create( null )
     };
 

@@ -23,14 +23,22 @@ Answer: FIXED
 
 TO BE FIXED:
 
-3. Optimization
-_LINQ_CONTEXT
-    _proxyTrapCommon
-        addActionConstraints
-            - what's the purpose of if's else part ?????????????
-            - in get with the same query method shouldn't be get from a cache right inside get ????????????????????????
+1. Viewing partial query producing intermediate query state via resultsView
+    -> first access to any resultsView of any partial query generates an error !
+    -> but the subsequent invocations compute the correct results ! :-)
 
 
-4. "Shared Results View" problem
-        -> _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView() 
 
+==========================================================================================================================================
+==========================================================================================================================================
+==========================================================================================================================================
+==========================================================================================================================================
+
+CONSIDERATIONS (don't pay attention to it, cause it is my own working notes - today valid, tomorrow invalid -  so to speak ! ):
+
+
+    Line 5286 -> make it a bound method ?
+
+    Line 5264, 5294 -> make it a bound method ?
+
+    changing _ctx for Symbol('_ctx')
