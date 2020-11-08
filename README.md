@@ -25,6 +25,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #4 - DPR #27:&nbsp;2020-11-08 &nbsp;&nbsp;1:19 PM Local Time &nbsp;:heavy_check_mark:
+    - FIXED:
+      - viewing partial results during query flow
+      - adding some further code perf optimizations (removing code redundancy)
  - TEST #3 - DPR #26:&nbsp;2020-11-01 &nbsp;&nbsp;11:53 PM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
       - adding some further code perf optimizations (removing code redundancy)

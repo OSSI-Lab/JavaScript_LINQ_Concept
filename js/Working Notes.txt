@@ -18,14 +18,14 @@ Answer: FIXED
     provides "natural" - because logical - break functionality !
 
 
+3. Viewing partial query producing intermediate query state via resultsView
+    Answer: FIXED
 
 ==========================================================================================================================================
 
 TO BE FIXED:
 
-1. Viewing partial query producing intermediate query state via resultsView
-    -> first access to any resultsView of any partial query generates an error !
-    -> but the subsequent invocations compute the correct results ! :-)
+
 
 
 

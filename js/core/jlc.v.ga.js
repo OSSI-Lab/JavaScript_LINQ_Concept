@@ -100,15 +100,22 @@
         },
 
         FLOW_CONTEXT: {
-            RAW_SOURCE_CONTEXT: Symbol('raw_source_ctx'),
-            INDEX_SOURCE_CONTEXT: Symbol('apply_jlc_ctx'),
-            PROXY_SOURCE_CONTEXT: Symbol('proxy_source_ctx'),
-            ACTION_SOURCE_CONTEXT: Symbol('action_source_ctx')
+            RAW_SOURCE_CONTEXT: Symbol( 'raw_source_ctx' ),
+            INDEX_SOURCE_CONTEXT: Symbol( 'apply_jlc_ctx' ),
+            PROXY_SOURCE_CONTEXT: Symbol( 'proxy_source_ctx' ),
+            ACTION_SOURCE_CONTEXT: Symbol( 'action_source_ctx' )
+        },
+
+        RESULTS_VIEW: {
+            IS_REQUIRED: Symbol('__rvn'), // this flag tells whether there is a necessity to provide viewing partial results during query flow
+            ENUMERATOR: 'resultsView'
         },
 
         MISC: {
-            _CTX: Symbol('_ctx'), // context of all actions defined for this proxied JLC instance
-            _QMI: Symbol('_qmi') // query method implementations
+            _CI: Symbol('_coll_idx'), // collection index that marks that collection was internally indexed
+            _RT: Symbol('_rootToken'), // token associated with current collection, aka root token
+            _CTX: Symbol( '_ctx' ), // context of all actions defined for this proxied JLC instance
+            _QMI: Symbol( '_qmi' ) // query method implementations
         }
     };
 
@@ -1188,11 +1195,11 @@
                 else
                     // return JLC instance api and pass context of current action to provide chain of actions to execute
                     return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
-                                                                                            _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT,
+                        _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT,
                                                                                             /* in this context we have no access to physical collection, so pass null */ null,
-                                                                                            action_ctx,
-                                                                                            jlc_instance_qmi
-                                                                                          )
+                        action_ctx,
+                        jlc_instance_qmi
+                    );
 
 
 
@@ -1505,7 +1512,7 @@
                     var ctxClone = Object.create( null );
 
                     // cache already created query methods
-                    ctxClone[_ENUM.MISC._QMI] = qmi;
+                    ctxClone[ _ENUM.MISC._QMI ] = qmi;
 
                     // do cloning
                     ctxClone._ctx = _COMMON.deepCopyYesCR( ctx );
@@ -5144,8 +5151,9 @@
         // collection history array
         collection_array: [],
 
-        // check if contextually current collection is stored internally for data flows
         exists: /**
+         * Check if contextually current collection is stored internally for data flows.
+         * 
          * @param {any} rootToken
          */
             function ( rootToken )
@@ -5169,9 +5177,10 @@
                 return index;
             },
 
-        // store collection
         store: /**
-         * @param {{ dirty_data: { _rootToken: any; }; }} collection
+         * Store collection.
+         *
+         * @param {any} collection
          */
             function ( collection )
             {
@@ -5181,7 +5190,7 @@
                 // store contextually unique token of this collection
                 this.root_token_array.push(
                     {
-                        root_token: collection.dirty_data._rootToken,
+                        root_token: collection.dirty_data[_ENUM.MISC._RT],
 
                         collection_index: this.index
                     }
@@ -5194,9 +5203,10 @@
                 return this.index;
             },
 
-        // fetch metadata object of contextually current collection from history array
         fetch: /**
-         * @param {string | number} index
+         * Fetch metadata object of contextually current collection from history array.
+         * 
+         * @param {number} index
          */
             function ( index )
             {
@@ -5209,9 +5219,10 @@
                 };
             },
 
-        // fetch type metadata of collection item of contextually current collection from history array
         getT: /**
-         * @param {string | number} index
+         * Fetch type metadata of collection item of contextually current collection from history array.
+         *
+         * @param {number} index
          */
             function ( index )
             {
@@ -5227,7 +5238,7 @@
         traps: {
             get: {
                 EMPTY: function () { },
-    
+
                 /**
                  * @param {object} api JLC instance.
                  * @param {any} property Name of the query method in question.
@@ -5238,7 +5249,7 @@
                     // just get property value from api object
                     return api[ property ];
                 },
-    
+
                 /**
                  * @param {object} api JLC instance.
                  * @param {any} property Name of the query method in question.
@@ -5250,10 +5261,11 @@
                     _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                     // store data internally for this new proxy instance of new query flow
-                    api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(_ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create(null), Object.create(null));
+                    api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ) );
 
                     // check for cached dynamically generated query method
-                    if ( (_ENUM.MISC._QMI in api) && (property in api[_ENUM.MISC._QMI]) ) {
+                    if ( ( _ENUM.MISC._QMI in api ) && ( property in api[ _ENUM.MISC._QMI ] ) )
+                    {
                         // restore current trap
                         _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
 
@@ -5268,16 +5280,16 @@
 
                     // get query method definition object
                     var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
-    
+
                     // if there is such method, proceed with further logic
                     if ( m_def_obj )
                     {
                         // add current query method name to query method names' cache
                         _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
-    
+
                         // add action constraints to this LINQ method
                         _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
-    
+
                         // store in api instance LINQ query method that is generated from query method definition
                         _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
 
@@ -5294,7 +5306,7 @@
                         };
                     }
                 },
-    
+
                 /**
                  * @param {object} api JLC instance.
                  * @param {any} property Name of the query method in question.
@@ -5304,15 +5316,16 @@
                 {
                     // enable transparent object property access
                     _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
-    
+
                     // empty object stands for new proxy instance of new query flow
                     if ( _COMMON.isObjectEmpty( api ) )
                         // hence get conceptually latest (current) collection cached metadata
-                        api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(_ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT, receiver, Object.create(null), Object.create(null));
+                        api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ) );
 
 
                     // check for cached dynamically generated query method
-                    if ( (_ENUM.MISC._QMI in api) && (property in api[_ENUM.MISC._QMI]) ) {
+                    if ( ( _ENUM.MISC._QMI in api ) && ( property in api[ _ENUM.MISC._QMI ] ) )
+                    {
                         // restore current trap
                         _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
 
@@ -5327,16 +5340,16 @@
 
                     // get query method definition object
                     var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
-    
+
                     // if there is such method, proceed with further logic
                     if ( m_def_obj )
                     {
                         // add current query method name to query method names' cache
                         _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
-    
+
                         // add action constraints to this LINQ method
                         _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
-    
+
                         // store in api instance LINQ query method that is generated from query method definition
                         _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
 
@@ -5353,7 +5366,7 @@
                         };
                     }
                 },
-    
+
                 PROTOTYPE: function ( key )
                 {
                     // return the type of the proxy object
@@ -9516,42 +9529,62 @@
 
         // common methods shared across all traps
         _proxyTrapsCommon: {
-            queryCreateContinuumFlowContext: function(flowContext, collectionInQuestion, actionContextContainer, queryMethodContainer) {
-                // create new proxied JLC instance with proper action context and required query methods
-                return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateOrGetContextFor(flowContext, collectionInQuestion, actionContextContainer, queryMethodContainer );
-            },
-
-            queryCreateOrGetContextFor: function ( flow_ctx, input_coll, acn_ctr, qmi_ctr )
+            queryCreateContinuumFlowContext: function ( flowContext, collectionInQuestion, actionContextContainer, queryMethodContainer )
             {
-                switch (flow_ctx) {
-                    case _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT:
-                        // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
-                        return _SETUP.Funcs.applyJLC( input_coll );
+                // create new proxied JLC instance with proper action context and required query methods
+                return query_CCFC_I_1L( flowContext, collectionInQuestion, actionContextContainer, queryMethodContainer );
 
-                    case _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT:
-                    case _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT:
-                        // return JLC proxied instance
-                        return _COMMON.jlcNew( acn_ctr, qmi_ctr );
 
-                    case _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT:
-                        // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
-                        var ticgui = Object.getOwnPropertySymbols( input_coll )[ 0 ];
 
-                        // if internally-stored one (handle PROXY_SOURCE)
-                        if ( ticgui )
-                        {
-                            // then get the cached context associated with this collection and return JLC proxied instance
-                            return _COMMON.jlcNew( _SETUP._ccm[ ticgui ], qmi_ctr );
-                        }
-                        // if a new one (handle RAW_SOURCE)
-                        else
-                        {
+                /**
+                 * Local helper functions
+                */
+                function query_CCFC_I_1L(flow_ctx, input_coll, acn_ctr, qmi_ctr) {
+                    switch ( flow_ctx )
+                    {
+                        case _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT:
                             // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
-                            return _SETUP.Funcs.applyJLC( input_coll );
-                        }
-                
-                    default:
-                        throw Error('Invalid query flow context -> ["' + flow_ctx + '"]' );
+                            return indexCollection_I_2L();
+    
+                        case _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT:
+                        case _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT:
+                            // return JLC proxied instance
+                            return createProxiedInstance_I_2L( acn_ctr, qmi_ctr );
+    
+                        case _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT:
+                            // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
+                            var ticgui = input_coll[_ENUM.MISC._CI];
+    
+                            // if internally-stored one (handle PROXY_SOURCE)
+                            if ( ticgui > -1)
+                            {
+                                var cached_acn_ctr = _SETUP._ccm[ ticgui ];
+                                // then get the cached context associated with this collection and return JLC proxied instance
+                                return createProxiedInstance_I_2L( cached_acn_ctr, qmi_ctr );
+                            }
+                            // if a new one (handle RAW_SOURCE)
+                            else
+                            {
+                                // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
+                                return indexCollection_I_2L();
+                            }
+    
+                        default:
+                            throw Error( '\r\nInvalid query flow context -> [' + flow_ctx + ']\r\n\r\n' );
+                    }
+                    
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function indexCollection_I_2L() {
+                        return _SETUP.Funcs.applyJLC( input_coll );
+                    }
+
+                    function createProxiedInstance_I_2L(acn_ctr, qmi_ctr) {
+                        return _COMMON.jlcNew( acn_ctr, qmi_ctr );
+                    }
                 }
             },
 
@@ -9582,9 +9615,9 @@
                                 var qc = _CONSTRAINT._qfcc[ qcpn ];
 
                                 // if present in cache
-                                if (qc)
+                                if ( qc )
                                     return qc;
-                                
+
 
                                 // if not present in cache, generate query constraint
                                 var qc = declareActionDefaultConstraints_I_2L();
@@ -9677,7 +9710,7 @@
                 System.Linq.QueryResult[ method.lmn ] = method.mrd.yes;
 
                 // create API method
-                api[_ENUM.MISC._QMI][ method.lmn ] = create_MI_I_2L( method );
+                api[ _ENUM.MISC._QMI ][ method.lmn ] = create_MI_I_2L( method );
 
 
 
@@ -9760,7 +9793,7 @@
                         // reference action context
                         var ctx = api._ctx;
                         // reference query flow methods
-                        var qmi = api[_ENUM.MISC._QMI];
+                        var qmi = api[ _ENUM.MISC._QMI ];
 
                         /**
                          * Run action custom prerequisites if there are any.
@@ -9825,7 +9858,7 @@
                 if ( isNonFinal )
                     Object.defineProperty(
                         api,
-                        '__rvn',
+                        _ENUM.RESULTS_VIEW.IS_REQUIRED,
                         {
                             value: isNonFinal
                         }
@@ -9841,7 +9874,7 @@
 
                 Object.defineProperty(
                     api,
-                    'resultsView',
+                    _ENUM.RESULTS_VIEW.ENUMERATOR,
                     {
                         // only override getter
                         get: function ()
@@ -9851,12 +9884,24 @@
                              * api's _ctx will be injected further in the query flow ! 
                             */
 
+                            // backup current proxy GET trap
+                            var currentGetTrapType = _LINQ_CONTEXT._proxyHandler.get;
+                            
+                            // enable transparent access
+                            _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+                            
+                            
+                            api._ctx;
                             // invoke real data filtering and produce output, i.e. execute all actions
                             _ACTION.executeChain( api._ctx );
 
                             // restore metadata of the contextually current collection state
                             _COMMON.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
 
+
+                            // restore backup proxy GET trap as the current one
+                            _LINQ_CONTEXT._proxyHandler.get = currentGetTrapType;
+                            
                             // return contextually current collection state
                             return _ACTION.hpid.data;
                         }
@@ -9870,18 +9915,19 @@
                 _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                 // invoke on demand the original query method with dynamically applied arguments
-                var result = api[_ENUM.MISC._QMI][ property ].apply( receiver, arguments );
+                var result = api[ _ENUM.MISC._QMI ][ property ].apply( receiver, arguments );
 
                 // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
                 if ( Array.isArray( result ) )
                     // mark that next query has to store its source into internal storage
                     _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
                 // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
-                else if ( _LINQ_CONTEXT._isProxy( result ) ) {
+                else if ( _LINQ_CONTEXT._isProxy( result ) )
+                {
                     // is intermediate results enumerator method required
-                    if(api.__rvn)
+                    if ( api[_ENUM.RESULTS_VIEW.IS_REQUIRED] )
                         // create intermediate results enumerator method for this newly created JLC proxied instance
-                        _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView(result);
+                        _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( result );
 
                     // mark that next query has to invoke api-based method
                     _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
@@ -10051,44 +10097,55 @@
                 // create copy of source collection
                 var _this = source_collection;
 
-
-                // create globally unique identifier of this input collection
-                var ticgui = Symbol.for( '__jlc_i_idx' );
-                // get token associated with current collection, aka root token
-                var rootToken = new Date().getTime();
-
-                // assign globally unique identifier to this input collection
-                _this[ ticgui ] = rootToken;
-                // assign token to collection
-                _this._rootToken = rootToken;
-
-
-                // pass data in to the mechanism
-                var coll_idx = over_I_1L( _this );
-
-
                 // get first item from a collection
                 var firstItem = _this[ 0 ];
-                // store updated metadata about collection
-                _COMMON.updateColumnSetColsAndCIT( _this.length > 1, firstItem );
 
+                /**
+                 * coll_idx     ->  internal positional index of this collection
+                 * rootToken    ->  token associated with current collection, aka root token
+                 * is_prim      ->  type primitivity of collection input type
+                 * jlcCtx       ->  JLC instance context
+                */
 
-                // check type primitivity of collection input type
-                var is_prim = check_TP_I_1L();
+                var coll_idx, rootToken, is_prim, jlcCtx;
+                //if collection wasn't indexed internally, prepare for indexation
+                if(!(_ENUM.MISC._CI in _this) && !(_ENUM.MISC._RT in _this)) {
+                    // get token associated with current collection, aka root token
+                    rootToken = new Date().getTime();
 
-                // create context
-                var jlcCtx = create_JC_I_1L();
+                    // assign token to collection
+                    _this[_ENUM.MISC._RT] = rootToken;
 
-                // cache collection context
-                _SETUP._ccm[ ticgui ] = jlcCtx;
+                    // pass data in to the mechanism
+                    coll_idx = over_I_1L( _this );
+
+                    // assign internal collection index
+                    _this[_ENUM.MISC._CI] = coll_idx;
+
+                    // apply JLC common operations
+                    applyJlcCommon_I_1L();
+
+                    // cache collection context
+                    _SETUP._ccm[ coll_idx ] = jlcCtx;
+                }
+                else {
+                    // get cached collection index
+                    coll_idx = _this[_ENUM.MISC._CI];
+
+                    // get cached root token
+                    rootToken = _this[_ENUM.MISC._RT];
+
+                    // apply JLC common operations
+                    applyJlcCommon_I_1L();
+                }
 
                 // return JLC proxied instance
                 return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
-                                                                                        _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT,
-                                                                                        /* this collection has just been stored, so pass it once again to fetch cached context */ _this,
-                                                                                        jlcCtx,
-                                                                                        Object.create(null)
-                                                                                      );
+                    _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT,
+                     _this, // this collection has just been stored, so pass it once again to fetch cached context
+                    jlcCtx,
+                    Object.create( null )
+                );
 
 
 
@@ -10098,7 +10155,8 @@
                 function over_I_1L ( inputCollection )
                 {
                     // check if current collection is stored internally
-                    var index = _DATA.exists( inputCollection._rootToken );
+                    var index = _DATA.exists( inputCollection[_ENUM.MISC._RT] );
+
 
                     // store this collection if a new one
                     if ( index === -1 )
@@ -10144,32 +10202,48 @@
                     return index;
                 }
 
-                function check_TP_I_1L ()
-                {
-                    // is primitive type of this item
-                    return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE );
-                }
+                function applyJlcCommon_I_1L() {
+                    // store updated metadata about collection
+                    _COMMON.updateColumnSetColsAndCIT( _this.length > 1, firstItem );
 
-                function create_JC_I_1L ()
-                {
-                    // create JLC instance context object
-                    var ctx = Object.create( null );
+                    // check type primitivity of collection input type
+                    is_prim = check_TP_I_2L();
 
-                    // define all necessary properties
-                    ctx.coll_index = coll_idx;
-                    ctx.root_token = rootToken;
+                    // create context
+                    jlcCtx = create_JC_I_2L();
 
-                    // create first item metadata object (fim)
-                    ctx.fim = Object.create( null );
-                    ctx.fim.is_prim = is_prim;
-                    ctx.fim.item = firstItem;
-                    ctx.fim.length_gte_2 = _this.length > 1;
 
-                    // initially parent set to null
-                    ctx.parent = null;
 
-                    // return JLC instance context object
-                    return ctx;
+                    /**
+                     * Local helper functions
+                    */
+                    function check_TP_I_2L ()
+                    {
+                        // is primitive type of this item
+                        return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE );
+                    }
+    
+                    function create_JC_I_2L ()
+                    {
+                        // create JLC instance context object
+                        var ctx = Object.create( null );
+    
+                        // define all necessary properties
+                        ctx.coll_index = coll_idx;
+                        ctx.root_token = rootToken;
+    
+                        // create first item metadata object (fim)
+                        ctx.fim = Object.create( null );
+                        ctx.fim.is_prim = is_prim;
+                        ctx.fim.item = firstItem;
+                        ctx.fim.length_gte_2 = _this.length > 1;
+    
+                        // initially parent set to null
+                        ctx.parent = null;
+    
+                        // return JLC instance context object
+                        return ctx;
+                    }
                 }
             },
 
@@ -10193,11 +10267,11 @@
                     // handle array
                     if ( Array.isArray( coll ) )
                         arr[ index ] = Object.entries( coll )
-                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' || k == '_rootToken' ? acc : ( acc[ k ] = v, acc ), [] );
+                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' ? acc : ( acc[ k ] = v, acc ), [] );
                     // handle object
                     else
                         arr[ index ] = Object.entries( coll )
-                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' || k == '_rootToken' ? acc : ( acc[ k ] = v, acc ), Object.create( null ) );
+                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' ? acc : ( acc[ k ] = v, acc ), Object.create( null ) );
 
                     // return cleaned array
                     return arr;
