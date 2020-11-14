@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #27 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #28 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -30,7 +30,7 @@
  * Author: Łukasz Dąbrowski
  * Title : Software Engineer
  * 
- * (c) C4B Solutions
+ * (c) C4B Solutions Open Source
  * 
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
 */
@@ -70,7 +70,7 @@
         GROUP_JOIN: Symbol( 'group_join' ),
         GROUP_LEFT_JOIN: Symbol( 'group_left_join' ),
 
-        CONCAT: Symbol( 'concat' ),
+        CONCAT: Symbol( 'concatenate' ),
         APPEND: Symbol( 'append' ),
         PREPEND: Symbol( 'prepend' ),
         CONTAINS: Symbol( 'contains' ),
@@ -543,7 +543,7 @@
                             // if it's not valid
                             if ( !valid )
                                 // throw error about invalid column name called 'key' when dealing with GROUPING objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _ENUM.CIT.GROUPING + '] requires providing only "key" property !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.GROUPING) + '] requires providing only "key" property !\r\n\r\n' );
                         }
                         else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
                         {
@@ -570,13 +570,13 @@
                             if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'key' )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "key" predicate
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _ENUM.CIT.KVP + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
                             }
                             // user provide 'value.' filter with 2+ more parameters
                             else if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'value.' )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "value." predicate, which means comparing whole objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _ENUM.CIT.KVP + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
                             }
                             /**
                              * If neither 'key' nor 'value.', user must have provided many filters - in the context of KVP it basically means f.e. such valid filters :
@@ -599,7 +599,7 @@
                                     if ( predicateArray[ 0 ].trim() === 'key' || predicateArray[ 0 ].trim() === 'value.' )
                                         // throw error about 'key' filter presence among other filters
                                         throw SyntaxError(
-                                            '\r\nDealing with objects of type [' + _ENUM.CIT.KVP + '] using "' +
+                                            '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) + '] using "' +
                                             predicateArray[ 0 ] + '" among other filters does not make sense !\r\n\r\n'
                                         );
                                 }
@@ -639,7 +639,7 @@
                             ; // with collection input type set to UNKNOWN do nothing as the collection is empty
                         else
                             // throw error about unsupported collection input type !
-                            throw Error( '\r\nThis sorting input type (sit) called "' + _ACTION.hpid.columnSet.cit + '" is not supported !\r\n\r\n' );
+                            throw Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol(_ACTION.hpid.columnSet.cit) + '" is not supported !\r\n\r\n' );
 
 
 
@@ -660,13 +660,17 @@
                                     valid = _ACTION.hpid.columnSet.all_columns.indexOf( user_ovc[ i ] ) > -1;
 
                                     // if it's not valid
-                                    if ( !valid )
+                                    if ( !valid ) {
+                                        // convert cit and ctx to string
+                                        var cit_ctx_toString = _COMMON.getCustomValueOfSymbol(cit);
+
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the PLAIN context
                                         throw ReferenceError(
-                                            '\r\nDealing with objects of type [' + cit + '] in the context of ' + ctx + ' ' +
+                                            '\r\nDealing with objects of type [' + cit_ctx_toString + '] in the context of ' + cit_ctx_toString + ' ' +
                                             'requires providing valid column name or column path !' +
                                             '\r\nThis column called "' + user_ovc[ i ] + '" is not a valid column name or column path (property name or property path) !\r\n\r\n'
                                         );
+                                    }
                                 }
                             }
                             else
@@ -678,14 +682,21 @@
                                     valid = _ACTION.hpid.columnSet.all_columns.indexOf( user_ovc[ i ].substring( 6 ) ) > -1;
 
                                     // if it's not valid
-                                    if ( !valid )
+                                    if ( !valid ) {
+                                        // convert cit to string
+                                        var cit_toString = _COMMON.getCustomValueOfSymbol(cit);
+
+                                        // convert ctx to string
+                                        var ctx_toString = _COMMON.getCustomValueOfSymbol(ctx);
+
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the KVP context
                                         throw ReferenceError(
-                                            'Dealing with objects of type [' + cit + '] in the context of ' + ctx + ' ' +
+                                            'Dealing with objects of type [' + cit_toString + '] in the context of ' + ctx_toString + ' ' +
                                             'requires providing valid column path !' +
                                             '\r\nThis column called "' + user_ovc[ i ] + '" is not a valid column path (property path) !' +
                                             '\r\nValid column paths should be constracted in this way: "value.obj_prop_name" or "value.nested_obj.nested_obj_prop_name"'
                                         );
+                                    }
                                 }
                             }
                         }
@@ -830,7 +841,7 @@
                     },
 
                 extractOVC: /**
-                 * @param {string | any[]} userColumnSet
+                 * @param {any[]} userColumnSet
                  */
                     function ( userColumnSet )
                     {
@@ -1325,7 +1336,12 @@
                         // create query flow shared constraints (qfsc) during the very first access
                         else
                         {
+                            // fetch default action constraints for this action
                             a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
+
+                            // update action context of this action's default action constraints object
+                            a_constr.qfsc[ constr_def.name ].actionContext = a_ctx;
+
                         }
                         // determine whether stop further drilling down of the parent chain
                         a_constr.stopDrillingDown = a_constr.qfsc[ constr_def.name ].isEnabled;
@@ -1647,10 +1663,10 @@
             },
 
         getDefaultValueOf: /**
-        * Determine default value of inputItem.
-        *
-        * @param {any} inputItem
-        */
+         * Determine default value of inputItem.
+         *
+         * @param {any} inputItem
+         */
             function ( inputItem )
             {
                 return get_DV_I_1L( inputItem );
@@ -1720,13 +1736,33 @@
                 }
             },
 
+        getCustomValueOfSymbol: /**
+         * Convert Symbol value to string representation.
+         *
+         * @param {any} inputItem
+         */
+               function ( inputItem )
+               {
+                   return get_CVoS_I_1L( inputItem );
+   
+   
+   
+                   /**
+                    * Local helper functions
+                   */
+                   function get_CVoS_I_1L ( value )
+                   {
+                        return value.toString().replaceAll('Symbol', '').replaceAll('(', '').replaceAll(')', '').toUpperCase();
+                   }
+               },
+
         deepCopyNoCR: /**
-        * Clone object without reference without circular references.
-        *
-        * Source: https://dev.to/ptasker/best-way-to-copy-an-object-in-javascript-827
-        * 
-        * @param {any} obj Object to clone content from.
-        */
+         * Clone object without reference without circular references.
+         *
+         * Source: https://dev.to/ptasker/best-way-to-copy-an-object-in-javascript-827
+         * 
+         * @param {any} obj Object to clone content from.
+         */
             function ( obj )
             {
                 if ( obj && typeof obj === 'object' )
@@ -1742,12 +1778,12 @@
             },
 
         deepCopyYesCR: /**
-            * Clone object without reference with circular references.
-            *
-            * Source: https://stackoverflow.com/questions/40291987/javascript-deep-clone-object-with-circular-references
-            * 
-            * @param {any} obj Object to clone content from.
-            */
+         * Clone object without reference with circular references.
+         *
+         * Source: https://stackoverflow.com/questions/40291987/javascript-deep-clone-object-with-circular-references
+         * 
+         * @param {any} obj Object to clone content from.
+         */
             function ( obj, hash = new WeakMap() )
             {
                 // do not try to clone primitives or functions
@@ -1773,10 +1809,10 @@
             },
 
         guessCollectionDefaultValue: /**
-        * Predict default value of a collection in the certain point in time during query flow.
-        *
-        * @param {any} inputItem
-        */
+         * Predict default value of a collection in the certain point in time during query flow.
+         *
+         * @param {any} inputItem
+         */
             function ( param_arr )
             {
                 /**
@@ -1873,14 +1909,14 @@
             },
 
         updateColumnSetColsAndCIT: /**
-        * Updates collection metadata required by the current query flow.
-        * It detects current column input type (cit) and updates column set of the contextually current collection.
-        */
+         * Updates collection metadata required by the current query flow.
+         * It detects current column input type (cit) and updates column set of the contextually current collection.
+         */
             function ( length_gte_2, firstItem )
             {
                 /**
-                    * To enable syntax check, fetch object structure (all keys at all levels).
-                    * Fetch them provided that collection is not empty !
+                 * To enable syntax check, fetch object structure (all keys at all levels).
+                 * Fetch them provided that collection is not empty !
                 */
 
                 // detect collection input data type to provide type of source of syntax checking
@@ -1894,10 +1930,10 @@
             },
 
         fetchObjectStructureKeys: /**
-        * Fetch all keys at all levels of passed object. 
-        *
-        * @param {any} obj
-        */
+         * Fetch all keys at all levels of passed object. 
+         *
+         * @param {any} obj
+         */
             function ( obj )
             {
                 return fetch_OSK_I_1L( obj );
@@ -1973,12 +2009,12 @@
             },
 
         fetchObjectKeyValue: /**
-        * Get the so-called key of the object passed as the input.
-        * The key can be a single value or an array of values.
-        * 
-        * @param {any} item Input object from which to get key value.
-        * @param {any} key_prop_arr Array of object properties, whose values form the key.
-        */
+         * Get the so-called key of the object passed as the input.
+         * The key can be a single value or an array of values.
+         * 
+         * @param {any} item Input object from which to get key value.
+         * @param {any} key_prop_arr Array of object properties, whose values form the key.
+         */
             function ( item, key_prop_arr )
             {
                 // declare a real key
@@ -2083,9 +2119,8 @@
             },
 
         usingGroupingBy: /**
-        * Get object providing grouping utilities for any collection of data. 
-        * 
-        */
+         * Get object providing grouping utilities for any collection of data. 
+         */
             function ()
             {
                 return using_GB_I_1L();
@@ -2211,7 +2246,8 @@
             },
 
         detectCIT: /**
-            Detect collection input type (cit).
+          * Detect collection input type (cit).
+          *
           * @param {any} collectionItem
           * @param {any} doCurrentSort
           * @param {any} doNextSort
@@ -2513,13 +2549,12 @@
                 }
             },
 
-        useDefaultObjectContentComparer:
-            /**
-             * Compare two objects to determine whether they have the same content (property name - property value).
-             * 
-             * @param {any} obj1
-             * @param {any} obj2
-             */
+        useDefaultObjectContentComparer: /**
+         * Compare two objects to determine whether they have the same content (property name - property value).
+         * 
+         * @param {any} obj1
+         * @param {any} obj2
+         */
             function ( obj1, obj2 )
             {
                 return use_DOCC_C_I_1L( obj1, obj2 );
@@ -2551,7 +2586,7 @@
                     {
                         // get two values to compare
                         var o1_v = obj1[ propNames_1[ i ] ];
-                        var o2_v = obj1[ propNames_2[ i ] ];
+                        var o2_v = obj2[ propNames_2[ i ] ];
 
                         // if both types are different
                         if ( typeof o1_v !== typeof o2_v ) return false;
@@ -2572,12 +2607,11 @@
                 }
             },
 
-        clearCache:
-            /**
-             * Clear the internal JLC cache.
-             * 
-             * @param {{any: any}} sharedSecondLevelSortingContext
-            */
+        clearCache: /**
+         * Clear the internal JLC cache.
+         * 
+         * @param {{any: any}} sharedSecondLevelSortingContext
+         */
             function ( sharedSecondLevelSortingContext )
             {
                 return clear_C_I_1L( sharedSecondLevelSortingContext );
@@ -3765,7 +3799,12 @@
                         {
                             case _ENUM.CONTAINS:
                                 // determine whether source collection contains particular item
-                                return doesContain_I_2L( currentColl, collectionOrItem );
+                                currentColl = doesContain_I_2L( currentColl, collectionOrItem ).is;
+                        
+                                // this flag tells to discard returned result and go for hpid's data
+                                _ACTION.hpid.done = true;
+                                
+                                break;
 
                             case _ENUM.DISTINCT:
                                 // compute distinct collection
@@ -3796,11 +3835,10 @@
                     function doesContain_I_2L ( coll, item, udfComparer )
                     {
                         // declare whether match was found (match)
-                        var match = {
-                            is: false,
+                        var match = Object.create(null);
+                        match.is = false;
+                        match.index = -1;
 
-                            index: -1
-                        };
 
                         // determine whether to use UDF comparer...
                         if ( udfComparer )
@@ -3811,11 +3849,14 @@
                                 // determine the match success
                                 match.is = udfComparer( item, coll[ i ] );
 
-                                // store the index of the match
-                                match.index = i;
-
                                 // if match was found, break the checking
-                                if ( match.is ) return true;
+                                if ( match.is ) {
+                                    // store the index of the match
+                                    match.index = i;
+
+                                    // match found
+                                    return true;
+                                }
                             }
                         }
                         else
@@ -3826,11 +3867,14 @@
                                 // determine the match success
                                 match.is = _COMMON.useDefaultObjectContentComparer( item, coll[ i ] );
 
-                                // store the index of the match
-                                match.index = i;
-
                                 // if match was found, break the checking
-                                if ( match.is ) return true;
+                                if ( match.is ) {
+                                    // store the index of the match
+                                    match.index = i;
+
+                                    // match found
+                                    return true;
+                                }
                             }
                         }
 
@@ -5089,26 +5133,30 @@
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
 
+                    var new_dirty_data;
                     if ( enumValue === _ENUM.APPEND )
                     {
                         // append item to the end of current data flow collection
-                        currentColl.push( collectionOrItem );
+                        new_dirty_data = [ collectionOrItem ];
+
+                        // merge new current flow data collection with old current flow data collection
+                        currentColl = currentColl.concat( new_dirty_data );
+
+                        // append item to the end of current data flow collection
+                        //currentColl.push( collectionOrItem );
                     }
                     else if ( enumValue === _ENUM.PREPEND )
                     {
                         // declare new current flow data collection
-                        var new_dirty_data = [ collectionOrItem ];
+                        new_dirty_data = [ collectionOrItem ];
 
                         // merge new current flow data collection with old current flow data collection
-                        Array.prototype.push.apply( new_dirty_data, currentColl );
-
-                        // replace the existing current data flow collection with new current data flow collection
-                        currentColl = new_dirty_data;
+                        currentColl = new_dirty_data.concat( currentColl );
                     }
                     else if ( enumValue === _ENUM.CONCAT )
                     {
                         // merge new data collection with current flow data collection
-                        Array.prototype.push.apply( currentColl, collectionOrItem );
+                        currentColl = currentColl.concat( collectionOrItem );
                     }
 
                     // update HPID object to enable further data flow
@@ -5662,9 +5710,9 @@
                 is_sort_ctx: false
             },
 
-            concat: {
+            concatenate: {
                 // Linq method name
-                lmn: 'concat',
+                lmn: 'concatenate',
 
                 // method returns data
                 mrd: {
@@ -9579,10 +9627,15 @@
                      * Local helper functions
                     */
                     function indexCollection_I_2L() {
+                        // index new collection
                         return _SETUP.Funcs.applyJLC( input_coll );
                     }
 
                     function createProxiedInstance_I_2L(acn_ctr, qmi_ctr) {
+                        // restore metadata of the contextually current collection state
+                        _COMMON.updateColumnSetColsAndCIT( acn_ctr.fim.length_gte_2, acn_ctr.fim.item );
+
+                        // create partial query new JLC proxied instance
                         return _COMMON.jlcNew( acn_ctr, qmi_ctr );
                     }
                 }
@@ -9932,6 +9985,11 @@
                     // mark that next query has to invoke api-based method
                     _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
                 }
+                // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
+                else if ( !(result instanceof Array) )
+                    // mark that next query has to store its source into internal storage
+                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+
 
                 // return output from original query method
                 return result;
@@ -9978,7 +10036,7 @@
                     enableExtensions_I_2L();
 
                     // update query method interceptor
-                    updateProxy_I_2L();
+                    updateProxyHandler_I_2L();
 
 
 
@@ -10077,7 +10135,7 @@
                             _EXTENSION[ ext_key_arr[ i ] ]();
                     }
 
-                    function updateProxy_I_2L ()
+                    function updateProxyHandler_I_2L ()
                     {
                         // enable intercepting query method call
                         _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
@@ -10264,17 +10322,12 @@
                 */
                 function cleanup_I_1L ( coll, index, arr )
                 {
-                    // handle array
-                    if ( Array.isArray( coll ) )
-                        arr[ index ] = Object.entries( coll )
-                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' ? acc : ( acc[ k ] = v, acc ), [] );
-                    // handle object
-                    else
-                        arr[ index ] = Object.entries( coll )
-                            .reduce( ( acc, [ k, v ] ) => typeof k == 'symbol' ? acc : ( acc[ k ] = v, acc ), Object.create( null ) );
+                    // fetch all symbols from the array
+                    var symbols = Object.getOwnPropertySymbols(coll);
 
-                    // return cleaned array
-                    return arr;
+                    // loop over the array and remove each and every symbol
+                    for(const s of symbols)
+                        delete coll[s];
                 }
             }
         },

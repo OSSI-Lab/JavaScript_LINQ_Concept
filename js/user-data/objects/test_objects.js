@@ -126,7 +126,7 @@
 
 
         // final query - produces output
-        var where_f = collection.where(
+        var where_f1 = collection.where(
             {
                 'predicateArray': [
                     [ "id", ">=", 2, true ],
@@ -136,7 +136,7 @@
         ).toArray();
 
         // final query - produces output
-        var groupBy_f = collection.groupBy(
+        var groupBy_f1 = collection.groupBy(
             {
                 'predicateArray': [
                     [ "id", true ],
@@ -153,7 +153,7 @@
         ).toArray();
 
         // partial query - produces intermediate query state
-        var where = collection.where(
+        var where_p1 = collection.where(
             {
                 'predicateArray': [
                     [ "id", ">=", 2, true ],
@@ -163,7 +163,7 @@
         );
 
         // partial query - produces intermediate query state
-        var groupBy = collection.groupBy(
+        var groupBy_p1 = collection.groupBy(
             {
                 'predicateArray': [
                     [ "id", true ],
@@ -180,7 +180,7 @@
         );
 
         // partial query - produces intermediate query state
-        var where_2 = collection_toString.where(
+        var where_p2 = collection_toString.where(
             {
                 'predicateArray': [
                     [ "id", ">=", 2, true ]
@@ -189,7 +189,7 @@
         );
 
         // partial query - produces intermediate query state
-        var where_takeWhile = where.takeWhile(
+        var where_p1_takeWhile_p1 = where_p1.takeWhile(
             {
                 'predicateArray': [
                     [ "id", "<", 7 ]
@@ -197,16 +197,64 @@
             }
         );
 
+        // partial query - produces intermediate query state
+        var where_p2_skipWhile_p1 = where_p2.skipWhile(
+            {
+                'predicateArray': [
+                    [ "id", "<", 4 ]
+                ]
+            }
+        );
 
-        debugger;
+        // final query - produces output
+        var where_f2 = collection.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "order.id", "<", 10, true ]
+                ]
+            }
+        ).toArray();
+    
+
+
+        
 		// when you're done with all querying regarding some collections, you can tidy them up by removing some internally generated stuff
 		System.Linq.Context.tidyUp(collection, collection_toString);
-        
-        
-        // CODE WAS TESTED UNTIL HERE !
 
 
-        var concat = collection.concat(
+
+        // final query - produces output
+        var concat_f1 = collection.concatenate(
+            {
+                'collectionOrItem':
+                    [
+                        {
+                            id: 11,
+                            name: "Product 11",
+                            img: 'image 11',
+                            price: 1.99,
+                            onsale: 0.0,
+                            tags: "Leash",
+                            description: "A fresh taste on a collar,",
+                            order: { id: 11, name: "Order of Product 11" }
+                        },
+                        {
+                            id: 12,
+                            name: "Product 12",
+                            img: 'image 12',
+                            price: 2.99,
+                            onsale: 0.0,
+                            tags: "Leash",
+                            description: "A fresh taste on a collar,",
+                            order: { id: 12, name: "Order of Product 12" }
+                        }
+                    ]
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var concat_p1 = collection.concatenate(
             {
                 'collectionOrItem':
                     [
@@ -234,7 +282,26 @@
             }
         );
 
-        var append = collection.append(
+        // final query - produces output
+        var append_f1 = collection.append(
+            {
+                'collectionOrItem':
+                {
+                    id: 11,
+                    name: "Product 11",
+                    img: 'image 11',
+                    price: 1.99,
+                    onsale: 0.0,
+                    tags: "Leash",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 11, name: "Order of Product 11" }
+                }
+            }
+        ).toArray();
+
+
+        // partial query - produces intermediate query state
+        var append_p1 = collection.append(
             {
                 'collectionOrItem':
                 {
@@ -250,7 +317,25 @@
             }
         );
 
-        var prepend = collection.prepend(
+        // final query - produces output
+        var prepend_f1 = collection.prepend(
+            {
+                'collectionOrItem':
+                {
+                    id: -1,
+                    name: "Product -1",
+                    img: 'image -1',
+                    price: 1.99,
+                    onsale: 0.0,
+                    tags: "Leash",
+                    description: "A fresh taste on a collar,",
+                    order: { id: -1, name: "Order of Product -1" }
+                }
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var prepend_p1 = collection.prepend(
             {
                 'collectionOrItem':
                 {
@@ -266,7 +351,8 @@
             }
         );
 
-        var contains = collection.contains(
+        // final query - produces output
+        var contains_f1 = collection.contains(
             {
                 'collectionOrItem':
                 {
@@ -283,6 +369,13 @@
                 'strongSearch': true
             }
         );
+
+
+        
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
+
 
         var distinct = collection.distinct(
             {

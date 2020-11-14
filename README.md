@@ -25,6 +25,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #5 - DPR #28:&nbsp;2020-11-14 &nbsp;&nbsp;11:16 AM Local Time &nbsp;:heavy_check_mark:
+    - FIXED:
+      - syntax checking of a query flow
+      - adding some further code perf optimizations (removing code redundancy)
  - TEST #4 - DPR #27:&nbsp;2020-11-08 &nbsp;&nbsp;1:19 PM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
       - viewing partial results during query flow
@@ -173,7 +177,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Dropbox MP4s:&nbsp; [How it works ?]&nbsp;:lock:
 ## License:&nbsp;:free:&nbsp;:heavy_check_mark:
 #
-## All stuff is developed under exclusive control from C4B Solutions Lab &nbsp;:registered:
+## All stuff is developed under exclusive control from C4B Solutions Lab &nbsp;:trademark:
 ## No any conflict of interests involved. 
 ##
 ## Developer:&nbsp; Łukasz Dąbrowski &nbsp;&nbsp;:poland:

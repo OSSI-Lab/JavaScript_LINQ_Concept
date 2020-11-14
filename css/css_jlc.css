@@ -6,15 +6,15 @@
  * Author: Łukasz Dąbrowski
  * Title : Software Engineer
  * 
- * (c) C4B Solutions
+ * (c) C4B Solutions Open Source
  *
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
 */
 
 body {
-		background-color: rgb(252, 47, 37);
+		background-color: #ffff72;
 
-		color: rgb(240, 204, 16);
+		color: #c0bd63;
 
 		cursor: none;
 
@@ -50,7 +50,9 @@ body {
 	#city {
 		background-repeat: no-repeat;
 		background-size: 100% 220px;
-		background-image: url(../images/Mermaid.png);
+		background-image: url(../images/Warsaw_Modern_Mermaid.png);
+
+		cursor: pointer;
 
 		height: 200px;
 		
@@ -65,10 +67,10 @@ body {
 
 	.author {
 		background-repeat: no-repeat;
-		background-size: 100% 220px;
-		background-image: url(../images/C4B_Solutions_Lab_White_Logo.png);
+		background-size: 100% 170px;
+		background-image: url(../images/C4B_Solutions_Open_Source.png);
 
-		height: 220px;
+		height: 170px;
 
 		margin-left: auto;
 		margin-right: auto;
@@ -76,5 +78,5 @@ body {
 
 		position: relative;
 
-		width: 220px;
+		width: 170px;
 	}

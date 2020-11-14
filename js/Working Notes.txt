@@ -25,7 +25,7 @@ Answer: FIXED
 
 TO BE FIXED:
 
-
+    ->  from that poin on -> [ // CODE WAS TESTED UNTIL HERE ! ]
 
 
 
@@ -35,7 +35,6 @@ TO BE FIXED:
 ==========================================================================================================================================
 
 CONSIDERATIONS (don't pay attention to it, cause it is my own working notes - today valid, tomorrow invalid -  so to speak ! ):
-
 
     Line 5286 -> make it a bound method ?
 
