@@ -1562,6 +1562,65 @@
                 }
             },
 
+        isNumeric: /**
+         * Detect if a variable (including a string) is a number.
+         *
+         * Source: https://stackoverflow.com/questions/175739/built-in-way-in-javascript-to-check-if-a-string-is-a-valid-number
+         *
+         *  @param {any} o
+         *
+         */
+            function ( o )
+            {
+                return is_N_I_1L( o );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function is_N_I_1L ( o )
+                {
+                    return !isNaN(o);
+                }
+            },
+
+        toNumeric: /**
+         * Convert a variable (including a string) to a number with or without decimal point.
+         *
+         * Source: https://stackoverflow.com/questions/2304052/check-if-a-number-has-a-decimal-place-is-a-whole-number
+         *
+         *  @param {any} o
+         *
+         */
+            function ( o, withDecimals )
+            {
+                return to_N_I_1L( o, withDecimals );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function to_N_I_1L ( o, isFloatingPoint )
+                {
+                    // is floating point
+                    var isfp = false;
+
+                    // check if user wants to check for floating point number
+                    if(isFloatingPoint)
+                        isfp = o % 1 != 0;
+
+                    
+                    // return "float"
+                    if(isfp)
+                        return parseFloat(o);
+
+                    // return "integer"
+                    return parseInt(o);
+                }
+            },
+
         createType: /**
          * Create type based on passed template object.
          * 
@@ -2325,7 +2384,7 @@
                             function ( itemCurrent, itemPrevious )
                             {
                                 // invoke basic boolean comparison 
-                                return boolean_comparator_I_2L( itemCurrent.key, itemPrevious.key );
+                                return Boolean_Comparator_I_2L( itemCurrent.key, itemPrevious.key );
                             },
 
                         KVP_Comparator:
@@ -2343,13 +2402,13 @@
                                 if ( sortMetadata.byKey )
                                 {
                                     // invoke basic boolean comparison 
-                                    return boolean_comparator_I_2L( itemCurrent.key, itemPrevious.key );
+                                    return Boolean_Comparator_I_2L( itemCurrent.key, itemPrevious.key );
                                 }
                                 // by 'value' object itself when 'value' is the primitive type
                                 else if ( sortMetadata.byValue && sortMetadata.isValueDotPrimitive )
                                 {
                                     // invoke basic boolean comparison
-                                    return boolean_comparator_I_2L( itemCurrent.value, itemPrevious.value );
+                                    return Boolean_Comparator_I_2L( itemCurrent.value, itemPrevious.value );
                                 }
                                 // by 'value' object itself when 'value' is the object not the primitive type 
                                 else if ( sortMetadata.byValue && !sortMetadata.isValueDotPrimitive )
@@ -2370,7 +2429,7 @@
 
 
                                     // if both objects have custom methods toString(), just invoke basic boolean comparison
-                                    return boolean_comparator_I_2L( itemCurrent.value.toString(), itemPrevious.value.toString() );
+                                    return Boolean_Comparator_I_2L( itemCurrent.value.toString(), itemPrevious.value.toString() );
                                 }
                                 // by 'value' object itself
                                 else if ( sortMetadata.byValuePLAIN )
@@ -2384,7 +2443,7 @@
                             function ( itemCurrent, itemPrevious )
                             {
                                 // comparing primitive types involves just comparing their values
-                                return boolean_comparator_I_2L( itemCurrent, itemPrevious );
+                                return Boolean_Comparator_I_2L( itemCurrent, itemPrevious );
                             }
                     };
 
@@ -2429,7 +2488,7 @@
                         createSortPhrases_I_3L( cit );
 
                         // invoke basic boolean comparison 
-                        return boolean_comparator_I_2L( itemCurrentValue, itemPreviousValue );
+                        return Boolean_Comparator_I_2L( itemCurrentValue, itemPreviousValue );
 
 
 
@@ -2513,12 +2572,19 @@
                         }
                     }
 
-                    function boolean_comparator_I_2L ( vC, vP )
+                    function Boolean_Comparator_I_2L ( vC, vP )
                     {
                         /**
                          * vC means itemCurrentValue
                          * vP means itemPreviousValue 
                         */
+
+                        // check if both values are digits
+                        if(_COMMON.isNumeric(vC) && _COMMON.isNumeric(vP)) {
+                            // if so, compare them as digits
+                            vC = _COMMON.toNumeric(vC, true);
+                            vP = _COMMON.toNumeric(vP, true);
+                        }
 
                         // reference the current sorting mode
                         var sort_mode = _ACTION.hpid.sorting.sort_order;
@@ -5042,6 +5108,9 @@
 
                     function execute_1st_Level_Sorting_I_2L ( sortMetaObject )
                     {
+                        // apply defensive copy
+                        _ACTION.hpid.data = [..._ACTION.hpid.data];
+
                         // if user defined his own comparator
                         if ( udfComparer )
                         {
@@ -5069,8 +5138,8 @@
 
                     function execute_2nd_Level_Sorting_I_2L ( ovc )
                     {
-                        // create data cache for second-level sorting purposes
-                        var data_cache = _ACTION.hpid.data.slice( 0 );
+                        // create data cache for second-level sorting purposes by applying defensive copy
+                        var data_cache = [..._ACTION.hpid.data];
 
                         // reference so-far used sorting columns as the grouping columns
                         var grouping_cols = _ACTION.hpid.sorting.sort_columns;

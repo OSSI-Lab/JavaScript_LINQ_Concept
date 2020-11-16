@@ -543,14 +543,62 @@
             }
         );
 
+        // final query - produces output
+        var orderBy_f1 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
 
+        // final query - produces output
+        var orderByDescending_f1 = collection.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
 
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
+        // final query - produces output
+        var thenBy_f1 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "name", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
 
+        // final query - produces output
+        var thenByDescending_f1 = collection.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        ).thenByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "name", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
 
-
-        var orderBy = collection.orderBy(
+        // partial query - produces intermediate query state
+        var orderBy_p1 = collection.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "id", true ]
@@ -559,7 +607,8 @@
             }
         );
 
-        var orderByDescending = collection.orderByDescending(
+        // partial query - produces intermediate query state
+        var orderByDescending_p1 = collection.orderByDescending(
             {
                 'keyPartSelectorArray': [
                     [ "id", true ]
@@ -568,7 +617,8 @@
             }
         );
 
-        var thenBy = collection.orderBy(
+        // partial query - produces intermediate query state
+        var thenBy_p1 = collection.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "id", true ]
@@ -584,7 +634,8 @@
             }
         );
 
-        var thenByDescending = collection.orderByDescending(
+        // partial query - produces intermediate query state
+        var thenByDescending_p1 = collection.orderByDescending(
             {
                 'keyPartSelectorArray': [
                     [ "id", true ]
@@ -601,7 +652,17 @@
         );
 
 
-        var toArray = collection.toArray();
+
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
+
+
+
+        // final query - produces output
+        var toArray_f1 = collection.toArray(); // what about such implemnetation ? :-)
+
 
         var toDictionary = collection.toDictionary(
             {
