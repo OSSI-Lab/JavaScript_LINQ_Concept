@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #28 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #29 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -2566,12 +2566,26 @@
                 */
                 function use_DOCC_C_I_1L ( obj1, obj2 )
                 {
-                    // get all props
-                    var propNames_1 = Object.getOwnPropertyNames( obj1 );
-                    var propNames_2 = Object.getOwnPropertyNames( obj2 );
+                    // are two objects equal
+                    var match_found = false;
+
+                    
+                    // both objects are null or undefined, hence considered to be equal
+                    if(!obj1 && !obj2) {
+                        // match found
+                        match_found = true;
+
+                        // return match result
+                        return match_found;
+                    }
+
+
+                    // get all props if object non-empty
+                    var propNames_1 = Object.getOwnPropertyNames( obj1 || Object.create(null) );
+                    var propNames_2 = Object.getOwnPropertyNames( obj2 || Object.create(null) );
 
                     // if the number of props are different
-                    if ( propNames_1.length !== propNames_2.length ) return false;
+                    if ( propNames_1.length !== propNames_2.length ) return match_found;
 
                     // sort property names natively
                     propNames_1.sort();
@@ -2579,7 +2593,7 @@
 
                     // compare object's property name vs object's property name
                     for ( var i = 0; i < propNames_1.length; i++ )
-                        if ( propNames_1[ i ] !== propNames_2[ i ] ) return false;
+                        if ( propNames_1[ i ] !== propNames_2[ i ] ) return match_found;
 
                     // compare current level values of these two object
                     for ( var i = 0; i < propNames_1.length; i++ )
@@ -2589,21 +2603,33 @@
                         var o2_v = obj2[ propNames_2[ i ] ];
 
                         // if both types are different
-                        if ( typeof o1_v !== typeof o2_v ) return false;
+                        if ( typeof o1_v !== typeof o2_v ) return match_found;
 
                         // check if both values are primitive
                         var v_prim = _COMMON.isPrimitiveType( o1_v || o2_v );
 
                         // if are primitive and not equal
-                        if ( v_prim && o1_v !== o2_v ) return false;
+                        if ( v_prim && o1_v !== o2_v ) return match_found;
                         // if are objects
-                        else if ( !v_prim )
+                        else if ( !v_prim ) {
                             // check these two nested objects recursively
-                            use_DOCC_C_I_1L( o1_v, o2_v );
+                            match_found = use_DOCC_C_I_1L( o1_v, o2_v );
+                            
+                            // if inequality found, break the comparison
+                            if(!match_found) return match_found;
+                        }
                     }
 
-                    // otherwise all props are of the same type and have the same values, i.e. both objects are equal
-                    return true;
+
+                    /**
+                     *
+                     * Otherwise all props are of the same type and have the same values, i.e. both objects are equal
+                    */ 
+                    // match found
+                    match_found = true;
+                    
+                    // return match result
+                    return match_found;
                 }
             },
 
@@ -3855,7 +3881,7 @@
                                     match.index = i;
 
                                     // match found
-                                    return true;
+                                    return match;
                                 }
                             }
                         }
@@ -3873,7 +3899,7 @@
                                     match.index = i;
 
                                     // match found
-                                    return true;
+                                    return match;
                                 }
                             }
                         }
@@ -3919,9 +3945,21 @@
 
                     function applyExcept_I_2L ( coll, collection, comparer, strongSearch )
                     {
-                        // filter the collection called 'coll' if there are any items in the collection called 'collection'
+                        /**
+                         * Filter the collection called 'coll' if there are any items in the collection called 'collection'.
+                         * If the parameter called 'collection' is a single object, make it a one-item collection.
+                        */
+
+                        // make parameter called 'collection' a one-item collection, if necessary
+                        if(!Array.isArray(collection))
+                            collection = [collection];
+
+                        // assert that both collection are non-empty
                         if ( collection.length && coll.length )
                         {
+                            // apply defensive copy
+                            coll = [...coll];
+
                             // store indices of items to be removed from the query flow collection
                             var indexes = [];
 
@@ -3944,8 +3982,8 @@
 
                                     /**
                                      * Check the search mode
-                                     *  - true -> do collection scan rather than stop at first match
-                                     *  - false -> do collection scan until first match
+                                     *  - true -> scan the whole collection rather than stop at first match
+                                     *  - false -> scan the collection until first match
                                     */
 
                                     if ( !strongSearch ) break;
@@ -10152,7 +10190,7 @@
                 // do necessary cleanup before starting current query flow
                 _COMMON.clearCache( undefined );
 
-                // create copy of source collection
+                // create copy of reference of source collection
                 var _this = source_collection;
 
                 // get first item from a collection

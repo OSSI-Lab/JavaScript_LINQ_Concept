@@ -370,20 +370,98 @@
             }
         );
 
+        // final query - produces output
+        var contains_f2 = collection.contains(
+            {
+                'collectionOrItem':
+                {
+                    id: 7,
+                    name: "Product 7",
+                    img: 'image 3',
+                    price: 3.99,
+                    onsale: 3.0,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: null
+                },
+                'udfEqualityComparer': null,
+                'strongSearch': true
+            }
+        );
 
-        
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
+        // final query - produces output
+        var contains_f3 = collection.contains(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5" }
+                },
+                'udfEqualityComparer': null,
+                'strongSearch': true
+            }
+        );
 
+        // final query - produces output
+        var contains_f4 = collection.contains(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5," }
+                },
+                'udfEqualityComparer': null,
+                'strongSearch': true
+            }
+        );
 
-
-        var distinct = collection.distinct(
+        // partial query - produces intermediate query state
+        var distinct_p1 = collection.distinct(
             {
                 'udfEqualityComparer': null
             }
         );
 
-        var except = collection.except(
+        // final query - produces output
+        var distinct_f1 = collection.distinct(
+            {
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f1 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 7,
+                    name: "Product 7",
+                    img: 'image 3',
+                    price: 3.99,
+                    onsale: 3.0,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: null
+                },
+                'udfEqualityComparer': null,
+                'strongSearch': false
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var except_p1 = collection.except(
             {
                 'collectionOrItem':
                 {
@@ -401,13 +479,47 @@
             }
         );
 
-        var skip = collection.skip(
+        // final query - produces output
+        var skip_f1 = collection.skip(
+            {
+                'count': 2
+            }
+        ).toArray();
+
+        // final query - produces output
+        var skipWhile_f1 = collection.skipWhile(
+            {
+                'predicateArray': [
+                    [ "id", "<", 7 ]
+                ]
+            }
+        ).toArray();
+
+        // final query - produces output
+        var take_f1 = collection.take(
+            {
+                'count': 2
+            }
+        ).toArray();
+
+        // final query - produces output
+        var takeWhile_f1 = collection.takeWhile(
+            {
+                'predicateArray': [
+                    [ "id", "<", 7 ]
+                ]
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var skip_p1 = collection.skip(
             {
                 'count': 2
             }
         );
 
-        var skipWhile = collection.skipWhile(
+        // partial query - produces intermediate query state
+        var skipWhile_p1 = collection.skipWhile(
             {
                 'predicateArray': [
                     [ "id", "<", 7 ]
@@ -415,19 +527,28 @@
             }
         );
 
-        var take = collection.take(
+        // partial query - produces intermediate query state
+        var take_p1 = collection.take(
             {
                 'count': 2
             }
         );
 
-        var takeWhile = collection.takeWhile(
+        // partial query - produces intermediate query state
+        var takeWhile_p1 = collection.takeWhile(
             {
                 'predicateArray': [
                     [ "id", "<", 7 ]
                 ]
             }
         );
+
+
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
+
 
         var orderBy = collection.orderBy(
             {
