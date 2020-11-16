@@ -25,9 +25,9 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #6 - DPR #29:&nbsp;2020-11-16 &nbsp;&nbsp;5:05 PM Local Time &nbsp;:heavy_check_mark:
+ - TEST #6 - DPR #29:&nbsp;2020-11-16 &nbsp;&nbsp;5:08 PM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
-      - bugs found while testing up to point called [ // CODE WAS TESTED UNTIL HERE ! ]
+      - bugs found while testing up to a point called [ // CODE WAS TESTED UNTIL HERE ! ]
       - due to [design approach & JavaScript nature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/isConcatSpreadable "") JLC's query method called 'concat' had to be renamed to 'concatenate'
  - TEST #5 - DPR #28:&nbsp;2020-11-14 &nbsp;&nbsp;11:25 AM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
