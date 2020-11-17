@@ -25,6 +25,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #7 - DPR #30:&nbsp;2020-11-17 &nbsp;&nbsp;4:08 PM Local Time &nbsp;:heavy_check_mark:
+    - FIXED:
+      - bugs found while testing up to a point called [ // CODE WAS TESTED UNTIL HERE ! ]
+      - due to design approach, JavaScript nature and for optimization purposes JLC's query methods called 'reverse' and 'reverseExt' had to be renamed to 'reverseAllOrSubset'. One method that serves the same purpose as the previous two ones.
  - TEST #6 - DPR #29:&nbsp;2020-11-16 &nbsp;&nbsp;5:08 PM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found while testing up to a point called [ // CODE WAS TESTED UNTIL HERE ! ]

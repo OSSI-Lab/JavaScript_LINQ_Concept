@@ -652,19 +652,31 @@
         );
 
 
+        // partial query - produces intermediate query state
+        var orderBy_p2 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "price", true ]
+                ],
+                'udfComparer': null
+            }
+        )
+        // partial query - produces intermediate query state
+        var thenBy_p2 = orderBy_p2.thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        );
 
-
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
-
+        // final query - produces output
+        var toArray_f1 = collection.toArray();
 
 
         // final query - produces output
-        var toArray_f1 = collection.toArray(); // what about such implemnetation ? :-)
-
-
-        var toDictionary = collection.toDictionary(
+        var toDictionary_f1 = collection.toDictionary(
             {
                 'predicateArray': [
                     [ "id", true ],
@@ -678,20 +690,56 @@
             }
         );
 
-        var defaultIfEmpty = collection.defaultIfEmpty(
+        // final query - produces output
+        var defaultIfEmpty_f1 = collection.defaultIfEmpty(
             {
-                'fallbackOnDefault': true
+                'fallbackOnDefault': {
+                    yes: true, // return default value provided by the user if collection is empty
+
+                    udv: Object.create(null) // user default value (udv)
+                }
             }
         );
 
-        var reverse = collection.reverse();
+        // final query - produces output
+        var defaultIfEmpty_f2 = [].defaultIfEmpty(
+            {
+                'fallbackOnDefault': {
+                    yes: true, // return default value provided by the user if collection is empty
 
-        var reverseExt = collection.reverseExt(
+                    udv: Object.create(null, {'message' : {value : 'Empty colection !'}}) // user default value (udv) must be anything valid in JavaScript
+                }
+            }
+        );
+
+        // final query - produces output
+        var defaultIfEmpty_f3 = [].defaultIfEmpty(
+            {
+                'fallbackOnDefault': {
+                    yes: false // return default value deducted on this query flow (cdv) if collection is empty
+                }
+            }
+        );
+
+        // final query - produces output
+        var reverse_f1 = collection.reverseAllOrSubset();
+
+        // final query - produces output
+        var reverse_f2 = collection.reverseAllOrSubset(
             {
                 'index': 4,
                 'count': 4
             }
         );
+
+
+
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
+
+
 
         var select = collection.select(
             {
@@ -878,7 +926,37 @@
             }
         );
 
-        var thenByError = collection.orderBy(
+
+        // partial query - produces intermediate query state
+        var orderBy_p3 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "price", true ]
+                ],
+                'udfComparer': null
+            }
+        )
+        // break the sorting context (orderBy_p3 <-> orderBy_p3_take_p1) by supplying non-sorting method
+        var orderBy_p3_take_p1 = orderBy_p3.take(
+            {
+                'count': 2
+            }
+        );
+        // partial query - produces intermediate query state - THIS METHOD THROWS EXPECTED ERROR !
+        var orderBy_p3_take_p1_thenBy_p1 = orderBy_p3_take_p1.thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        );
+        // final query - produces output
+        var orderBy_p3_take_p1_thenBy_p1_toArray_f1 = orderBy_p3_take_p1_thenBy_p1.toArray();
+
+
+        // final query - produces output
+        var orderBy_take_thenBy_toArray_f1 = collection.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "id", true ]
@@ -896,7 +974,7 @@
                 ],
                 'udfComparer': null
             }
-        );
+        ).toArray();
 
         console.log( '~ Objects' );
     };

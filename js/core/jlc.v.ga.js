@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #29 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #30 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -1750,7 +1750,7 @@
                         case 'function': return function () { };
                         case 'null': return null;
                         case 'number': return 0;
-                        case 'object': return {};
+                        case 'object': return Object.create(null);
                         case 'string': return "";
                         case 'symbol': return Symbol();
                         case 'undefined': return void 0;
@@ -1788,9 +1788,11 @@
 
                         // everything else, check for a constructor
                         var ctor = value.constructor;
+                        // detect constructor name
                         var name = typeof ctor === 'function' && ctor.name;
 
-                        return typeof name === 'string' && name.length > 0 ? name : 'object';
+                        // return string representation of the type of this value 
+                        return typeof name === 'string' && name.length > 0 ? name.toLowerCase() : 'object';
                     }
                 }
             },
@@ -1896,7 +1898,7 @@
 
                 var possible_type, method_name;
                 // iterate all query method names from the top of the chain
-                for ( var i = method_names.length - 1; i > 0; i-- )
+                for ( var i = method_names.length - 1; i >= 0; i-- )
                 {
                     // reference method name
                     method_name = method_names[ i ];
@@ -1914,7 +1916,7 @@
 
                         var method_name_2;
                         // iterate all query method names from the current position in the chain towards the bottom
-                        for ( var j = i - 1; j > 0; j-- )
+                        for ( var j = i - 1; j >= 0; j-- )
                         {
                             // reference method name
                             method_name_2 = method_names[ i ];
@@ -1931,16 +1933,12 @@
 
                 // for 'KVP' or 'GROUPING' default value is undefined
                 if ( possible_type === _ENUM.CIT.KVP || possible_type === _ENUM.CIT.GROUPING )
-                {
                     // define collection default value
-                    api.jlc_ctx.cdv = undefined;
-                }
+                    api._ctx.cdv = undefined;
                 // it must be 'PLAIN' or 'PRIMITIVE'
                 else
-                {
                     // define collection default value
-                    api.jlc_ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
-                }
+                    api._ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
 
                 // restore query flow context-default interceptor
                 _LINQ_CONTEXT._proxyHandler.get = current_GET_interceptor;
@@ -1955,10 +1953,13 @@
                     // get all valid query names from the current flow
                     var queryNames = [];
 
+                    // fetch all query methods of current flow (qmcf)
+                    var qmcf = api[_ENUM.MISC._QMI];
+
                     // loop over api and store only query method names
-                    for ( let [ key, value ] of api )
+                    for ( let key in qmcf )
                     {
-                        if ( typeof value === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
+                        if ( typeof qmcf[key] === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
                             queryNames.push( key );
                     }
 
@@ -3282,6 +3283,9 @@
 
                     // create input collection cache
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                    // apply defensive copy
+                    currentColl = [...currentColl];
+
 
                     // if we're dealing with skipWhile...
                     if ( skipOrTakeEnum === _ENUM.SKIP )
@@ -3376,6 +3380,12 @@
                     // check if grouping key is present
                     if ( predicateArray || udfGroupKeySelector )
                     {
+                        // get contextually current collection within history array
+                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                        // apply defensive copy
+                        currentColl = [...currentColl];
+
+
                         // declare groups object being an array !
                         var groups = [];
 
@@ -3386,9 +3396,6 @@
                         else
                             // otherwise define an empty array
                             key_array = [];
-
-                        // get contextually current collection within history array
-                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
 
                         // reference first object in the collection and determine the type ASAP
                         var o = currentColl[ 0 ];
@@ -3418,9 +3425,7 @@
                     }
                     // otherwise throw error
                     else
-                    {
                         throw Error( '\r\n"groupBy" method requires a grouping key selector to be present.\r\nCurrent invocation is missing the grouping key selector (primitive one || UDF) !\r\n\r\n' );
-                    }
 
 
 
@@ -3695,6 +3700,9 @@
                     {
                         // get contextually current collection within history array
                         var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                        // apply defensive copy
+                        currentColl = [...currentColl];
+
 
                         // if the sequence contains elements
                         if ( currentColl.length )
@@ -3708,7 +3716,7 @@
                             switch ( enumValue )
                             {
                                 case _ENUM.REVERSE:
-                                case _ENUM.REVERSE_EXT:
+                                // case _ENUM.REVERSE_EXT:
                                     // determine the valid range of sequence to reverse
                                     if ( ( index || index === 0 ) && count )
                                     {
@@ -3726,8 +3734,8 @@
                                         // replace original sequence with the reversed sequence
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
-                                    }
-                                    else if ( ( index || index === 0 ) && enumValue === _ENUM.REVERSE_EXT )
+                                    } 
+                                    else if ( ( index || index === 0 ) /*&& enumValue === _ENUM.REVERSE_EXT*/ )
                                     {
                                         // reverse the sequence
                                         for ( i = currentColl.length - 1; i >= index; i-- )
@@ -3737,7 +3745,7 @@
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
                                     }
-                                    else if ( count && enumValue === _ENUM.REVERSE_EXT )
+                                    else if ( count /*&& enumValue === _ENUM.REVERSE_EXT*/ )
                                     {
                                         // determine the start index
                                         index = currentColl.length - 1 - count;
@@ -3752,13 +3760,14 @@
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
                                     }
+                                    // reverse whole collection
                                     else
                                     {
-                                        if ( enumValue === _ENUM.REVERSE && ( index || count ) )
-                                        {
-                                            console.warn( "Invoking 'reverse' method with only one of the parameters defaults to parameterless 'reverse' !" );
-                                            console.warn( "If you wanna use only one of the parameters resort to 'reverseExt' instead !" );
-                                        }
+                                        // if ( enumValue === _ENUM.REVERSE && ( index || count ) )
+                                        // {
+                                        //     console.warn( "Invoking 'reverse' method with only one of the parameters defaults to parameterless 'reverse' !" );
+                                        //     console.warn( "If you wanna use only one of the parameters resort to 'reverseExt' instead !" );
+                                        // }
                                         // reverse the whole sequence
                                         for ( i = currentColl.length - 1; i >= 0; i-- )
                                             r_seq.push( currentColl[ i ] );
@@ -3767,6 +3776,9 @@
                                         currentColl = r_seq;
                                     }
 
+                                    // this flag tells to discard returned result and go for hpid's data
+                                    _ACTION.hpid.done = true;
+                                    
                                     break;
 
                                 case _ENUM.SKIP:
@@ -3883,6 +3895,9 @@
                 {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                    // apply defensive copy
+                    currentColl = [...currentColl];
+
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4088,6 +4103,9 @@
                 {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                    // apply defensive copy
+                    currentColl = [...currentColl];
+
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4333,6 +4351,9 @@
                 {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                    // apply defensive copy
+                    currentColl = [...currentColl];
+
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4872,6 +4893,9 @@
                     {
                         // get contextually current collection from history array
                         var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                        // apply defensive copy
+                        currentColl = [...currentColl];
+
 
                         // check for '_ENUM.DEFAULT' if collection != null
                         if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
@@ -4899,6 +4923,17 @@
 
                                 case _ENUM.ALL:
                                 case _ENUM.DEFAULT:
+                                    // assert that hpid contains data of the current flow
+                                    // if HPID is not ready
+                                    if ( !_ACTION.hpid.isOn )
+                                    {
+                                        // update HPID object to enable further data flow
+                                        _ACTION.hpid.data = currentColl;
+
+                                        // mark that HPID is ready
+                                        _ACTION.hpid.isOn = true;
+                                    }
+
                                     // this flag tells to discard returned result and go for hpid's data
                                     _ACTION.hpid.done = true;
                                     break;
@@ -4911,17 +4946,27 @@
                         else
                         {
                             // return an empty array
-                            if ( fallbackOnDefault && ( enumValue === _ENUM.ALL ) )
+                            if ( ( enumValue === _ENUM.ALL ) && fallbackOnDefault )
                             {
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
                                 return;
                             }
                             // return a singleton array containing default value passed by the user
-                            else if ( fallbackOnDefault && ( enumValue === _ENUM.DEFAULT ) )
+                            else if ( ( enumValue === _ENUM.DEFAULT ) && fallbackOnDefault.yes )
                             {
                                 // return default value passed by the user
-                                _ACTION.hpid.data.push( fallbackOnDefault );
+                                _ACTION.hpid.data.push( fallbackOnDefault.udv );
+
+                                // this flag tells to discard returned result and go for hpid's data
+                                _ACTION.hpid.done = true;
+                                return;
+                            }
+                            // get default value of collection input type
+                            else if ( enumValue === _ENUM.DEFAULT )
+                            {
+                                // return default value passed by the user
+                                _ACTION.hpid.data.push( jlc._ctx.fim.is_prim ? jlc._ctx.cdv : undefined );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -4930,21 +4975,10 @@
                             // just return the default of var
                             else if ( fallbackOnDefault )
                                 return undefined;
-                            // get default value of collection input type
-                            else if ( enumValue === _ENUM.DEFAULT )
-                            {
-                                // return default value passed by the user
-                                _ACTION.hpid.data.push( jlc._ctx.is_prim ? jlc._ctx.cdv : undefined );
-
-                                // this flag tells to discard returned result and go for hpid's data
-                                _ACTION.hpid.done = true;
-                                return;
-                            }
-
                             // throw valid error
                             else
                             {
-                                if ( withPredicates && ( enumValue === _ENUM.SINGLE ) )
+                                if ( ( enumValue === _ENUM.SINGLE ) && withPredicates )
                                     throw Error( '\r\nSequence contains no elements !\r\n\r\n' );
                                 else if ( withPredicates )
                                     throw Error( '\r\nSequence contains no matching element !\r\n\r\n' );
@@ -5239,6 +5273,9 @@
                 {
                     // get contextually current collection within history array
                     var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
+                    // apply defensive copy
+                    currentColl = [...currentColl];
+
 
                     var new_dirty_data;
                     if ( enumValue === _ENUM.APPEND )
@@ -7451,11 +7488,11 @@
                         [
                             function ()
                             {
-                                return api;
+                                return this;
                             },
                             function ()
                             {
-                                return ctx.fim.item;
+                                return this._ctx.fim.item;
                             }
                         ]
                     ]
@@ -7470,115 +7507,14 @@
                 is_sort_ctx: false
             },
 
-            reverse: {
+            reverseAllOrSubset: {
                 // Linq method name
-                lmn: 'reverse',
+                lmn: 'reverseAllOrSubset',
 
                 // method returns data
                 mrd: {
                     // does return data
-                    yes: false,
-
-                    // does produce final result which is a collection
-                    returns_collection: true,
-                },
-
-                // pre-defined internal constraint checking
-                internal_rcc: [
-                    function ( params )
-                    {
-                        // prevent undefined error
-                        if ( params === undefined ) params = {};
-                        return params;
-                    }
-                ],
-
-                // requires syntax checking
-                rsc: false,
-                // user-provided query filter syntax
-                rsc_syntax: undefined,
-
-                // requires constraint checking
-                rcc: {
-                    // constraint functions
-                    cf: [
-                        // to handle 1st level sorting context reset
-                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
-                    ],
-
-                    // constraint functions data
-                    cfd: [
-                        false
-                    ],
-
-                    // all invocation contexts that had to take place prior to this invocation context
-                    required_ctxs: []
-                },
-
-                // core JLC method behind the API (jcm)
-                jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
-                jcm_this_excluded_params: {
-                    params: [],
-                    misc: [
-                        {
-                            // position of the parameter in the method
-                            pos_idx: 1,
-
-                            name: 'predicateArray',
-
-                            value: undefined
-                        },
-
-                        {
-                            // position of the parameter in the method
-                            pos_idx: 2,
-
-                            name: 'index',
-
-                            value: undefined
-                        },
-
-                        {
-                            // position of the parameter in the method
-                            pos_idx: 3,
-
-                            name: 'count',
-
-                            value: undefined
-                        },
-
-                        {
-                            // position of the parameter in the method
-                            pos_idx: 4,
-
-                            name: 'enumValue',
-
-                            value: _ENUM.REVERSE
-                        }
-                    ]
-                },
-
-                // action custom prerequisites (acp) - predefined if required, otherwise null
-                acp: null,
-                // action context object (aco)
-                aco: null,
-
-                // is writable - can you update state during query flow
-                writable: false,
-
-                // method runs in the sorting context
-                is_sort_ctx: false
-            },
-
-            reverseExt: {
-                // Linq method name
-                lmn: 'reverseExt',
-
-                // method returns data
-                mrd: {
-                    // does return data
-                    yes: false,
+                    yes: true,
 
                     // does produce final result which is a collection
                     returns_collection: true,
@@ -7651,7 +7587,7 @@
 
                             name: 'enumValue',
 
-                            value: _ENUM.REVERSE_EXT
+                            value: _ENUM.REVERSE
                         }
                     ]
                 },
@@ -9975,7 +9911,7 @@
                                 for ( var j = 0, fpa_length = method_def_obj.acp.cpfdm[ i ].length; j < fpa_length; j++ )
                                 {
                                     // fetch function params
-                                    func_params.push( method_def_obj.acp.cpfdm[ i ][ j ]() );
+                                    func_params.push( method_def_obj.acp.cpfdm[ i ][ j ].bind(api)() );
                                 }
 
                                 // invoke function with given params
