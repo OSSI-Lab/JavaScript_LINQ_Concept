@@ -1913,3 +1913,57 @@ getParamNames(getParamNames) // returns ['func']
 getParamNames(function (a,b,c,d){}) // returns ['a','b','c','d']
 getParamNames(function (a,/*b,c,*/d){}) // returns ['a','d']
 getParamNames(function (){}) // returns []
+
+
+
+
+
+
+
+
+
+        deepCopy: /**
+         * Generically deep-copies a value original.
+         *
+         * Source: https://exploringjs.com/deep-js/ch_copying-objects-and-arrays.html#implementing-generic-deep-copying
+         * 
+         * @param {any} original Object to clone content from.
+         */
+            function (original) {
+                if (Array.isArray(original)) {
+                const copy = [];
+                for (const [index, value] of original.entries()) {
+                    copy[index] = _COMMON.deepCopy(value);
+                }
+                return copy;
+                } else if (typeof original === 'object' && original !== null) {
+                const copy = Object.create(null);
+                for (const [key, value] of Object.entries(original)) {
+                    copy[key] = _COMMON.deepCopy(value);
+                }
+                return copy;
+                } else {
+                // primitive value: atomic, no need to copy
+                return original;
+                }
+            },
+        deepCopyNoCR: /**
+         * Clone object without reference without circular references.
+         *
+         * Source: https://dev.to/ptasker/best-way-to-copy-an-object-in-javascript-827
+         * 
+         * @param {any} obj Object to clone content from.
+         */
+            function ( obj )
+            {
+                if ( obj && typeof obj === 'object' )
+                {
+                    return Object.keys( obj )
+                        .map( k => ( { [ k ]: _COMMON.deepCopyNoCR( obj[ k ] ) } ) )
+                        .reduce( ( a, c ) => Object.assign( a, c ), Object.create( null ) );
+                } else if ( Array.isArray( obj ) )
+                {
+                    return obj.map( _COMMON.deepCopyNoCR );
+                }
+                return obj;
+            },

@@ -37,12 +37,6 @@ TO BE FIXED:
 CONSIDERATIONS (don't pay attention to it, cause it is my own working notes - today valid, tomorrow invalid -  so to speak ! ):
 
 
-    // create copy of reference of source collection
-    var _this = source_collection;
-
-    // put it in a method !!!!!!!!!!
-    currentColl = [...currentColl]
-
     Line 5286 -> make it a bound method ?
 
     Line 5264, 5294 -> make it a bound method ?

@@ -57,7 +57,6 @@
         DEFAULT: Symbol( 'default' ),
 
         REVERSE: Symbol( 'reverse' ),
-        REVERSE_EXT: Symbol( 'reverse_ext' ),
 
         SKIP: Symbol( 'skip' ),
         TAKE: Symbol( 'take' ),
@@ -1175,6 +1174,104 @@
             }
         },
 
+        hpidCommons: {
+            updateColumnSetColsAndCIT: /**
+            * Updates collection metadata required by the current query flow.
+            * It detects current column input type (cit) and updates column set of the contextually current collection.
+            */
+               function ( length_gte_2, firstItem )
+               {
+                   /**
+                    * To enable syntax check, fetch object structure (all keys at all levels).
+                    * Fetch them provided that collection is not empty !
+                   */
+   
+                   // detect collection input data type to provide type of source of syntax checking
+                   _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( firstItem, !firstItem ? false : true, length_gte_2 );
+   
+                   // if cit is UNKNOWN, skip further operations
+                   if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
+   
+                   // otherwise initialize column metadata set based on current collection
+                   _ACTION.hpid.columnSet.init( firstItem );
+               },
+   
+           detectCIT: /**
+             * Detect collection input type (cit).
+             *
+             * @param {any} collectionItem
+             * @param {any} doCurrentSort
+             * @param {any} doNextSort
+             */
+               function ( collectionItem, doCurrentSort, doNextSort )
+               {
+                   return d_CIT_I_1L( collectionItem, doCurrentSort, doNextSort );
+   
+   
+   
+                   /**
+                    * Local helper functions
+                   */
+                   function d_CIT_I_1L ( collectionItem, doCurrentSort, doNextSort )
+                   {
+                       // if collection does not require sorting
+                       if ( !doCurrentSort && !doNextSort )
+                           return _ENUM.CIT.UNKNOWN;
+                       // if it's primitive type
+                       else if ( _COMMON.isPrimitiveType( collectionItem ) )
+                           return _ENUM.CIT.PRIMITIVE;
+                       // otherwise let's deal with objects
+                       else
+                       {
+                           // get all prop names
+                           var propNames = Object.getOwnPropertyNames( collectionItem );
+   
+                           // if it's KVP or GROUPING
+                           if ( propNames.length === 2 && propNames.indexOf( 'key' ) > -1 && ( propNames.indexOf( 'value' ) > -1 || propNames.indexOf( 'resultsView' ) > -1 ) )
+                           {
+                               // if it's KVP (object || primitive type)
+                               if ( propNames.indexOf( 'value' ) > -1 && ( typeof collectionItem[ 'value' ] === 'object' || _COMMON.isPrimitiveType( collectionItem[ 'value' ] ) ) )
+                                   return _ENUM.CIT.KVP;
+                               // if it's GROUPING
+                               else if ( propNames.indexOf( 'resultsView' ) > -1 && Array.isArray( collectionItem[ 'resultsView' ] ) )
+                                   // check for GROUPING
+                                   return _ENUM.CIT.GROUPING;
+                           }
+                           // otherwise it must be PLAIN
+                           else
+                               return _ENUM.CIT.PLAIN;
+                       }
+                   }
+               },
+
+            clearCache: /**
+            * Clear the internal JLC cache.
+            * 
+            * @param {{any: any}} sharedSecondLevelSortingContext
+            */
+                function ( sharedSecondLevelSortingContext )
+                {
+                    return clear_C_I_1L( sharedSecondLevelSortingContext );
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function clear_C_I_1L ( sharedSecondLevelSortingContext )
+                    {
+                        // reset hpid temp storage
+                        _ACTION.hpid.reset();
+
+                        /**
+                         * Reset all so-far used sorting:
+                         *   - handle undefined shared second-level sorting context object by creating default shared second-level sorting context object if necessary
+                        */
+                        _ACTION.hpid.sorting.clear( sharedSecondLevelSortingContext || _ACTION.hpid.sorting.createSecondLevelCtx() );
+                    }
+                }
+        },
+
         create: /**
          * Create action that represents filtering logic for given Linq's method.
          */
@@ -1458,7 +1555,7 @@
                 function execute_C_I_1L ( jlc_ctx )
                 {
                     // do necessary cleanup before producing pre-output result
-                    _COMMON.clearCache( jlc_ctx.parent.sharedSecondLevelSortingCtx );
+                    _ACTION.hpidCommons.clearCache( jlc_ctx.parent.sharedSecondLevelSortingCtx );
 
                     // execute all actions and produce pre-output result
                     var result = executeActionsRecursively_I_2L( jlc_ctx.parent );
@@ -1507,61 +1604,6 @@
 
     // private common object
     var _COMMON = {
-        jlcNew: /**
-         * Create new instance of JLC.
-         *
-         * @param {Object} ctx Container of actions for this newly being created JLC instance.
-         * @param {Object} qmi Container of query method implementations for this newly being created JLC instance.
-         */
-            function ( ctx, qmi )
-            {
-                return j_I_I_1L( ctx, qmi );
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function j_I_I_1L ( ctx, qmi )
-                {
-                    // create template object to clone current action context object
-                    var ctxClone = Object.create( null );
-
-                    // cache already created query methods
-                    ctxClone[ _ENUM.MISC._QMI ] = qmi;
-
-                    // do cloning
-                    ctxClone._ctx = _COMMON.deepCopyYesCR( ctx );
-
-                    // create and return proxied JLC instance
-                    var proxyAPI = new Proxy( ctxClone, _LINQ_CONTEXT._proxyHandler );
-
-                    // return proxied JLC instance
-                    return proxyAPI;
-                }
-            },
-
-        isPrimitiveType: /**
-         * Detect type of passed item.
-         *
-         *  @param {any} o
-         *
-         */
-            function ( o )
-            {
-                return is_PT_I_1L( o );
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function is_PT_I_1L ( o )
-                {
-                    return [ 'string', 'number', 'boolean' ].indexOf( typeof o ) > -1;
-                }
-            },
-
         isNumeric: /**
          * Detect if a variable (including a string) is a number.
          *
@@ -1621,6 +1663,28 @@
                 }
             },
 
+        isPrimitiveType: /**
+         * Detect type of passed item.
+         *
+         *  @param {any} o
+         *
+         */
+            function ( o )
+            {
+                return is_PT_I_1L( o );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function is_PT_I_1L ( o )
+                {
+                    return [ 'string', 'number', 'boolean' ].indexOf( typeof o ) > -1;
+                }
+            },
+
+        // 🛑 TO BE REMOVED - unused
         createType: /**
          * Create type based on passed template object.
          * 
@@ -1660,7 +1724,8 @@
                 }
             },
 
-        createDefaultOfT: /**
+        // 🛑 TO BE REMOVED - unused
+        createDefaultOfType: /**
          * Create default value of type.
          *
          * @param {any} historyIndex
@@ -1797,78 +1862,6 @@
                 }
             },
 
-        getCustomValueOfSymbol: /**
-         * Convert Symbol value to string representation.
-         *
-         * @param {any} inputItem
-         */
-               function ( inputItem )
-               {
-                   return get_CVoS_I_1L( inputItem );
-   
-   
-   
-                   /**
-                    * Local helper functions
-                   */
-                   function get_CVoS_I_1L ( value )
-                   {
-                        return value.toString().replaceAll('Symbol', '').replaceAll('(', '').replaceAll(')', '').toUpperCase();
-                   }
-               },
-
-        deepCopyNoCR: /**
-         * Clone object without reference without circular references.
-         *
-         * Source: https://dev.to/ptasker/best-way-to-copy-an-object-in-javascript-827
-         * 
-         * @param {any} obj Object to clone content from.
-         */
-            function ( obj )
-            {
-                if ( obj && typeof obj === 'object' )
-                {
-                    return Object.keys( obj )
-                        .map( k => ( { [ k ]: _COMMON.deepCopyNoCR( obj[ k ] ) } ) )
-                        .reduce( ( a, c ) => Object.assign( a, c ), Object.create( null ) );
-                } else if ( Array.isArray( obj ) )
-                {
-                    return obj.map( _COMMON.deepCopyNoCR );
-                }
-                return obj;
-            },
-
-        deepCopyYesCR: /**
-         * Clone object without reference with circular references.
-         *
-         * Source: https://stackoverflow.com/questions/40291987/javascript-deep-clone-object-with-circular-references
-         * 
-         * @param {any} obj Object to clone content from.
-         */
-            function ( obj, hash = new WeakMap() )
-            {
-                // do not try to clone primitives or functions
-                if ( Object( obj ) !== obj || obj instanceof Function ) return obj;
-                if ( hash.has( obj ) ) return hash.get( obj ); // cyclic reference
-                try
-                { // try to run constructor (without arguments, as we don't know them)
-                    var result = new obj.constructor();
-                } catch ( e )
-                { // constructor failed, create object without running the constructor
-                    result = Object.create( Object.getPrototypeOf( obj ) );
-                }
-                // optional: support for some standard constructors (extend as desired)
-                if ( obj instanceof Map )
-                    Array.from( obj, ( [ key, val ] ) => result.set( _COMMON.deepCopyYesCR( key, hash ), _COMMON.deepCopyYesCR( val, hash ) ) );
-                else if ( obj instanceof Set )
-                    Array.from( obj, ( key ) => result.add( _COMMON.deepCopyYesCR( key, hash ) ) );
-                // register in hash
-                hash.set( obj, result );
-                // clone and assign enumerable own properties recursively
-                return Object.assign( result, ...Object.keys( obj ).map(
-                    key => ( { [ key ]: _COMMON.deepCopyYesCR( obj[ key ], hash ) } ) ) );
-            },
-
         guessCollectionDefaultValue: /**
          * Predict default value of a collection in the certain point in time during query flow.
          *
@@ -1968,25 +1961,55 @@
                 }
             },
 
-        updateColumnSetColsAndCIT: /**
-         * Updates collection metadata required by the current query flow.
-         * It detects current column input type (cit) and updates column set of the contextually current collection.
+        getCustomValueOfSymbol: /**
+         * Convert Symbol value to string representation.
+         *
+         * @param {any} inputItem
          */
-            function ( length_gte_2, firstItem )
+               function ( inputItem )
+               {
+                   return get_CVoS_I_1L( inputItem );
+   
+   
+   
+                   /**
+                    * Local helper functions
+                   */
+                   function get_CVoS_I_1L ( value )
+                   {
+                        return value.toString().replaceAll('Symbol', '').replaceAll('(', '').replaceAll(')', '').toUpperCase();
+                   }
+               },
+
+        deepCopyYesCR: /**
+         * Clone object without reference with circular references.
+         *
+         * Source: https://stackoverflow.com/questions/40291987/javascript-deep-clone-object-with-circular-references
+         * 
+         * @param {any} obj Object to clone content from.
+         */
+            function ( obj, hash = new WeakMap() )
             {
-                /**
-                 * To enable syntax check, fetch object structure (all keys at all levels).
-                 * Fetch them provided that collection is not empty !
-                */
-
-                // detect collection input data type to provide type of source of syntax checking
-                _ACTION.hpid.columnSet.cit = _COMMON.detectCIT( firstItem, !firstItem ? false : true, length_gte_2 );
-
-                // if cit is UNKNOWN, skip further operations
-                if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
-
-                // otherwise initialize column metadata set based on current collection
-                _ACTION.hpid.columnSet.init( firstItem );
+                // do not try to clone primitives or functions
+                if ( Object( obj ) !== obj || obj instanceof Function ) return obj;
+                if ( hash.has( obj ) ) return hash.get( obj ); // cyclic reference
+                try
+                { // try to run constructor (without arguments, as we don't know them)
+                    var result = new obj.constructor();
+                } catch ( e )
+                { // constructor failed, create object without running the constructor
+                    result = Object.create( Object.getPrototypeOf( obj ) );
+                }
+                // optional: support for some standard constructors (extend as desired)
+                if ( obj instanceof Map )
+                    Array.from( obj, ( [ key, val ] ) => result.set( _COMMON.deepCopyYesCR( key, hash ), _COMMON.deepCopyYesCR( val, hash ) ) );
+                else if ( obj instanceof Set )
+                    Array.from( obj, ( key ) => result.add( _COMMON.deepCopyYesCR( key, hash ) ) );
+                // register in hash
+                hash.set( obj, result );
+                // clone and assign enumerable own properties recursively
+                return Object.assign( result, ...Object.keys( obj ).map(
+                    key => ( { [ key ]: _COMMON.deepCopyYesCR( obj[ key ], hash ) } ) ) );
             },
 
         fetchObjectStructureKeys: /**
@@ -2302,54 +2325,6 @@
 
                     // return grouping-by object helper
                     return gbo;
-                }
-            },
-
-        detectCIT: /**
-          * Detect collection input type (cit).
-          *
-          * @param {any} collectionItem
-          * @param {any} doCurrentSort
-          * @param {any} doNextSort
-          */
-            function ( collectionItem, doCurrentSort, doNextSort )
-            {
-                return d_CIT_I_1L( collectionItem, doCurrentSort, doNextSort );
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function d_CIT_I_1L ( collectionItem, doCurrentSort, doNextSort )
-                {
-                    // if collection does not require sorting
-                    if ( !doCurrentSort && !doNextSort )
-                        return _ENUM.CIT.UNKNOWN;
-                    // if it's primitive type
-                    else if ( _COMMON.isPrimitiveType( collectionItem ) )
-                        return _ENUM.CIT.PRIMITIVE;
-                    // otherwise let's deal with objects
-                    else
-                    {
-                        // get all prop names
-                        var propNames = Object.getOwnPropertyNames( collectionItem );
-
-                        // if it's KVP or GROUPING
-                        if ( propNames.length === 2 && propNames.indexOf( 'key' ) > -1 && ( propNames.indexOf( 'value' ) > -1 || propNames.indexOf( 'resultsView' ) > -1 ) )
-                        {
-                            // if it's KVP (object || primitive type)
-                            if ( propNames.indexOf( 'value' ) > -1 && ( typeof collectionItem[ 'value' ] === 'object' || _COMMON.isPrimitiveType( collectionItem[ 'value' ] ) ) )
-                                return _ENUM.CIT.KVP;
-                            // if it's GROUPING
-                            else if ( propNames.indexOf( 'resultsView' ) > -1 && Array.isArray( collectionItem[ 'resultsView' ] ) )
-                                // check for GROUPING
-                                return _ENUM.CIT.GROUPING;
-                        }
-                        // otherwise it must be PLAIN
-                        else
-                            return _ENUM.CIT.PLAIN;
-                    }
                 }
             },
 
@@ -2697,33 +2672,6 @@
                     
                     // return match result
                     return match_found;
-                }
-            },
-
-        clearCache: /**
-         * Clear the internal JLC cache.
-         * 
-         * @param {{any: any}} sharedSecondLevelSortingContext
-         */
-            function ( sharedSecondLevelSortingContext )
-            {
-                return clear_C_I_1L( sharedSecondLevelSortingContext );
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function clear_C_I_1L ( sharedSecondLevelSortingContext )
-                {
-                    // reset hpid temp storage
-                    _ACTION.hpid.reset();
-
-                    /**
-                     * Reset all so-far used sorting:
-                     *   - handle undefined shared second-level sorting context object by creating default shared second-level sorting context object if necessary
-                    */
-                    _ACTION.hpid.sorting.clear( sharedSecondLevelSortingContext || _ACTION.hpid.sorting.createSecondLevelCtx() );
                 }
             }
     };
@@ -3278,14 +3226,11 @@
                 */
                 function execute_WF_I_1L ( jlc, predicateArray, skipOrTakeEnum )
                 {
+                    // get contextually current collection within history array
+                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+
                     // declare current intermediate collection
                     var c_i_c = [];
-
-                    // create input collection cache
-                    var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                    // apply defensive copy
-                    currentColl = [...currentColl];
-
 
                     // if we're dealing with skipWhile...
                     if ( skipOrTakeEnum === _ENUM.SKIP )
@@ -3310,7 +3255,7 @@
                             }
                         }
                     }
-                    // if we're dealing with takeWhile...                            
+                    // if we're dealing with takeWhile...
                     else if ( skipOrTakeEnum === _ENUM.TAKE )
                     {
                         // loop over current collection and apply filters
@@ -3381,10 +3326,7 @@
                     if ( predicateArray || udfGroupKeySelector )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                        // apply defensive copy
-                        currentColl = [...currentColl];
-
+                        var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
 
                         // declare groups object being an array !
                         var groups = [];
@@ -3699,10 +3641,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                        // apply defensive copy
-                        currentColl = [...currentColl];
-
+                        var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
 
                         // if the sequence contains elements
                         if ( currentColl.length )
@@ -3716,7 +3655,6 @@
                             switch ( enumValue )
                             {
                                 case _ENUM.REVERSE:
-                                // case _ENUM.REVERSE_EXT:
                                     // determine the valid range of sequence to reverse
                                     if ( ( index || index === 0 ) && count )
                                     {
@@ -3735,7 +3673,7 @@
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
                                     } 
-                                    else if ( ( index || index === 0 ) /*&& enumValue === _ENUM.REVERSE_EXT*/ )
+                                    else if (  index || index === 0  )
                                     {
                                         // reverse the sequence
                                         for ( i = currentColl.length - 1; i >= index; i-- )
@@ -3745,7 +3683,7 @@
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
                                     }
-                                    else if ( count /*&& enumValue === _ENUM.REVERSE_EXT*/ )
+                                    else if ( count  )
                                     {
                                         // determine the start index
                                         index = currentColl.length - 1 - count;
@@ -3763,11 +3701,6 @@
                                     // reverse whole collection
                                     else
                                     {
-                                        // if ( enumValue === _ENUM.REVERSE && ( index || count ) )
-                                        // {
-                                        //     console.warn( "Invoking 'reverse' method with only one of the parameters defaults to parameterless 'reverse' !" );
-                                        //     console.warn( "If you wanna use only one of the parameters resort to 'reverseExt' instead !" );
-                                        // }
                                         // reverse the whole sequence
                                         for ( i = currentColl.length - 1; i >= 0; i-- )
                                             r_seq.push( currentColl[ i ] );
@@ -3894,10 +3827,7 @@
                 function execute_SF_I_1L ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                    // apply defensive copy
-                    currentColl = [...currentColl];
-
+                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4102,10 +4032,7 @@
                 function execute_SF_I_1L ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                    // apply defensive copy
-                    currentColl = [...currentColl];
-
+                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4350,10 +4277,7 @@
                 )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                    // apply defensive copy
-                    currentColl = [...currentColl];
-
+                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4891,11 +4815,8 @@
                     */
                     function getResult_I_2L ( withPredicates )
                     {
-                        // get contextually current collection from history array
-                        var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                        // apply defensive copy
-                        currentColl = [...currentColl];
-
+                        // get contextually current collection within history array
+                        var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
 
                         // check for '_ENUM.DEFAULT' if collection != null
                         if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
@@ -5070,7 +4991,7 @@
                         if ( !cmo.allow_next_sorting || !cmo.first_obj )
                         {
                             // detect and store current sort input type of collection - no sorting required, hence return UNKNOWN
-                            _ACTION.hpid.columnSet.cit = _COMMON.detectCIT( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
+                            _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // discard subsequent sorting operations
                             _ACTION.hpid.sorting.stop = true;
@@ -5079,7 +5000,7 @@
                         else
                         {
                             // detect and store current sort input type of collection - sorting required, hence determine cit (collection input type)
-                            _ACTION.hpid.columnSet.cit = _COMMON.detectCIT( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
+                            _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // get only valid column names from user column set
                             var ovc = _ACTION.hpid.columnSet.extractOVC( keyPartSelectorArray );
@@ -5272,10 +5193,7 @@
                 function execute_MF_I_1L ( jlc, collectionOrItem, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _ACTION.hpid.isOn ? _ACTION.hpid.data : _DATA.fetch( jlc._ctx.coll_index ).collection;
-                    // apply defensive copy
-                    currentColl = [...currentColl];
-
+                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
 
                     var new_dirty_data;
                     if ( enumValue === _ENUM.APPEND )
@@ -5411,6 +5329,23 @@
                 };
             },
 
+        fetchFlowData: /**
+         * Fetch data array of contextually current collection from history array.
+         *
+         * @param {number} index
+         */
+            function (index) {
+                // if HPID is initialized
+                if(_ACTION.hpid.isOn)
+                    // return flow's collection cache
+                    return _ACTION.hpid.data;
+                else {
+                    // create input collection cache by applying defensive copy
+                    return [..._DATA.fetch( index ).collection];
+                }
+            },
+
+        // 🛑 TO BE REMOVED - unused
         getT: /**
          * Fetch type metadata of collection item of contextually current collection from history array.
          *
@@ -9676,10 +9611,40 @@
 
                     function createProxiedInstance_I_2L(acn_ctr, qmi_ctr) {
                         // restore metadata of the contextually current collection state
-                        _COMMON.updateColumnSetColsAndCIT( acn_ctr.fim.length_gte_2, acn_ctr.fim.item );
+                        _ACTION.hpidCommons.updateColumnSetColsAndCIT( acn_ctr.fim.length_gte_2, acn_ctr.fim.item );
 
                         // create partial query new JLC proxied instance
-                        return _COMMON.jlcNew( acn_ctr, qmi_ctr );
+                        return createNewJLC_I_3L( acn_ctr, qmi_ctr );
+   
+   
+   
+                        /**
+                         * Local helper functions
+                        */
+                       
+                        /**
+                         * Create new instance of JLC.
+                         *
+                         * @param {Object} ctx Container of actions for this newly being created JLC instance.
+                         * @param {Object} qmi Container of query method implementations for this newly being created JLC instance.                       
+                        */
+                        function createNewJLC_I_3L ( ctx, qmi )
+                        {
+                            // create template object to clone current action context object
+                            var ctxClone = Object.create( null );
+        
+                            // cache already created query methods
+                            ctxClone[ _ENUM.MISC._QMI ] = qmi;
+        
+                            // do cloning
+                            ctxClone._ctx = _COMMON.deepCopyYesCR( ctx );
+        
+                            // create and return proxied JLC instance
+                            var proxyAPI = new Proxy( ctxClone, _LINQ_CONTEXT._proxyHandler );
+        
+                            // return proxied JLC instance
+                            return proxyAPI;
+                        }
                     }
                 }
             },
@@ -9992,7 +9957,7 @@
                             _ACTION.executeChain( api._ctx );
 
                             // restore metadata of the contextually current collection state
-                            _COMMON.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+                            _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
 
 
                             // restore backup proxy GET trap as the current one
@@ -10010,13 +9975,17 @@
                 // enable transparent object property access
                 _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
-                // invoke on demand the original query method with dynamically applied arguments
+                // invoke on demand the original query method with dynamically applied arguments that produces the final output send to the calling client
                 var result = api[ _ENUM.MISC._QMI ][ property ].apply( receiver, arguments );
 
                 // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
-                if ( Array.isArray( result ) )
+                if ( Array.isArray( result ) ) {
+                    // apply deep cloning to copy output object "by value"
+                    result = _COMMON.deepCopyYesCR(result);
+
                     // mark that next query has to store its source into internal storage
                     _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                }
                 // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
                 else if ( _LINQ_CONTEXT._isProxy( result ) )
                 {
@@ -10193,13 +10162,10 @@
             applyJLC: function ( source_collection )
             {
                 // do necessary cleanup before starting current query flow
-                _COMMON.clearCache( undefined );
-
-                // create copy of reference of source collection
-                var _this = source_collection;
+                _ACTION.hpidCommons.clearCache( undefined );
 
                 // get first item from a collection
-                var firstItem = _this[ 0 ];
+                var firstItem = source_collection[ 0 ];
 
                 /**
                  * coll_idx     ->  internal positional index of this collection
@@ -10210,18 +10176,18 @@
 
                 var coll_idx, rootToken, is_prim, jlcCtx;
                 //if collection wasn't indexed internally, prepare for indexation
-                if(!(_ENUM.MISC._CI in _this) && !(_ENUM.MISC._RT in _this)) {
+                if(!(_ENUM.MISC._CI in source_collection) && !(_ENUM.MISC._RT in source_collection)) {
                     // get token associated with current collection, aka root token
                     rootToken = new Date().getTime();
 
                     // assign token to collection
-                    _this[_ENUM.MISC._RT] = rootToken;
+                    source_collection[_ENUM.MISC._RT] = rootToken;
 
                     // pass data in to the mechanism
-                    coll_idx = over_I_1L( _this );
+                    coll_idx = over_I_1L( source_collection );
 
                     // assign internal collection index
-                    _this[_ENUM.MISC._CI] = coll_idx;
+                    source_collection[_ENUM.MISC._CI] = coll_idx;
 
                     // apply JLC common operations
                     applyJlcCommon_I_1L();
@@ -10231,10 +10197,10 @@
                 }
                 else {
                     // get cached collection index
-                    coll_idx = _this[_ENUM.MISC._CI];
+                    coll_idx = source_collection[_ENUM.MISC._CI];
 
                     // get cached root token
-                    rootToken = _this[_ENUM.MISC._RT];
+                    rootToken = source_collection[_ENUM.MISC._RT];
 
                     // apply JLC common operations
                     applyJlcCommon_I_1L();
@@ -10243,7 +10209,7 @@
                 // return JLC proxied instance
                 return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
                     _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT,
-                     _this, // this collection has just been stored, so pass it once again to fetch cached context
+                     source_collection, // this collection has just been stored, so pass it once again to fetch cached context
                     jlcCtx,
                     Object.create( null )
                 );
@@ -10305,7 +10271,7 @@
 
                 function applyJlcCommon_I_1L() {
                     // store updated metadata about collection
-                    _COMMON.updateColumnSetColsAndCIT( _this.length > 1, firstItem );
+                    _ACTION.hpidCommons.updateColumnSetColsAndCIT( source_collection.length > 1, firstItem );
 
                     // check type primitivity of collection input type
                     is_prim = check_TP_I_2L();
@@ -10337,7 +10303,7 @@
                         ctx.fim = Object.create( null );
                         ctx.fim.is_prim = is_prim;
                         ctx.fim.item = firstItem;
-                        ctx.fim.length_gte_2 = _this.length > 1;
+                        ctx.fim.length_gte_2 = source_collection.length > 1;
     
                         // initially parent set to null
                         ctx.parent = null;
