@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #31 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #32 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -1981,6 +1981,34 @@
                    }
                },
 
+        getPropertyValueFromObject: /**
+         * Fetch value from object.
+         *
+         * @param {any} propName Property of object or property path from object.
+         * @param {any} obj Object to fetch property or property path from.
+         */
+                function ( propName, obj )
+                {
+                    // is it a complex property
+                    if ( propName.includes( '.' ) )
+                    {
+                        // convert prop path to array
+                        var prop_arr = propName.split( '.' );
+                        
+                        var value;
+                        // get to the target prop
+                        for ( var i = 0; i < prop_arr.length; i++ )
+                            value = value ? value[ prop_arr[ i ] ] : obj[ prop_arr[ i ] ];
+
+                        // get property value from object
+                        return value;
+                    }
+                    // or is it a current-level property
+                    else
+                        // get property value from object
+                        return obj[ propName ];
+                },
+
         deepCopyYesCR: /**
          * Clone object without reference with circular references.
          *
@@ -2065,10 +2093,16 @@
 
                             // if it's a primitive type
                             if ( typeof value !== 'object' && typeof value !== 'function' )
+                                // add primitive property name or primitive property path
                                 primitives.push( parent + key );
                             // if it's an object
-                            else if ( typeof value === 'object' )
+                            else if ( typeof value === 'object' ) {
+                                // add primitive property name or primitive property path
+                                primitives.push( parent + key );
+                                
+                                // add object identified by the key to process
                                 objects.push( key );
+                            }
                         }
 
                         // if at current level are any nested objects, drill down to process their properties
@@ -2081,12 +2115,12 @@
                                 var c_k = objects[ j ];
 
                                 // inspect nested object
-                                getKeys_I_2L( c_k + '.', d_obj[ c_k ], output_arr );
+                                getKeys_I_2L( parent ? parent + c_k + '.' : c_k + '.', d_obj[ c_k ], output_arr );
                             }
                         }
 
                         // store current level properties - return properly constructed paths
-                        Array.prototype.push.apply( output_arr, primitives );
+                        Array.prototype.unshift.apply( output_arr, primitives );
                     }
                 }
             },
@@ -4076,6 +4110,9 @@
                          *  - selectorArray.length === 1  ->  go for LDF (library-defined function)
                         */
 
+                        // object props to be extracted
+                        var selectors = _ACTION.hpid.columnSet.extractOVC(selectorArray);
+
                         // apply UDF
                         if ( selectorArray.length > 1 )
                         {
@@ -4089,7 +4126,7 @@
                             for ( var i = 0; i < currentColl.length; i++ )
                             {
                                 // process current array item
-                                item = udfSelector( currentColl[ i ], incorporateIndex ? i : undefined );
+                                item = udfSelector( currentColl[ i ], selectors, incorporateIndex ? i : undefined );
 
                                 // store item in the array
                                 result.push( item );
@@ -4104,7 +4141,7 @@
                             for ( var i = 0; i < currentColl.length; i++ )
                             {
                                 // process current array item
-                                item = ldfSelector_I_2L( currentColl[ i ], incorporateIndex ? i : undefined );
+                                item = ldfSelector_I_2L( currentColl[ i ], selectors, incorporateIndex ? i : undefined, true );
 
                                 // store item in the array
                                 result.push( item );
@@ -4126,6 +4163,9 @@
                          *  - selectorArray.length === 1  ->  go for LDF (library-defined function)
                         */
 
+                        // object props to be extracted
+                        var selectors = _ACTION.hpid.columnSet.extractOVC(selectorArray);
+
                         // apply UDF
                         if ( selectorArray.length > 1 )
                         {
@@ -4133,8 +4173,9 @@
                             if ( !udfSelector )
                                 throw Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
 
-                            // current array item processed by UDF selector
+                            // current array item processed by UDF selector; input item from a input collection; array holding processed input items
                             var item, ci, interimArr;
+
                             // iterate over whole collection
                             for ( var i = 0; i < currentColl.length; i++ )
                             {
@@ -4145,7 +4186,7 @@
                                 ci = currentColl[ i ];
 
                                 // process current array item
-                                item = udfSelector( ci, incorporateIndex ? i : undefined );
+                                item = udfSelector( ci, selectors, incorporateIndex ? i : undefined );
                                 interimArr.push( item );
 
                                 /**
@@ -4171,7 +4212,7 @@
                                 else
                                 {
                                     // just concat this interim array to the output array
-                                    result.concat( interimArr );
+                                    result.push( ...interimArr );
                                 }
                             }
                         }
@@ -4184,12 +4225,10 @@
                             for ( var i = 0; i < currentColl.length; i++ )
                             {
                                 // process current array item
-                                item = ldfSelector_I_2L( currentColl[ i ], incorporateIndex ? i : undefined );
+                                item = ldfSelector_I_2L( currentColl[ i ], selectors, incorporateIndex ? i : undefined );
 
-                                // iterate over whole subcollection
-                                for ( var j = 0; j < item.length; j++ )
-                                    // store subitem in the array
-                                    result.push( item[ j ] );
+                                // just concat this subitem array to the output array
+                                result.push( ...item );
                             }
                         }
 
@@ -4197,53 +4236,62 @@
                         return result;
                     }
 
-                    function ldfSelector_I_2L ( item, arrPosIdx )
+                    function ldfSelector_I_2L ( item, selectors, idx, keepTheShape )
                     {
-                        // extract property
-                        var prop = extractTargetProp_I_3L( selectorArray[ 0 ] );
-
-                        // declare values to be fetched from item(s)
-                        var propVals = Object.create( null );
-
-                        // add optional position of item in the array
-                        propVals.arrayItemIndex = arrPosIdx;
-
                         // get the property value from the object in question
-                        propVals.value = getPropValue_I_3L( item );
+                        var value = _COMMON.getPropertyValueFromObject( selectors[0], item );
 
-                        // return an array
-                        return [ propVals ];
+                        // preserve the shape of the value fetched from the source (select)
+                        if(keepTheShape)
+                            // return an array of value whatever the value holds
+                            return createArrayItem_I_3L(value);
+                        // flatten the value fetched from the source whatever the value holds (selectMany)
+                        else {
+                            // check the type
+                            var is_prim = _COMMON.isPrimitiveType(value);
+
+                            // flatten if is primitive type and the value is iterable
+                            if(is_prim && value["length"]) {
+                                // flatten the value
+                                return flattenValue_I_3L(value);
+                            }
+                            // just throw TypeError if is primitive type the value is not iterable
+                            else if (is_prim && !value["length"]) {
+                                throw TypeError('\r\n Selected property [ ' + selectors[0] + ' ] is not iterable in the context of "selectMany" !\r\n\r\n' );
+                            }
+                            // is Array
+                            else if(!is_prim && Array.isArray(value)) {
+                                // flatten the value
+                                return flattenValue_I_3L(value);
+                            }
+                            // is object
+                            else if(!is_prim && typeof value === 'object')
+                                // return an array of one object or one something else
+                                return createArrayItem_I_3L(value);
+                            // is object or something else
+                            else if(!is_prim && typeof value !== 'object')
+                                // return an array of one something else
+                                return createArrayItem_I_3L(value);
+                        }
 
 
 
                         /**
                          * Local helper functions
                         */
-                        function extractTargetProp_I_3L ( prop )
-                        {
-                            // is it a complex property
-                            if ( prop.contains( '.' ) )
-                            {
-                                // convert prop path to array
-                                var prop_arr = prop.split( '.' );
+                        function flattenValue_I_3L (value) {
+                            // declare an array
+                            var output = [];
 
-                                var destProp;
-                                // get to the target prop
-                                for ( var i = 0; i < prop_arr.length - 1; i++ )
-                                    destProp = prop_arr[ i ];
+                            // flatten the value
+                            for(let v of value) output.push(v);
 
-                                // return target prop
-                                return destProp;
-                            }
-                            // or is it a current-level property
-                            else
-                                return prop;
+                            // return the array
+                            return output;
                         }
-
-                        function getPropValue_I_3L ( obj )
-                        {
-                            // get property value
-                            return obj[ prop ];
+                        function createArrayItem_I_3L(value) {
+                            // return one-item array consisting of this value 
+                            return [ value ];
                         }
                     }
                 }
@@ -4326,8 +4374,8 @@
                             // declare output array
                             var result = [];
 
-                            // declare array of metadata, from which you create the joining key
-                            var predicateArray = [];
+                            // declare variable eventually to be an array of metadata, from which you create the joining key
+                            var predicateArray;
 
                             // user provided 'left-side' && 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                             if ( outerSelectorArray && outerUdfSelector && innerSelectorArray && innerUdfSelector )
@@ -4336,12 +4384,7 @@
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
                                 if ( doGrouping )
-                                    predicateArray = outerSelectorArray.forEach(
-                                        function ( selectorItem )
-                                        {
-                                            return [ selectorItem, true ];
-                                        }
-                                    );
+                                    predicateArray = outerSelectorArray;
                             }
                             // user provided only 'left-side' metadata (keys && UDF key extractor) to perform JOIN operation
                             else if ( outerSelectorArray && outerUdfSelector && !innerSelectorArray && !innerUdfSelector )
@@ -4350,12 +4393,7 @@
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
                                 if ( doGrouping )
-                                    predicateArray = outerSelectorArray.forEach(
-                                        function ( selectorItem )
-                                        {
-                                            return [ selectorItem, true ];
-                                        }
-                                    );
+                                    predicateArray = outerSelectorArray;
                             }
                             // user provided only 'right-side' metadata (keys && UDF key extractor) to perform JOIN operation
                             else if ( !outerSelectorArray && !outerUdfSelector && innerSelectorArray && innerUdfSelector )
@@ -4364,12 +4402,7 @@
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
                                 if ( doGrouping )
-                                    predicateArray = innerSelectorArray.forEach(
-                                        function ( selectorItem )
-                                        {
-                                            return [ selectorItem, true ];
-                                        }
-                                    );
+                                    predicateArray = innerSelectorArray;
                             }
                             // user provided only 'left-side' && 'right-side' keys to perform JOIN operation
                             else if ( outerSelectorArray && !outerUdfSelector && innerSelectorArray && !innerUdfSelector )
@@ -4378,12 +4411,7 @@
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
                                 if ( doGrouping )
-                                    predicateArray = outerSelectorArray.forEach(
-                                        function ( selectorItem )
-                                        {
-                                            return [ selectorItem, true ];
-                                        }
-                                    );
+                                    predicateArray = outerSelectorArray;
                             }
                             // user provided only 'left-side' && 'right-side' key extractors to perform JOIN operation
                             else if ( !outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector )
@@ -4482,6 +4510,8 @@
 
                         function executeOperation_LDF_I_3L ( leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf )
                         {
+                            var l_obj, r_obj, isJoin;
+
                             // deal with keys extractors
                             if ( typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function' )
                             {
@@ -4489,7 +4519,6 @@
                                 if ( !udfEqualityComparer )
                                     throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" key extractors only, you need to provide equality UDF !\r\n\r\n' );
 
-                                var l_obj, r_obj, isJoin;
                                 // loop over 'left-side' collection
                                 for ( var i = 0; i < currentColl.length; i++ )
                                 {
@@ -4508,8 +4537,8 @@
                                         // if objects match given the key
                                         if ( udfEqualityComparer( l_obj, r_obj ) )
                                         {
-                                            // store joined object in the final output array
-                                            result.push( { ...l_obj, ...r_obj } );
+                                             // execute LEFT JOIN
+                                             performJoinOperation_I_4L(l_obj, r_obj);
 
                                             // mark joined object
                                             isJoin = true;
@@ -4521,22 +4550,13 @@
 
                                     // check for 'LEFT JOIN' case
                                     if ( isCollectionFixed && !isJoin )
-                                    {
-                                        // get the object keys
-                                        var keys = Object.getOwnPropertyNames( l_obj );
-
-                                        // assign default values
-                                        r_obj = assignDefaultValues_I_3L( l_obj, keys, keys );
-
-                                        // store joined object in the final output array
-                                        result.push( { ...l_obj, ...r_obj } );
-                                    }
+                                        // execute LEFT JOIN
+                                        performLeftJoinOperation_I_4L(l_obj);
                                 }
                             }
                             // deal with keys
                             else
                             {
-                                var l_obj, r_obj, isJoin;
                                 // loop over 'left-side' collection
                                 for ( var i = 0; i < currentColl.length; i++ )
                                 {
@@ -4547,16 +4567,16 @@
                                     isJoin = false;
 
                                     // loop over 'right-side' collection
-                                    for ( var i = 0; i < innerColl.length; i++ )
+                                    for ( var j = 0; j < innerColl.length; j++ )
                                     {
                                         // get the 'right-side' partial object
-                                        r_obj = innerColl[ i ];
+                                        r_obj = innerColl[ j ];
 
                                         // if objects match given the key
                                         if ( ldfEqualityComparer_I_4L( l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
                                         {
-                                            // store joined object in the final output array
-                                            result.push( { ...l_obj, ...r_obj } );
+                                             // execute LEFT JOIN
+                                             performJoinOperation_I_4L(l_obj, r_obj);
 
                                             // mark joined object
                                             isJoin = true;
@@ -4568,16 +4588,8 @@
 
                                     // check for 'LEFT JOIN' case
                                     if ( isCollectionFixed && !isJoin )
-                                    {
-                                        // get the object keys
-                                        var keys = Object.getOwnPropertyNames( l_obj );
-
-                                        // assign default values
-                                        r_obj = assignDefaultValues_I_3L( l_obj, keys, keys );
-
-                                        // store joined object in the final output array
-                                        result.push( { ...l_obj, ...r_obj } );
-                                    }
+                                        // execute LEFT JOIN
+                                        performLeftJoinOperation_I_4L(l_obj);
                                 }
                             }
 
@@ -4602,10 +4614,10 @@
                                 for ( var k = 0; k < left_key_arr.length; k++ )
                                 {
                                     // get key value from 'left-side' object
-                                    left_key_value_arr.push( getObjectValue_I_5L( left_key_arr[ i ], left_obj ) );
+                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][0], left_obj ) );
 
                                     // get key value from 'right-side' object
-                                    right_key_value_arr.push( getObjectValue_I_5L( right_key_arr[ i ], right_obj ) );
+                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][0], right_obj ) );
                                 }
 
                                 /**
@@ -4618,35 +4630,40 @@
 
                                 // just return bool result, aka is there a 'JOIN' condition met
                                 return isMatch;
-
-
-
-                                /**
-                                 * Local helper functions 
-                                */
-                                function getObjectValue_I_5L ( propName, obj )
-                                {
-                                    // value from object based on given property name, aka key
-                                    var value;
-
-                                    // is it a complex property
-                                    if ( propName.contains( '.' ) )
-                                    {
-                                        // convert prop path to array
-                                        var prop_arr = propName.split( '.' );
-
-                                        // get to the target prop
-                                        for ( var i = 0; i < prop_arr.length; i++ )
-                                            value = value ? value[ prop_arr[ i ] ] : obj[ prop_arr[ i ] ];
-                                    }
-                                    // or is it a current-level property
-                                    else
-                                        value = obj[ propName ];
-
-                                    // return value
-                                    return value;
-                                }
                             }
+
+                            function performJoinOperation_I_4L(l_o, r_o) {
+                                // create join object
+                                var joinedObj = Object.create(null);
+                                joinedObj.left = Object.create(null);
+                                joinedObj.right = Object.create(null);
+
+                                // concat left object and right object, aka join them together
+                                Object.assign(joinedObj.left, l_o);
+                                Object.assign(joinedObj.right, r_o);
+                                
+                                // store joined object in the final output array
+                                result.push( joinedObj );
+                            } 
+                            function performLeftJoinOperation_I_4L(l_o) {
+                                // create join object
+                                var leftJoinObj = Object.create(null);
+                                leftJoinObj.left = Object.create(null);
+                                leftJoinObj.right = Object.create(null);
+
+                                // get the object keys
+                                var keys = Object.getOwnPropertyNames( l_o );
+
+                                // assign default values
+                                r_obj = assignDefaultValues_I_3L( l_o, keys, keys );
+
+                                // concat left object and right object, aka join them together
+                                Object.assign(leftJoinObj.left, l_o);
+                                Object.assign(leftJoinObj.right, r_obj);
+                                
+                                // store joined object in the final output array
+                                result.push( leftJoinObj );
+                            } 
                         }
 
                         function assignDefaultValues_I_3L ( sourceItem, sourceItemPropArray, outputItemPropArray )
@@ -4684,7 +4701,7 @@
                                 key_array = [];
 
                             // get the group id, aka the key used in JOIN or LEFT JOIN
-                            var id = _COMMON.fetchObjectKeyValue( item, key_array );
+                            var id = _COMMON.fetchObjectKeyValue( item.left || item.right, key_array );
 
                             // create pure empty object
                             var eo = Object.create( null );
@@ -7449,7 +7466,7 @@
                 // method returns data
                 mrd: {
                     // does return data
-                    yes: true,
+                    yes: false,
 
                     // does produce final result which is a collection
                     returns_collection: true,
@@ -7755,9 +7772,9 @@
                 is_sort_ctx: false
             },
 
-            join: {
+            innerJoin: {
                 // Linq method name
-                lmn: 'join',
+                lmn: 'innerJoin',
 
                 // method returns data
                 mrd: {

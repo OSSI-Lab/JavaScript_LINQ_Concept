@@ -25,6 +25,8 @@ Answer: FIXED
 
 TO BE FIXED:
 
+    ->  JOINs (need some enhancements !)
+
     ->  from that poin on -> [ // CODE WAS TESTED UNTIL HERE ! ]
 
 
@@ -35,6 +37,10 @@ TO BE FIXED:
 ==========================================================================================================================================
 
 CONSIDERATIONS (don't pay attention to it, cause it is my own working notes - today valid, tomorrow invalid -  so to speak ! ):
+
+    JOINs
+     - what if one of the objects has the same property name ????
+
 
 
     Line 5286 -> make it a bound method ?

@@ -13,7 +13,7 @@
                 onsale: 0.0,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 2, name: "Order of Product 2" }
+                order: { id: 2, name: "Order of Product 2", item: { size: 2, discount: 10} }
             },
             {
                 id: 3,
@@ -23,7 +23,7 @@
                 onsale: 0.0,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 3, name: "Order of Product 3" }
+                order: { id: 3, name: "Order of Product 3", item: { size: 3, discount: 10} }
             },
             {
                 id: 1,
@@ -33,7 +33,7 @@
                 onsale: 0.0,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 1, name: "Order of Product 1" }
+                order: { id: 1, name: "Order of Product 1", item: { size: 1, discount: 10} }
             },
             {
                 id: 9,
@@ -43,7 +43,7 @@
                 onsale: 3,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 9, name: "Order of Product 5" }
+                order: { id: 9, name: "Order of Product 5", item: { size: 9, discount: 10} }
             },
             {
                 id: 4,
@@ -53,7 +53,7 @@
                 onsale: 3,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 4, name: "Order of Product 4" }
+                order: { id: 4, name: "Order of Product 4", item: { size: 4, discount: 10} }
             },
             {
                 id: 5,
@@ -63,7 +63,7 @@
                 onsale: 2,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 5, name: "Order of Product 5" }
+                order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10} }
             },
             {
                 id: 6,
@@ -73,7 +73,7 @@
                 onsale: 0.0,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 6, name: "Order of Product 5" }
+                order: { id: 6, name: "Order of Product 5", item: { size: 5, discount: 10} }
             },
             {
                 id: 7,
@@ -102,7 +102,7 @@
                 onsale: 2,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 10, name: "Order of Product 10" }
+                order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10} }
             },
             {
                 id: 10,
@@ -112,7 +112,7 @@
                 onsale: 2,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 10, name: "Order of Product 10" }
+                order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10} }
             }
         ];
 
@@ -215,12 +215,12 @@
                 ]
             }
         ).toArray();
-    
 
 
-        
-		// when you're done with all querying regarding some collections, you can tidy them up by removing some internally generated stuff
-		System.Linq.Context.tidyUp(collection, collection_toString);
+
+
+        // when you're done with all querying regarding some collections, you can tidy them up by removing some internally generated stuff
+        System.Linq.Context.tidyUp( collection, collection_toString );
 
 
 
@@ -660,7 +660,7 @@
                 ],
                 'udfComparer': null
             }
-        )
+        );
         // partial query - produces intermediate query state
         var thenBy_p2 = orderBy_p2.thenBy(
             {
@@ -696,7 +696,7 @@
                 'fallbackOnDefault': {
                     yes: true, // return default value provided by the user if collection is empty
 
-                    udv: Object.create(null) // user default value (udv)
+                    udv: Object.create( null ) // user default value (udv)
                 }
             }
         );
@@ -707,7 +707,7 @@
                 'fallbackOnDefault': {
                     yes: true, // return default value provided by the user if collection is empty
 
-                    udv: Object.create(null, {'message' : {value : 'Empty colection !'}}) // user default value (udv) must be anything valid in JavaScript
+                    udv: Object.create( null, { 'message': { value: 'Empty colection !' } } ) // user default value (udv) must be anything valid in JavaScript
                 }
             }
         );
@@ -732,38 +732,207 @@
             }
         );
 
-
-
-
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
-
-
-
-        var select = collection.select(
+        // final query - produces output
+        var select_f1 = collection.select(
             {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
                 'selectorArray': [
-                    "id", "name", "img", "order"
+                     ["order", true]
                 ],
+                // define inline UDF selector
                 'udfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': null, // 'select' does not require UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var selectMany_f1 = collection.selectMany(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+
+                'selectorArray': [
+                    ["order", true]
+                ],
+                // define library UDF selector
+                'udfSelector': null,
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var select_f2 = collection.select(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+                'selectorArray': [
+                     ["order.item.size", true]
+                ],
+                // define inline UDF selector
+                'udfSelector': null,
+                'udfResultSelector': null, // 'select' does not require UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        /*
+        // final query - produces output    -> throws Error because 'order.item.size' is not iterable   -> error message = 'Selected property [ order.item.size ] is not iterable in the context of "selectMany" !'
+        var selectMany_f2 = collection.selectMany(
+            {
+                //
+                // Selecting multiple properties requires providing custom UDF selector.
+                // 
+                // Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                //
+
+                'selectorArray': [
+                    ["order.item.size", true]
+                ],
+                // define library UDF selector
+                'udfSelector': null,
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+        */
+
+        // final query - produces output
+        var select_f3 = collection.select(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+                'selectorArray': [
+                    ["id", true], ["name", true], ["img", true], ["order", true]
+                ],
+                // define inline UDF selector
+                'udfSelector': function(item, selectors, index) {
+                    /**
+                     * Provide the logic valid for your cases !
+                     * 
+                     * This is only exemplary implementation logic.
+                    */
+
+                    // declare select result object
+                    var result = Object.create(null);
+
+                    /**
+                     * Select all required props
+                    */
+                    result.id = item['id'];
+                    result.name = item['name'];
+                    result.img = item['img'];
+                    result.order = item['order'];
+
+                    // if original positional index in the collection is required, add it
+                    if(index !== undefined)
+                        result.collectionPositionalIndex = index;
+
+                    // return select result object
+                    return result;
+                },
+                'udfResultSelector': null, // 'select' does not require UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var selectMany_f3 = collection.selectMany(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+
+                'selectorArray': [
+                    ["id", true], ["name", true], ["img", true], ["order", true]
+                ],
+                // define library UDF selector
+                'udfSelector': udf_commons.udfSelector,
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var select_p1 = collection.select(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+                'selectorArray': [
+                    ["id", true], ["name", true], ["img", true], ["order", true]
+                ],
+                // define inline UDF selector
+                'udfSelector': function(item, selectors, index) {
+                    /**
+                     * Provide the logic valid for your cases !
+                     * 
+                     * This is only exemplary implementation logic.
+                    */
+
+                    // declare select result object
+                    var result = Object.create(null);
+
+                    /**
+                     * Select all required props
+                    */
+                    result.id = item['id'];
+                    result.name = item['name'];
+                    result.img = item['img'];
+                    result.order = item['order'];
+
+                    // if original positional index in the collection is required, add it
+                    if(index !== undefined)
+                        result.collectionPositionalIndex = index;
+
+                    // return select result object
+                    return result;
+                },
+                'udfResultSelector': null, // 'select' does not require UDF results selector !
                 'incorporateIndex': true
             }
         );
 
-        var selectMany = collection.selectMany(
+        // partial query - produces intermediate query state
+        var selectMany_p1 = collection.selectMany(
             {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+
                 'selectorArray': [
-                    "id", "name", "img", "order"
+                    ["id", true], ["name", true], ["img", true], ["order", true]
                 ],
-                'udfSelector': null,
-                'udfResultSelector': null,
+                // define library UDF selector
+                'udfSelector': udf_commons.udfSelector,
+                'udfResultSelector': udf_commons.udfResultSelector, // 'selectMany' allows for optional UDF results selector !
                 'incorporateIndex': true
             }
         );
 
-
+        /**
+         * JOINS
+        */
         var innerColl = [
             {
                 id: 2,
@@ -779,53 +948,147 @@
             }
         ];
 
-        var join = collection.join(
+        // final query - produces output
+        var join_f1 = collection.innerJoin(
             {
                 'innerColl': innerColl,
-                'outerSelectorArray': [ "id" ],
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
                 'outerUdfSelector': null,
-                'innerSelectorArray': [ "id" ],
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': null,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var join_p1 = collection.innerJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
                 'udfEqualityComparer': null
             }
         );
 
-        var leftJoin = collection.leftJoin(
+        // final query - produces output
+        var leftJoin_f1 = collection.leftJoin(
             {
                 'innerColl': innerColl,
-                'outerSelectorArray': [ "id" ],
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
                 'outerUdfSelector': null,
-                'innerSelectorArray': [ "id" ],
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': null,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var leftJoin_p1 = collection.leftJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
                 'udfEqualityComparer': null
             }
         );
 
-        var groupJoin = collection.groupJoin(
+        // final query - produces output - bug (no grouped value) !
+        var groupJoin_f1 = collection.groupJoin(
             {
                 'innerColl': innerColl,
-                'outerSelectorArray': [ "id" ],
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
                 'outerUdfSelector': null,
-                'innerSelectorArray': [ "id" ],
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': null,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var groupJoin_p1 = collection.groupJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
                 'udfEqualityComparer': null
             }
         );
 
-        var groupLeftJoin = collection.groupLeftJoin(
+        // final query - produces output - bug (no grouped value) !
+        var groupLeftJoin_f1 = collection.groupLeftJoin(
             {
                 'innerColl': innerColl,
-                'outerSelectorArray': [ "id" ],
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
                 'outerUdfSelector': null,
-                'innerSelectorArray': [ "id" ],
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': null,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var groupLeftJoin_p1 = collection.groupLeftJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    ["id", true]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    ["id", true]
+                ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
                 'udfEqualityComparer': null
             }
         );
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
+
+
 
         var elementAt = collection.elementAt(
             {
@@ -935,7 +1198,7 @@
                 ],
                 'udfComparer': null
             }
-        )
+        );
         // break the sorting context (orderBy_p3 <-> orderBy_p3_take_p1) by supplying non-sorting method
         var orderBy_p3_take_p1 = orderBy_p3.take(
             {
