@@ -3476,6 +3476,7 @@
                             }
                         }
                     }
+
                     function groupObjects_I_2L ( item )
                     {
                         // get the group id
@@ -3537,68 +3538,7 @@
                             }
                         }
                     }
-                    function getTheKeyValue_I_2L ( itemCurrent )
-                    {
-                        // declare a real key
-                        var key, keyPart;
 
-                        // loop over key parts and apply the comparison logic
-                        for ( var i = 0; i < key_array.length; i++ )
-                        {
-                            // reference the key part
-                            // @ts-ignore
-                            keyPart = key_array[ i ];
-
-                            // is it complex ?
-                            // @ts-ignore
-                            if ( keyPart.isValidProperty && keyPart.isComplex )
-                            {
-                                // if key is already initialized
-                                if ( key )
-                                    // get the property value from both, the current and the previous object
-                                    // @ts-ignore
-                                    key += _LOGICAL_FILTER.applyPropertyValueFilter( itemCurrent, keyPart.value );
-                                else
-                                {
-                                    // get the key value - get the property value from both, the current and the previous object
-                                    // @ts-ignore
-                                    var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( itemCurrent, keyPart.value );
-
-                                    // initialize a key with a default value
-                                    key = _COMMON.getDefaultValueOf( rkv );
-                                    key += rkv;
-                                }
-                            }
-                            // is it simple ?
-                            // @ts-ignore
-                            else if ( keyPart.isValidProperty )
-                            {
-                                // if key is already initialized
-                                if ( key )
-                                    // @ts-ignore
-                                    key += itemCurrent[ keyPart.value ];
-                                else
-                                {
-                                    // get the key value
-                                    // @ts-ignore
-                                    var rkv = itemCurrent[ keyPart.value ];
-
-                                    // initialize a key with a default value
-                                    key = _COMMON.getDefaultValueOf( rkv );
-                                    key += rkv;
-                                }
-                            }
-                            // otherwise apply some part that is not a property of an object
-                            else
-                            {
-                                // @ts-ignore
-                                key += keyPart.value;
-                            }
-                        }
-
-                        // return the key from object
-                        return key;
-                    }
                     function sortGroups_I_2L ( equalityComparer )
                     {
                         // declare array of group keys
@@ -4290,7 +4230,7 @@
                             return output;
                         }
                         function createArrayItem_I_3L(value) {
-                            // return one-item array consisting of this value 
+                            // return one-item array consisting of this value
                             return [ value ];
                         }
                     }
@@ -4430,7 +4370,7 @@
                              * Hence right here we can apply grouping type of operation in the context of aforementioned created result set. 
                             */
 
-                            // if grouping required (GROUP JOON || GROUP LEFT JOIN)
+                            // if grouping required (GROUP JOIN || GROUP LEFT JOIN)
                             if ( doGrouping )
                             {
                                 // declare groups object being an array !
@@ -4537,7 +4477,7 @@
                                         // if objects match given the key
                                         if ( udfEqualityComparer( l_obj, r_obj ) )
                                         {
-                                             // execute LEFT JOIN
+                                             // execute JOIN
                                              performJoinOperation_I_4L(l_obj, r_obj);
 
                                             // mark joined object
@@ -4575,7 +4515,7 @@
                                         // if objects match given the key
                                         if ( ldfEqualityComparer_I_4L( l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
                                         {
-                                             // execute LEFT JOIN
+                                             // execute JOIN
                                              performJoinOperation_I_4L(l_obj, r_obj);
 
                                             // mark joined object
@@ -9982,7 +9922,8 @@
                             
                             // return contextually current collection state
                             return _ACTION.hpid.data;
-                        }
+                        },
+                        enumerable: true
                     }
                 );
             },
@@ -9998,7 +9939,7 @@
                 // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
                 if ( Array.isArray( result ) ) {
                     // apply deep cloning to copy output object "by value"
-                    result = _COMMON.deepCopyYesCR(result);
+                    //result = _COMMON.deepCopyYesCR(result);
 
                     // mark that next query has to store its source into internal storage
                     _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;

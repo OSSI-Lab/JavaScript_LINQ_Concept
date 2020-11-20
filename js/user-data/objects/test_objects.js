@@ -1016,7 +1016,7 @@
             }
         );
 
-        // final query - produces output - bug (no grouped value) !
+        // final query - produces output
         var groupJoin_f1 = collection.groupJoin(
             {
                 'innerColl': innerColl,
@@ -1050,7 +1050,7 @@
             }
         );
 
-        // final query - produces output - bug (no grouped value) !
+        // final query - produces output
         var groupLeftJoin_f1 = collection.groupLeftJoin(
             {
                 'innerColl': innerColl,
