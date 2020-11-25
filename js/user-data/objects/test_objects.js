@@ -13,7 +13,7 @@
                 onsale: 0.0,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 2, name: "Order of Product 2", item: { size: 2, discount: 10} }
+                order: { id: 2, name: "Order of Product 2", item: { size: 2, discount: 10 } }
             },
             {
                 id: 3,
@@ -23,7 +23,7 @@
                 onsale: 0.0,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 3, name: "Order of Product 3", item: { size: 3, discount: 10} }
+                order: { id: 3, name: "Order of Product 3", item: { size: 3, discount: 10 } }
             },
             {
                 id: 1,
@@ -33,7 +33,7 @@
                 onsale: 0.0,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 1, name: "Order of Product 1", item: { size: 1, discount: 10} }
+                order: { id: 1, name: "Order of Product 1", item: { size: 1, discount: 10 } }
             },
             {
                 id: 9,
@@ -43,7 +43,7 @@
                 onsale: 3,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 9, name: "Order of Product 5", item: { size: 9, discount: 10} }
+                order: { id: 9, name: "Order of Product 5", item: { size: 9, discount: 10 } }
             },
             {
                 id: 4,
@@ -53,7 +53,7 @@
                 onsale: 3,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
-                order: { id: 4, name: "Order of Product 4", item: { size: 4, discount: 10} }
+                order: { id: 4, name: "Order of Product 4", item: { size: 4, discount: 10 } }
             },
             {
                 id: 5,
@@ -63,7 +63,7 @@
                 onsale: 2,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10} }
+                order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
             },
             {
                 id: 6,
@@ -73,7 +73,7 @@
                 onsale: 0.0,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 6, name: "Order of Product 5", item: { size: 5, discount: 10} }
+                order: { id: 6, name: "Order of Product 5", item: { size: 5, discount: 10 } }
             },
             {
                 id: 7,
@@ -102,7 +102,7 @@
                 onsale: 2,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10} }
+                order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
             },
             {
                 id: 10,
@@ -112,7 +112,7 @@
                 onsale: 2,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
-                order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10} }
+                order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
             }
         ];
 
@@ -139,7 +139,7 @@
          * 
          * where_f1 data array is copied 100% "by value" !
         */
-        where_f1[0].name = 'Product 2 -> Mutated only in where_f1 !'
+        where_f1[ 0 ].name = 'Product 2 -> Mutated only in where_f1 !';
 
 
         // final query - produces output
@@ -163,7 +163,7 @@
          * 
          * groupBy_f1 data array is copied 100% "by value" !
         */
-       groupBy_f1[0].resultsView[0].name = 'Product 2 -> Mutated only in groupBy_f1 !'
+        groupBy_f1[ 0 ].resultsView[ 0 ].name = 'Product 2 -> Mutated only in groupBy_f1 !';
 
 
         // partial query - produces intermediate query state
@@ -721,7 +721,8 @@
                 'fallbackOnDefault': {
                     yes: true, // return default value provided by the user if collection is empty
 
-                    udv: Object.create( null, { 'message': { value: 'Empty colection !' } } ) // user default value (udv) must be anything valid in JavaScript
+                    // user default value (udv) must be anything valid in JavaScript that conforms to JavaScript rules !
+                    udv: Object.create( null, { 'message': { value: 'Empty colection !', enumerable: true } } )
                 }
             }
         );
@@ -755,7 +756,7 @@
                  * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
                 */
                 'selectorArray': [
-                     ["order", true]
+                    [ "order", true ]
                 ],
                 // define inline UDF selector
                 'udfSelector': null,
@@ -774,7 +775,7 @@
                 */
 
                 'selectorArray': [
-                    ["order", true]
+                    [ "order", true ]
                 ],
                 // define library UDF selector
                 'udfSelector': null,
@@ -792,7 +793,7 @@
                  * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
                 */
                 'selectorArray': [
-                     ["order.item.size", true]
+                    [ "order.item.size", true ]
                 ],
                 // define inline UDF selector
                 'udfSelector': null,
@@ -831,10 +832,11 @@
                  * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
                 */
                 'selectorArray': [
-                    ["id", true], ["name", true], ["img", true], ["order", true]
+                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
                 ],
                 // define inline UDF selector
-                'udfSelector': function(item, selectors, index) {
+                'udfSelector': function ( item, selectors, index )
+                {
                     /**
                      * Provide the logic valid for your cases !
                      * 
@@ -842,18 +844,18 @@
                     */
 
                     // declare select result object
-                    var result = Object.create(null);
+                    var result = Object.create( null );
 
                     /**
                      * Select all required props
                     */
-                    result.id = item['id'];
-                    result.name = item['name'];
-                    result.img = item['img'];
-                    result.order = item['order'];
+                    result.id = item[ 'id' ];
+                    result.name = item[ 'name' ];
+                    result.img = item[ 'img' ];
+                    result.order = item[ 'order' ];
 
                     // if original positional index in the collection is required, add it
-                    if(index !== undefined)
+                    if ( index !== undefined )
                         result.collectionPositionalIndex = index;
 
                     // return select result object
@@ -874,7 +876,7 @@
                 */
 
                 'selectorArray': [
-                    ["id", true], ["name", true], ["img", true], ["order", true]
+                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
                 ],
                 // define library UDF selector
                 'udfSelector': udf_commons.udfSelector,
@@ -892,10 +894,11 @@
                  * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
                 */
                 'selectorArray': [
-                    ["id", true], ["name", true], ["img", true], ["order", true]
+                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
                 ],
                 // define inline UDF selector
-                'udfSelector': function(item, selectors, index) {
+                'udfSelector': function ( item, selectors, index )
+                {
                     /**
                      * Provide the logic valid for your cases !
                      * 
@@ -903,18 +906,18 @@
                     */
 
                     // declare select result object
-                    var result = Object.create(null);
+                    var result = Object.create( null );
 
                     /**
                      * Select all required props
                     */
-                    result.id = item['id'];
-                    result.name = item['name'];
-                    result.img = item['img'];
-                    result.order = item['order'];
+                    result.id = item[ 'id' ];
+                    result.name = item[ 'name' ];
+                    result.img = item[ 'img' ];
+                    result.order = item[ 'order' ];
 
                     // if original positional index in the collection is required, add it
-                    if(index !== undefined)
+                    if ( index !== undefined )
                         result.collectionPositionalIndex = index;
 
                     // return select result object
@@ -935,7 +938,7 @@
                 */
 
                 'selectorArray': [
-                    ["id", true], ["name", true], ["img", true], ["order", true]
+                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
                 ],
                 // define library UDF selector
                 'udfSelector': udf_commons.udfSelector,
@@ -967,11 +970,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -984,11 +987,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -1001,11 +1004,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -1018,11 +1021,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -1035,11 +1038,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -1052,11 +1055,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -1069,11 +1072,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -1086,11 +1089,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    ["id", true]
+                    [ "id", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -1211,32 +1214,76 @@
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Method [ all ] has to have "params" object provided !
         //var all_f2 = collection.all();
 
+        // final query - produces output [find item with the smallest value of property called 'id' ]
+        var min_f1 = collection.min(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [find item with the biggest value of property called 'id' ]
+        var max_f1 = collection.max(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
+        var average_f1 = collection.average(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [find item with the smallest value of property called 'id' ]
+        var min_f2 = [].min(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [find item with the biggest value of property called 'id' ]
+        var max_f2 = [].max(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
+        var average_f2 = [].average(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [example of query method definition caching]
+        var where_f3 = collection_toString.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ]
+                ]
+            }
+        ).where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 4, true ]
+                ]
+            }
+        ).toArray();
+
+
+
+
         // CODE WAS TESTED UNTIL HERE !
         debugger;
 
 
-
-
-        var min = collection.min(
-            {
-                'property': 'id',
-                'udfValueSelector': null
-            }
-        );
-
-        var max = collection.max(
-            {
-                'property': 'id',
-                'udfValueSelector': null
-            }
-        );
-
-        var average = collection.average(
-            {
-                'property': 'id',
-                'udfValueSelector': null
-            }
-        );
 
 
         // partial query - produces intermediate query state

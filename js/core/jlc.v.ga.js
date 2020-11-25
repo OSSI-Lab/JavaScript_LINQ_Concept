@@ -445,6 +445,7 @@
 
                             var metadataKVP = c_O_I_2L( user_filter_array, sortingContext );
 
+                            // set sorting metadata in the running context
                             thisAction.sortingMetadataCtx.setMetadata.call( thisAction.sortingMetadataCtx, metadataKVP, actionConstr );
                         }
                         else
@@ -888,7 +889,7 @@
                         var phrase_source_arr;
                         // only updated sort set input with current ovc if there are any data to sort
                         if ( hpid_cache.length )
-                            // reference updated sort set input that allows for building the right phrase
+                            // reference updated sort set input, that allows for building the right phrase
                             phrase_source_arr = _ACTION.hpid.sorting.sort_columns;
 
 
@@ -1344,7 +1345,10 @@
                         System.Linq.Context.orderBy,
                         System.Linq.Context.orderByDescending,
                         System.Linq.Context.thenBy,
-                        System.Linq.Context.thenByDescending
+                        System.Linq.Context.thenByDescending,
+                        System.Linq.Context.min,
+                        System.Linq.Context.max,
+                        System.Linq.Context.average
                     ].indexOf( m_q_c ) > -1 ?
                         _ACTION.hpid.sorting.createSortingMetadataCtx() : undefined;
 
@@ -2043,7 +2047,7 @@
             },
 
         deepCopyNoCR: /**
-            * Clone object without reference with circular references.
+            * Clone object without reference without circular references.
             *
             * Source: https://github.com/zellwk/javascript/blob/master/mix/mix.js
             * 
@@ -2694,10 +2698,10 @@
                             }
                             else
                                 throw Error(
-                                    '\r\nThis collection input type (cit) called "' + citCtx +
+                                    '\r\nThis collection input type (cit) called "' + _COMMON.getCustomValueOfSymbol(citCtx) +
                                     '" is not supported by PLAIN comparator !\r\nValid contexts are [' +
-                                    _ENUM.CIT.PLAIN + ', ' +
-                                    _ENUM.CIT.KVP +
+                                    _COMMON.getCustomValueOfSymbol(_ENUM.CIT.PLAIN) + ', ' +
+                                    _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) +
                                     '] !\r\n\r\n'
                                 );
 
@@ -2771,7 +2775,7 @@
                                     return 1;
 
                             default:
-                                throw Error( '\r\nUnsupported sorting order [ ' + sort_mode + ' ] !\r\n\r\n' );
+                                throw Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol(sort_mode) + ' ] !\r\n\r\n' );
                         }
                     }
                 }
@@ -3384,7 +3388,7 @@
                 function execute_WF_I_1L ( jlc, predicateArray, skipOrTakeEnum )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
                     // declare current intermediate collection
                     var c_i_c = [];
@@ -3483,7 +3487,7 @@
                     if ( predicateArray || udfGroupKeySelector )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
                         // declare groups object being an array !
                         var groups = [];
@@ -3738,7 +3742,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
                         // if the sequence contains elements
                         if ( currentColl.length )
@@ -3938,7 +3942,7 @@
                 function execute_SF_I_1L ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4145,7 +4149,7 @@
                 function execute_SF_I_1L ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4373,6 +4377,7 @@
                             // return the array
                             return output;
                         }
+
                         function createArrayItem_I_3L ( value )
                         {
                             // return one-item array consisting of this value
@@ -4410,7 +4415,7 @@
                 )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4731,6 +4736,7 @@
                                 // store joined object in the final output array
                                 result.push( joinedObj );
                             }
+
                             function performLeftJoinOperation_I_4L ( l_o )
                             {
                                 // create join object
@@ -4846,7 +4852,7 @@
                     // ... or a internal comparator
                     else
                         // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
-                        _PHYSICAL_FILTER.executeOrderFilter( jlc, [ propertyNameOrPath[ 'property' ], true ], null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
+                        _PHYSICAL_FILTER.executeOrderFilter( jlc, [ propertyNameOrPath, true ], null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
 
                     // get the right item from the collection based on 'enumValue' and/or 'roundEnumValue' flags
                     return getResult_I_2L();
@@ -4860,19 +4866,19 @@
                     {
                         // compute 'min' value
                         if ( enumValue === _ENUM.MIN )
-                            return _ACTION.hpid.data[ 0 ];
+                            return _ACTION.hpid.data ? _ACTION.hpid.data[ 0 ] : undefined;
                         // compute 'max' value
                         else if ( enumValue === _ENUM.MAX )
-                            return _ACTION.hpid.data[ _ACTION.hpid.data.length - 1 ];
+                            return _ACTION.hpid.data ? _ACTION.hpid.data[ _ACTION.hpid.data.length - 1 ] : undefined;
                         // compute 'avg' value
                         else if ( enumValue === _ENUM.AVG )
                         {
                             // precisely 'min avg'
                             if ( roundEnumValue === _ENUM.AVG_MIN )
-                                return _ACTION.hpid.data[ Math.floor( _ACTION.hpid.data.length / 2 ) ];
+                                return _ACTION.hpid.data ? _ACTION.hpid.data[ Math.floor( _ACTION.hpid.data.length / 2 ) - 1 ] : undefined;
                             // precisely 'max avg'
                             else if ( roundEnumValue === _ENUM.AVG_MAX )
-                                return _ACTION.hpid.data[ Math.ceil( _ACTION.hpid.data.length / 2 ) ];
+                                return _ACTION.hpid.data ? _ACTION.hpid.data[ Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 ] : undefined;
                         }
                     }
                 }
@@ -4920,7 +4926,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
                         // check for '_ENUM.DEFAULT' if collection != null
                         if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
@@ -5084,13 +5090,9 @@
                     */
                     function evaluateSortingContext_I_2L ( sorting_level )
                     {
-                        // if HPID is not ready
-                        if ( !_ACTION.hpid.isOn )
-                        {
-                            // update HPID object to enable further data flow
-                            _ACTION.hpid.data = _DATA.fetch( jlc._ctx.coll_index ).collection;
-                            _ACTION.hpid.isOn = true;
-                        }
+                        // get contextually current collection within history array
+                        _DATA.fetchFlowData( jlc._ctx.coll_index, true );
+
 
                         // get first object from the collection
                         var o = _ACTION.hpid.data[ 0 ];
@@ -5313,9 +5315,11 @@
                 function execute_MF_I_1L ( jlc, collectionOrItem, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
+
 
                     var new_dirty_data;
+                    
                     if ( enumValue === _ENUM.APPEND )
                     {
                         // append item to the end of current data flow collection
@@ -5323,9 +5327,6 @@
 
                         // merge new current flow data collection with old current flow data collection
                         currentColl = currentColl.concat( new_dirty_data );
-
-                        // append item to the end of current data flow collection
-                        //currentColl.push( collectionOrItem );
                     }
                     else if ( enumValue === _ENUM.PREPEND )
                     {
@@ -5465,16 +5466,26 @@
          *
          * @param {number} index
          */
-            function ( index )
+            function ( index, justInitHpid )
             {
-                // if HPID is initialized
-                if ( _ACTION.hpid.isOn )
-                    // return flow's collection cache
-                    return _ACTION.hpid.data;
-                else
-                {
-                    // create input collection cache by applying defensive copy
-                    return [ ..._DATA.fetch( index ).collection ];
+                // just initialize HPID if required and if necessary (if HPID is not ready)
+                if(justInitHpid && !_ACTION.hpid.isOn) {
+                    // update HPID object to enable further data flow
+                    _ACTION.hpid.data = _DATA.fetch( index ).collection;
+                        
+                    // mark that HPID is initialized
+                    _ACTION.hpid.isOn = true;
+                }
+                else {
+                    // if HPID is initialized
+                    if ( _ACTION.hpid.isOn )
+                        // return flow's collection cache
+                        return _ACTION.hpid.data;
+                    else
+                    {
+                        // create input collection cache by applying defensive copy
+                        return [ ..._DATA.fetch( index ).collection ];
+                    }
                 }
             },
 
@@ -9817,7 +9828,7 @@
 
 
                                 // if not present in cache, generate query constraint
-                                var qc = declareActionDefaultConstraints_I_2L();
+                                qc = declareActionDefaultConstraints_I_2L();
 
                                 // cache it
                                 _CONSTRAINT._qfcc[ qcpn ] = qc;
