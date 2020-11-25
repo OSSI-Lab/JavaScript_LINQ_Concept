@@ -134,6 +134,13 @@
                 ]
             }
         ).toArray();
+        /**
+         * Mutate only where_f1 data regardless of other queries and the source collection on which this where_f1 query is based !
+         * 
+         * where_f1 data array is copied 100% "by value" !
+        */
+        where_f1[0].name = 'Product 2 -> Mutated only in where_f1 !'
+
 
         // final query - produces output
         var groupBy_f1 = collection.groupBy(
@@ -151,6 +158,13 @@
 
             }
         ).toArray();
+        /**
+         * Mutate only groupBy_f1 data regardless of other queries and the source collection on which this groupBy_f1 query is based !
+         * 
+         * groupBy_f1 data array is copied 100% "by value" !
+        */
+       groupBy_f1[0].resultsView[0].name = 'Product 2 -> Mutated only in groupBy_f1 !'
+
 
         // partial query - produces intermediate query state
         var where_p1 = collection.where(
@@ -1084,71 +1098,124 @@
             }
         );
 
+        // final query - produces output
+        var elementAt_f1 = collection.elementAt(
+            {
+                'index': 2
+            }
+        );
+
+        // final query - produces output
+        var elementAtOrDefault_f1 = collection.elementAtOrDefault(
+            {
+                'index': 2
+            }
+        );
+
+        // final query - produces output
+        var elementAtOrDefault_f1 = collection.elementAtOrDefault(
+            {
+                'index': 2000
+            }
+        );
+
+        // final query - produces output
+        var first_f1 = collection.first(
+            {
+                'predicateArray': [
+                    [ "id", ">", 7 ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var firstOrDefault_f1 = collection.firstOrDefault(
+            {
+                'predicateArray': [
+                    [ "id", ">", 7 ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var last_f1 = collection.last(
+            {
+                'predicateArray': [
+                    [ "id", ">", 7 ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var lastOrDefault_f1 = collection.lastOrDefault(
+            {
+                'predicateArray': [
+                    [ "id", ">", 7 ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var single_f1 = collection.single(
+            {
+                'predicateArray': [
+                    [ "id", "==", 5 ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var singleOrDefault_f1 = collection.singleOrDefault(
+            {
+                'predicateArray': [
+                    [ "id", ">", 1995 ]
+                ]
+            }
+        );
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
+        //var single_f2 = collection.single();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
+        //var singleOrDefault_f2 = collection.singleOrDefault();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains no elements !
+        //var single_f3 = [].single();
+
+        // final query - produces output
+        var singleOrDefault_f3 = [].singleOrDefault();
+
+        // final query - produces output
+        var any_f1 = collection.any(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "id", "<", 10, true ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var all_f1 = collection.all(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "id", "<", 10, true ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var any_f2 = collection.any();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Method [ all ] has to have "params" object provided !
+        //var all_f2 = collection.all();
+
         // CODE WAS TESTED UNTIL HERE !
         debugger;
 
 
 
-
-        var elementAt = collection.elementAt(
-            {
-                'index': 2
-            }
-        );
-
-        var elementAtOrDefault = collection.elementAtOrDefault(
-            {
-                'index': 2
-            }
-        );
-
-        var first = collection.first(
-            {
-                'predicateArray': [
-                    [ "id", ">", 7 ]
-                ]
-            }
-        );
-
-        var firstOrDefault = collection.firstOrDefault(
-            {
-                'predicateArray': [
-                    [ "id", ">", 7 ]
-                ]
-            }
-        );
-
-        var last = collection.last(
-            {
-                'predicateArray': [
-                    [ "id", ">", 7 ]
-                ]
-            }
-        );
-
-        var lastOrDefault = collection.lastOrDefault(
-            {
-                'predicateArray': [
-                    [ "id", ">", 7 ]
-                ]
-            }
-        );
-
-        var single = collection.single(
-            {
-                'predicateArray': [
-                    [ "id", ">", 7 ]
-                ]
-            }
-        );
-
-        var singleOrDefault = collection.singleOrDefault(
-            {
-                'predicateArray': [
-                    [ "id", ">", 7 ]
-                ]
-            }
-        );
 
         var min = collection.min(
             {
@@ -1168,24 +1235,6 @@
             {
                 'property': 'id',
                 'udfValueSelector': null
-            }
-        );
-
-        var any = collection.any(
-            {
-                'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "id", "<", 10, true ]
-                ]
-            }
-        );
-
-        var all = collection.all(
-            {
-                'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "id", "<", 10, true ]
-                ]
             }
         );
 

@@ -1,25 +1,4 @@
-1. Should resetting 1st level sorting be defined in a UDF or LDF ?
 
-Answer: YOU CAN KEEP IT AS IT IS (UDF), OR CREATE SOME INTERNAL PRIVATE OBJECT TO HANDLE THAT ! (LDF)
-    I have changed:
-        udf_constraints.handleFirstLevelSorting (UDF) -> _PROXY_TRAP.udlm._handleFirstLevelSorting (LDF)
-        
-        udf_constraints.handleSecondLevelSorting (UDF) -> _PROXY_TRAP.udlm._handleSecondLevelSorting (LDF)
-        
-        udf_constraints.handleResetFirstLevelSorting (UDF) -> _PROXY_TRAP.udlm._handleResetFirstLevelSorting (LDF)
-
-
-
-2. How to handle rsc_syntax in _LINQ_CONTEXT when you have multimple values, i.e. rsc_syntax: 'outerSelectorArray, innerSelectorArray',
-and when one of them is defined or not ?
-
-Answer: FIXED
-    I have applied a forEach loop which doesn't provide break mechanism, but the logic of the method that runs with every invocation of the forEach method
-    provides "natural" - because logical - break functionality !
-
-
-3. Viewing partial query producing intermediate query state via resultsView
-    Answer: FIXED
 
 ==========================================================================================================================================
 
@@ -37,6 +16,11 @@ TO BE FIXED:
 ==========================================================================================================================================
 
 CONSIDERATIONS (don't pay attention to it, cause it is my own working notes - today valid, tomorrow invalid -  so to speak ! ):
+
+
+    719 ?
+
+    5455 ? defensive copy ?
 
     JOINs
      - what if one of the objects has the same property name ????

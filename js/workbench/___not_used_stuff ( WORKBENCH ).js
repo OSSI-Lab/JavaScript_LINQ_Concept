@@ -1967,3 +1967,46 @@ getParamNames(function (){}) // returns []
                 }
                 return obj;
             },
+
+
+
+
+
+
+            ,
+
+            object_clone: /**
+             * Clone object without reference.
+             * 
+             * Source: https://stackoverflow.com/questions/12690107/clone-object-without-reference-javascript
+             */
+                function ()
+                {
+                    Object.prototype.clone = function ()
+                    {
+                        // handle object
+                        if ( typeof ( this ) === "object" )
+                        {
+                            var clone = {};
+    
+                            var v;
+                            for ( var p in this )
+                            {
+                                if ( this.hasOwnProperty( p ) )
+                                {
+                                    v = this[ p ];
+    
+                                    clone[ p ] = _COMMON.isPrimitiveType( v ) ? v : v.clone();
+                                }
+                            }
+    
+                            return clone;
+                        }
+                        // handle array
+                        else if ( this instanceof Array )
+                            this.forEach(function(v) {v.clone();});
+                        // handle primitives
+                        else
+                            return this;
+                    };
+                }

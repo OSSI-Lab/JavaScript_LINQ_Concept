@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #32 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #33 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -106,13 +106,13 @@
         },
 
         RESULTS_VIEW: {
-            IS_REQUIRED: Symbol('__rvn'), // this flag tells whether there is a necessity to provide viewing partial results during query flow
+            IS_REQUIRED: Symbol( '__rvn' ), // this flag tells whether there is a necessity to provide viewing partial results during query flow
             ENUMERATOR: 'resultsView'
         },
 
         MISC: {
-            _CI: Symbol('_coll_idx'), // collection index that marks that collection was internally indexed
-            _RT: Symbol('_rootToken'), // token associated with current collection, aka root token
+            _CI: Symbol( '_coll_idx' ), // collection index that marks that collection was internally indexed
+            _RT: Symbol( '_rootToken' ), // token associated with current collection, aka root token
             _CTX: Symbol( '_ctx' ), // context of all actions defined for this proxied JLC instance
             _QMI: Symbol( '_qmi' ) // query method implementations
         }
@@ -542,7 +542,7 @@
                             // if it's not valid
                             if ( !valid )
                                 // throw error about invalid column name called 'key' when dealing with GROUPING objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.GROUPING) + '] requires providing only "key" property !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.GROUPING ) + '] requires providing only "key" property !\r\n\r\n' );
                         }
                         else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
                         {
@@ -569,13 +569,13 @@
                             if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'key' )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "key" predicate
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
                             }
                             // user provide 'value.' filter with 2+ more parameters
                             else if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'value.' )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "value." predicate, which means comparing whole objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
                             }
                             /**
                              * If neither 'key' nor 'value.', user must have provided many filters - in the context of KVP it basically means f.e. such valid filters :
@@ -598,7 +598,7 @@
                                     if ( predicateArray[ 0 ].trim() === 'key' || predicateArray[ 0 ].trim() === 'value.' )
                                         // throw error about 'key' filter presence among other filters
                                         throw SyntaxError(
-                                            '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) + '] using "' +
+                                            '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) + '] using "' +
                                             predicateArray[ 0 ] + '" among other filters does not make sense !\r\n\r\n'
                                         );
                                 }
@@ -638,7 +638,7 @@
                             ; // with collection input type set to UNKNOWN do nothing as the collection is empty
                         else
                             // throw error about unsupported collection input type !
-                            throw Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol(_ACTION.hpid.columnSet.cit) + '" is not supported !\r\n\r\n' );
+                            throw Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.cit ) + '" is not supported !\r\n\r\n' );
 
 
 
@@ -659,9 +659,10 @@
                                     valid = _ACTION.hpid.columnSet.all_columns.indexOf( user_ovc[ i ] ) > -1;
 
                                     // if it's not valid
-                                    if ( !valid ) {
+                                    if ( !valid )
+                                    {
                                         // convert cit and ctx to string
-                                        var cit_ctx_toString = _COMMON.getCustomValueOfSymbol(cit);
+                                        var cit_ctx_toString = _COMMON.getCustomValueOfSymbol( cit );
 
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the PLAIN context
                                         throw ReferenceError(
@@ -681,12 +682,13 @@
                                     valid = _ACTION.hpid.columnSet.all_columns.indexOf( user_ovc[ i ].substring( 6 ) ) > -1;
 
                                     // if it's not valid
-                                    if ( !valid ) {
+                                    if ( !valid )
+                                    {
                                         // convert cit to string
-                                        var cit_toString = _COMMON.getCustomValueOfSymbol(cit);
+                                        var cit_toString = _COMMON.getCustomValueOfSymbol( cit );
 
                                         // convert ctx to string
-                                        var ctx_toString = _COMMON.getCustomValueOfSymbol(ctx);
+                                        var ctx_toString = _COMMON.getCustomValueOfSymbol( ctx );
 
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the KVP context
                                         throw ReferenceError(
@@ -1179,70 +1181,70 @@
             * Updates collection metadata required by the current query flow.
             * It detects current column input type (cit) and updates column set of the contextually current collection.
             */
-               function ( length_gte_2, firstItem )
-               {
-                   /**
-                    * To enable syntax check, fetch object structure (all keys at all levels).
-                    * Fetch them provided that collection is not empty !
-                   */
-   
-                   // detect collection input data type to provide type of source of syntax checking
-                   _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( firstItem, !firstItem ? false : true, length_gte_2 );
-   
-                   // if cit is UNKNOWN, skip further operations
-                   if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
-   
-                   // otherwise initialize column metadata set based on current collection
-                   _ACTION.hpid.columnSet.init( firstItem );
-               },
-   
-           detectCIT: /**
+                function ( length_gte_2, firstItem )
+                {
+                    /**
+                     * To enable syntax check, fetch object structure (all keys at all levels).
+                     * Fetch them provided that collection is not empty !
+                    */
+
+                    // detect collection input data type to provide type of source of syntax checking
+                    _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( firstItem, !firstItem ? false : true, length_gte_2 );
+
+                    // if cit is UNKNOWN, skip further operations
+                    if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
+
+                    // otherwise initialize column metadata set based on current collection
+                    _ACTION.hpid.columnSet.init( firstItem );
+                },
+
+            detectCIT: /**
              * Detect collection input type (cit).
              *
              * @param {any} collectionItem
              * @param {any} doCurrentSort
              * @param {any} doNextSort
              */
-               function ( collectionItem, doCurrentSort, doNextSort )
-               {
-                   return d_CIT_I_1L( collectionItem, doCurrentSort, doNextSort );
-   
-   
-   
-                   /**
-                    * Local helper functions
-                   */
-                   function d_CIT_I_1L ( collectionItem, doCurrentSort, doNextSort )
-                   {
-                       // if collection does not require sorting
-                       if ( !doCurrentSort && !doNextSort )
-                           return _ENUM.CIT.UNKNOWN;
-                       // if it's primitive type
-                       else if ( _COMMON.isPrimitiveType( collectionItem ) )
-                           return _ENUM.CIT.PRIMITIVE;
-                       // otherwise let's deal with objects
-                       else
-                       {
-                           // get all prop names
-                           var propNames = Object.getOwnPropertyNames( collectionItem );
-   
-                           // if it's KVP or GROUPING
-                           if ( propNames.length === 2 && propNames.indexOf( 'key' ) > -1 && ( propNames.indexOf( 'value' ) > -1 || propNames.indexOf( 'resultsView' ) > -1 ) )
-                           {
-                               // if it's KVP (object || primitive type)
-                               if ( propNames.indexOf( 'value' ) > -1 && ( typeof collectionItem[ 'value' ] === 'object' || _COMMON.isPrimitiveType( collectionItem[ 'value' ] ) ) )
-                                   return _ENUM.CIT.KVP;
-                               // if it's GROUPING
-                               else if ( propNames.indexOf( 'resultsView' ) > -1 && Array.isArray( collectionItem[ 'resultsView' ] ) )
-                                   // check for GROUPING
-                                   return _ENUM.CIT.GROUPING;
-                           }
-                           // otherwise it must be PLAIN
-                           else
-                               return _ENUM.CIT.PLAIN;
-                       }
-                   }
-               },
+                function ( collectionItem, doCurrentSort, doNextSort )
+                {
+                    return d_CIT_I_1L( collectionItem, doCurrentSort, doNextSort );
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function d_CIT_I_1L ( collectionItem, doCurrentSort, doNextSort )
+                    {
+                        // if collection does not require sorting
+                        if ( !doCurrentSort && !doNextSort )
+                            return _ENUM.CIT.UNKNOWN;
+                        // if it's primitive type
+                        else if ( _COMMON.isPrimitiveType( collectionItem ) )
+                            return _ENUM.CIT.PRIMITIVE;
+                        // otherwise let's deal with objects
+                        else
+                        {
+                            // get all prop names
+                            var propNames = Object.getOwnPropertyNames( collectionItem );
+
+                            // if it's KVP or GROUPING
+                            if ( propNames.length === 2 && propNames.indexOf( 'key' ) > -1 && ( propNames.indexOf( 'value' ) > -1 || propNames.indexOf( 'resultsView' ) > -1 ) )
+                            {
+                                // if it's KVP (object || primitive type)
+                                if ( propNames.indexOf( 'value' ) > -1 && ( typeof collectionItem[ 'value' ] === 'object' || _COMMON.isPrimitiveType( collectionItem[ 'value' ] ) ) )
+                                    return _ENUM.CIT.KVP;
+                                // if it's GROUPING
+                                else if ( propNames.indexOf( 'resultsView' ) > -1 && Array.isArray( collectionItem[ 'resultsView' ] ) )
+                                    // check for GROUPING
+                                    return _ENUM.CIT.GROUPING;
+                            }
+                            // otherwise it must be PLAIN
+                            else
+                                return _ENUM.CIT.PLAIN;
+                        }
+                    }
+                },
 
             clearCache: /**
             * Clear the internal JLC cache.
@@ -1623,7 +1625,7 @@
                 */
                 function is_N_I_1L ( o )
                 {
-                    return !isNaN(o);
+                    return !isNaN( o );
                 }
             },
 
@@ -1650,16 +1652,16 @@
                     var isfp = false;
 
                     // check if user wants to check for floating point number
-                    if(isFloatingPoint)
+                    if ( isFloatingPoint )
                         isfp = o % 1 != 0;
 
-                    
+
                     // return "float"
-                    if(isfp)
-                        return parseFloat(o);
+                    if ( isfp )
+                        return parseFloat( o );
 
                     // return "integer"
-                    return parseInt(o);
+                    return parseInt( o );
                 }
             },
 
@@ -1815,7 +1817,7 @@
                         case 'function': return function () { };
                         case 'null': return null;
                         case 'number': return 0;
-                        case 'object': return Object.create(null);
+                        case 'object': return Object.create( null );
                         case 'string': return "";
                         case 'symbol': return Symbol();
                         case 'undefined': return void 0;
@@ -1881,10 +1883,10 @@
                 var inputItem = param_arr[ 1 ];
 
                 // cache current query interceptor
-                var current_GET_interceptor = _LINQ_CONTEXT._proxyHandler.get;
+                var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
 
                 // enable transparent object property access
-                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+                _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                 // determine current query flow (all invoked methods up to this method)
                 var method_names = getQueryMethodNames_I_1L();
@@ -1934,7 +1936,7 @@
                     api._ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
 
                 // restore query flow context-default interceptor
-                _LINQ_CONTEXT._proxyHandler.get = current_GET_interceptor;
+                _LINQ_CONTEXT._arrayProxyHandler.get = current_GET_interceptor;
 
 
 
@@ -1947,12 +1949,12 @@
                     var queryNames = [];
 
                     // fetch all query methods of current flow (qmcf)
-                    var qmcf = api[_ENUM.MISC._QMI];
+                    var qmcf = api[ _ENUM.MISC._QMI ];
 
                     // loop over api and store only query method names
                     for ( let key in qmcf )
                     {
-                        if ( typeof qmcf[key] === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
+                        if ( typeof qmcf[ key ] === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
                             queryNames.push( key );
                     }
 
@@ -1966,20 +1968,20 @@
          *
          * @param {any} inputItem
          */
-               function ( inputItem )
-               {
-                   return get_CVoS_I_1L( inputItem );
-   
-   
-   
-                   /**
-                    * Local helper functions
-                   */
-                   function get_CVoS_I_1L ( value )
-                   {
-                        return value.toString().replaceAll('Symbol', '').replaceAll('(', '').replaceAll(')', '').toUpperCase();
-                   }
-               },
+            function ( inputItem )
+            {
+                return get_CVoS_I_1L( inputItem );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function get_CVoS_I_1L ( value )
+                {
+                    return value.toString().replaceAll( 'Symbol', '' ).replaceAll( '(', '' ).replaceAll( ')', '' ).toUpperCase();
+                }
+            },
 
         getPropertyValueFromObject: /**
          * Fetch value from object.
@@ -1987,27 +1989,27 @@
          * @param {any} propName Property of object or property path from object.
          * @param {any} obj Object to fetch property or property path from.
          */
-                function ( propName, obj )
+            function ( propName, obj )
+            {
+                // is it a complex property
+                if ( propName.includes( '.' ) )
                 {
-                    // is it a complex property
-                    if ( propName.includes( '.' ) )
-                    {
-                        // convert prop path to array
-                        var prop_arr = propName.split( '.' );
-                        
-                        var value;
-                        // get to the target prop
-                        for ( var i = 0; i < prop_arr.length; i++ )
-                            value = value ? value[ prop_arr[ i ] ] : obj[ prop_arr[ i ] ];
+                    // convert prop path to array
+                    var prop_arr = propName.split( '.' );
 
-                        // get property value from object
-                        return value;
-                    }
-                    // or is it a current-level property
-                    else
-                        // get property value from object
-                        return obj[ propName ];
-                },
+                    var value;
+                    // get to the target prop
+                    for ( var i = 0; i < prop_arr.length; i++ )
+                        value = value ? value[ prop_arr[ i ] ] : obj[ prop_arr[ i ] ];
+
+                    // get property value from object
+                    return value;
+                }
+                // or is it a current-level property
+                else
+                    // get property value from object
+                    return obj[ propName ];
+            },
 
         deepCopyYesCR: /**
          * Clone object without reference with circular references.
@@ -2038,6 +2040,148 @@
                 // clone and assign enumerable own properties recursively
                 return Object.assign( result, ...Object.keys( obj ).map(
                     key => ( { [ key ]: _COMMON.deepCopyYesCR( obj[ key ], hash ) } ) ) );
+            },
+
+        deepCopyNoCR: /**
+            * Clone object without reference with circular references.
+            *
+            * Source: https://github.com/zellwk/javascript/blob/master/mix/mix.js
+            * 
+            * @param {any} obj Object to clone content from.
+            */
+            function ( obj )
+            {
+                var result;
+
+                if ( objectTypeToString_I_1L( obj ) === '[object Array]' )
+                    result = [];
+                else if ( objectTypeToString_I_1L( obj ) === '[object Object]' )
+                    result = {};
+                else
+                    return obj;
+
+                deepCNCR_I_1L( result, obj );
+
+                return result;
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function deepCNCR_I_1L ( output, input )
+                {
+                    // get all input props
+                    const props = Object.keys( input );
+
+                    for ( const prop of props )
+                    {
+                        // prevents prototype pollution
+                        if ( prop === '__proto__' ) continue;
+
+                        const descriptor = Object.getOwnPropertyDescriptor( input, prop );
+                        const value = descriptor.value;
+                        if ( value ) descriptor.value = cloneDescriptorValue_I_2L( value );
+
+                        // if don't have prop => define property
+                        if ( !output[ prop ] )
+                        {
+                            Object.defineProperty( output, prop, descriptor );
+                            continue;
+                        }
+
+                        // if have prop, but type is not object => overwrite by redefining property
+                        if ( typeof output[ prop ] !== 'object' )
+                        {
+                            Object.defineProperty( output, prop, descriptor );
+                            continue;
+                        }
+
+                        // if have prop, but type is object => concat the arrays together
+                        if ( objectTypeToString_I_1L( descriptor.value ) === '[object Array]' )
+                        {
+                            output[ prop ] = output[ prop ].concat( descriptor.value );
+                            continue;
+                        }
+
+                        // if have prop, but type is object => merge
+                        deepCNCR_I_1L( output[ prop ], descriptor.value );
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        // Creates a deep clone for each value
+                        function cloneDescriptorValue_I_2L ( value )
+                        {
+                            // arrays
+                            if ( objectTypeToString_I_1L( value ) === '[object Array]' )
+                            {
+                                const array = [];
+                                for ( let v of value )
+                                {
+                                    v = cloneDescriptorValue_I_2L( v );
+                                    array.push( v );
+                                }
+                                return array;
+                            }
+
+                            // objects
+                            if ( objectTypeToString_I_1L( value ) === '[object Object]' )
+                            {
+                                const obj = {};
+                                const props = Object.keys( value );
+                                for ( const prop of props )
+                                {
+                                    const descriptor = Object.getOwnPropertyDescriptor( value, prop );
+                                    if ( descriptor.value ) descriptor.value = cloneDescriptorValue_I_2L( descriptor.value );
+                                    Object.defineProperty( obj, prop, descriptor );
+                                }
+                                return obj;
+                            }
+
+                            // other types of objects
+                            if ( objectTypeToString_I_1L( value ) === '[object Date]' )
+                            {
+                                return new Date( value.getTime() );
+                            }
+
+                            if ( objectTypeToString_I_1L( value ) === '[object Map]' )
+                            {
+                                const map = new Map();
+                                for ( const entry of value )
+                                {
+                                    map.set( entry[ 0 ], cloneDescriptorValue_I_2L( entry[ 1 ] ) );
+                                }
+                                return map;
+                            }
+
+                            if ( objectTypeToString_I_1L( value ) === '[object Set]' )
+                            {
+                                const set = new Set();
+                                for ( const entry of value.entries() )
+                                {
+                                    set.add( cloneDescriptorValue_I_2L( entry[ 0 ] ) );
+                                }
+                                return set;
+                            }
+
+                            /**
+                             * Types we don't need to clone or cannot clone.
+                             * Examples:
+                             * - primitives don't need to clone
+                             * - functions cannot clone
+                            */
+                            return value;
+                        }
+                    }
+                }
+
+                function objectTypeToString_I_1L ( value )
+                {
+                    return Object.prototype.toString.call( value );
+                }
             },
 
         fetchObjectStructureKeys: /**
@@ -2096,10 +2240,11 @@
                                 // add primitive property name or primitive property path
                                 primitives.push( parent + key );
                             // if it's an object
-                            else if ( typeof value === 'object' ) {
+                            else if ( typeof value === 'object' )
+                            {
                                 // add primitive property name or primitive property path
                                 primitives.push( parent + key );
-                                
+
                                 // add object identified by the key to process
                                 objects.push( key );
                             }
@@ -2339,13 +2484,19 @@
                                  * Declare resultsView function
                                  *  - declare non-public component called '_privateList'
                                 */
-                                var _privateList = gso.arr;
+                                var _privateList = _COMMON.deepCopyNoCR( gso.arr );
                                 Object.defineProperty(
                                     grouping_obj,
-                                    "resultsView",
+                                    _ENUM.RESULTS_VIEW.ENUMERATOR,
                                     {
                                         // only override getter
-                                        get: function () { return _privateList; }
+                                        get: function ()
+                                        {
+                                            return _privateList;
+                                        },
+
+                                        // make it visible for loop operations
+                                        enumerable: true
                                     }
                                 );
 
@@ -2590,10 +2741,11 @@
                         */
 
                         // check if both values are digits
-                        if(_COMMON.isNumeric(vC) && _COMMON.isNumeric(vP)) {
+                        if ( _COMMON.isNumeric( vC ) && _COMMON.isNumeric( vP ) )
+                        {
                             // if so, compare them as digits
-                            vC = _COMMON.toNumeric(vC, true);
-                            vP = _COMMON.toNumeric(vP, true);
+                            vC = _COMMON.toNumeric( vC, true );
+                            vP = _COMMON.toNumeric( vP, true );
                         }
 
                         // reference the current sorting mode
@@ -2645,9 +2797,10 @@
                     // are two objects equal
                     var match_found = false;
 
-                    
+
                     // both objects are null or undefined, hence considered to be equal
-                    if(!obj1 && !obj2) {
+                    if ( !obj1 && !obj2 )
+                    {
                         // match found
                         match_found = true;
 
@@ -2657,8 +2810,8 @@
 
 
                     // get all props if object non-empty
-                    var propNames_1 = Object.getOwnPropertyNames( obj1 || Object.create(null) );
-                    var propNames_2 = Object.getOwnPropertyNames( obj2 || Object.create(null) );
+                    var propNames_1 = Object.getOwnPropertyNames( obj1 || Object.create( null ) );
+                    var propNames_2 = Object.getOwnPropertyNames( obj2 || Object.create( null ) );
 
                     // if the number of props are different
                     if ( propNames_1.length !== propNames_2.length ) return match_found;
@@ -2687,12 +2840,13 @@
                         // if are primitive and not equal
                         if ( v_prim && o1_v !== o2_v ) return match_found;
                         // if are objects
-                        else if ( !v_prim ) {
+                        else if ( !v_prim )
+                        {
                             // check these two nested objects recursively
                             match_found = use_DOCC_C_I_1L( o1_v, o2_v );
-                            
+
                             // if inequality found, break the comparison
-                            if(!match_found) return match_found;
+                            if ( !match_found ) return match_found;
                         }
                     }
 
@@ -2700,10 +2854,10 @@
                     /**
                      *
                      * Otherwise all props are of the same type and have the same values, i.e. both objects are equal
-                    */ 
+                    */
                     // match found
                     match_found = true;
-                    
+
                     // return match result
                     return match_found;
                 }
@@ -2754,37 +2908,6 @@
                 };
                 // hide method from for-in loops
                 Object.defineProperty( Array.prototype, "equals", { enumerable: false } );
-            },
-
-        object_clone: /**
-         * Clone object without reference.
-         * 
-         * Source: https://stackoverflow.com/questions/12690107/clone-object-without-reference-javascript
-         */
-            function ()
-            {
-                Object.prototype.clone = function ()
-                {
-                    if ( typeof ( this ) === "object" )
-                    {
-                        var clone = {};
-
-                        var v;
-                        for ( var prop in this )
-                        {
-                            if ( this.hasOwnProperty( prop ) )
-                            {
-                                v = this[ prop ];
-
-                                clone[ prop ] = _COMMON.isPrimitiveType( v ) ? v : v.clone();
-                            }
-                        }
-
-                        return clone;
-                    }
-                    else
-                        return this;
-                };
             }
     };
 
@@ -3261,7 +3384,7 @@
                 function execute_WF_I_1L ( jlc, predicateArray, skipOrTakeEnum )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                     // declare current intermediate collection
                     var c_i_c = [];
@@ -3360,7 +3483,7 @@
                     if ( predicateArray || udfGroupKeySelector )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                         // declare groups object being an array !
                         var groups = [];
@@ -3615,7 +3738,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                         // if the sequence contains elements
                         if ( currentColl.length )
@@ -3646,8 +3769,8 @@
                                         // replace original sequence with the reversed sequence
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
-                                    } 
-                                    else if (  index || index === 0  )
+                                    }
+                                    else if ( index || index === 0 )
                                     {
                                         // reverse the sequence
                                         for ( i = currentColl.length - 1; i >= index; i-- )
@@ -3657,7 +3780,7 @@
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
                                     }
-                                    else if ( count  )
+                                    else if ( count )
                                     {
                                         // determine the start index
                                         index = currentColl.length - 1 - count;
@@ -3685,7 +3808,7 @@
 
                                     // this flag tells to discard returned result and go for hpid's data
                                     _ACTION.hpid.done = true;
-                                    
+
                                     break;
 
                                 case _ENUM.SKIP:
@@ -3763,12 +3886,26 @@
                                     if ( ( index < 0 || index >= currentColl.length ) && !count )
                                         throw Error( '\r\nThe index was out of range.\r\nIt must be non-negative and smaller than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
                                     // handle OutOfRangeException in the method called 'elementAtOrDefault'
-                                    else if ( ( index < 0 || index >= currentColl.length ) && count )
-                                        // return default value of the collection input type
-                                        return jlc._ctx.is_prim ? jlc._ctx.cdv : undefined;
+                                    else if ( ( index < 0 || index >= currentColl.length ) && count ) {
+                                        // fetch the default value of the collection input type
+                                        currentColl = jlc._ctx.cdv;
+
+                                        // this flag tells to discard returned result and go for hpid's data
+                                        _ACTION.hpid.done = true;
+
+                                        break;
+                                    }
                                     // otherwise return element at the specified position
                                     else
-                                        return jlc.resultsView[ index ];
+                                    {
+                                        // fetch the item at given index
+                                        currentColl = currentColl[ index ];
+
+                                        // this flag tells to discard returned result and go for hpid's data
+                                        _ACTION.hpid.done = true;
+
+                                        break;
+                                    }
 
                                 default:
                                     throw Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
@@ -3801,7 +3938,7 @@
                 function execute_SF_I_1L ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -3811,10 +3948,10 @@
                             case _ENUM.CONTAINS:
                                 // determine whether source collection contains particular item
                                 currentColl = doesContain_I_2L( currentColl, collectionOrItem ).is;
-                        
+
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
-                                
+
                                 break;
 
                             case _ENUM.DISTINCT:
@@ -3846,7 +3983,7 @@
                     function doesContain_I_2L ( coll, item, udfComparer )
                     {
                         // declare whether match was found (match)
-                        var match = Object.create(null);
+                        var match = Object.create( null );
                         match.is = false;
                         match.index = -1;
 
@@ -3861,7 +3998,8 @@
                                 match.is = udfComparer( item, coll[ i ] );
 
                                 // if match was found, break the checking
-                                if ( match.is ) {
+                                if ( match.is )
+                                {
                                     // store the index of the match
                                     match.index = i;
 
@@ -3879,7 +4017,8 @@
                                 match.is = _COMMON.useDefaultObjectContentComparer( item, coll[ i ] );
 
                                 // if match was found, break the checking
-                                if ( match.is ) {
+                                if ( match.is )
+                                {
                                     // store the index of the match
                                     match.index = i;
 
@@ -3936,14 +4075,14 @@
                         */
 
                         // make parameter called 'collection' a one-item collection, if necessary
-                        if(!Array.isArray(collection))
-                            collection = [collection];
+                        if ( !Array.isArray( collection ) )
+                            collection = [ collection ];
 
                         // assert that both collection are non-empty
                         if ( collection.length && coll.length )
                         {
                             // apply defensive copy
-                            coll = [...coll];
+                            coll = [ ...coll ];
 
                             // store indices of items to be removed from the query flow collection
                             var indexes = [];
@@ -4006,7 +4145,7 @@
                 function execute_SF_I_1L ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4051,7 +4190,7 @@
                         */
 
                         // object props to be extracted
-                        var selectors = _ACTION.hpid.columnSet.extractOVC(selectorArray);
+                        var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray );
 
                         // apply UDF
                         if ( selectorArray.length > 1 )
@@ -4104,7 +4243,7 @@
                         */
 
                         // object props to be extracted
-                        var selectors = _ACTION.hpid.columnSet.extractOVC(selectorArray);
+                        var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray );
 
                         // apply UDF
                         if ( selectorArray.length > 1 )
@@ -4179,39 +4318,43 @@
                     function ldfSelector_I_2L ( item, selectors, idx, keepTheShape )
                     {
                         // get the property value from the object in question
-                        var value = _COMMON.getPropertyValueFromObject( selectors[0], item );
+                        var value = _COMMON.getPropertyValueFromObject( selectors[ 0 ], item );
 
                         // preserve the shape of the value fetched from the source (select)
-                        if(keepTheShape)
+                        if ( keepTheShape )
                             // return an array of value whatever the value holds
-                            return createArrayItem_I_3L(value);
+                            return createArrayItem_I_3L( value );
                         // flatten the value fetched from the source whatever the value holds (selectMany)
-                        else {
+                        else
+                        {
                             // check the type
-                            var is_prim = _COMMON.isPrimitiveType(value);
+                            var is_prim = _COMMON.isPrimitiveType( value );
 
                             // flatten if is primitive type and the value is iterable
-                            if(is_prim && value["length"]) {
+                            if ( is_prim && value[ "length" ] )
+                            {
                                 // flatten the value
-                                return flattenValue_I_3L(value);
+                                return flattenValue_I_3L( value );
                             }
                             // just throw TypeError if is primitive type the value is not iterable
-                            else if (is_prim && !value["length"]) {
-                                throw TypeError('\r\n Selected property [ ' + selectors[0] + ' ] is not iterable in the context of "selectMany" !\r\n\r\n' );
+                            else if ( is_prim && !value[ "length" ] )
+                            {
+                                throw TypeError( '\r\n Selected property [ ' + selectors[ 0 ] + ' ] is not iterable in the context of "selectMany" !\r\n\r\n' );
                             }
                             // is Array
-                            else if(!is_prim && Array.isArray(value)) {
+                            else if ( !is_prim && Array.isArray( value ) )
+                            {
                                 // flatten the value
-                                return flattenValue_I_3L(value);
+                                return flattenValue_I_3L( value );
                             }
                             // is object
-                            else if(!is_prim && typeof value === 'object')
+                            else if ( !is_prim && typeof value === 'object' )
                                 // return an array of one object or one something else
-                                return createArrayItem_I_3L(value);
+                                return createArrayItem_I_3L( value );
                             // is object or something else
-                            else if(!is_prim && typeof value !== 'object')
+                            else if ( !is_prim && typeof value !== 'object' )
                                 // return an array of one something else
-                                return createArrayItem_I_3L(value);
+                                return createArrayItem_I_3L( value );
                         }
 
 
@@ -4219,17 +4362,19 @@
                         /**
                          * Local helper functions
                         */
-                        function flattenValue_I_3L (value) {
+                        function flattenValue_I_3L ( value )
+                        {
                             // declare an array
                             var output = [];
 
                             // flatten the value
-                            for(let v of value) output.push(v);
+                            for ( let v of value ) output.push( v );
 
                             // return the array
                             return output;
                         }
-                        function createArrayItem_I_3L(value) {
+                        function createArrayItem_I_3L ( value )
+                        {
                             // return one-item array consisting of this value
                             return [ value ];
                         }
@@ -4265,7 +4410,7 @@
                 )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4477,8 +4622,8 @@
                                         // if objects match given the key
                                         if ( udfEqualityComparer( l_obj, r_obj ) )
                                         {
-                                             // execute JOIN
-                                             performJoinOperation_I_4L(l_obj, r_obj);
+                                            // execute JOIN
+                                            performJoinOperation_I_4L( l_obj, r_obj );
 
                                             // mark joined object
                                             isJoin = true;
@@ -4491,7 +4636,7 @@
                                     // check for 'LEFT JOIN' case
                                     if ( isCollectionFixed && !isJoin )
                                         // execute LEFT JOIN
-                                        performLeftJoinOperation_I_4L(l_obj);
+                                        performLeftJoinOperation_I_4L( l_obj );
                                 }
                             }
                             // deal with keys
@@ -4515,8 +4660,8 @@
                                         // if objects match given the key
                                         if ( ldfEqualityComparer_I_4L( l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
                                         {
-                                             // execute JOIN
-                                             performJoinOperation_I_4L(l_obj, r_obj);
+                                            // execute JOIN
+                                            performJoinOperation_I_4L( l_obj, r_obj );
 
                                             // mark joined object
                                             isJoin = true;
@@ -4529,7 +4674,7 @@
                                     // check for 'LEFT JOIN' case
                                     if ( isCollectionFixed && !isJoin )
                                         // execute LEFT JOIN
-                                        performLeftJoinOperation_I_4L(l_obj);
+                                        performLeftJoinOperation_I_4L( l_obj );
                                 }
                             }
 
@@ -4554,10 +4699,10 @@
                                 for ( var k = 0; k < left_key_arr.length; k++ )
                                 {
                                     // get key value from 'left-side' object
-                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][0], left_obj ) );
+                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][ 0 ], left_obj ) );
 
                                     // get key value from 'right-side' object
-                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][0], right_obj ) );
+                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][ 0 ], right_obj ) );
                                 }
 
                                 /**
@@ -4572,24 +4717,26 @@
                                 return isMatch;
                             }
 
-                            function performJoinOperation_I_4L(l_o, r_o) {
+                            function performJoinOperation_I_4L ( l_o, r_o )
+                            {
                                 // create join object
-                                var joinedObj = Object.create(null);
-                                joinedObj.left = Object.create(null);
-                                joinedObj.right = Object.create(null);
+                                var joinedObj = Object.create( null );
+                                joinedObj.left = Object.create( null );
+                                joinedObj.right = Object.create( null );
 
                                 // concat left object and right object, aka join them together
-                                Object.assign(joinedObj.left, l_o);
-                                Object.assign(joinedObj.right, r_o);
-                                
+                                Object.assign( joinedObj.left, l_o );
+                                Object.assign( joinedObj.right, r_o );
+
                                 // store joined object in the final output array
                                 result.push( joinedObj );
-                            } 
-                            function performLeftJoinOperation_I_4L(l_o) {
+                            }
+                            function performLeftJoinOperation_I_4L ( l_o )
+                            {
                                 // create join object
-                                var leftJoinObj = Object.create(null);
-                                leftJoinObj.left = Object.create(null);
-                                leftJoinObj.right = Object.create(null);
+                                var leftJoinObj = Object.create( null );
+                                leftJoinObj.left = Object.create( null );
+                                leftJoinObj.right = Object.create( null );
 
                                 // get the object keys
                                 var keys = Object.getOwnPropertyNames( l_o );
@@ -4598,12 +4745,12 @@
                                 r_obj = assignDefaultValues_I_3L( l_o, keys, keys );
 
                                 // concat left object and right object, aka join them together
-                                Object.assign(leftJoinObj.left, l_o);
-                                Object.assign(leftJoinObj.right, r_obj);
-                                
+                                Object.assign( leftJoinObj.left, l_o );
+                                Object.assign( leftJoinObj.right, r_obj );
+
                                 // store joined object in the final output array
                                 result.push( leftJoinObj );
-                            } 
+                            }
                         }
 
                         function assignDefaultValues_I_3L ( sourceItem, sourceItemPropArray, outputItemPropArray )
@@ -4773,7 +4920,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                        var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                         // check for '_ENUM.DEFAULT' if collection != null
                         if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
@@ -4785,17 +4932,33 @@
                             switch ( enumValue )
                             {
                                 case _ENUM.FIRST:
-                                    // return the first item from the sequence
-                                    return currentColl[ 0 ];
+                                    // get the first item from the sequence
+                                    _ACTION.hpid.data = currentColl[ 0 ];
+
+                                    // this flag tells to discard returned result and go for hpid's data
+                                    _ACTION.hpid.done = true;
+
+                                    break;
 
                                 case _ENUM.LAST:
-                                    // return the last item from the sequence
-                                    return currentColl[ currentColl.length - 1 ];
+                                    // get the last item from the sequence
+                                    _ACTION.hpid.data = currentColl[ currentColl.length - 1 ];
+
+                                    // this flag tells to discard returned result and go for hpid's data
+                                    _ACTION.hpid.done = true;
+
+                                    break;
 
                                 case _ENUM.SINGLE:
-                                    if ( currentColl.length === 1 )
-                                        // return the single item from the sequence
-                                        return currentColl[ 0 ];
+                                    if ( currentColl.length === 1 ) {
+                                        // get the single item from the sequence
+                                        _ACTION.hpid.data = currentColl[ 0 ];
+
+                                        // this flag tells to discard returned result and go for hpid's data
+                                        _ACTION.hpid.done = true;
+
+                                        break;
+                                    }
                                     else
                                         throw Error( '\r\nSequence contains more than one element !\r\n\r\n' );
 
@@ -4844,7 +5007,7 @@
                             else if ( enumValue === _ENUM.DEFAULT )
                             {
                                 // return default value passed by the user
-                                _ACTION.hpid.data.push( jlc._ctx.fim.is_prim ? jlc._ctx.cdv : undefined );
+                                _ACTION.hpid.data.push( jlc._ctx.cdv );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -5021,7 +5184,7 @@
                     function execute_1st_Level_Sorting_I_2L ( sortMetaObject )
                     {
                         // apply defensive copy
-                        _ACTION.hpid.data = [..._ACTION.hpid.data];
+                        _ACTION.hpid.data = [ ..._ACTION.hpid.data ];
 
                         // if user defined his own comparator
                         if ( udfComparer )
@@ -5051,7 +5214,7 @@
                     function execute_2nd_Level_Sorting_I_2L ( ovc )
                     {
                         // create data cache for second-level sorting purposes by applying defensive copy
-                        var data_cache = [..._ACTION.hpid.data];
+                        var data_cache = [ ..._ACTION.hpid.data ];
 
                         // reference so-far used sorting columns as the grouping columns
                         var grouping_cols = _ACTION.hpid.sorting.sort_columns;
@@ -5150,7 +5313,7 @@
                 function execute_MF_I_1L ( jlc, collectionOrItem, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index);
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index );
 
                     var new_dirty_data;
                     if ( enumValue === _ENUM.APPEND )
@@ -5231,17 +5394,34 @@
                 // check for collection presence
                 for ( var i = 0; i < this.root_token_array.length; i++ )
                 {
+                    // get existing root token
                     var rto = this.root_token_array[ i ];
 
+                    // compare it to the root token in question
                     if ( rto.root_token === rootToken )
                     {
+                        // if matched, then fetch the associated index
                         index = rto.collection_index;
+
+                        // and break the loop
                         break;
                     }
                 }
 
                 // return index
                 return index;
+            },
+
+        yieldIndex: /**
+         * Yield the very next value of index that will refer to the new collection in question.
+         */
+            function ()
+            {
+                // yield the index of about-to-store new collection
+                this.index++;
+
+                // return index of the about-to-store new collection
+                return this.index;
             },
 
         store: /**
@@ -5251,13 +5431,10 @@
          */
             function ( collection )
             {
-                // increase collection index
-                this.index++;
-
                 // store contextually unique token of this collection
                 this.root_token_array.push(
                     {
-                        root_token: collection.dirty_data[_ENUM.MISC._RT],
+                        root_token: collection.dirty_data[ _ENUM.MISC._RT ],
 
                         collection_index: this.index
                     }
@@ -5265,9 +5442,6 @@
 
                 // store collection
                 this.collection_array.push( collection );
-
-                // get index of this contextually current collection
-                return this.index;
             },
 
         fetch: /**
@@ -5291,14 +5465,16 @@
          *
          * @param {number} index
          */
-            function (index) {
+            function ( index )
+            {
                 // if HPID is initialized
-                if(_ACTION.hpid.isOn)
+                if ( _ACTION.hpid.isOn )
                     // return flow's collection cache
                     return _ACTION.hpid.data;
-                else {
+                else
+                {
                     // create input collection cache by applying defensive copy
-                    return [..._DATA.fetch( index ).collection];
+                    return [ ..._DATA.fetch( index ).collection ];
                 }
             },
 
@@ -5342,7 +5518,7 @@
                 RAW_SOURCE: function ( api, property, receiver )
                 {
                     // enable transparent object property access
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                     // store data internally for this new proxy instance of new query flow
                     api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ) );
@@ -5351,7 +5527,7 @@
                     if ( ( _ENUM.MISC._QMI in api ) && ( property in api[ _ENUM.MISC._QMI ] ) )
                     {
                         // restore current trap
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
 
                         // you just have to return a proxy function
                         return function ()
@@ -5381,7 +5557,7 @@
                         _LINQ_CONTEXT._proxyTrapsCommon.queryEvaluateResultsViewNecessity( m_def_obj, api );
 
                         // restore current trap
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
 
                         // you just have to return a proxy function
                         return function ()
@@ -5399,7 +5575,7 @@
                 PROXY_SOURCE: function ( api, property, receiver )
                 {
                     // enable transparent object property access
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                     // empty object stands for new proxy instance of new query flow
                     if ( _COMMON.isObjectEmpty( api ) )
@@ -5411,7 +5587,7 @@
                     if ( ( _ENUM.MISC._QMI in api ) && ( property in api[ _ENUM.MISC._QMI ] ) )
                     {
                         // restore current trap
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
 
                         // you just have to return a proxy function
                         return function ()
@@ -5441,7 +5617,7 @@
                         _LINQ_CONTEXT._proxyTrapsCommon.queryEvaluateResultsViewNecessity( m_def_obj, api );
 
                         // restore current trap
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
 
                         // you just have to return a proxy function
                         return function ()
@@ -8426,11 +8602,11 @@
                         [
                             function ()
                             {
-                                return api;
+                                return this;
                             },
                             function ()
                             {
-                                return ctx.fim.item;
+                                return this._ctx.fim.item;
                             }
                         ]
                     ]
@@ -9497,15 +9673,15 @@
          *  - property called '_all' stores all names of so-far used methods in the query flow.
          *  - property called '_proxyTrapsCommon' stores common methods used for traps.
          *  - property called '_arrayProto' stores the original prototype of an Array object.
-         *  - property called '_baseProxy' triggers generation of query method on demand from method definition.
-         *  - property called '_proxyHandler' contains query methods' interceptor.
+         *  - property called '_arrayBaseProxy' triggers generation of query method on demand from method definition.
+         *  - property called '_arrayProxyHandler' contains query methods' interceptor.
         */
 
         // all available query method names that are already present in the query flow
         _all: [],
 
         // private implementation - generating query method on demand from method definition !
-        _baseProxy: null,
+        _arrayBaseProxy: null,
 
         // backups the original prototype of an Array object
         _arrayProto: null,
@@ -9522,24 +9698,25 @@
                 /**
                  * Local helper functions
                 */
-                function query_CCFC_I_1L(flow_ctx, input_coll, acn_ctr, qmi_ctr) {
+                function query_CCFC_I_1L ( flow_ctx, input_coll, acn_ctr, qmi_ctr )
+                {
                     switch ( flow_ctx )
                     {
                         case _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT:
                             // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
                             return indexCollection_I_2L();
-    
+
                         case _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT:
                         case _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT:
                             // return JLC proxied instance
                             return createProxiedInstance_I_2L( acn_ctr, qmi_ctr );
-    
+
                         case _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT:
                             // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
-                            var ticgui = input_coll[_ENUM.MISC._CI];
-    
+                            var ticgui = input_coll[ _ENUM.MISC._CI ];
+
                             // if internally-stored one (handle PROXY_SOURCE)
-                            if ( ticgui > -1)
+                            if ( ticgui > -1 )
                             {
                                 var cached_acn_ctr = _SETUP._ccm[ ticgui ];
                                 // then get the cached context associated with this collection and return JLC proxied instance
@@ -9551,34 +9728,36 @@
                                 // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
                                 return indexCollection_I_2L();
                             }
-    
+
                         default:
                             throw Error( '\r\nInvalid query flow context -> [' + flow_ctx + ']\r\n\r\n' );
                     }
-                    
+
 
 
                     /**
                      * Local helper functions
                     */
-                    function indexCollection_I_2L() {
+                    function indexCollection_I_2L ()
+                    {
                         // index new collection
                         return _SETUP.Funcs.applyJLC( input_coll );
                     }
 
-                    function createProxiedInstance_I_2L(acn_ctr, qmi_ctr) {
+                    function createProxiedInstance_I_2L ( acn_ctr, qmi_ctr )
+                    {
                         // restore metadata of the contextually current collection state
                         _ACTION.hpidCommons.updateColumnSetColsAndCIT( acn_ctr.fim.length_gte_2, acn_ctr.fim.item );
 
                         // create partial query new JLC proxied instance
                         return createNewJLC_I_3L( acn_ctr, qmi_ctr );
-   
-   
-   
+
+
+
                         /**
                          * Local helper functions
                         */
-                       
+
                         /**
                          * Create new instance of JLC.
                          *
@@ -9589,16 +9768,16 @@
                         {
                             // create template object to clone current action context object
                             var ctxClone = Object.create( null );
-        
+
                             // cache already created query methods
                             ctxClone[ _ENUM.MISC._QMI ] = qmi;
-        
+
                             // do cloning
                             ctxClone._ctx = _COMMON.deepCopyYesCR( ctx );
-        
+
                             // create and return proxied JLC instance
-                            var proxyAPI = new Proxy( ctxClone, _LINQ_CONTEXT._proxyHandler );
-        
+                            var proxyAPI = new Proxy( ctxClone, _LINQ_CONTEXT._arrayProxyHandler );
+
                             // return proxied JLC instance
                             return proxyAPI;
                         }
@@ -9833,7 +10012,7 @@
                                 for ( var j = 0, fpa_length = method_def_obj.acp.cpfdm[ i ].length; j < fpa_length; j++ )
                                 {
                                     // fetch function params
-                                    func_params.push( method_def_obj.acp.cpfdm[ i ][ j ].bind(api)() );
+                                    func_params.push( method_def_obj.acp.cpfdm[ i ][ j ].bind( api )() );
                                 }
 
                                 // invoke function with given params
@@ -9903,12 +10082,12 @@
                             */
 
                             // backup current proxy GET trap
-                            var currentGetTrapType = _LINQ_CONTEXT._proxyHandler.get;
-                            
+                            var currentGetTrapType = _LINQ_CONTEXT._arrayProxyHandler.get;
+
                             // enable transparent access
-                            _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
-                            
-                            
+                            _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+
+
                             api._ctx;
                             // invoke real data filtering and produce output, i.e. execute all actions
                             _ACTION.executeChain( api._ctx );
@@ -9918,12 +10097,11 @@
 
 
                             // restore backup proxy GET trap as the current one
-                            _LINQ_CONTEXT._proxyHandler.get = currentGetTrapType;
-                            
+                            _LINQ_CONTEXT._arrayProxyHandler.get = currentGetTrapType;
+
                             // return contextually current collection state
                             return _ACTION.hpid.data;
-                        },
-                        enumerable: true
+                        }
                     }
                 );
             },
@@ -9931,34 +10109,36 @@
             queryGetProxyFuncThenInvoke: function ( api, property, receiver, arguments )
             {
                 // enable transparent object property access
-                _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+                _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+
 
                 // invoke on demand the original query method with dynamically applied arguments that produces the final output send to the calling client
                 var result = api[ _ENUM.MISC._QMI ][ property ].apply( receiver, arguments );
 
                 // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
-                if ( Array.isArray( result ) ) {
-                    // apply deep cloning to copy output object "by value"
-                    //result = _COMMON.deepCopyYesCR(result);
+                if ( Array.isArray( result ) )
+                {
+                    // copy result 100% by value
+                    result = _COMMON.deepCopyNoCR( result );
 
                     // mark that next query has to store its source into internal storage
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
                 }
                 // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
                 else if ( _LINQ_CONTEXT._isProxy( result ) )
                 {
                     // is intermediate results enumerator method required
-                    if ( api[_ENUM.RESULTS_VIEW.IS_REQUIRED] )
+                    if ( api[ _ENUM.RESULTS_VIEW.IS_REQUIRED ] )
                         // create intermediate results enumerator method for this newly created JLC proxied instance
                         _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( result );
 
                     // mark that next query has to invoke api-based method
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
                 }
                 // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
-                else if ( !(result instanceof Array) )
+                else if ( !( result instanceof Array ) )
                     // mark that next query has to store its source into internal storage
-                    _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
 
 
                 // return output from original query method
@@ -9967,7 +10147,7 @@
         },
 
         // this proxy handler is being invoked when accessing any query method (intercepts every query method invocation) !
-        _proxyHandler: {
+        _arrayProxyHandler: {
             get: _PROXY_TRAP.traps.get.EMPTY,
 
             getPrototypeOf: _PROXY_TRAP.traps.get.PROTOTYPE
@@ -10016,10 +10196,10 @@
                     function init_LINQ_I_2L ()
                     {
                         // create proxied prototype of an Array object
-                        _LINQ_CONTEXT._baseProxy = new Proxy( Object.create( null ), _LINQ_CONTEXT._proxyHandler );
+                        _LINQ_CONTEXT._arrayBaseProxy = new Proxy( Object.create( null ), _LINQ_CONTEXT._arrayProxyHandler );
 
                         // update prototype of an Array object
-                        Object.setPrototypeOf( Array.prototype, _LINQ_CONTEXT._baseProxy );
+                        Object.setPrototypeOf( Array.prototype, _LINQ_CONTEXT._arrayBaseProxy );
 
 
                         // create LINQ namespaces
@@ -10055,7 +10235,7 @@
                             _DATA.index = -1;
 
                             // when you're done with LINQ, make any further array operations transparent ones !
-                            _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.EMPTY;
+                            _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.EMPTY;
 
                             // restore native prototype of Array.prototype
                             restore_APP_I_1L();
@@ -10108,7 +10288,7 @@
                     function updateProxyHandler_I_2L ()
                     {
                         // enable intercepting query method call
-                        _LINQ_CONTEXT._proxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
                     }
                 }
             },
@@ -10134,18 +10314,31 @@
 
                 var coll_idx, rootToken, is_prim, jlcCtx;
                 //if collection wasn't indexed internally, prepare for indexation
-                if(!(_ENUM.MISC._CI in source_collection) && !(_ENUM.MISC._RT in source_collection)) {
+                if ( !( _ENUM.MISC._CI in source_collection ) && !( _ENUM.MISC._RT in source_collection ) )
+                {
                     // get token associated with current collection, aka root token
                     rootToken = new Date().getTime();
 
-                    // assign token to collection
-                    source_collection[_ENUM.MISC._RT] = rootToken;
+                    // check if current collection is stored internally by finding index of this collection within collection history array
+                    coll_idx = _DATA.exists( rootToken );
 
-                    // pass data in to the mechanism
-                    coll_idx = over_I_1L( source_collection );
+                    if ( coll_idx === -1 )
+                    {
+                        // apply deep cloning to copy source collection "by value"
+                        //source_collection = _COMMON.deepCopyYesCR( source_collection );
 
-                    // assign internal collection index
-                    source_collection[_ENUM.MISC._CI] = coll_idx;
+                        // yield the very next value of index that will refer to this new collection within collection history array
+                        coll_idx = _DATA.yieldIndex();
+
+                        // assign internal collection token
+                        source_collection[ _ENUM.MISC._RT ] = rootToken;
+
+                        // assign internal collection index
+                        source_collection[ _ENUM.MISC._CI ] = coll_idx;
+
+                        // pass data in to the mechanism
+                        over_I_1L( source_collection );
+                    }
 
                     // apply JLC common operations
                     applyJlcCommon_I_1L();
@@ -10153,12 +10346,13 @@
                     // cache collection context
                     _SETUP._ccm[ coll_idx ] = jlcCtx;
                 }
-                else {
+                else
+                {
                     // get cached collection index
-                    coll_idx = source_collection[_ENUM.MISC._CI];
+                    coll_idx = source_collection[ _ENUM.MISC._CI ];
 
                     // get cached root token
-                    rootToken = source_collection[_ENUM.MISC._RT];
+                    rootToken = source_collection[ _ENUM.MISC._RT ];
 
                     // apply JLC common operations
                     applyJlcCommon_I_1L();
@@ -10167,7 +10361,7 @@
                 // return JLC proxied instance
                 return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
                     _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT,
-                     source_collection, // this collection has just been stored, so pass it once again to fetch cached context
+                    source_collection, // this collection has just been stored, so pass it once again to fetch cached context
                     jlcCtx,
                     Object.create( null )
                 );
@@ -10179,55 +10373,42 @@
                 */
                 function over_I_1L ( inputCollection )
                 {
-                    // check if current collection is stored internally
-                    var index = _DATA.exists( inputCollection[_ENUM.MISC._RT] );
+                    // declare a private data object holding data collection of current JLC instance, aka static or shared instance
+                    var coll_data = {
+                        dirty_data: null,   // current flow data
+                        dirty_data_temp: [],
+                        data: null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
+                        type: {
+                            source: null,
+                            makeItEmpty: false,
+                            isReady: false,
+                            output: null
+                        }
+                    };
 
 
-                    // store this collection if a new one
-                    if ( index === -1 )
+                    // store the collection to iterate over
+                    coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
+
+                    // otherwise create an empty object based on inputCollection's first item
+                    if ( coll_data.dirty_data.length )
                     {
-                        // declare a private data object holding data collection of current JLC instance, aka static or shared instance
-                        var coll_data = {
-                            dirty_data: null,   // current flow data
-                            dirty_data_temp: [],
-                            data: null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
-                            type: {
-                                source: null,
-                                makeItEmpty: false,
-                                isReady: false,
-                                output: null
-                            }
-                        };
-
-
-                        // store the collection to iterate over
-                        coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
-
-                        // otherwise create an empty object based on inputCollection's first item
-                        if ( coll_data.dirty_data.length )
-                        {
-                            coll_data.type.source = coll_data.dirty_data[ 0 ];
-                            coll_data.type.makeItEmpty = true;
-                        }
-                        // or default to an empty JavaScript object
-                        else
-                        {
-                            coll_data.type.output = {};
-                            coll_data.type.isReady = true;
-                        }
-
-                        /**
-                         * Store current collection into collection history array.
-                         * Return index of this collection from collection history array.
-                        */
-                        return _DATA.store( coll_data );
+                        coll_data.type.source = coll_data.dirty_data[ 0 ];
+                        coll_data.type.makeItEmpty = true;
+                    }
+                    // or default to an empty JavaScript object
+                    else
+                    {
+                        coll_data.type.output = {};
+                        coll_data.type.isReady = true;
                     }
 
-                    // return index of this collection from collection history array
-                    return index;
+                    // store current collection into collection history array
+                    _DATA.store( coll_data );
                 }
 
-                function applyJlcCommon_I_1L() {
+                function applyJlcCommon_I_1L ()
+                {
                     // store updated metadata about collection
                     _ACTION.hpidCommons.updateColumnSetColsAndCIT( source_collection.length > 1, firstItem );
 
@@ -10247,25 +10428,25 @@
                         // is primitive type of this item
                         return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE );
                     }
-    
+
                     function create_JC_I_2L ()
                     {
                         // create JLC instance context object
                         var ctx = Object.create( null );
-    
+
                         // define all necessary properties
                         ctx.coll_index = coll_idx;
                         ctx.root_token = rootToken;
-    
+
                         // create first item metadata object (fim)
                         ctx.fim = Object.create( null );
                         ctx.fim.is_prim = is_prim;
                         ctx.fim.item = firstItem;
                         ctx.fim.length_gte_2 = source_collection.length > 1;
-    
+
                         // initially parent set to null
                         ctx.parent = null;
-    
+
                         // return JLC instance context object
                         return ctx;
                     }
@@ -10290,11 +10471,11 @@
                 function cleanup_I_1L ( coll, index, arr )
                 {
                     // fetch all symbols from the array
-                    var symbols = Object.getOwnPropertySymbols(coll);
+                    var symbols = Object.getOwnPropertySymbols( coll );
 
                     // loop over the array and remove each and every symbol
-                    for(const s of symbols)
-                        delete coll[s];
+                    for ( const s of symbols )
+                        delete coll[ s ];
                 }
             }
         },
