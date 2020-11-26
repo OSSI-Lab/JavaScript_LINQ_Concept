@@ -1278,14 +1278,6 @@
         ).toArray();
 
 
-
-
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
-
-
-
         // partial query - produces intermediate query state
         var orderBy_p3 = collection.orderBy(
             {
@@ -1302,7 +1294,28 @@
             }
         );
         // partial query - produces intermediate query state - THIS METHOD THROWS EXPECTED ERROR !
-        var orderBy_p3_take_p1_thenBy_p1 = orderBy_p3_take_p1.thenBy(
+        /**
+         * Error message states this:
+         * You can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !
+         * Additionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.
+         * Otherwise it "would be illogical", as I was told :-) !
+         * Thank You :-)
+        */
+        // var orderBy_p3_take_p1_thenBy_p1 = orderBy_p3_take_p1.thenBy(
+        //     {
+        //         'keyPartSelectorArray': [
+        //             [ "id", true ]
+        //         ],
+        //         'udfComparer': null
+        //     }
+        // );
+
+        // final query - produces output
+        //var orderBy_p3_take_p1_thenBy_p1_toArray_f1 = orderBy_p3_take_p1_thenBy_p1.toArray();
+
+        
+        // partial query - produces intermediate query state
+        var orderBy_p3_thenBy_p1 = orderBy_p3.thenBy(
             {
                 'keyPartSelectorArray': [
                     [ "id", true ]
@@ -1311,10 +1324,17 @@
             }
         );
         // final query - produces output
-        var orderBy_p3_take_p1_thenBy_p1_toArray_f1 = orderBy_p3_take_p1_thenBy_p1.toArray();
+        var orderBy_p3_thenBy_p1_toArray_f1 = orderBy_p3_thenBy_p1.toArray();
 
 
-        // final query - produces output
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR !
+        /**
+         * Error message states this:
+         * You can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !
+         * Additionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.
+         * Otherwise it "would be illogical", as I was told :-) !
+         * Thank You :-)
+        */
         var orderBy_take_thenBy_toArray_f1 = collection.orderBy(
             {
                 'keyPartSelectorArray': [
@@ -1336,5 +1356,11 @@
         ).toArray();
 
         console.log( '~ Objects' );
+
+
+
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
     };
 } )();

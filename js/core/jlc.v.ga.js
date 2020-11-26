@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #33 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #34 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -1383,7 +1383,7 @@
                     // get first-level sorting context shared across query flow
                     taco.sharedFirstLevelSortingCtx = jlc_ctx.sharedFirstLevelSortingCtx
                         ?
-                        jlc_ctx.sharedFirstLevelSortingCtx
+                        _COMMON.deepCopyYesCR(jlc_ctx.sharedFirstLevelSortingCtx)
                         :
                         _ACTION.hpid.sorting.createFirstLevelCtx();
 
@@ -1468,9 +1468,9 @@
                                 * 
                                 * Future action constraint possible improvements
                                 *  - you apply some logic to action constraint internal state, f.e. setting its 'isEnabled' flag to true/false given some conditions
-                                *  - you have access to JLC instance, hence you can do various stuff
+                                *  - you have access to this-action-constraint, hence you can do various stuff starting from here
                                 *  
-                                *  - etc. 
+                                *  - etc.
                             */
                             // reference constraint from query flow shared constraints (qfsc)
                             var actionConstr = this.qfsc[ this.name ];
@@ -1534,7 +1534,7 @@
                         */
                         function run_ACR_I_2L ( actionConstr )
                         {
-                            // navigate "down the road" to the first constraint 
+                            // navigate "down the road" to the first constraint
                             if ( actionConstr.parentConstraint && !actionConstr.parentConstraint.stopDrillingDown )
                                 run_ACR_I_2L( actionConstr.parentConstraint );
 
@@ -3166,12 +3166,12 @@
                         // determine the type of filter, i.e. user-defined function or a primitive one (string, int, float)
                         if ( typeof predicate === 'object' )
                         {
-                            // apply pre-defined basic comparison operators
+                            // apply predefined basic comparison operators
                             passed = applyPrimitivePredicate_I_2L( predicate, currentObject );
                         }
                         else if ( typeof predicate === 'function' )
                         {
-                            // apply pre-defined user-defined comparison function
+                            // apply predefined user-defined comparison function
                             passed = applyUdfPredicate_I_2L( predicate, currentObject, elementIndex );
                         }
 
@@ -3246,7 +3246,7 @@
                     function applyUdfPredicate_I_2L ( predicate, currentObject, elementIndex )
                     {
                         /**
-                         * 1. Bind current collection object to user-defined function - having some pre-defined values - with 'bind' keyword
+                         * 1. Bind current collection object to user-defined function - having some predefined values - with 'bind' keyword
                          *
                          * 2. Invoke a filter with '()' invocation syntax
                          *
@@ -5736,7 +5736,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -5815,7 +5815,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -5946,7 +5946,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6027,7 +6027,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6108,7 +6108,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6189,7 +6189,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6290,7 +6290,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6390,7 +6390,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6491,7 +6491,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6590,7 +6590,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6695,7 +6695,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6794,7 +6794,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6899,7 +6899,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -6993,7 +6993,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -7087,7 +7087,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -7182,7 +7182,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -7277,7 +7277,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [],
 
                 // requires syntax checking
@@ -7362,7 +7362,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -7497,7 +7497,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [],
 
                 // requires syntax checking
@@ -7599,7 +7599,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -7696,7 +7696,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -7804,7 +7804,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -7912,7 +7912,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8041,7 +8041,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8170,7 +8170,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8299,7 +8299,7 @@
                     returns_collection: true,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8428,7 +8428,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8527,7 +8527,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8645,7 +8645,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8741,7 +8741,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8837,7 +8837,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -8933,7 +8933,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9029,7 +9029,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9125,7 +9125,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9221,7 +9221,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9315,7 +9315,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9409,7 +9409,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9512,7 +9512,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9599,7 +9599,7 @@
                     returns_collection: false,
                 },
 
-                // pre-defined internal constraint checking
+                // predefined internal constraint checking
                 internal_rcc: [
                     function ( params )
                     {
@@ -9826,7 +9826,6 @@
                                 if ( qc )
                                     return qc;
 
-
                                 // if not present in cache, generate query constraint
                                 qc = declareActionDefaultConstraints_I_2L();
 
@@ -9930,12 +9929,12 @@
                     // return JLC method function implementation
                     return function ( params )
                     {
-                        // pre-defined internal constraint checking - handle "default" parameter
+                        // predefined internal constraint checking - handle "default" parameter
                         if ( method_def_obj.internal_rcc.length )
                         {
                             // declare possible output result
                             var result;
-                            // loop over all pre-defined internal constraints
+                            // loop over all predefined internal constraints
                             for ( var i = 0, length = method_def_obj.internal_rcc.length; i < length; i++ )
                             {
                                 // the last constraint by design can return some output value and it has to be non-empty
@@ -9949,29 +9948,34 @@
 
 
 
-                        // define optional action constraint
+                        /**
+                         * Define action constraint that can contain:
+                         *  - any number of query internal predefined constraints running in the order defined in query method definition
+                         *  - query's internal predefined constraint called 'syntax checking' running as the last one
+                        */
                         var constr;
-                        // check for optional method syntax checking
+                        //define an array of arrays of user-provided query filters
+                        var upqf_arr = [];
+                        // check for optional method syntax checking constraint
                         if ( method_def_obj.rsc )
                         {
                             // define an array of arrays of user-provided query filters
-                            var upqf_syntax_arr_of_arr = [];
+                            var upqf_arr = [];
 
                             // create array of parameters that store user-provided query filters
                             var rsc_syntax_arr = method_def_obj.rsc_syntax.split( ',' );
 
                             // loop over array, fetch predicates and store them in the array
                             for ( let rsc_syntax of rsc_syntax_arr )
-                                upqf_syntax_arr_of_arr.push( params[ rsc_syntax ] );
-
-                            // create real action constraint
-                            constr = _CONSTRAINT.createActionConstraint(
-                                // @ts-ignore
-                                System.Linq.Context[ method_def_obj.lmn ],
-                                method_def_obj.rcc.required_ctxs,
-                                upqf_syntax_arr_of_arr // array of arrays
-                            );
+                                upqf_arr.push( params[ rsc_syntax ] );
                         }
+                        // create real action constraint
+                        constr = _CONSTRAINT.createActionConstraint(
+                            // @ts-ignore
+                            System.Linq.Context[ method_def_obj.lmn ],
+                            method_def_obj.rcc.required_ctxs,
+                            upqf_arr // array of arrays
+                        );
 
 
 
@@ -10003,6 +10007,8 @@
                         // reference query flow methods
                         var qmi = api[ _ENUM.MISC._QMI ];
 
+
+
                         /**
                          * Run action custom prerequisites if there are any.
                          * The implicit requirement for these custom prerequisites is that all params of functions can be fetched via 'Closures' feature !
@@ -10030,6 +10036,8 @@
                                 func.call( null, func_params );
                             }
                         }
+
+
 
                         // @ts-ignore
                         // create action object

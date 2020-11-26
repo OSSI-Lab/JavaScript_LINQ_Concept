@@ -16,19 +16,3 @@ TO BE FIXED:
 ==========================================================================================================================================
 
 CONSIDERATIONS (don't pay attention to it, cause it is my own working notes - today valid, tomorrow invalid -  so to speak ! ):
-
-
-    719 ?
-
-    5455 ? defensive copy ?
-
-    JOINs
-     - what if one of the objects has the same property name ????
-
-
-
-    Line 5286 -> make it a bound method ?
-
-    Line 5264, 5294 -> make it a bound method ?
-
-    changing _ctx for Symbol('_ctx')
