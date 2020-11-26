@@ -1262,6 +1262,45 @@
             }
         );
 
+        // final query - produces output [find item with the smallest value of property called 'id' ]
+        var min_f3 = [{id: 1, name: 'Name 1'}].min(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [find item with the biggest value of property called 'id' ]
+        var max_f3 = [{id: 1, name: 'Name 1'}].max(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
+        var average_f3 = [{id: 1, name: 'Name 1'}].average(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        /**
+         * Misc cases:
+         * 
+         *  where_f3 -> example of query method definition caching
+         * 
+         * orderBy_p3_take_p1 -> break the sorting context (orderBy_p3 <-> orderBy_p3_take_p1) by supplying non-sorting method
+         * 
+         * orderBy_p3_thenBy_p1 -> showing the sorting context encapsulation (orderBy_p3 <-> orderBy_p3_thenBy_p1) by supplying two consecutive sorting methods in a row
+         * 
+         * orderBy_take_thenBy_toArray_f1 -> break the sorting context by supplying non-sorting method (whole query in one statement)
+         * 
+         * thenBy_p3 -> break the sorting context (thenBy_p3) by supplying 2nd level sorting method without providing 1st level sorting method in the first place
+         * 
+        */
+
         // final query - produces output [example of query method definition caching]
         var where_f3 = collection_toString.where(
             {
@@ -1335,25 +1374,35 @@
          * Otherwise it "would be illogical", as I was told :-) !
          * Thank You :-)
         */
-        var orderBy_take_thenBy_toArray_f1 = collection.orderBy(
+        // var orderBy_take_thenBy_toArray_f1 = collection.orderBy(
+        //     {
+        //         'keyPartSelectorArray': [
+        //             [ "id", true ]
+        //         ],
+        //         'udfComparer': null
+        //     }
+        // ).take(
+        //     {
+        //         'count': 2
+        //     }
+        // ).thenBy(
+        //     {
+        //         'keyPartSelectorArray': [
+        //             [ "name", true ]
+        //         ],
+        //         'udfComparer': null
+        //     }
+        // ).toArray();
+
+        // partial query - produces intermediate query state
+        var thenBy_p3 = collection.thenBy(
             {
                 'keyPartSelectorArray': [
-                    [ "id", true ]
+                    [ "price", true ]
                 ],
                 'udfComparer': null
             }
-        ).take(
-            {
-                'count': 2
-            }
-        ).thenBy(
-            {
-                'keyPartSelectorArray': [
-                    [ "name", true ]
-                ],
-                'udfComparer': null
-            }
-        ).toArray();
+        );
 
         console.log( '~ Objects' );
 

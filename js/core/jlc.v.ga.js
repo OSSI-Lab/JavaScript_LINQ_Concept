@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #34 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #35 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -1275,337 +1275,340 @@
                 }
         },
 
-        create: /**
-         * Create action that represents filtering logic for given Linq's method.
-         */
-            function ( jlc_instance_ctx, jlc_instance_qmi, core_method_bind, context, constraint_def, to_execute )
-            {
-                // create an action
-                var action = createAction_I_1L( context, jlc_instance_ctx, core_method_bind );
-
-                // create an action context 
-                var action_ctx = createActionContext_I_1L( jlc_instance_ctx, action );
-
-                // create an action constraint
-                var action_constraint = createActionConstraint_I_1L( jlc_instance_ctx, constraint_def, action_ctx );
-
-                /**
-                 * Before proceeding with action chain execution or action chaining, run constraint checking for action chain up the road !
-                 * Run constraint checking from this action up the root action itself !
-                 * 
-                 * Constraint concept is designed to be independent of the above tandem, i.e. action & action-context and their relationship !
-                */
-                runActionConstraintRecursively_I_1L( action_ctx, action_constraint );
-
-
-                // invoke real data filtering and produce output (when the last method in the chain is a final result method)
-                if ( to_execute )
-                    // execute all actions
-                    return this.executeChain( action_ctx );
-                // otherwise enable further flow of actions (when the last method in the chain is NOT a final result method)
-                else
-                    // return JLC instance api and pass context of current action to provide chain of actions to execute
-                    return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
-                        _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT,
-                                                                                            /* in this context we have no access to physical collection, so pass null */ null,
-                        action_ctx,
-                        jlc_instance_qmi
-                    );
-
-
-
-                /**
-                 * Local helper functions 
-                */
-                function createAction_I_1L ( m_q_c, jlc_ctx, c_m_b )
-                {
-                    // create action object
-                    var ao = Object.create( null );
-
-
-                    // store information whether this action is executable one
-                    // @ts-ignore
-                    ao.returnsData = System.Linq.QueryResult[ m_q_c ];
-
-                    // store collection index
-                    ao.coll_ref = jlc_ctx.coll_index;
-
-                    // store root of the chain filters
-                    ao.chain_root_id = jlc_ctx.root_token;
-
-                    // get second-level sorting context shared across query flow
-                    ao.sharedSecondLevelSortingCtx = jlc_ctx.sharedSecondLevelSortingCtx
-                        ?
-                        jlc_ctx.sharedSecondLevelSortingCtx
-                        :
-                        _ACTION.hpid.sorting.createSecondLevelCtx();
-
-                    // store this action sorting metadata (if action requires so)
-                    ao.sortingMetadataCtx = [
-                        System.Linq.Context.orderBy,
-                        System.Linq.Context.orderByDescending,
-                        System.Linq.Context.thenBy,
-                        System.Linq.Context.thenByDescending,
-                        System.Linq.Context.min,
-                        System.Linq.Context.max,
-                        System.Linq.Context.average
-                    ].indexOf( m_q_c ) > -1 ?
-                        _ACTION.hpid.sorting.createSortingMetadataCtx() : undefined;
-
-                    // store parent of this action
-                    ao.parent = jlc_ctx.parent;
-
-                    // execute this action by invoking its core method with binded parameters
-                    ao.execute = function ()
-                    {
-                        return c_m_b.bind( null, this )();
-                    };
-
-
-                    // return action object
-                    return ao;
-                }
-
-                function createActionContext_I_1L ( jlc_ctx, action )
-                {
-                    // create this action context object
-                    var taco = Object.create( null );
-
-
-                    // collection reference id
-                    taco.coll_index = jlc_ctx.coll_index;
-                    // collection token
-                    taco.root_token = jlc_ctx.root_token;
-
-                    // collection fim (first item metadata)
-                    taco.fim = jlc_ctx.fim;
-
-                    // get first-level sorting context shared across query flow
-                    taco.sharedFirstLevelSortingCtx = jlc_ctx.sharedFirstLevelSortingCtx
-                        ?
-                        _COMMON.deepCopyYesCR(jlc_ctx.sharedFirstLevelSortingCtx)
-                        :
-                        _ACTION.hpid.sorting.createFirstLevelCtx();
-
-                    // join this action with the previous (parent) action up the action chain
-                    taco.parent = action;
-
-
-                    // return this action context object
-                    return taco;
-                }
-
-                function createActionConstraint_I_1L ( jlc_ctx, constr_def, a_ctx )
-                {
-                    // create action constraint object
-                    var a_constr = Object.create( null );
-
-
-                    // determine nullability of a constraint
-                    a_constr.isNotNull = constr_def !== undefined;
-
-                    // when constriant is defined
-                    if ( a_constr.isNotNull )
-                    {
-                        // assign name to this constraint
-                        a_constr.name = constr_def.name;
-
-                        // determine whether this constraint should be enabled
-                        a_constr.isEnabled = constr_def.all_required.indexOf( context ) > -1;
-
-                        // store all invocation contexts for later checking of necessity of invoking some constraints
-                        a_constr.all_required = constr_def.all_required;
-
-
-                        // store whether this-query-flow collection input type is a primitive
-                        a_constr.isPrimitive = jlc_ctx.fim.is_prim;
-
-                        // store user-provided query filtering predicates
-                        a_constr.predicate_array = constr_def.predicate_array;
-
-
-                        // store query flow shared constraints (qfsc)
-                        if ( a_ctx.parentConstraint )
-                        {
-                            // get so-far created query flow shared constraints from parent
-                            a_constr.qfsc = a_ctx.parentConstraint.qfsc;
-
-                            // fetch query flow shared constraints for this action
-                            var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
-
-                            // merge qfsc with ta_qfsc
-                            Object.assign( a_constr.qfsc, ta_qfsc[ constr_def.name ] );
-                        }
-                        // create query flow shared constraints (qfsc) during the very first access
-                        else
-                        {
-                            // fetch default action constraints for this action
-                            a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
-
-                            // update action context of this action's default action constraints object
-                            a_constr.qfsc[ constr_def.name ].actionContext = a_ctx;
-
-                        }
-                        // determine whether stop further drilling down of the parent chain
-                        a_constr.stopDrillingDown = a_constr.qfsc[ constr_def.name ].isEnabled;
-
-
-                        // store shared first-level sorting context
-                        a_constr.actionContext = a_ctx;
-
-                        // store this-action-constraint bound action
-                        a_constr.thisAction = a_ctx.parent;
-
-                        // store parent of this action constraint
-                        a_constr.parentConstraint = jlc_ctx.parentConstraint;
-
-
-                        // define action constraint apply method
-                        a_constr.apply = function ()
-                        {
-                            /**
-                                * Fetch on demand action constraint
-                                * 
-                                * Future action constraint possible improvements
-                                *  - you apply some logic to action constraint internal state, f.e. setting its 'isEnabled' flag to true/false given some conditions
-                                *  - you have access to this-action-constraint, hence you can do various stuff starting from here
-                                *  
-                                *  - etc.
-                            */
-                            // reference constraint from query flow shared constraints (qfsc)
-                            var actionConstr = this.qfsc[ this.name ];
-
-                            // update action constraint with shared this action context object (taco)
-                            actionConstr.actionContext = this.actionContext;
-
-                            // get all constraint functions, aka constraint actions
-                            var c_funcs = actionConstr.acf;
-
-                            // loop over all - 1 regular constraint functions
-                            for ( var i = 0; i < c_funcs.length - 1; i++ )
-                                /**
-                                    * Execute each constraint function
-                                    *  - bind context of 'this' being action constraint itself to action constraint source function
-                                    *  - pass as an argument the valid data bound to this action constraint source function
-                                    *        -> actionConstr.acf[data_1_check_func, data_2_check_func, data_3_check_func]
-                                    *        -> actionConstr.data[data_1,           data_2,            data_3]
-                                */
-                                c_funcs[ i ].bind( actionConstr )( actionConstr.data[ i ] );
-
-                            // if this action constraint contains syntax check constraint
-                            if ( actionConstr.requireSyntaxCheck )
-                                // apply syntax check constraint
-                                c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.thisAction );
-                            else
-                                // apply regular constraint function
-                                c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( actionConstr.data[ c_funcs.length - 1 ] );
-                        };
-                    }
-
-
-                    // return action constraint object
-                    return a_constr;
-                }
-
-                function runActionConstraintRecursively_I_1L ( actionCtx, actionConstr )
-                {
-                    return prepare_ACRR_I_2L( actionCtx, actionConstr );
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function prepare_ACRR_I_2L ( a_ctx, a_constr )
-                    {
-                        /**
-                         * Join the previous (parent - one level up the action constraint chain) action constraint with this action constraint.
-                         * Set parent constraint of this current constraint ! 
-                        */
-                        a_ctx.parentConstraint = a_constr;
-
-                        // execute constraint chain check
-                        run_ACR_I_2L( a_ctx.parentConstraint );
-
-
-
-                        /**
-                         * Local helper functions
-                        */
-                        function run_ACR_I_2L ( actionConstr )
-                        {
-                            // navigate "down the road" to the first constraint
-                            if ( actionConstr.parentConstraint && !actionConstr.parentConstraint.stopDrillingDown )
-                                run_ACR_I_2L( actionConstr.parentConstraint );
-
-                            // from here run all constraints in the chain up to and/or including current action constraint
-                            if ( actionConstr.isNotNull && actionConstr.isEnabled )
-                                actionConstr.apply();
-                        }
-                    }
-                }
-            },
-
-        executeChain: /**
-         * Execute all actions in the chain.
-         */
-            function ( jlc_ctx )
-            {
-                return execute_C_I_1L( jlc_ctx );
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function execute_C_I_1L ( jlc_ctx )
-                {
-                    // do necessary cleanup before producing pre-output result
-                    _ACTION.hpidCommons.clearCache( jlc_ctx.parent.sharedSecondLevelSortingCtx );
-
-                    // execute all actions and produce pre-output result
-                    var result = executeActionsRecursively_I_2L( jlc_ctx.parent );
-
-                    // return final data based on pre-output result
-                    return getOutput_I_2L( result );
-
-
-
-                    /**
-                     * Local helper functions
-                    */
-                    function executeActionsRecursively_I_2L ( parentAction )
-                    {
-                        // go all the way down to the root action
-                        if ( parentAction.parent )
-                            executeActionsRecursively_I_2L( parentAction.parent );
-
-                        // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
-                        if ( parentAction.returnsData )
-                            return parentAction.execute();
-                        else
-                            parentAction.execute();
-                    }
-                    function getOutput_I_2L ( result )
-                    {
-                        // declare output data (a result of input collection being filtered off through all filters)
-                        var output;
-
-                        // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
-                        if ( _ACTION.hpid.done && Array.isArray( _ACTION.hpid.data ) )
-                            output = _ACTION.hpid.data.slice( 0 );
-                        // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
-                        else if ( _ACTION.hpid.done )
-                            output = _ACTION.hpid.data;
-                        else
-                            // ... otherwise return result as the output
-                            output = result;
-
-                        // return output data
-                        return output;
-                    }
-                }
-            }
+        funcCommons: {
+            create: /**
+            * Create action that represents filtering logic for given Linq's method.
+            */
+               function ( jlc_instance_ctx, jlc_instance_qmi, core_method_bind, context, constraint_def, to_execute )
+               {
+                   // create an action
+                   var action = createAction_I_1L( context, jlc_instance_ctx, core_method_bind );
+   
+                   // create an action context 
+                   var action_ctx = createActionContext_I_1L( jlc_instance_ctx, action );
+   
+                   // create an action constraint
+                   var action_constraint = createActionConstraint_I_1L( jlc_instance_ctx, constraint_def, action_ctx );
+   
+                   /**
+                    * Before proceeding with action chain execution or action chaining, run constraint checking for action chain up the road !
+                    * Run constraint checking from this action up the root action itself !
+                    * 
+                    * Constraint concept is designed to be independent of the above tandem, i.e. action & action-context and their relationship !
+                   */
+                   runActionConstraintRecursively_I_1L( action_ctx, action_constraint );
+   
+   
+                   // invoke real data filtering and produce output (when the last method in the chain is a final result method)
+                   if ( to_execute )
+                       // execute all actions
+                       return this.funcCommons.executeChain( action_ctx );
+                   // otherwise enable further flow of actions (when the last method in the chain is NOT a final result method)
+                   else
+                       // return JLC instance api and pass context of current action to provide chain of actions to execute
+                       return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
+                           _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT,
+                                                                                               /* in this context we have no access to physical collection, so pass null */ null,
+                           action_ctx,
+                           jlc_instance_qmi
+                       );
+   
+   
+   
+                   /**
+                    * Local helper functions 
+                   */
+                   function createAction_I_1L ( m_q_c, jlc_ctx, c_m_b )
+                   {
+                       // create action object
+                       var ao = Object.create( null );
+   
+   
+                       // store information whether this action is executable one
+                       // @ts-ignore
+                       ao.returnsData = System.Linq.QueryResult[ m_q_c ];
+   
+                       // store collection index
+                       ao.coll_ref = jlc_ctx.coll_index;
+   
+                       // store root of the chain filters
+                       ao.chain_root_id = jlc_ctx.root_token;
+   
+                       // get second-level sorting context shared across query flow
+                       ao.sharedSecondLevelSortingCtx = jlc_ctx.sharedSecondLevelSortingCtx
+                           ?
+                           jlc_ctx.sharedSecondLevelSortingCtx
+                           :
+                           _ACTION.hpid.sorting.createSecondLevelCtx();
+   
+                       // store this action sorting metadata (if action requires so)
+                       ao.sortingMetadataCtx = [
+                           System.Linq.Context.orderBy,
+                           System.Linq.Context.orderByDescending,
+                           System.Linq.Context.thenBy,
+                           System.Linq.Context.thenByDescending,
+                           System.Linq.Context.min,
+                           System.Linq.Context.max,
+                           System.Linq.Context.average
+                       ].indexOf( m_q_c ) > -1 ?
+                           _ACTION.hpid.sorting.createSortingMetadataCtx() : undefined;
+   
+                       // store parent of this action
+                       ao.parent = jlc_ctx.parent;
+   
+                       // execute this action by invoking its core method with binded parameters
+                       ao.execute = function ()
+                       {
+                           return c_m_b.bind( null, this )();
+                       };
+   
+   
+                       // return action object
+                       return ao;
+                   }
+   
+                   function createActionContext_I_1L ( jlc_ctx, action )
+                   {
+                       // create this action context object
+                       var taco = Object.create( null );
+   
+   
+                       // collection reference id
+                       taco.coll_index = jlc_ctx.coll_index;
+                       // collection token
+                       taco.root_token = jlc_ctx.root_token;
+   
+                       // collection fim (first item metadata)
+                       taco.fim = jlc_ctx.fim;
+   
+                       // get first-level sorting context shared across query flow
+                       taco.sharedFirstLevelSortingCtx = jlc_ctx.sharedFirstLevelSortingCtx
+                           ?
+                           _COMMON.deepCopyYesCR(jlc_ctx.sharedFirstLevelSortingCtx)
+                           :
+                           _ACTION.hpid.sorting.createFirstLevelCtx();
+   
+                       // join this action with the previous (parent) action up the action chain
+                       taco.parent = action;
+   
+   
+                       // return this action context object
+                       return taco;
+                   }
+   
+                   function createActionConstraint_I_1L ( jlc_ctx, constr_def, a_ctx )
+                   {
+                       // create action constraint object
+                       var a_constr = Object.create( null );
+   
+   
+                       // determine nullability of a constraint
+                       a_constr.isNotNull = constr_def !== undefined;
+   
+                       // when constriant is defined
+                       if ( a_constr.isNotNull )
+                       {
+                           // assign name to this constraint
+                           a_constr.name = constr_def.name;
+   
+                           // determine whether this constraint should be enabled
+                           a_constr.isEnabled = constr_def.all_required.indexOf( context ) > -1;
+   
+                           // store all invocation contexts for later checking of necessity of invoking some constraints
+                           a_constr.all_required = constr_def.all_required;
+   
+   
+                           // store whether this-query-flow collection input type is a primitive
+                           a_constr.isPrimitive = jlc_ctx.fim.is_prim;
+   
+                           // store user-provided query filtering predicates
+                           a_constr.predicate_array = constr_def.predicate_array;
+   
+   
+                           // store query flow shared constraints (qfsc)
+                           if ( a_ctx.parentConstraint )
+                           {
+                               // get so-far created query flow shared constraints from parent
+                               a_constr.qfsc = a_ctx.parentConstraint.qfsc;
+   
+                               // fetch query flow shared constraints for this action
+                               var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
+   
+                               // merge qfsc with ta_qfsc
+                               Object.assign( a_constr.qfsc, ta_qfsc[ constr_def.name ] );
+                           }
+                           // create query flow shared constraints (qfsc) during the very first access
+                           else
+                           {
+                               // fetch default action constraints for this action
+                               a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
+   
+                               // update action context of this action's default action constraints object
+                               a_constr.qfsc[ constr_def.name ].actionContext = a_ctx;
+   
+                           }
+                           // determine whether stop further drilling down of the parent chain
+                           a_constr.stopDrillingDown = a_constr.qfsc[ constr_def.name ].isEnabled;
+   
+   
+                           // store shared first-level sorting context
+                           a_constr.actionContext = a_ctx;
+   
+                           // store this-action-constraint bound action
+                           a_constr.thisAction = a_ctx.parent;
+   
+                           // store parent of this action constraint
+                           a_constr.parentConstraint = jlc_ctx.parentConstraint;
+   
+   
+                           // define action constraint apply method
+                           a_constr.apply = function ()
+                           {
+                               /**
+                                   * Fetch on demand action constraint
+                                   * 
+                                   * Future action constraint possible improvements
+                                   *  - you apply some logic to action constraint internal state, f.e. setting its 'isEnabled' flag to true/false given some conditions
+                                   *  - you have access to this-action-constraint, hence you can do various stuff starting from here
+                                   *  
+                                   *  - etc.
+                               */
+                               // reference constraint from query flow shared constraints (qfsc)
+                               var actionConstr = this.qfsc[ this.name ];
+   
+                               // update action constraint with shared this action context object (taco)
+                               actionConstr.actionContext = this.actionContext;
+   
+                               // get all constraint functions, aka constraint actions
+                               var c_funcs = actionConstr.acf;
+   
+                               // loop over all - 1 regular constraint functions
+                               for ( var i = 0; i < c_funcs.length - 1; i++ )
+                                   /**
+                                       * Execute each constraint function
+                                       *  - bind context of 'this' being action constraint itself to action constraint source function
+                                       *  - pass as an argument the valid data bound to this action constraint source function
+                                       *        -> actionConstr.acf[data_1_check_func, data_2_check_func, data_3_check_func]
+                                       *        -> actionConstr.data[data_1,           data_2,            data_3]
+                                   */
+                                   c_funcs[ i ].bind( actionConstr )( actionConstr.data[ i ] );
+   
+                               // if this action constraint contains syntax check constraint
+                               if ( actionConstr.requireSyntaxCheck )
+                                   // apply syntax check constraint
+                                   c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.thisAction );
+                               else
+                                   // apply regular constraint function
+                                   c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( actionConstr.data[ c_funcs.length - 1 ] );
+                           };
+                       }
+   
+   
+                       // return action constraint object
+                       return a_constr;
+                   }
+   
+                   function runActionConstraintRecursively_I_1L ( actionCtx, actionConstr )
+                   {
+                       return prepare_ACRR_I_2L( actionCtx, actionConstr );
+   
+   
+   
+                       /**
+                        * Local helper functions
+                       */
+                       function prepare_ACRR_I_2L ( a_ctx, a_constr )
+                       {
+                           /**
+                            * Join the previous (parent - one level up the action constraint chain) action constraint with this action constraint.
+                            * Set parent constraint of this current constraint ! 
+                           */
+                           a_ctx.parentConstraint = a_constr;
+   
+                           // execute constraint chain check
+                           run_ACR_I_2L( a_ctx.parentConstraint );
+   
+   
+   
+                           /**
+                            * Local helper functions
+                           */
+                           function run_ACR_I_2L ( actionConstr )
+                           {
+                               // navigate "down the road" to the first constraint
+                               if ( actionConstr.parentConstraint && !actionConstr.parentConstraint.stopDrillingDown )
+                                   run_ACR_I_2L( actionConstr.parentConstraint );
+   
+                               // from here run all constraints in the chain up to and/or including current action constraint
+                               if ( actionConstr.isNotNull && actionConstr.isEnabled )
+                                   actionConstr.apply();
+                           }
+                       }
+                   }
+               },
+
+            executeChain: /**
+            * Execute all actions in the chain.
+            */
+               function ( jlc_ctx )
+               {
+                   return execute_C_I_1L( jlc_ctx );
+   
+   
+   
+                   /**
+                    * Local helper functions
+                   */
+                   function execute_C_I_1L ( jlc_ctx )
+                   {
+                       // do necessary cleanup before producing pre-output result
+                       _ACTION.hpidCommons.clearCache( jlc_ctx.parent.sharedSecondLevelSortingCtx );
+   
+                       // execute all actions and produce pre-output result
+                       var result = executeActionsRecursively_I_2L( jlc_ctx.parent );
+   
+                       // return final data based on pre-output result
+                       return getOutput_I_2L( result );
+   
+   
+   
+                       /**
+                        * Local helper functions
+                       */
+                       function executeActionsRecursively_I_2L ( parentAction )
+                       {
+                           // go all the way down to the root action
+                           if ( parentAction.parent )
+                               executeActionsRecursively_I_2L( parentAction.parent );
+   
+                           // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
+                           if ( parentAction.returnsData )
+                               return parentAction.execute();
+                           else
+                               parentAction.execute();
+                       }
+
+                       function getOutput_I_2L ( result )
+                       {
+                           // declare output data (a result of input collection being filtered off through all filters)
+                           var output;
+   
+                           // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
+                           if ( _ACTION.hpid.done && Array.isArray( _ACTION.hpid.data ) )
+                               output = _ACTION.hpid.data.slice( 0 );
+                           // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
+                           else if ( _ACTION.hpid.done )
+                               output = _ACTION.hpid.data;
+                           else
+                               // ... otherwise return result as the output
+                               output = result;
+   
+                           // return output data
+                           return output;
+                       }
+                   }
+               }
+        }
     };
 
     // private common object
@@ -4864,21 +4867,33 @@
                     */
                     function getResult_I_2L ()
                     {
-                        // compute 'min' value
-                        if ( enumValue === _ENUM.MIN )
-                            return _ACTION.hpid.data ? _ACTION.hpid.data[ 0 ] : undefined;
-                        // compute 'max' value
-                        else if ( enumValue === _ENUM.MAX )
-                            return _ACTION.hpid.data ? _ACTION.hpid.data[ _ACTION.hpid.data.length - 1 ] : undefined;
-                        // compute 'avg' value
-                        else if ( enumValue === _ENUM.AVG )
-                        {
-                            // precisely 'min avg'
-                            if ( roundEnumValue === _ENUM.AVG_MIN )
-                                return _ACTION.hpid.data ? _ACTION.hpid.data[ Math.floor( _ACTION.hpid.data.length / 2 ) - 1 ] : undefined;
-                            // precisely 'max avg'
-                            else if ( roundEnumValue === _ENUM.AVG_MAX )
-                                return _ACTION.hpid.data ? _ACTION.hpid.data[ Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 ] : undefined;
+                        // check the edge case (empty collection)
+                        if(_ACTION.hpid.data.length === 0) {
+                            return undefined;
+                        }
+                        // check the edge case (one item in collection)
+                        else if(_ACTION.hpid.data.length === 1) {
+                            return _ACTION.hpid.data[ 0 ];
+                        }
+                        // handle min, max, average
+                        else {
+                            // compute 'min' value
+                            if ( enumValue === _ENUM.MIN )
+                                return _ACTION.hpid.data[ 0 ];
+                            // compute 'max' value
+                            else if ( enumValue === _ENUM.MAX ) {
+                                return _ACTION.hpid.data[ _ACTION.hpid.data.length - 1 ];
+                            }
+                            // compute 'avg' value
+                            else if ( enumValue === _ENUM.AVG )
+                            {
+                                // precisely 'min avg'
+                                if ( roundEnumValue === _ENUM.AVG_MIN )
+                                    return _ACTION.hpid.data[ Math.floor( _ACTION.hpid.data.length / 2 ) - 1 ];
+                                // precisely 'max avg'
+                                else if ( roundEnumValue === _ENUM.AVG_MAX )
+                                    return _ACTION.hpid.data[ Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 ];
+                            }
                         }
                     }
                 }
@@ -10041,7 +10056,7 @@
 
                         // @ts-ignore
                         // create action object
-                        var atn = _ACTION.create(
+                        var atn = _ACTION.funcCommons.create(
                             ctx,
                             qmi,
                             method_def_obj.jcm.bind(
@@ -10109,7 +10124,7 @@
 
                             api._ctx;
                             // invoke real data filtering and produce output, i.e. execute all actions
-                            _ACTION.executeChain( api._ctx );
+                            _ACTION.funcCommons.executeChain( api._ctx );
 
                             // restore metadata of the contextually current collection state
                             _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
