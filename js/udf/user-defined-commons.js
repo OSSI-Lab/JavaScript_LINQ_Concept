@@ -24,10 +24,27 @@ var my_custom_jlc_common = {
     // user-defined equality comparator
     udfEqualityComparer: function (kC, kP)
     {
-        // nothing extraordinary, just showing the examplary usage !
-        if (kC.length > kP.length) return 1;
-        else if (kC.length < kP.length) return -1;
-        else return 0;
+        /**
+         * Reference this context, here being the sortMetaObject storing all relevant metadata about type of sorting operation
+         * 
+         *  this -> sortMetaObject
+        */
+        var sortMetaObject = this;
+
+        // compare strings
+        if(typeof kC === 'string') {
+            // nothing extraordinary, just showing the examplary usage !
+            if (kC.length > kP.length) return 1;
+            else if (kC.length < kP.length) return -1;
+            else return 0;
+        }
+        // compare strings
+        else if(typeof kC === 'number') {
+            // nothing extraordinary, just showing the examplary usage !
+            if (kC > kP) return 1;
+            else if (kC < kP) return -1;
+            else return 0;
+        }
     },
 
     udfSelector : function(item, selectors, index) {

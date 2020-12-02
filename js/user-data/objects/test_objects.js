@@ -568,6 +568,16 @@
         ).toArray();
 
         // final query - produces output
+        var orderBy_f2 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
+            }
+        ).toArray();
+
+        // final query - produces output
         var orderByDescending_f1 = collection.orderByDescending(
             {
                 'keyPartSelectorArray': [
@@ -591,6 +601,23 @@
                     [ "name", true ]
                 ],
                 'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var thenBy_f2 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "name", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
             }
         ).toArray();
 
