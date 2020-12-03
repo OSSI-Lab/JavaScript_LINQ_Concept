@@ -1355,7 +1355,7 @@
                    // invoke real data filtering and produce output (when the last method in the chain is a final result method)
                    if ( to_execute )
                        // execute all actions
-                       return this.funcCommons.executeChain( action_ctx );
+                       return this.executeChain( action_ctx );
                    // otherwise enable further flow of actions (when the last method in the chain is NOT a final result method)
                    else
                        // return JLC instance api and pass context of current action to provide chain of actions to execute
