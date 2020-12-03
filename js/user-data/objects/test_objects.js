@@ -713,6 +713,16 @@
         );
 
         // final query - produces output
+        var orderBy_f3 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "object.", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
         var toArray_f1 = collection.toArray();
 
 

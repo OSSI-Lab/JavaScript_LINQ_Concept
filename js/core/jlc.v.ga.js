@@ -556,22 +556,13 @@
                                 metadata = Object.create( null );
 
                                 // user provided many filters
-                                if ( user_filter_array.length > 1 ) {
-                                    var predicateArray;
-                                    // loop over all filters and check for 'object.' filter, so it doesn't make sense
-                                    for ( var i = 0; i < user_filter_array.length; i++ )
-                                    {
-                                        // access current filter
-                                        predicateArray = user_filter_array[ i ];
-                                        // if it's key, throw error
-                                        if ( predicateArray[ 0 ].trim() === 'object.' )
-                                            // throw error about 'object.' filter presence among other filters
-                                            throw SyntaxError(
-                                                '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] using "' +
-                                                    predicateArray[ 0 ] + '" among other filters does not make sense !\r\n\r\n'
-                                            );
-                                    }
-                                }
+                                if ( user_filter_array.length > 1 )
+                                    // throw error about too many filters
+                                    throw SyntaxError(
+                                        '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] in the context of ['
+                                                                    + _COMMON.getCustomValueOfSymbol( _ENUM.MIN ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.MAX ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.AVG )
+                                                                    +  '] requires presence of only one filter !\r\n\r\n'
+                                    );
                                 // user provided single filter
                                 else {
                                     // sort PLAIN by 'object.'
@@ -586,7 +577,7 @@
                                 }
                             }
 
-                                 // if there is no 'object.' filter, we are dealing with PLAIN
+                            // if there is no 'object.' filter, we are dealing with PLAIN
                             check_PLAIN_I_2L( _ENUM.CIT.PLAIN, _ENUM.CIT.PLAIN );
 
                             // if this is sorting context, return required PLAIN sorting metadata
@@ -5034,9 +5025,6 @@
                     {
                         // check the edge case (empty collection)
                         if(_ACTION.hpid.data.length === 0) {
-                            // reference the only item
-                            var item = _ACTION.hpid.data[ 0 ];
-                            
                             // validate item
                             if((jlc._ctx.mmavt === _ENUM.T2SR.STRING || jlc._ctx.mmavt === _ENUM.T2SR.OBJECT) && (enumValue === _ENUM.MIN || enumValue === _ENUM.MAX))
                                 return undefined;
@@ -5044,6 +5032,7 @@
                         }
                         // check the edge case (one item in collection)
                         else if(_ACTION.hpid.data.length === 1) {
+                                // return the only item in the collection
                                 return _ACTION.hpid.data[ 0 ];
                         }
                         // handle min, max, average
@@ -10190,7 +10179,7 @@
                          * These are some defensive checkings that ensure no errors of type 'JavaScript cannot access value of undefined'.
                          * 
                          * Currently available checkings:
-                         *  - handle "default" parameter
+                         *  - handle 'params' parameter to be always defined ! (params !== undefined)
                         */
                         if ( method_def_obj.internal_rcc.length )
                         {
@@ -10281,7 +10270,7 @@
 
 
                         /**
-                         * Run action custom prerequisites if there are any.
+                         * Run action custom prerequisites (aka validation constraints) if there are any.
                          * The implicit requirement for these custom prerequisites is that all params of functions can be fetched via 'Closures' feature !
                          * How they are different from action constraints ?
                          *  - the goal is to provide kind of the same logical functionality as during compilation phase, if regarding statically typed languages.
