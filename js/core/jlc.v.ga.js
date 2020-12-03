@@ -2670,7 +2670,7 @@
                                 */
 
                                 // by 'object' itself
-                                if ( sortMetadata.byObjectString )
+                                if ( sortMetadata && sortMetadata.byObjectString )
                                 {
                                     /**
                                      * User must provide implementation of toString method if sorting by the object itself is required ⚠️
