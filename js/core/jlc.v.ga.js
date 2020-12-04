@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #35 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #36 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -122,6 +122,11 @@
             DATE: '[object Date]',
             SET: '[object Set]',
             MAP: '[object Map]'
+        },
+
+        SPECIAL_PROPS: {
+            OBJECT_EXCLAMATION_MARK: 'object!',
+            VALUE_DOT: 'value.'
         },
 
         MISC: {
@@ -537,8 +542,20 @@
 
                     function c_O_I_2L ( user_filter_array, sortingContext )
                     {
-                        // get user syntax metadata (valid column name(s) or valid column path(s) for inner object(s))
-                        var user_ovc = _ACTION.hpid.columnSet.extractOVC( user_filter_array );
+                        var user_ovc;
+
+                        if ( sortingContext )
+                        {
+                            // get user syntax metadata (valid column name(s) or valid column path(s) for inner object(s))
+                            const [ u_ovc, u_filter_array ] = _ACTION.hpid.columnSet.extractOVC( user_filter_array, true );
+
+                            user_ovc = u_ovc;
+
+                            user_filter_array = u_filter_array;
+                        }
+                        else
+                            // get user syntax metadata (valid column name(s) or valid column path(s) for inner object(s))
+                            user_ovc = _ACTION.hpid.columnSet.extractOVC( user_filter_array, false );
 
                         /**
                          * Do the appropriate syntax checking 
@@ -560,24 +577,25 @@
                                     // throw error about too many filters
                                     throw SyntaxError(
                                         '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] in the context of ['
-                                                                    + _COMMON.getCustomValueOfSymbol( _ENUM.MIN ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.MAX ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.AVG )
-                                                                    +  '] requires presence of only one filter !\r\n\r\n'
+                                        + _COMMON.getCustomValueOfSymbol( _ENUM.MIN ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.MAX ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.AVG )
+                                        + '] requires presence of only one filter !\r\n\r\n'
                                     );
                                 // user provided single filter
-                                else {
-                                    // sort PLAIN by 'object.'
-                                    metadata.byObjectString = ( user_filter_array.length === 1 && user_filter_array[ 0 ].length === 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object.' && user_filter_array[ 0 ][ 1 ] === true );
+                                else
+                                {
+                                    // sort PLAIN by 'object!'
+                                    metadata.byObjectString = ( user_filter_array.length === 1 && user_filter_array[ 0 ].length === 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' && user_filter_array[ 0 ][ 1 ] === true );
 
-                                    // user provide 'object.' filter with 2+ more parameters
-                                    if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object.' )
+                                    // user provide 'object!' filter with 2+ more parameters
+                                    if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' )
                                     {
-                                        // throw error about invalid syntax when dealing with PLAIN objects and using "object." predicate, which means comparing whole objects
-                                        throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] using "object." requires the following syntax ["object.", true] !\r\n\r\n' );
+                                        // throw error about invalid syntax when dealing with PLAIN objects and using "object!" predicate, which means comparing whole objects
+                                        throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] using "object!" requires the following syntax ["object!", true] !\r\n\r\n' );
                                     }
                                 }
                             }
 
-                            // if there is no 'object.' filter, we are dealing with PLAIN
+                            // if there is no 'object!' filter, we are dealing with PLAIN
                             check_PLAIN_I_2L( _ENUM.CIT.PLAIN, _ENUM.CIT.PLAIN );
 
                             // if this is sorting context, return required PLAIN sorting metadata
@@ -862,8 +880,8 @@
                             // get all object property names at all levels
                             propNames = _COMMON.fetchObjectStructureKeys( obj );
 
-                            // prepend object.
-                            propNames.unshift( 'object.' );
+                            // prepend object!
+                            propNames.unshift( 'object!' );
                         }
                         else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
                         {
@@ -896,12 +914,17 @@
                     },
 
                 extractOVC: /**
-                 * @param {any[]} userColumnSet
+                 * @param {any[]} userColumnSet User column set
+                 * @param {boolean} ensure_1D_array Force user column set (an array) to be in the shape of one dimensional array ?
                  */
-                    function ( userColumnSet )
+                    function ( userColumnSet, ensure_1D_array )
                     {
                         // define output object, i.e. array of only valid column names extracted from user column set
                         var ovc = [];
+
+                        // in sorting context we require single array, hence make it such one
+                        if ( ensure_1D_array )
+                            userColumnSet = ensureOneDimensionalArray_I_1L( userColumnSet, [] );
 
                         // loop over current user column set
                         for ( var i = 0; i < userColumnSet.length; i++ )
@@ -909,14 +932,48 @@
                             // access current column metadata
                             var ccm = userColumnSet[ i ];
 
-                            // only extract real - i.e. physical - column names by examining the second value (true/false)
-                            if ( ccm[ 1 ] )
-                                // store real column name , aka object property name
+                            // only extract real - i.e. physical - column names by examining the last value (true/false)
+                            if ( ccm[ ccm.length - 1 ] )
+                                // store real column name, aka object property name
                                 ovc.push( ccm[ 0 ] );
                         }
 
+                        // return output object in the context of sorting
+                        if ( ensure_1D_array )
+                            return [ ovc, userColumnSet ];
                         // return output object
                         return ovc;
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function ensureOneDimensionalArray_I_1L ( input_arr, output_arr )
+                        {
+                            var item;
+                            // iterate over input array
+                            for ( var i = 0; i < input_arr.length; i++ )
+                            {
+                                // access current item
+                                item = input_arr[ i ];
+
+                                // if item type is an array
+                                if ( _COMMON.convertTypeToString( item ) === _ENUM.T2SR.ARRAY )
+                                {
+                                    ensureOneDimensionalArray_I_1L( item, output_arr );
+                                }
+                                // otherwise add this whole input array
+                                else
+                                {
+                                    output_arr.push( input_arr );
+                                    break;
+                                }
+                            }
+
+                            // return 1D array
+                            return output_arr;
+                        }
                     },
 
                 updateOVC_and_CheckIfUnique: /**
@@ -1332,335 +1389,335 @@
             create: /**
             * Create action that represents filtering logic for given Linq's method.
             */
-               function ( jlc_instance_ctx, jlc_instance_qmi, core_method_bind, context, constraint_def, to_execute )
-               {
-                   // create an action
-                   var action = createAction_I_1L( context, jlc_instance_ctx, core_method_bind );
-   
-                   // create an action context 
-                   var action_ctx = createActionContext_I_1L( jlc_instance_ctx, action );
-   
-                   // create an action constraint
-                   var action_constraint = createActionConstraint_I_1L( jlc_instance_ctx, constraint_def, action_ctx );
-   
-                   /**
-                    * Before proceeding with action chain execution or action chaining, run constraint checking for action chain up the road !
-                    * Run constraint checking from this action up the root action itself !
-                    * 
-                    * Constraint concept is designed to be independent of the above tandem, i.e. action & action-context and their relationship !
-                   */
-                   runActionConstraintRecursively_I_1L( action_ctx, action_constraint );
-   
-   
-                   // invoke real data filtering and produce output (when the last method in the chain is a final result method)
-                   if ( to_execute )
-                       // execute all actions
-                       return this.executeChain( action_ctx );
-                   // otherwise enable further flow of actions (when the last method in the chain is NOT a final result method)
-                   else
-                       // return JLC instance api and pass context of current action to provide chain of actions to execute
-                       return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
-                           _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT,
+                function ( jlc_instance_ctx, jlc_instance_qmi, core_method_bind, context, constraint_def, to_execute )
+                {
+                    // create an action
+                    var action = createAction_I_1L( context, jlc_instance_ctx, core_method_bind );
+
+                    // create an action context 
+                    var action_ctx = createActionContext_I_1L( jlc_instance_ctx, action );
+
+                    // create an action constraint
+                    var action_constraint = createActionConstraint_I_1L( jlc_instance_ctx, constraint_def, action_ctx );
+
+                    /**
+                     * Before proceeding with action chain execution or action chaining, run constraint checking for action chain up the road !
+                     * Run constraint checking from this action up the root action itself !
+                     * 
+                     * Constraint concept is designed to be independent of the above tandem, i.e. action & action-context and their relationship !
+                    */
+                    runActionConstraintRecursively_I_1L( action_ctx, action_constraint );
+
+
+                    // invoke real data filtering and produce output (when the last method in the chain is a final result method)
+                    if ( to_execute )
+                        // execute all actions
+                        return this.executeChain( action_ctx );
+                    // otherwise enable further flow of actions (when the last method in the chain is NOT a final result method)
+                    else
+                        // return JLC instance api and pass context of current action to provide chain of actions to execute
+                        return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
+                            _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT,
                                                                                                /* in this context we have no access to physical collection, so pass null */ null,
-                           action_ctx,
-                           jlc_instance_qmi
-                       );
-   
-   
-   
-                   /**
-                    * Local helper functions 
-                   */
-                   function createAction_I_1L ( m_q_c, jlc_ctx, c_m_b )
-                   {
-                       // create action object
-                       var ao = Object.create( null );
-   
-   
-                       // store information whether this action is executable one
-                       // @ts-ignore
-                       ao.returnsData = System.Linq.QueryResult[ m_q_c ];
-   
-                       // store collection index
-                       ao.coll_ref = jlc_ctx.coll_index;
-   
-                       // store root of the chain filters
-                       ao.chain_root_id = jlc_ctx.root_token;
-   
-                       // get second-level sorting context shared across query flow
-                       ao.sharedSecondLevelSortingCtx = jlc_ctx.sharedSecondLevelSortingCtx
-                           ?
-                           jlc_ctx.sharedSecondLevelSortingCtx
-                           :
-                           _ACTION.hpid.sorting.createSecondLevelCtx();
-   
-                       // store this action sorting metadata (if action requires so)
-                       ao.sortingMetadataCtx = [
-                           System.Linq.Context.orderBy,
-                           System.Linq.Context.orderByDescending,
-                           System.Linq.Context.thenBy,
-                           System.Linq.Context.thenByDescending,
-                           System.Linq.Context.min,
-                           System.Linq.Context.max,
-                           System.Linq.Context.average
-                       ].indexOf( m_q_c ) > -1 ?
-                           _ACTION.hpid.sorting.createSortingMetadataCtx() : undefined;
-   
-                       // store parent of this action
-                       ao.parent = jlc_ctx.parent;
-   
-                       // execute this action by invoking its core method with binded parameters
-                       ao.execute = function ()
-                       {
-                           return c_m_b.bind( null, this )();
-                       };
-   
-   
-                       // return action object
-                       return ao;
-                   }
-   
-                   function createActionContext_I_1L ( jlc_ctx, action )
-                   {
-                       // create this action context object
-                       var taco = Object.create( null );
-   
-   
-                       // collection reference id
-                       taco.coll_index = jlc_ctx.coll_index;
-                       // collection token
-                       taco.root_token = jlc_ctx.root_token;
-   
-                       // collection fim (first item metadata)
-                       taco.fim = jlc_ctx.fim;
-   
-                       // get first-level sorting context shared across query flow
-                       taco.sharedFirstLevelSortingCtx = jlc_ctx.sharedFirstLevelSortingCtx
-                           ?
-                           _COMMON.deepCopyYesCR(jlc_ctx.sharedFirstLevelSortingCtx)
-                           :
-                           _ACTION.hpid.sorting.createFirstLevelCtx();
-   
-                       // join this action with the previous (parent) action up the action chain
-                       taco.parent = action;
-   
-   
-                       // return this action context object
-                       return taco;
-                   }
-   
-                   function createActionConstraint_I_1L ( jlc_ctx, constr_def, a_ctx )
-                   {
-                       // create action constraint object
-                       var a_constr = Object.create( null );
-   
-   
-                       // determine nullability of a constraint
-                       a_constr.isNotNull = constr_def !== undefined;
-   
-                       // when constriant is defined
-                       if ( a_constr.isNotNull )
-                       {
-                           // assign name to this constraint
-                           a_constr.name = constr_def.name;
-   
-                           // determine whether this constraint should be enabled
-                           a_constr.isEnabled = constr_def.all_required.indexOf( context ) > -1;
-   
-                           // store all invocation contexts for later checking of necessity of invoking some constraints
-                           a_constr.all_required = constr_def.all_required;
-   
-   
-                           // store whether this-query-flow collection input type is a primitive
-                           a_constr.isPrimitive = jlc_ctx.fim.is_prim;
-   
-                           // store user-provided query filtering predicates
-                           a_constr.predicate_array = constr_def.predicate_array;
-   
-   
-                           // store query flow shared constraints (qfsc)
-                           if ( a_ctx.parentConstraint )
-                           {
-                               // get so-far created query flow shared constraints from parent
-                               a_constr.qfsc = a_ctx.parentConstraint.qfsc;
-   
-                               // fetch query flow shared constraints for this action
-                               var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
-   
-                               // merge qfsc with ta_qfsc
-                               Object.assign( a_constr.qfsc, ta_qfsc[ constr_def.name ] );
-                           }
-                           // create query flow shared constraints (qfsc) during the very first access
-                           else
-                           {
-                               // fetch default action constraints for this action
-                               a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
-   
-                               // update action context of this action's default action constraints object
-                               a_constr.qfsc[ constr_def.name ].actionContext = a_ctx;
-   
-                           }
-                           // determine whether stop further drilling down of the parent chain
-                           a_constr.stopDrillingDown = a_constr.qfsc[ constr_def.name ].isEnabled;
-   
-   
-                           // store shared first-level sorting context
-                           a_constr.actionContext = a_ctx;
-   
-                           // store this-action-constraint bound action
-                           a_constr.thisAction = a_ctx.parent;
-   
-                           // store parent of this action constraint
-                           a_constr.parentConstraint = jlc_ctx.parentConstraint;
-   
-   
-                           // define action constraint apply method
-                           a_constr.apply = function ()
-                           {
-                               /**
-                                   * Fetch on demand action constraint
-                                   * 
-                                   * Future action constraint possible improvements
-                                   *  - you apply some logic to action constraint internal state, f.e. setting its 'isEnabled' flag to true/false given some conditions
-                                   *  - you have access to this-action-constraint, hence you can do various stuff starting from here
-                                   *  
-                                   *  - etc.
-                               */
-                               // reference constraint from query flow shared constraints (qfsc)
-                               var actionConstr = this.qfsc[ this.name ];
-   
-                               // update action constraint with shared this action context object (taco)
-                               actionConstr.actionContext = this.actionContext;
-   
-                               // get all constraint functions, aka constraint actions
-                               var c_funcs = actionConstr.acf;
-   
-                               // loop over all - 1 regular constraint functions
-                               for ( var i = 0; i < c_funcs.length - 1; i++ )
-                                   /**
-                                       * Execute each constraint function
-                                       *  - bind context of 'this' being action constraint itself to action constraint source function
-                                       *  - pass as an argument the valid data bound to this action constraint source function
-                                       *        -> actionConstr.acf[data_1_check_func, data_2_check_func, data_3_check_func]
-                                       *        -> actionConstr.data[data_1,           data_2,            data_3]
-                                   */
-                                   c_funcs[ i ].bind( actionConstr )( actionConstr.data[ i ] );
-   
-                               // if this action constraint contains syntax check constraint
-                               if ( actionConstr.requireSyntaxCheck )
-                                   // apply syntax check constraint
-                                   c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.thisAction );
-                               else
-                                   // apply regular constraint function
-                                   c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( actionConstr.data[ c_funcs.length - 1 ] );
-                           };
-                       }
-   
-   
-                       // return action constraint object
-                       return a_constr;
-                   }
-   
-                   function runActionConstraintRecursively_I_1L ( actionCtx, actionConstr )
-                   {
-                       return prepare_ACRR_I_2L( actionCtx, actionConstr );
-   
-   
-   
-                       /**
-                        * Local helper functions
-                       */
-                       function prepare_ACRR_I_2L ( a_ctx, a_constr )
-                       {
-                           /**
-                            * Join the previous (parent - one level up the action constraint chain) action constraint with this action constraint.
-                            * Set parent constraint of this current constraint ! 
-                           */
-                           a_ctx.parentConstraint = a_constr;
-   
-                           // execute constraint chain check
-                           run_ACR_I_2L( a_ctx.parentConstraint );
-   
-   
-   
-                           /**
-                            * Local helper functions
-                           */
-                           function run_ACR_I_2L ( actionConstr )
-                           {
-                               // navigate "down the road" to the first constraint
-                               if ( actionConstr.parentConstraint && !actionConstr.parentConstraint.stopDrillingDown )
-                                   run_ACR_I_2L( actionConstr.parentConstraint );
-   
-                               // from here run all constraints in the chain up to and/or including current action constraint
-                               if ( actionConstr.isNotNull && actionConstr.isEnabled )
-                                   actionConstr.apply();
-                           }
-                       }
-                   }
-               },
+                            action_ctx,
+                            jlc_instance_qmi
+                        );
+
+
+
+                    /**
+                     * Local helper functions 
+                    */
+                    function createAction_I_1L ( m_q_c, jlc_ctx, c_m_b )
+                    {
+                        // create action object
+                        var ao = Object.create( null );
+
+
+                        // store information whether this action is executable one
+                        // @ts-ignore
+                        ao.returnsData = System.Linq.QueryResult[ m_q_c ];
+
+                        // store collection index
+                        ao.coll_ref = jlc_ctx.coll_index;
+
+                        // store root of the chain filters
+                        ao.chain_root_id = jlc_ctx.root_token;
+
+                        // get second-level sorting context shared across query flow
+                        ao.sharedSecondLevelSortingCtx = jlc_ctx.sharedSecondLevelSortingCtx
+                            ?
+                            jlc_ctx.sharedSecondLevelSortingCtx
+                            :
+                            _ACTION.hpid.sorting.createSecondLevelCtx();
+
+                        // store this action sorting metadata (if action requires so)
+                        ao.sortingMetadataCtx = [
+                            System.Linq.Context.orderBy,
+                            System.Linq.Context.orderByDescending,
+                            System.Linq.Context.thenBy,
+                            System.Linq.Context.thenByDescending,
+                            System.Linq.Context.min,
+                            System.Linq.Context.max,
+                            System.Linq.Context.average
+                        ].indexOf( m_q_c ) > -1 ?
+                            _ACTION.hpid.sorting.createSortingMetadataCtx() : undefined;
+
+                        // store parent of this action
+                        ao.parent = jlc_ctx.parent;
+
+                        // execute this action by invoking its core method with binded parameters
+                        ao.execute = function ()
+                        {
+                            return c_m_b.bind( null, this )();
+                        };
+
+
+                        // return action object
+                        return ao;
+                    }
+
+                    function createActionContext_I_1L ( jlc_ctx, action )
+                    {
+                        // create this action context object
+                        var taco = Object.create( null );
+
+
+                        // collection reference id
+                        taco.coll_index = jlc_ctx.coll_index;
+                        // collection token
+                        taco.root_token = jlc_ctx.root_token;
+
+                        // collection fim (first item metadata)
+                        taco.fim = jlc_ctx.fim;
+
+                        // get first-level sorting context shared across query flow
+                        taco.sharedFirstLevelSortingCtx = jlc_ctx.sharedFirstLevelSortingCtx
+                            ?
+                            _COMMON.deepCopyYesCR( jlc_ctx.sharedFirstLevelSortingCtx )
+                            :
+                            _ACTION.hpid.sorting.createFirstLevelCtx();
+
+                        // join this action with the previous (parent) action up the action chain
+                        taco.parent = action;
+
+
+                        // return this action context object
+                        return taco;
+                    }
+
+                    function createActionConstraint_I_1L ( jlc_ctx, constr_def, a_ctx )
+                    {
+                        // create action constraint object
+                        var a_constr = Object.create( null );
+
+
+                        // determine nullability of a constraint
+                        a_constr.isNotNull = constr_def !== undefined;
+
+                        // when constriant is defined
+                        if ( a_constr.isNotNull )
+                        {
+                            // assign name to this constraint
+                            a_constr.name = constr_def.name;
+
+                            // determine whether this constraint should be enabled
+                            a_constr.isEnabled = constr_def.all_required.indexOf( context ) > -1;
+
+                            // store all invocation contexts for later checking of necessity of invoking some constraints
+                            a_constr.all_required = constr_def.all_required;
+
+
+                            // store whether this-query-flow collection input type is a primitive
+                            a_constr.isPrimitive = jlc_ctx.fim.is_prim;
+
+                            // store user-provided query filtering predicates
+                            a_constr.predicate_array = constr_def.predicate_array;
+
+
+                            // store query flow shared constraints (qfsc)
+                            if ( a_ctx.parentConstraint )
+                            {
+                                // get so-far created query flow shared constraints from parent
+                                a_constr.qfsc = a_ctx.parentConstraint.qfsc;
+
+                                // fetch query flow shared constraints for this action
+                                var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
+
+                                // merge qfsc with ta_qfsc
+                                Object.assign( a_constr.qfsc, ta_qfsc[ constr_def.name ] );
+                            }
+                            // create query flow shared constraints (qfsc) during the very first access
+                            else
+                            {
+                                // fetch default action constraints for this action
+                                a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
+
+                                // update action context of this action's default action constraints object
+                                a_constr.qfsc[ constr_def.name ].actionContext = a_ctx;
+
+                            }
+                            // determine whether stop further drilling down of the parent chain
+                            a_constr.stopDrillingDown = a_constr.qfsc[ constr_def.name ].isEnabled;
+
+
+                            // store shared first-level sorting context
+                            a_constr.actionContext = a_ctx;
+
+                            // store this-action-constraint bound action
+                            a_constr.thisAction = a_ctx.parent;
+
+                            // store parent of this action constraint
+                            a_constr.parentConstraint = jlc_ctx.parentConstraint;
+
+
+                            // define action constraint apply method
+                            a_constr.apply = function ()
+                            {
+                                /**
+                                    * Fetch on demand action constraint
+                                    * 
+                                    * Future action constraint possible improvements
+                                    *  - you apply some logic to action constraint internal state, f.e. setting its 'isEnabled' flag to true/false given some conditions
+                                    *  - you have access to this-action-constraint, hence you can do various stuff starting from here
+                                    *  
+                                    *  - etc.
+                                */
+                                // reference constraint from query flow shared constraints (qfsc)
+                                var actionConstr = this.qfsc[ this.name ];
+
+                                // update action constraint with shared this action context object (taco)
+                                actionConstr.actionContext = this.actionContext;
+
+                                // get all constraint functions, aka constraint actions
+                                var c_funcs = actionConstr.acf;
+
+                                // loop over all - 1 regular constraint functions
+                                for ( var i = 0; i < c_funcs.length - 1; i++ )
+                                    /**
+                                        * Execute each constraint function
+                                        *  - bind context of 'this' being action constraint itself to action constraint source function
+                                        *  - pass as an argument the valid data bound to this action constraint source function
+                                        *        -> actionConstr.acf[data_1_check_func, data_2_check_func, data_3_check_func]
+                                        *        -> actionConstr.data[data_1,           data_2,            data_3]
+                                    */
+                                    c_funcs[ i ].bind( actionConstr )( actionConstr.data[ i ] );
+
+                                // if this action constraint contains syntax check constraint
+                                if ( actionConstr.requireSyntaxCheck )
+                                    // apply syntax check constraint
+                                    c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.thisAction );
+                                else
+                                    // apply regular constraint function
+                                    c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( actionConstr.data[ c_funcs.length - 1 ] );
+                            };
+                        }
+
+
+                        // return action constraint object
+                        return a_constr;
+                    }
+
+                    function runActionConstraintRecursively_I_1L ( actionCtx, actionConstr )
+                    {
+                        return prepare_ACRR_I_2L( actionCtx, actionConstr );
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function prepare_ACRR_I_2L ( a_ctx, a_constr )
+                        {
+                            /**
+                             * Join the previous (parent - one level up the action constraint chain) action constraint with this action constraint.
+                             * Set parent constraint of this current constraint ! 
+                            */
+                            a_ctx.parentConstraint = a_constr;
+
+                            // execute constraint chain check
+                            run_ACR_I_2L( a_ctx.parentConstraint );
+
+
+
+                            /**
+                             * Local helper functions
+                            */
+                            function run_ACR_I_2L ( actionConstr )
+                            {
+                                // navigate "down the road" to the first constraint
+                                if ( actionConstr.parentConstraint && !actionConstr.parentConstraint.stopDrillingDown )
+                                    run_ACR_I_2L( actionConstr.parentConstraint );
+
+                                // from here run all constraints in the chain up to and/or including current action constraint
+                                if ( actionConstr.isNotNull && actionConstr.isEnabled )
+                                    actionConstr.apply();
+                            }
+                        }
+                    }
+                },
 
             executeChain: /**
             * Execute all actions in the chain.
             */
-               function ( jlc_ctx )
-               {
-                   return execute_C_I_1L( jlc_ctx );
-   
-   
-   
-                   /**
-                    * Local helper functions
-                   */
-                   function execute_C_I_1L ( jlc_ctx )
-                   {
-                       // do necessary cleanup before producing pre-output result
-                       _ACTION.hpidCommons.clearCache( jlc_ctx.parent.sharedSecondLevelSortingCtx );
-   
-                       // execute all actions and produce pre-output result
-                       var result = executeActionsRecursively_I_2L( jlc_ctx.parent );
-   
-                       // return final data based on pre-output result
-                       return getOutput_I_2L( result );
-   
-   
-   
-                       /**
-                        * Local helper functions
-                       */
-                       function executeActionsRecursively_I_2L ( parentAction )
-                       {
-                           // go all the way down to the root action
-                           if ( parentAction.parent )
-                               executeActionsRecursively_I_2L( parentAction.parent );
-   
-                           // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
-                           if ( parentAction.returnsData )
-                               return parentAction.execute();
-                           else
-                               parentAction.execute();
-                       }
+                function ( jlc_ctx )
+                {
+                    return execute_C_I_1L( jlc_ctx );
 
-                       function getOutput_I_2L ( result )
-                       {
-                           // declare output data (a result of input collection being filtered off through all filters)
-                           var output;
-   
-                           // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
-                           if ( _ACTION.hpid.done && Array.isArray( _ACTION.hpid.data ) )
-                               output = _ACTION.hpid.data.slice( 0 );
-                           // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
-                           else if ( _ACTION.hpid.done )
-                               output = _ACTION.hpid.data;
-                           else
-                               // ... otherwise return result as the output
-                               output = result;
-   
-                           // return output data
-                           return output;
-                       }
-                   }
-               }
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function execute_C_I_1L ( jlc_ctx )
+                    {
+                        // do necessary cleanup before producing pre-output result
+                        _ACTION.hpidCommons.clearCache( jlc_ctx.parent.sharedSecondLevelSortingCtx );
+
+                        // execute all actions and produce pre-output result
+                        var result = executeActionsRecursively_I_2L( jlc_ctx.parent );
+
+                        // return final data based on pre-output result
+                        return getOutput_I_2L( result );
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function executeActionsRecursively_I_2L ( parentAction )
+                        {
+                            // go all the way down to the root action
+                            if ( parentAction.parent )
+                                executeActionsRecursively_I_2L( parentAction.parent );
+
+                            // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
+                            if ( parentAction.returnsData )
+                                return parentAction.execute();
+                            else
+                                parentAction.execute();
+                        }
+
+                        function getOutput_I_2L ( result )
+                        {
+                            // declare output data (a result of input collection being filtered off through all filters)
+                            var output;
+
+                            // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
+                            if ( _ACTION.hpid.done && Array.isArray( _ACTION.hpid.data ) )
+                                output = _ACTION.hpid.data.slice( 0 );
+                            // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
+                            else if ( _ACTION.hpid.done )
+                                output = _ACTION.hpid.data;
+                            else
+                                // ... otherwise return result as the output
+                                output = result;
+
+                            // return output data
+                            return output;
+                        }
+                    }
+                }
         }
     };
 
@@ -1748,83 +1805,18 @@
          *
          * @param {any} o
          */
-            function ( o ) {
-                return Object.prototype.toString.call(o);
-            },
-
-        // 🛑 TO BE REMOVED - unused
-        createType: /**
-         * Create type based on passed template object.
-         * 
-         * @param {any} templateObject
-         */
-            function ( templateObject )
+            function ( o )
             {
-                return create_T_I_1L( templateObject );
+                return convert_T2S_I_1L( o );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function create_T_I_1L ( templateObject )
+                function convert_T2S_I_1L ( o )
                 {
-                    // loop over all props and delete their values
-                    for ( var eot_k in templateObject )
-                    {
-                        // access current property
-                        var objProp = templateObject[ eot_k ];
-
-                        // if it's nested another object, drill down to discover the props of such nested object
-                        if ( typeof objProp === 'object' )
-                        {
-                            create_T_I_1L( objProp );
-                        }
-                        // for primitive props just set the value to 'undefined'
-                        else if ( typeof objProp !== 'function' )
-                        {
-                            templateObject[ eot_k ] = undefined;
-                        }
-                    }
-
-                    // return the empty object
-                    return templateObject;
-                }
-            },
-
-        // 🛑 TO BE REMOVED - unused
-        createDefaultOfType: /**
-         * Create default value of type.
-         *
-         * @param {any} historyIndex
-         */
-            function ( historyIndex )
-            {
-                return create_DoT_I_1L( historyIndex );
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function create_DoT_I_1L ( historyIndex )
-                {
-                    // get collection item type metadata of contextually current collection from history array
-                    var itemTypeMetadata = _DATA.getT( historyIndex );
-
-                    if ( itemTypeMetadata.isReady )
-                        // return an empty proper object
-                        return itemTypeMetadata.output;
-                    else
-                    {
-                        if ( itemTypeMetadata.makeItEmpty )
-                            itemTypeMetadata.output = _COMMON.createType( itemTypeMetadata.source );
-                        else
-                            itemTypeMetadata.output = itemTypeMetadata.source;
-
-                        // return an empty proper object
-                        return itemTypeMetadata.output;
-                    }
+                    return Object.prototype.toString.call( o );
                 }
             },
 
@@ -1937,95 +1929,105 @@
          */
             function ( param_arr )
             {
+                return guess_CDV_I_1L( param_arr );
+
+
+
                 /**
-                 * Check the chain of invoked so-far methods, and based on that examine what type of item in the source collection you would deal with,
-                 * if any data would have been available, when query flow had arrived in 'defaultIfEmpty' method.
+                 * Local helper functions
                 */
-
-                // reference api object
-                var api = param_arr[ 0 ];
-
-                // get source collection input item
-                var inputItem = param_arr[ 1 ];
-
-                // cache current query interceptor
-                var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
-
-                // enable transparent object property access
-                _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
-
-                // determine current query flow (all invoked methods up to this method)
-                var method_names = getQueryMethodNames_I_1L();
-
-                var possible_type, method_name;
-                // iterate all query method names from the top of the chain
-                for ( var i = method_names.length - 1; i >= 0; i-- )
+                function guess_CDV_I_1L ( param_arr )
                 {
-                    // reference method name
-                    method_name = method_names[ i ];
+                    /**
+                     * Check the chain of invoked so-far methods, and based on that examine what type of item in the source collection you would deal with,
+                     * if any data would have been available, when query flow had arrived in 'defaultIfEmpty' method.
+                    */
 
-                    // if it's dictionary then break it
-                    if ( method_name === System.Linq.Context.toDictionary )
-                    {
-                        possible_type = _ENUM.CIT.KVP;
-                        break;
-                    }
-                    // if it's grouping object then check it further down the chain
-                    else if ( method_name === System.Linq.Context.groupBy )
-                    {
-                        possible_type = _ENUM.CIT.GROUPING;
+                    // reference api object
+                    var api = param_arr[ 0 ];
 
-                        var method_name_2;
-                        // iterate all query method names from the current position in the chain towards the bottom
-                        for ( var j = i - 1; j >= 0; j-- )
+                    // get source collection input item
+                    var inputItem = param_arr[ 1 ];
+
+                    // cache current query interceptor
+                    var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
+
+                    // enable transparent object property access
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+
+                    // determine current query flow (all invoked methods up to this method)
+                    var method_names = getQueryMethodNames_I_2L();
+
+                    var possible_type, method_name;
+                    // iterate all query method names from the top of the chain
+                    for ( var i = method_names.length - 1; i >= 0; i-- )
+                    {
+                        // reference method name
+                        method_name = method_names[ i ];
+
+                        // if it's dictionary then break it
+                        if ( method_name === System.Linq.Context.toDictionary )
                         {
-                            // reference method name
-                            method_name_2 = method_names[ i ];
+                            possible_type = _ENUM.CIT.KVP;
+                            break;
+                        }
+                        // if it's grouping object then check it further down the chain
+                        else if ( method_name === System.Linq.Context.groupBy )
+                        {
+                            possible_type = _ENUM.CIT.GROUPING;
 
-                            // if it's dictionary then break it
-                            if ( method_name_2 === System.Linq.Context.toDictionary )
+                            var method_name_2;
+                            // iterate all query method names from the current position in the chain towards the bottom
+                            for ( var j = i - 1; j >= 0; j-- )
                             {
-                                possible_type = _ENUM.CIT.KVP;
-                                break;
+                                // reference method name
+                                method_name_2 = method_names[ i ];
+
+                                // if it's dictionary then break it
+                                if ( method_name_2 === System.Linq.Context.toDictionary )
+                                {
+                                    possible_type = _ENUM.CIT.KVP;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                // for 'KVP' or 'GROUPING' default value is undefined
-                if ( possible_type === _ENUM.CIT.KVP || possible_type === _ENUM.CIT.GROUPING )
-                    // define collection default value
-                    api._ctx.cdv = undefined;
-                // it must be 'PLAIN' or 'PRIMITIVE'
-                else
-                    // define collection default value
-                    api._ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
+                    // for 'KVP' or 'GROUPING' default value is undefined
+                    if ( possible_type === _ENUM.CIT.KVP || possible_type === _ENUM.CIT.GROUPING )
+                        // define collection default value
+                        api._ctx.cdv = undefined;
+                    // it must be 'PLAIN' or 'PRIMITIVE'
+                    else
+                        // define collection default value
+                        api._ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
 
-                // restore query flow context-default interceptor
-                _LINQ_CONTEXT._arrayProxyHandler.get = current_GET_interceptor;
-
+                    // restore query flow context-default interceptor
+                    _LINQ_CONTEXT._arrayProxyHandler.get = current_GET_interceptor;
 
 
-                /**
-                 * Local helper methods
-                */
-                function getQueryMethodNames_I_1L ()
-                {
-                    // get all valid query names from the current flow
-                    var queryNames = [];
 
-                    // fetch all query methods of current flow (qmcf)
-                    var qmcf = api[ _ENUM.MISC._QMI ];
-
-                    // loop over api and store only query method names
-                    for ( let key in qmcf )
+                    /**
+                     * Local helper methods
+                    */
+                    function getQueryMethodNames_I_2L ()
                     {
-                        if ( typeof qmcf[ key ] === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
-                            queryNames.push( key );
-                    }
+                        // get all valid query names from the current flow
+                        var queryNames = [];
 
-                    // return all valid query method names
-                    return queryNames;
+                        // fetch all query methods of current flow (qmcf)
+                        var qmcf = api[ _ENUM.MISC._QMI ];
+
+                        // loop over api and store only query method names
+                        for ( let key in qmcf )
+                        {
+                            if ( typeof qmcf[ key ] === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
+                                queryNames.push( key );
+                        }
+
+                        // return all valid query method names
+                        return queryNames;
+                    }
                 }
             },
 
@@ -2034,50 +2036,110 @@
          *
          * @param {any} param_arr
          */
-            function (param_arr) {
-                // cache current query interceptor
-                var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
-
-                // enable transparent object property access
-                _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+            function ( param_arr )
+            {
+                return determine_PT_I_1L( param_arr );
 
 
 
                 /**
-                 * cmpo stands for core method params object, which for some query methods' acp is optional.
-                 * It gives access to all params and their values of the jcm method !
+                 * Local helper functions
                 */
-                // reference JLC proxied instance
-                var api = param_arr[0];
+                function determine_PT_I_1L ( param_arr )
+                {
+                    // cache current query interceptor
+                    var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
 
-                // reference core method args and get filtering property
-                var property = param_arr[1]['property'][0];
+                    // enable transparent object property access
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
-                /**
-                 * Loop this-query-flow collection and find the first existing property, based on which we can determine its type !
-                 * It is assumed that some object may miss such property.
-                */
-                var currentColl = _DATA.fetchFlowData(api._ctx._coll_idx, false);
-                
-                var propertyValue;
-                for(var i = 0; i < currentColl.length; i++) {
-                    // get property value
-                    propertyValue = _COMMON.getPropertyValueFromObject(property, currentColl[i]);
 
-                    // if property doesn't exist or has non-defined value
-                    if(propertyValue === undefined || propertyValue === null) continue;
 
-                    // if exists property (if we arrive here) and has value, break further search
-                    break;
+                    /**
+                     * cmpo stands for core method params object, which for some query methods' acp is optional.
+                     * It gives access to all params and their values of the jcm method !
+                    */
+                    // reference JLC proxied instance
+                    var api = param_arr[ 0 ];
+
+                    // reference core method args and get filtering property
+                    var property = param_arr[ 1 ][ 'property' ][ 0 ];
+
+                    // is special property
+                    var isp = _COMMON.isSpecialProperty ( property );
+
+                    /**
+                     * Loop this-query-flow collection and find the first existing property, based on which we can determine its type !
+                     * It is assumed that some object may miss such property.
+                    */
+                    var currentColl = _DATA.fetchFlowData( api._ctx.coll_index, false );
+
+                    var propertyValue;
+                    for ( var i = 0; i < currentColl.length; i++ )
+                    {
+                        // get property value
+                        propertyValue = _COMMON.getPropertyValueFromObject( property, currentColl[ i ] );
+
+                        // if property doesn't exist or has non-defined value
+                        if ( propertyValue === undefined || propertyValue === null ) continue;
+
+                        // if exists property (if we arrive here) and has value, break further search
+                        break;
+                    }
+
+                    // define min-max-average type of the value
+                    api._ctx.mmavt = Object.create( null );
+                    api._ctx.mmavt.selector = property;
+                    api._ctx.mmavt.t2sr = isp ? _COMMON.determineSpecialPropertyType(property) : _COMMON.convertTypeToString( propertyValue );
+
+
+
+                    // restore query flow context-default interceptor
+                    _LINQ_CONTEXT._arrayProxyHandler.get = current_GET_interceptor;
                 }
+            },
 
-                // define min-max-average type of the value
-                api._ctx.mmavt = _COMMON.convertTypeToString(propertyValue);
+        isSpecialProperty: /**
+            * Check for special property that is used primarily during sorting collection by objects themselves.
+            *
+            * @param {any} propName
+            */
+            function ( propName )
+            {
+                return is_SP_I_1L( propName );
 
 
 
-                // restore query flow context-default interceptor
-                _LINQ_CONTEXT._arrayProxyHandler.get = current_GET_interceptor;
+                /**
+                 * Local helper functions
+                */
+                function is_SP_I_1L ( propName )
+                {
+                    return [ _ENUM.SPECIAL_PROPS.OBJECT_EXCLAMATION_MARK, _ENUM.SPECIAL_PROPS.VALUE_DOT ].includes( propName );
+                }
+            },
+
+        determineSpecialPropertyType: /**
+             * Determine the type of the special property used to filter a collection during maths-based query methods.
+             *
+             * @param {any} propName
+             */
+            function ( specialPropName )
+            {
+                return determine_SPT_I_1L( specialPropName );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function determine_SPT_I_1L ( specialPropName )
+                {
+                    if ( specialPropName === _ENUM.SPECIAL_PROPS.OBJECT_EXCLAMATION_MARK )
+                        return _ENUM.T2SR.OBJECT;
+                    else if ( specialPropName === _ENUM.SPECIAL_PROPS.VALUE_DOT )
+                        return _ENUM.T2SR.OBJECT;
+                }
             },
 
         getCustomValueOfSymbol: /**
@@ -2108,32 +2170,64 @@
          */
             function ( propName, obj )
             {
-                // is it a complex property
-                if ( propName.includes( '.' ) )
+                return get_PVfO_I_1L( propName, obj );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function get_PVfO_I_1L ( propName, obj )
                 {
-                    // create array of prop's path
-                    var path_arr = propName.split( '.' );
+                    // is it a complex property
+                    if ( propName.includes( '.' ) )
+                    {
+                        // create array of prop's path
+                        var path_arr = propName.split( '.' );
 
-                    // define property value holder (pvh)
-                    var pvh;
-                    // loop over array of prop's path to seek the destination property and return its value
-                    for ( var i = 0; i < path_arr.length; i++ ) {
-                        if(pvh)
-                            pvh = pvh[ path_arr[ i ] ];
-                        else
-                            pvh = obj[ path_arr[ i ] ];
+                        // define property value holder (pvh)
+                        var pvh;
+                        // loop over array of prop's path to seek the destination property and return its value
+                        for ( var i = 0; i < path_arr.length; i++ )
+                        {
+                            if ( pvh )
+                                pvh = pvh[ path_arr[ i ] ];
+                            else
+                                pvh = obj[ path_arr[ i ] ];
 
-                        // if along the way you come across non-existing property in the object, break the drilling down and return undefined
-                        if(!pvh) break;
+                            // if along the way you come across non-existing property in the object, break the drilling down and return undefined
+                            if ( !pvh ) break;
+                        }
+
+                        // get property value from object
+                        return pvh;
                     }
+                    // or is it a current-level property
+                    else
+                    {
+                        // check for special property that is used primarily during sorting collection by objects themselves
+                        var isp = _COMMON.isSpecialProperty ( propName );
 
-                    // get property value from object
-                    return pvh;
+                        // if so, return mapped internal value
+                        if ( isp )
+                        {
+                            /**
+                             * User must provide implementation of toString method if sorting by the object itself is required ⚠️
+                             * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
+                            */
+                            if ( !obj.toString || ( obj.toString === Object.prototype.toString ) )
+                                throw ReferenceError(
+                                    '\r\nSorting PLAIN or KVP\'s VALUE by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
+                                );
+                            // get property value from object
+                            return obj.toString();
+                        }
+                        // otherwise, return this property value
+                        else
+                            // get property value from object
+                            return obj[ propName ];
+                    }
                 }
-                // or is it a current-level property
-                else
-                    // get property value from object
-                    return obj[ propName ];
             },
 
         deepCopyYesCR: /**
@@ -2310,7 +2404,7 @@
             },
 
         fetchObjectStructureKeys: /**
-         * Fetch all keys at all levels of passed object. 
+         * Fetch all keys at all levels of passed object.
          *
          * @param {any} obj
          */
@@ -2404,65 +2498,75 @@
          */
             function ( item, key_prop_arr )
             {
-                // declare a real key
-                var key, keyPart;
+                return fetch_OKV_I_1L( item, key_prop_arr );
 
-                // loop over key parts and apply the comparison logic
-                for ( var i = 0; i < key_prop_arr.length; i++ )
+
+
+                /**
+                 * Local helper functions
+                */
+                function fetch_OKV_I_1L ( item, key_prop_arr )
                 {
-                    // reference the key part
-                    // @ts-ignore
-                    keyPart = key_prop_arr[ i ];
+                    // declare a real key; some key temp object
+                    var key, keyPart;
 
-                    // is it complex ?
-                    // @ts-ignore
-                    if ( keyPart.isValidProperty && keyPart.isComplex )
+                    // loop over key parts and apply the comparison logic
+                    for ( var i = 0; i < key_prop_arr.length; i++ )
                     {
-                        // if key is already initialized
-                        if ( key )
-                            // get the property value from both, the current and the previous object
-                            // @ts-ignore
-                            key += _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
-                        else
-                        {
-                            // get the key value - get the property value from both, the current and the previous object
-                            // @ts-ignore
-                            var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
-
-                            // initialize a key with a default value
-                            key = _COMMON.getDefaultValueOf( rkv );
-                            key += rkv;
-                        }
-                    }
-                    // is it simple ?
-                    // @ts-ignore
-                    else if ( keyPart.isValidProperty )
-                    {
-                        // if key is already initialized
-                        if ( key )
-                            // @ts-ignore
-                            key += item[ keyPart.value ];
-                        else
-                        {
-                            // get the key value
-                            // @ts-ignore
-                            var rkv = item[ keyPart.value ];
-
-                            // initialize a key with a default value
-                            key = _COMMON.getDefaultValueOf( rkv );
-                            key += rkv;
-                        }
-                    }
-                    // otherwise apply some part that is not a property of an object
-                    else
-                    {
+                        // reference the key part
                         // @ts-ignore
-                        key += keyPart.value;
-                    }
-                }
+                        keyPart = key_prop_arr[ i ];
 
-                // return the key from object
-                return key;
+                        // is it complex ?
+                        // @ts-ignore
+                        if ( keyPart.isValidProperty && keyPart.isComplex )
+                        {
+                            // if key is already initialized
+                            if ( key )
+                                // get the property value from both, the current and the previous object
+                                // @ts-ignore
+                                key += _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
+                            else
+                            {
+                                // get the key value - get the property value from both, the current and the previous object
+                                // @ts-ignore
+                                var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
+
+                                // initialize a key with a default value
+                                key = _COMMON.getDefaultValueOf( rkv );
+                                key += rkv;
+                            }
+                        }
+                        // is it simple ?
+                        // @ts-ignore
+                        else if ( keyPart.isValidProperty )
+                        {
+                            // if key is already initialized
+                            if ( key )
+                                // @ts-ignore
+                                key += item[ keyPart.value ];
+                            else
+                            {
+                                // get the key value
+                                // @ts-ignore
+                                var rkv = item[ keyPart.value ];
+
+                                // initialize a key with a default value
+                                key = _COMMON.getDefaultValueOf( rkv );
+                                key += rkv;
+                            }
+                        }
+                        // otherwise apply some part that is not a property of an object
+                        else
+                        {
+                            // @ts-ignore
+                            key += keyPart.value;
+                        }
+                    }
+
+                    // return the key from object
+                    return key;
+                }
             },
 
         createCompoundKey: /**
@@ -2527,33 +2631,10 @@
                                 // declare a sorting phrase
                                 var phrase = '';
 
-                                var sort_col;
                                 // loop over updated sort set input
                                 for ( var i = 0; i < sort_cols_arr.length; i++ )
-                                {
-                                    // reference sorting column 
-                                    sort_col = sort_cols_arr[ i ];
-
-                                    // determine whether it's nested object column or a current level column
-                                    if ( sort_col.indexOf( '.' ) > 0 )
-                                    {
-                                        // get all property names leading to the nested object value
-                                        var col_parts = sort_col.split( '.' );
-                                        // declare nested object value
-                                        var nev = obj;
-
-                                        // go to nested object value
-                                        for ( var j = 0; j < col_parts.length; j++ )
-                                            // @ts-ignore
-                                            nev = nev[ col_parts[ j ] ];
-
-                                        // build the sorting phrase
-                                        phrase += nev + '-';
-                                    }
-                                    else
-                                        // build the sorting phrase
-                                        phrase += obj[ sort_cols_arr[ i ] ] + '-';
-                                }
+                                    // build the sorting phrase
+                                    phrase += _COMMON.getPropertyValueFromObject( sort_cols_arr[ i ], obj ) + '-';
 
                                 // remove the last dash - phrase joining sign
                                 phrase = phrase.substring( 0, phrase.length - 1 );
@@ -2671,25 +2752,8 @@
 
                                 // by 'object' itself
                                 if ( sortMetadata && sortMetadata.byObjectString )
-                                {
-                                    /**
-                                     * User must provide implementation of toString method if sorting by the object itself is required ⚠️
-                                     * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
-                                    */
-                                    if ( !itemCurrent.toString || ( itemCurrent.toString === Object.prototype.toString ) )
-                                        throw ReferenceError(
-                                            '\r\nSorting PLAIN by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
-                                        );
-
-                                    if ( !itemPrevious.toString || ( itemPrevious.toString === Object.prototype.toString ) )
-                                        throw ReferenceError(
-                                            '\r\nSorting PLAIN by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
-                                        );
-
-
                                     // if both objects have custom methods toString(), just invoke basic boolean comparison
                                     return Boolean_Comparator_I_2L( itemCurrent.toString(), itemPrevious.toString() );
-                                }
 
                                 // invoke PLAIN comparator private function
                                 return PLAIN_Comparator_I_2L( itemCurrent, itemPrevious, _ENUM.CIT.PLAIN );
@@ -2850,10 +2914,10 @@
                             // throw error
                             else
                                 throw Error(
-                                    '\r\nThis collection input type (cit) called "' + _COMMON.getCustomValueOfSymbol(citCtx) +
+                                    '\r\nThis collection input type (cit) called "' + _COMMON.getCustomValueOfSymbol( citCtx ) +
                                     '" is not supported by PLAIN comparator !\r\nValid contexts are [' +
-                                    _COMMON.getCustomValueOfSymbol(_ENUM.CIT.PLAIN) + ', ' +
-                                    _COMMON.getCustomValueOfSymbol(_ENUM.CIT.KVP) +
+                                    _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + ', ' +
+                                    _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) +
                                     '] !\r\n\r\n'
                                 );
 
@@ -2929,7 +2993,7 @@
                                     return 1;
 
                             default:
-                                throw Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol(sort_mode) + ' ] !\r\n\r\n' );
+                                throw Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol( sort_mode ) + ' ] !\r\n\r\n' );
                         }
                     }
                 }
@@ -3433,7 +3497,7 @@
                     var passed = false;
 
                     // create input collection cache
-                    var currentColl = _DATA.fetchFlowData(jlc._ctx.coll_index, false);
+                    var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
 
                     // loop over current collection and apply filters
@@ -3513,13 +3577,13 @@
                     // loop over array of prop's path to seek the destination property and/or return its value
                     for ( var i = 0, length = returnValue ? path_arr.length : path_arr.length - 1; i < length; i++ )
                     {
-                        if(pvh)
+                        if ( pvh )
                             pvh = pvh[ path_arr[ i ] ];
                         else
                             pvh = currentObject[ path_arr[ i ] ];
 
                         // if along the way you come across non-existing property in the object, break the drilling down and return undefined
-                        if(!pvh) break;
+                        if ( !pvh ) break;
                     }
 
                     // return value of the property or property
@@ -4049,7 +4113,8 @@
                                     if ( ( index < 0 || index >= currentColl.length ) && !count )
                                         throw Error( '\r\nThe index was out of range.\r\nIt must be non-negative and smaller than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
                                     // handle OutOfRangeException in the method called 'elementAtOrDefault'
-                                    else if ( ( index < 0 || index >= currentColl.length ) && count ) {
+                                    else if ( ( index < 0 || index >= currentColl.length ) && count )
+                                    {
                                         // fetch the default value of the collection input type
                                         currentColl = jlc._ctx.cdv;
 
@@ -4353,7 +4418,7 @@
                         */
 
                         // object props to be extracted
-                        var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray );
+                        var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray, false );
 
                         // apply UDF
                         if ( selectorArray.length > 1 )
@@ -4406,7 +4471,7 @@
                         */
 
                         // object props to be extracted
-                        var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray );
+                        var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray, false );
 
                         // apply UDF
                         if ( selectorArray.length > 1 )
@@ -5024,35 +5089,49 @@
                     function getResult_I_2L ()
                     {
                         // check the edge case (empty collection)
-                        if(_ACTION.hpid.data.length === 0) {
+                        if ( _ACTION.hpid.data.length === 0 )
+                        {
                             // validate item
-                            if((jlc._ctx.mmavt === _ENUM.T2SR.STRING || jlc._ctx.mmavt === _ENUM.T2SR.OBJECT) && (enumValue === _ENUM.MIN || enumValue === _ENUM.MAX))
+                            if ( ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr === _ENUM.T2SR.OBJECT ) && ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) )
                                 return undefined;
-                            else throw Error ('\r\The sequence has no elements.\r\n\r\n');
+                            else if ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX )
+                                throw Error( '\r\The sequence has no elements.\r\n\r\n' );
+                            else if ( ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr === _ENUM.T2SR.BOOLEAN || jlc._ctx.mmavt.t2sr === _ENUM.T2SR.OBJECT ) && ( enumValue === _ENUM.AVG ) )
+                                throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                            else if ( ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.NUMBER ) && ( enumValue === _ENUM.AVG ) )
+                                throw Error( '\r\The sequence has no elements.\r\n\r\n' );
                         }
                         // check the edge case (one item in collection)
-                        else if(_ACTION.hpid.data.length === 1) {
-                                // return the only item in the collection
-                                return _ACTION.hpid.data[ 0 ];
-                        }
+                        else if ( _ACTION.hpid.data.length === 1 )
+                            // fetch item or item's property
+                            return fetchItemOrItemProp_I_3L( 0 );
                         // handle min, max, average
-                        else {
+                        else
+                        {
                             // compute 'min' value
                             if ( enumValue === _ENUM.MIN )
-                                return _ACTION.hpid.data[ 0 ];
+                                // fetch item or item's property
+                                return fetchItemOrItemProp_I_3L( 0 );
                             // compute 'max' value
-                            else if ( enumValue === _ENUM.MAX ) {
-                                return _ACTION.hpid.data[ _ACTION.hpid.data.length - 1 ];
-                            }
+                            else if ( enumValue === _ENUM.MAX )
+                                // fetch item or item's property
+                                return fetchItemOrItemProp_I_3L( _ACTION.hpid.data.length - 1 );
                             // compute 'avg' value
                             else if ( enumValue === _ENUM.AVG )
                             {
-                                // precisely 'min avg'
-                                if ( roundEnumValue === _ENUM.AVG_MIN )
-                                    return _ACTION.hpid.data[ Math.floor( _ACTION.hpid.data.length / 2 ) - 1 ];
-                                // precisely 'max avg'
-                                else if ( roundEnumValue === _ENUM.AVG_MAX )
-                                    return _ACTION.hpid.data[ Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 ];
+                                if ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.NUMBER )
+                                {
+                                    // precisely 'min avg'
+                                    if ( roundEnumValue === _ENUM.AVG_MIN )
+                                        // fetch item or item's property
+                                        return fetchItemOrItemProp_I_3L( Math.floor( _ACTION.hpid.data.length / 2 ) - 1 );
+                                    // precisely 'max avg'
+                                    else if ( roundEnumValue === _ENUM.AVG_MAX )
+                                        // fetch item or item's property
+                                        return fetchItemOrItemProp_I_3L( Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 );
+                                }
+                                else
+                                    throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
                             }
                         }
 
@@ -5061,19 +5140,14 @@
                         /**
                          * Local helper functions
                         */
-                        function validateItem_I_3L(item) {
-                            /**
-                             * User must provide implementation of toString method if sorting by the object itself is required ⚠️
-                             * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
-                            */
-                            // if item lacks the custom toString method
-                            if ( !item.toString || ( item.toString === Object.prototype.toString ) )
-                                throw ReferenceError(
-                                    '\r\At least one object must implement custom method "toString()" !\r\n\r\n'
-                                );
-                            
-                            // otherwise return validation success
-                            return true;
+                        function fetchItemOrItemProp_I_3L ( index )
+                        {
+                            if ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.OBJECT )
+                                // return the only item from the collection
+                                return _ACTION.hpid.data[ index ];
+                            // return the item's property value from the collection
+                            else
+                                return _COMMON.getPropertyValueFromObject( jlc._ctx.mmavt.selector, _ACTION.hpid.data[ index ] );
                         }
                     }
                 }
@@ -5151,7 +5225,8 @@
                                     break;
 
                                 case _ENUM.SINGLE:
-                                    if ( currentColl.length === 1 ) {
+                                    if ( currentColl.length === 1 )
+                                    {
                                         // get the single item from the sequence
                                         _ACTION.hpid.data = currentColl[ 0 ];
 
@@ -5320,7 +5395,7 @@
                             _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // get only valid column names from user column set
-                            var ovc = _ACTION.hpid.columnSet.extractOVC( keyPartSelectorArray );
+                            var ovc = _ACTION.hpid.columnSet.extractOVC( keyPartSelectorArray, false );
 
                             /**
                              * Check for "special" case, i.e. cit being KVP and KVP's Value is a primitive type !
@@ -5386,7 +5461,7 @@
                         // if user defined his own comparator
                         if ( udfComparer )
                             // just invoke it
-                            _ACTION.hpid.data.sort( udfComparer.bind(sortMetaObject) );
+                            _ACTION.hpid.data.sort( udfComparer.bind( sortMetaObject ) );
                         // otherwise do the sorting using default comparator
                         else
                             /**
@@ -5472,11 +5547,12 @@
                             sls_item = groups[ j ].resultsView;
 
                             // if this array has at least 2 items
-                            if ( sls_item.length > 1 ) {
+                            if ( sls_item.length > 1 )
+                            {
                                 // if user defined his own comparator
                                 if ( udfComparer )
                                     // just invoke it
-                                    sls_item.sort( udfComparer.bind(sortMetaObject) );
+                                    sls_item.sort( udfComparer.bind( sortMetaObject ) );
                                 // otherwise do the sorting using default comparator
                                 else
                                     // sort this array by 'ovc'
@@ -5517,7 +5593,7 @@
 
 
                     var new_dirty_data;
-                    
+
                     if ( enumValue === _ENUM.APPEND )
                     {
                         // append item to the end of current data flow collection
@@ -5643,22 +5719,6 @@
                 this.collection_array.push( collection );
             },
 
-        fetch: /**
-         * Fetch metadata object of contextually current collection from history array.
-         * 
-         * @param {number} index
-         */
-            function ( index )
-            {
-                return {
-                    // collection index within history array
-                    index: index,
-
-                    // collection itself
-                    collection: this.collection_array[ index ].dirty_data
-                };
-            },
-
         fetchFlowData: /**
          * Fetch data array of contextually current collection from history array.
          *
@@ -5667,14 +5727,16 @@
             function ( index, justInitHpid )
             {
                 // just initialize HPID if required and if necessary (if HPID is not ready)
-                if(justInitHpid && !_ACTION.hpid.isOn) {
+                if ( justInitHpid && !_ACTION.hpid.isOn )
+                {
                     // update HPID object to enable further data flow
-                    _ACTION.hpid.data = _DATA.fetch( index ).collection;
-                        
+                    _ACTION.hpid.data = fetchFlowData_I_1L( index ).collection;
+
                     // mark that HPID is initialized
                     _ACTION.hpid.isOn = true;
                 }
-                else {
+                else
+                {
                     // if HPID is initialized
                     if ( _ACTION.hpid.isOn )
                         // return flow's collection cache
@@ -5682,20 +5744,25 @@
                     else
                     {
                         // create input collection cache by applying defensive copy
-                        return [ ..._DATA.fetch( index ).collection ];
+                        return [ ...fetchFlowData_I_1L( index ).collection ];
                     }
                 }
-            },
 
-        // 🛑 TO BE REMOVED - unused
-        getT: /**
-         * Fetch type metadata of collection item of contextually current collection from history array.
-         *
-         * @param {number} index
-         */
-            function ( index )
-            {
-                return this.collection_array[ index ].type;
+
+
+                /**
+                 * Local helper functions
+                */
+                function fetchFlowData_I_1L ( index )
+                {
+                    return {
+                        // collection index within history array
+                        index: index,
+
+                        // collection itself
+                        collection: _DATA.collection_array[ index ].dirty_data
+                    };
+                }
             }
     };
 
@@ -10295,7 +10362,7 @@
                                 }
 
                                 // store core method args as the last param
-                                func_args.push(core_method_params);
+                                func_args.push( core_method_params );
 
                                 // invoke function with given arguments
                                 func.call( null, func_args );

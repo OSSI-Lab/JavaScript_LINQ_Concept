@@ -117,10 +117,10 @@
         ];
 
         var collection_toString = [
-            { id: 1, name: "False software engineer", descr: "Earning a lot, learning nothing !", quality: "D", toString () { return "#" + this.id + "-" + this.descr + "-" + this.quality; } },
-            { id: 2, name: "False software developer", descr: "Earning quite a lot, playing new computer games !", quality: "F", toString () { return "#" + this.id + "-" + this.descr + "-" + this.quality; } },
-            { id: 3, name: "False software architect", descr: "Earning huge money, creating huge stupidity!", quality: "E", toString () { return "#" + this.id + "-" + this.descr + "-" + this.quality; } },
-            { id: 4, name: "False adolescent immature the rest ", descr: "Knowing nothing, learning nothing, being nothing !", quality: "D", toString () { return "#" + this.id + "-" + this.descr + "-" + this.quality; } }
+            { id: 1, name: "False software engineer", descr: "Earning a lot, learning nothing !", quality: "D", toString () { return this.descr + "-" + this.quality + "- #" + this.id; } },
+            { id: 2, name: "False software developer", descr: "Earning quite a lot, playing new computer games !", quality: "F", toString () { return this.descr + "-" + this.quality + "- #" + this.id; } },
+            { id: 3, name: "False software architect", descr: "Earning huge money, creating huge stupidity!", quality: "E", toString () { return this.descr + "-" + this.quality + "- #" + this.id; } },
+            { id: 4, name: "False adolescent immature the rest ", descr: "Knowing nothing, learning nothing, being nothing !", quality: "D", toString () { return this.descr + "-" + this.quality + "- #" + this.id; } }
         ];
 
 
@@ -712,15 +712,27 @@
             }
         );
 
-        // final query - produces output
-        var orderBy_f3 = collection.orderBy(
+        // final query - produces output 
+        var orderBy_f3 = collection_toString.orderBy(
             {
                 'keyPartSelectorArray': [
-                    [ "object.", true ]
+                    [ "object!", true ]
                 ],
                 'udfComparer': null
             }
         ).toArray();
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" ! 
+        var orderBy_f4 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "object!", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
 
         // final query - produces output
         var toArray_f1 = collection.toArray();
@@ -840,7 +852,7 @@
         ).toArray();
 
         /*
-        // final query - produces output    -> throws Error because 'order.item.size' is not iterable   -> error message = 'Selected property [ order.item.size ] is not iterable in the context of "selectMany" !'
+        // final query - produces output -> throws Error because 'order.item.size' is not iterable -> error message = 'Selected property [ order.item.size ] is not iterable in the context of "selectMany" !'
         var selectMany_f2 = collection.selectMany(
             {
                 //
@@ -1251,7 +1263,7 @@
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Method [ all ] has to have "params" object provided !
         //var all_f2 = collection.all();
 
-        // final query - produces output [find item with the smallest value of property called 'id' ]
+        // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f1 = collection.min(
             {
                 'property': [ 'id', true ],
@@ -1259,7 +1271,24 @@
             }
         );
 
-        // final query - produces output [find item with the biggest value of property called 'id' ]
+        // final query - produces output [ find item with the smallest value of the object itself ]
+        var min_f1a = collection_toString.min(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the smallest value of the object itself ] - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
+        /*
+        var min_f1b = collection.min(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+        */
+        // final query - produces output [ find item with the biggest value of property called 'id' ]
         var max_f1 = collection.max(
             {
                 'property': [ 'id', true ],
@@ -1267,7 +1296,15 @@
             }
         );
 
-        // final query - produces output [find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
+        // final query - produces output [ find item with the biggest value of the object itself ]
+        var max_f1a = collection.max(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
         var average_f1 = collection.average(
             {
                 'property': [ 'id', true ],
@@ -1275,7 +1312,15 @@
             }
         );
 
-        // final query - produces output [find item with the smallest value of property called 'id' ]
+        // final query - produces output [ find item with the average value of the object itself ]
+        var average_f1a = collection.average(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f2 = [].min(
             {
                 'property': [ 'id', true ],
@@ -1283,7 +1328,15 @@
             }
         );
 
-        // final query - produces output [find item with the biggest value of property called 'id' ]
+        // final query - produces output [ find item with the smallest value of the object itself ]
+        var min_f2a = [].min(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the biggest value of property called 'id' ]
         var max_f2 = [].max(
             {
                 'property': [ 'id', true ],
@@ -1291,7 +1344,15 @@
             }
         );
 
-        // final query - produces output [find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
+        // final query - produces output [ find item with the biggest value of the object itself ]
+        var max_f2a = [].max(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
         var average_f2 = [].average(
             {
                 'property': [ 'id', true ],
@@ -1299,7 +1360,15 @@
             }
         );
 
-        // final query - produces output [find item with the smallest value of property called 'id' ]
+        // final query - produces output [ find item with the average value of the object itself ]
+        var average_f2a = [].average(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f3 = [{id: 1, name: 'Name 1'}].min(
             {
                 'property': [ 'id', true ],
@@ -1307,7 +1376,7 @@
             }
         );
 
-        // final query - produces output [find item with the biggest value of property called 'id' ]
+        // final query - produces output [ find item with the biggest value of property called 'id' ]
         var max_f3 = [{id: 1, name: 'Name 1'}].max(
             {
                 'property': [ 'id', true ],
@@ -1315,7 +1384,7 @@
             }
         );
 
-        // final query - produces output [find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
+        // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
         var average_f3 = [{id: 1, name: 'Name 1'}].average(
             {
                 'property': [ 'id', true ],
