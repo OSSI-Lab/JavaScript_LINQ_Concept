@@ -123,6 +123,50 @@
             { id: 4, name: "False adolescent immature the rest ", descr: "Knowing nothing, learning nothing, being nothing !", quality: "D", toString () { return this.descr + "-" + this.quality + "- #" + this.id; } }
         ];
 
+        var collection_nullProps = [
+            {
+                id: 1,
+                name: "Person 1",
+                role: 'Product Manager',
+                salary: 10.00,
+                description: "Managing some product",
+                duty: { id: 1, name: "Duty 1", fitness: { run: 5, jump: 8 } }
+            },
+            {
+                id: 2,
+                name: "Person 2",
+                role: 'Product Manager',
+                salary: 11.00,
+                description: "Managing some product",
+                duty: { id: 2, name: "Duty 2", fitness: { run: 15, jump: 4 } }
+            },
+            {
+                id: 3,
+                name: "Person 3",
+                role: 'Director',
+                salary: 15.00,
+                description: "Dispatching orders",
+                duty: { id: 3, name: "Duty 3" }
+            },
+            {
+                id: 4,
+                name: "Person 4",
+                role: 'Team Lead',
+                salary: 7.00,
+                description: "Leading the team",
+                duty: { id: 4, name: "Duty 1", fitness: { run: 2 } }
+            },
+            {
+                id: 5,
+                name: "Person 5",
+                role: 'CEO',
+                salary: 100.00,
+                description: "This way or the other",
+                duty: { id: 5, name: "Duty 5" }
+            },
+        ];
+
+
 
 
         // final query - produces output
@@ -722,9 +766,53 @@
             }
         ).toArray();
 
+        // final query - produces output 
+        var orderBy_f4 = collection_nullProps.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "duty.fitness.run", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output 
+        var orderBy_f5 = collection_nullProps.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "duty.fitness.jump", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
         /*
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" ! 
-        var orderBy_f4 = collection.orderBy(
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
+        var orderBy_f6 = collection_nullProps.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "duty.fitness", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
+        
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
+        var orderBy_f7 = collection_nullProps.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "duty", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
+        var orderBy_f7 = collection.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "object!", true ]
@@ -1288,6 +1376,7 @@
             }
         );
         */
+
         // final query - produces output [ find item with the biggest value of property called 'id' ]
         var max_f1 = collection.max(
             {
@@ -1296,13 +1385,15 @@
             }
         );
 
-        // final query - produces output [ find item with the biggest value of the object itself ]
+        // final query - produces output [ find item with the biggest value of the object itself ] - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
+        /*
         var max_f1a = collection.max(
             {
                 'property': [ 'object!', true ],
                 'udfValueSelector': null
             }
         );
+        */
 
         // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
         var average_f1 = collection.average(
@@ -1312,13 +1403,15 @@
             }
         );
 
-        // final query - produces output [ find item with the average value of the object itself ]
+        /*
+        // final query - produces output [ find item that lives in the middle between smallest one and biggest one ] - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
         var average_f1a = collection.average(
             {
                 'property': [ 'object!', true ],
                 'udfValueSelector': null
             }
         );
+        */
 
         // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f2 = [].min(

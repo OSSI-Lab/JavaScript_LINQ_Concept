@@ -27,9 +27,11 @@ var my_custom_jlc_common = {
         /**
          * Reference this context, here being the sortMetaObject storing all relevant metadata about type of sorting operation
          * 
-         *  this -> sortMetaObject
+         *  this.sortMetaObject -> sortMetaObject
+         *  this.selectors      -> selectors
         */
-        var sortMetaObject = this;
+        var sortMetaObject = this.sortMetaObject;
+        var selectors = this.selectors;
 
         // compare strings
         if(typeof kC === 'string') {
@@ -38,9 +40,34 @@ var my_custom_jlc_common = {
             else if (kC.length < kP.length) return -1;
             else return 0;
         }
-        // compare strings
+        // compare numbers
         else if(typeof kC === 'number') {
             // nothing extraordinary, just showing the examplary usage !
+            if (kC > kP) return 1;
+            else if (kC < kP) return -1;
+            else return 0;
+        }
+        // compare booleans
+        else if(typeof kC === 'boolean') {
+            // nothing extraordinary, just showing the examplary usage !
+            if (kC > kP) return 1;
+            else if (kC < kP) return -1;
+            else return 0;
+        }
+        // compare booleans
+        else if(typeof kC === 'object') {
+            //extract property -  nothing extraordinary, just showing the examplary usage !
+            var property = selectors[0][0];
+
+            /**
+             * Read values from both objects
+            */
+            kC = kC[property];
+            kP = kP[property]; 
+
+            /**
+             * Compare both values
+            */
             if (kC > kP) return 1;
             else if (kC < kP) return -1;
             else return 0;

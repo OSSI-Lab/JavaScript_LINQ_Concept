@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #36 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #37 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -2077,8 +2077,11 @@
                     var propertyValue;
                     for ( var i = 0; i < currentColl.length; i++ )
                     {
-                        // get property value
-                        propertyValue = _COMMON.getPropertyValueFromObject( property, currentColl[ i ] );
+                        /**
+                         * Get property value and carry out validation phase if it's ordinary property.
+                         * Only carry out validation phase if it's special property.
+                        */
+                        propertyValue = _COMMON.getPropertyValueFromObject( property, currentColl[ i ], isp );
 
                         // if property doesn't exist or has non-defined value
                         if ( propertyValue === undefined || propertyValue === null ) continue;
@@ -2087,10 +2090,14 @@
                         break;
                     }
 
-                    // define min-max-average type of the value
+                    /**
+                     * Define min-max-average meta object of the type of the value
+                    */
                     api._ctx.mmavt = Object.create( null );
                     api._ctx.mmavt.selector = property;
-                    api._ctx.mmavt.t2sr = isp ? _COMMON.determineSpecialPropertyType(property) : _COMMON.convertTypeToString( propertyValue );
+                    api._ctx.mmavt.t2sr = Object.create( null );
+                    api._ctx.mmavt.t2sr.isp = isp;
+                    api._ctx.mmavt.t2sr.type = isp ? _COMMON.determineSpecialPropertyType(property) : _COMMON.convertTypeToString( propertyValue );
 
 
 
@@ -2167,26 +2174,36 @@
          *
          * @param {any} propName Property of object or property path from object.
          * @param {any} obj Object to fetch property or property path from.
+         * @param {any} isValidationContext Fetch property from object in the validation context mode or not.
          */
-            function ( propName, obj )
+            function ( propName, obj, isValidationContext )
             {
-                return get_PVfO_I_1L( propName, obj );
+                return get_PVfO_I_1L( propName, obj, isValidationContext );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function get_PVfO_I_1L ( propName, obj )
+                function get_PVfO_I_1L ( propName, obj, validate )
                 {
-                    // is it a complex property
+                    /**
+                     * Is it a complex property ?
+                     * 
+                     *  - string ('some string')
+                     *  - number (1, 3.14)
+                     *  - boolean (true, false)
+                     *  - object ( {} )
+                     *  - "something undefined" (undefined, null)
+                    */
                     if ( propName.includes( '.' ) )
                     {
+                        // define property value holder (pvh)
+                        var pvh;
+
                         // create array of prop's path
                         var path_arr = propName.split( '.' );
 
-                        // define property value holder (pvh)
-                        var pvh;
                         // loop over array of prop's path to seek the destination property and return its value
                         for ( var i = 0; i < path_arr.length; i++ )
                         {
@@ -2199,33 +2216,52 @@
                             if ( !pvh ) break;
                         }
 
-                        // get property value from object
-                        return pvh;
+                        // validate against sorting context and return custom string representation of the object in question, or just return property value.
+                        return validateAgainstSortingContext_I_2L(pvh, validate);
                     }
-                    // or is it a current-level property
-                    else
-                    {
-                        // check for special property that is used primarily during sorting collection by objects themselves
-                        var isp = _COMMON.isSpecialProperty ( propName );
+                    /**
+                     * Or is it a current-level property or a special property ?
+                     * 
+                     *  - string ('some string')
+                     *  - number (1, 3.14)
+                     *  - boolean (true, false)
+                     *  - object ( {} )
+                     *  - "something undefined" (undefined, null)
+                     *  
+                     *  - "special property" (object!)
+                    */
+                    else {
+                        var isp = _COMMON.isSpecialProperty(propName);
+                        /**
+                         * Check for special property that is used primarily during sorting collection by objects themselves.
+                         * Validate against sorting context and return custom string representation of the object in question.
+                        */ 
+                        return isp ? validateAgainstSortingContext_I_2L(obj, isp) : validateAgainstSortingContext_I_2L(obj[ propName ], validate);
+                    }
 
-                        // if so, return mapped internal value
-                        if ( isp )
-                        {
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function validateAgainstSortingContext_I_2L(o, validate) {
+                        // if it's an object
+                        if((_COMMON.convertTypeToString(o) === _ENUM.T2SR.OBJECT) && validate) {
                             /**
                              * User must provide implementation of toString method if sorting by the object itself is required ⚠️
                              * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
                             */
-                            if ( !obj.toString || ( obj.toString === Object.prototype.toString ) )
+                            if ( !o.toString || ( o.toString === Object.prototype.toString ) )
                                 throw ReferenceError(
                                     '\r\nSorting PLAIN or KVP\'s VALUE by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
                                 );
-                            // get property value from object
-                            return obj.toString();
+
+                            // return custom string representation of the object
+                            return o.toString();
                         }
                         // otherwise, return this property value
                         else
-                            // get property value from object
-                            return obj[ propName ];
+                            return o;
                     }
                 }
             },
@@ -2634,7 +2670,7 @@
                                 // loop over updated sort set input
                                 for ( var i = 0; i < sort_cols_arr.length; i++ )
                                     // build the sorting phrase
-                                    phrase += _COMMON.getPropertyValueFromObject( sort_cols_arr[ i ], obj ) + '-';
+                                    phrase += _COMMON.getPropertyValueFromObject( sort_cols_arr[ i ], obj, true ) + '-';
 
                                 // remove the last dash - phrase joining sign
                                 phrase = phrase.substring( 0, phrase.length - 1 );
@@ -4546,7 +4582,7 @@
                     function ldfSelector_I_2L ( item, selectors, idx, keepTheShape )
                     {
                         // get the property value from the object in question
-                        var value = _COMMON.getPropertyValueFromObject( selectors[ 0 ], item );
+                        var value = _COMMON.getPropertyValueFromObject( selectors[ 0 ], item, false );
 
                         // preserve the shape of the value fetched from the source (select)
                         if ( keepTheShape )
@@ -4928,10 +4964,10 @@
                                 for ( var k = 0; k < left_key_arr.length; k++ )
                                 {
                                     // get key value from 'left-side' object
-                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][ 0 ], left_obj ) );
+                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][ 0 ], left_obj, false ) );
 
                                     // get key value from 'right-side' object
-                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][ 0 ], right_obj ) );
+                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][ 0 ], right_obj, false ) );
                                 }
 
                                 /**
@@ -5092,13 +5128,13 @@
                         if ( _ACTION.hpid.data.length === 0 )
                         {
                             // validate item
-                            if ( ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr === _ENUM.T2SR.OBJECT ) && ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) )
+                            if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
                                 return undefined;
                             else if ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX )
                                 throw Error( '\r\The sequence has no elements.\r\n\r\n' );
-                            else if ( ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr === _ENUM.T2SR.BOOLEAN || jlc._ctx.mmavt.t2sr === _ENUM.T2SR.OBJECT ) && ( enumValue === _ENUM.AVG ) )
-                                throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
-                            else if ( ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.NUMBER ) && ( enumValue === _ENUM.AVG ) )
+                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.BOOLEAN || jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
+                                throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.NUMBER ) )
                                 throw Error( '\r\The sequence has no elements.\r\n\r\n' );
                         }
                         // check the edge case (one item in collection)
@@ -5119,7 +5155,7 @@
                             // compute 'avg' value
                             else if ( enumValue === _ENUM.AVG )
                             {
-                                if ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.NUMBER )
+                                if ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.NUMBER )
                                 {
                                     // precisely 'min avg'
                                     if ( roundEnumValue === _ENUM.AVG_MIN )
@@ -5131,7 +5167,7 @@
                                         return fetchItemOrItemProp_I_3L( Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 );
                                 }
                                 else
-                                    throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                                    throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
                             }
                         }
 
@@ -5142,12 +5178,12 @@
                         */
                         function fetchItemOrItemProp_I_3L ( index )
                         {
-                            if ( jlc._ctx.mmavt.t2sr === _ENUM.T2SR.OBJECT )
+                            if ( jlc._ctx.mmavt.t2sr.isp && (jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.OBJECT) )
                                 // return the only item from the collection
                                 return _ACTION.hpid.data[ index ];
                             // return the item's property value from the collection
                             else
-                                return _COMMON.getPropertyValueFromObject( jlc._ctx.mmavt.selector, _ACTION.hpid.data[ index ] );
+                                return _COMMON.getPropertyValueFromObject( jlc._ctx.mmavt.selector, _ACTION.hpid.data[ index ], false );
                         }
                     }
                 }
@@ -5459,9 +5495,17 @@
                         _ACTION.hpid.data = [ ..._ACTION.hpid.data ];
 
                         // if user defined his own comparator
-                        if ( udfComparer )
+                        if ( udfComparer ) {
+                            // create sort metadata object
+                            var sortMetadataObj = Object.create(null);
+                            // sort meta object describing type of sorting
+                            sortMetadataObj.sortMetaObject = sortMetaObject;
+                            // selectors to be used to sort collection
+                            sortMetadataObj.selectors = keyPartSelectorArray;
+
                             // just invoke it
-                            _ACTION.hpid.data.sort( udfComparer.bind( sortMetaObject ) );
+                            _ACTION.hpid.data.sort( udfComparer.bind( sortMetadataObj ) );
+                        }
                         // otherwise do the sorting using default comparator
                         else
                             /**
@@ -5550,9 +5594,17 @@
                             if ( sls_item.length > 1 )
                             {
                                 // if user defined his own comparator
-                                if ( udfComparer )
+                                if ( udfComparer ) {
+                                    // create sort metadata object
+                                    var sortMetadataObj = Object.create(null);
+                                    // sort meta object describing type of sorting
+                                    sortMetadataObj.sortMetaObject = sortMetaObject;
+                                    // selectors to be used to sort collection
+                                    sortMetadataObj.selectors = keyPartSelectorArray;
+
                                     // just invoke it
-                                    sls_item.sort( udfComparer.bind( sortMetaObject ) );
+                                    sls_item.sort( udfComparer.bind( sortMetadataObj ) );
+                                }
                                 // otherwise do the sorting using default comparator
                                 else
                                     // sort this array by 'ovc'
