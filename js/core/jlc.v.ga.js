@@ -3071,7 +3071,7 @@
                          * Comparing two values of "strongly" different types is simply illogical !
                          * If at least one value is a digit, compare them as digits by making the second one - being null or undefined - holding default value of the type of the first value.
                         */ 
-                        const [nVC, nVP] = nativeOrDefaultIfNullOrEmpty_I_1L(vC, vP);
+                        const [nVC, nVP] = nativeOrDefaultIfNullOrUndefined_I_1L(vC, vP);
 
                         // reference the current sorting mode
                         var sort_mode = _ACTION.hpid.sorting.sort_order;
@@ -3098,7 +3098,7 @@
                         /**
                          * Local helper functions
                         */
-                        function nativeOrDefaultIfNullOrEmpty_I_1L(v1, v2) {
+                        function nativeOrDefaultIfNullOrUndefined_I_1L(v1, v2) {
                             /**
                              * Check which of the two values are defined
                             */
