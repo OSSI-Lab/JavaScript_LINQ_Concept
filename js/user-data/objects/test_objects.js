@@ -1413,14 +1413,15 @@
         );
         */
 
-        // final query - produces output [ find item with the smallest value of property called 'id' ]
+        /*
+        // final query - produces output [ find item with the smallest value of property called 'id' ] - THIS METHOD THROWS EXPECTED ERROR ! -> The sequence has no elements.
         var min_f2 = [].min(
             {
                 'property': [ 'id', true ],
                 'udfValueSelector': null
             }
         );
-
+        */
         // final query - produces output [ find item with the smallest value of the object itself ]
         var min_f2a = [].min(
             {
@@ -1429,13 +1430,15 @@
             }
         );
 
-        // final query - produces output [ find item with the biggest value of property called 'id' ]
+        /*
+        // final query - produces output [ find item with the biggest value of property called 'id' ] - THIS METHOD THROWS EXPECTED ERROR ! -> The sequence has no elements.
         var max_f2 = [].max(
             {
                 'property': [ 'id', true ],
                 'udfValueSelector': null
             }
         );
+        */
 
         // final query - produces output [ find item with the biggest value of the object itself ]
         var max_f2a = [].max(
@@ -1453,14 +1456,16 @@
             }
         );
 
-        // final query - produces output [ find item with the average value of the object itself ]
+        /*
+        // final query - produces output [ find item with the average value of the object itself ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object Object] to type [object Number]
         var average_f2a = [].average(
             {
                 'property': [ 'object!', true ],
                 'udfValueSelector': null
             }
         );
-
+        */
+       
         // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f3 = [{id: 1, name: 'Name 1'}].min(
             {

@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #37 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #38 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -269,6 +269,55 @@
                     return false;
             }
     };
+
+    // private extension object
+    var _EXTENSION = {
+        array_equals: /**
+         * To compare arrays of primitive values, loop through them and compare every value.
+         *
+         * Source: https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+         */
+            function ()
+            {
+                // warn if overriding existing method
+                if ( Array.prototype.equals )
+                    console.warn( "Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code." );
+
+                // attach the .equals method to Array's prototype to call it on any array
+                Array.prototype.equals = function ( array )
+                {
+                    // if the other array is a falsy value, return
+                    if ( !array )
+                        return false;
+
+                    // compare lengths - can save a lot of time 
+                    if ( this.length != array.length )
+                        return false;
+
+                    for ( var i = 0, l = this.length; i < l; i++ )
+                    {
+                        // check if we have nested arrays
+                        if ( this[ i ] instanceof Array && array[ i ] instanceof Array )
+                        {
+                            // recurse into the nested arrays
+                            if ( !this[ i ].equals( array[ i ] ) )
+                                return false;
+                        }
+                        else if ( this[ i ] != array[ i ] )
+                        {
+                            // warning - two different object instances will never be equal: {x:20} != {x:20}
+                            return false;
+                        }
+                    }
+
+                    return true;
+                };
+                // hide method from for-in loops
+                Object.defineProperty( Array.prototype, "equals", { enumerable: false } );
+            }
+    };
+
+
 
     // private constraints object
     var _CONSTRAINT = {
@@ -584,13 +633,18 @@
                                 else
                                 {
                                     // sort PLAIN by 'object!'
-                                    metadata.byObjectString = ( user_filter_array.length === 1 && user_filter_array[ 0 ].length === 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' && user_filter_array[ 0 ][ 1 ] === true );
+                                    metadata.byObjectString =
+                                            ( user_filter_array.length === 1 && user_filter_array[ 0 ].length === 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' && user_filter_array[ 0 ][ 1 ] === true ) ||
+                                            actionConstr.actionContext.mmavt.t2sr.type === _ENUM.T2SR.OBJECT;
 
                                     // user provide 'object!' filter with 2+ more parameters
-                                    if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' )
+                                    if ( 
+                                        (user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!') ||
+                                        (user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && actionConstr.actionContext.mmavt.t2sr.type === _ENUM.T2SR.OBJECT)
+                                    )
                                     {
                                         // throw error about invalid syntax when dealing with PLAIN objects and using "object!" predicate, which means comparing whole objects
-                                        throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] using "object!" requires the following syntax ["object!", true] !\r\n\r\n' );
+                                        throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] using "object!" requires the following syntax ["object!", true] or ["currentLevelObject.NestedObject.AnotherNestedObject (...etc)", true] !\r\n\r\n' );
                                     }
                                 }
                             }
@@ -1491,6 +1545,9 @@
                         // collection fim (first item metadata)
                         taco.fim = jlc_ctx.fim;
 
+                        // collection mmavt (order-min-max-average meta object of the type of the value)
+                        taco.mmavt = jlc_ctx.mmavt;
+
                         // get first-level sorting context shared across query flow
                         taco.sharedFirstLevelSortingCtx = jlc_ctx.sharedFirstLevelSortingCtx
                             ?
@@ -1938,22 +1995,24 @@
                 */
                 function guess_CDV_I_1L ( param_arr )
                 {
+                    // cache current query interceptor
+                    var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
+
+                    // enable transparent object property access
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+
+
+
                     /**
                      * Check the chain of invoked so-far methods, and based on that examine what type of item in the source collection you would deal with,
                      * if any data would have been available, when query flow had arrived in 'defaultIfEmpty' method.
                     */
-
                     // reference api object
                     var api = param_arr[ 0 ];
 
                     // get source collection input item
                     var inputItem = param_arr[ 1 ];
 
-                    // cache current query interceptor
-                    var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
-
-                    // enable transparent object property access
-                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
                     // determine current query flow (all invoked methods up to this method)
                     var method_names = getQueryMethodNames_I_2L();
@@ -2002,6 +2061,8 @@
                         // define collection default value
                         api._ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
 
+
+
                     // restore query flow context-default interceptor
                     _LINQ_CONTEXT._arrayProxyHandler.get = current_GET_interceptor;
 
@@ -2020,10 +2081,8 @@
 
                         // loop over api and store only query method names
                         for ( let key in qmcf )
-                        {
                             if ( typeof qmcf[ key ] === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
                                 queryNames.push( key );
-                        }
 
                         // return all valid query method names
                         return queryNames;
@@ -2062,8 +2121,15 @@
                     // reference JLC proxied instance
                     var api = param_arr[ 0 ];
 
+                    // get filtering property name
+                    var selectorName = param_arr[param_arr.length - 2];
+
                     // reference core method args and get filtering property
-                    var property = param_arr[ 1 ][ 'property' ][ 0 ];
+                    var property = param_arr[ param_arr.length - 1 ][ selectorName ][ 0 ];
+
+                    // if it's an array, get the first item
+                    if(_COMMON.convertTypeToString(property) === _ENUM.T2SR.ARRAY)
+                        property = property[0];
 
                     // is special property
                     var isp = _COMMON.isSpecialProperty ( property );
@@ -2091,7 +2157,7 @@
                     }
 
                     /**
-                     * Define min-max-average meta object of the type of the value
+                     * Define order-min-max-average meta object of the type of the value
                     */
                     api._ctx.mmavt = Object.create( null );
                     api._ctx.mmavt.selector = property;
@@ -2998,13 +3064,12 @@
                          * vP means itemPreviousValue 
                         */
 
-                        // check if both values are digits
-                        if ( _COMMON.isNumeric( vC ) && _COMMON.isNumeric( vP ) )
-                        {
-                            // if so, compare them as digits
-                            vC = _COMMON.toNumeric( vC, true );
-                            vP = _COMMON.toNumeric( vP, true );
-                        }
+                        /**
+                         * Check if both values are digits or any of them is null or undefined.
+                         * Comparing two values of "strongly" different types is simply illogical !
+                         * If at least one value is a digit, compare them as digits by making the second one - being null or undefined - holding default value of the type of the first value.
+                        */ 
+                        const [nVC, nVP] = nativeOrDefaultIfNullOrEmpty_I_1L(vC, vP);
 
                         // reference the current sorting mode
                         var sort_mode = _ACTION.hpid.sorting.sort_order;
@@ -3015,21 +3080,64 @@
                             // go the ASC way
                             case _ENUM.ORDER.By.ASC:
                             case _ENUM.ORDER.By.THEN_ASC:
-                                if ( vC > vP )
-                                    return 1;
-                                else
-                                    return -1;
+                                return applyCSharpCompliance_I_3L(true);
 
                             // go the DESC way
                             case _ENUM.ORDER.By.DESC:
                             case _ENUM.ORDER.By.THEN_DESC:
-                                if ( vC > vP )
-                                    return -1;
-                                else
-                                    return 1;
+                                return applyCSharpCompliance_I_3L(false);
 
                             default:
                                 throw Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol( sort_mode ) + ' ] !\r\n\r\n' );
+                        }
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function nativeOrDefaultIfNullOrEmpty_I_1L(v1, v2) {
+                            /**
+                             * Check which of the two values are defined
+                            */
+                            var is_V1 = v1 !== 'undefined' && v1 !== 'null';
+                            var is_V2 = v2 !== 'undefined' && v2 !== 'null';
+                            
+                            // if both
+                            if(is_V1 && is_V2) {
+                                v1 = _COMMON.isNumeric(v1) ? _COMMON.toNumeric(v1, true) : v1;
+                                v2 = _COMMON.isNumeric(v2) ? _COMMON.toNumeric(v2, true) : v2;
+                            }
+                            // otherwise having one of them defined, get default value for the second one
+                            else {
+                                if(!is_V1 && is_V2) {
+                                    v2 = _COMMON.isNumeric(v2) ? _COMMON.toNumeric(v2, true) : v2;
+                                    v1 = _COMMON.getDefaultValueOf(v2);
+                                }
+                                if(!is_V2 && is_V1) {
+                                    v1 = _COMMON.isNumeric(v1) ? _COMMON.toNumeric(v1, true) : v1;
+                                    v2 = _COMMON.getDefaultValueOf(v1);
+                                }
+                            }
+
+                            return [v1, v2];
+                        }
+
+                        function applyCSharpCompliance_I_3L(isAsc) {
+                            // perform ASC comparison
+                            if(isAsc) {
+                                if ( nVC > nVP )
+                                    return 1;
+                                else
+                                    return -1;
+                            }
+                            // perform DESC comparison
+                            else {
+                                if ( nVC > nVP )
+                                    return -1;
+                                else
+                                    return 1
+                            }
                         }
                     }
                 }
@@ -3119,53 +3227,6 @@
                     // return match result
                     return match_found;
                 }
-            }
-    };
-
-    // private extension object
-    var _EXTENSION = {
-        array_equals: /**
-         * To compare arrays of primitive values, loop through them and compare every value.
-         *
-         * Source: https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
-         */
-            function ()
-            {
-                // warn if overriding existing method
-                if ( Array.prototype.equals )
-                    console.warn( "Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code." );
-
-                // attach the .equals method to Array's prototype to call it on any array
-                Array.prototype.equals = function ( array )
-                {
-                    // if the other array is a falsy value, return
-                    if ( !array )
-                        return false;
-
-                    // compare lengths - can save a lot of time 
-                    if ( this.length != array.length )
-                        return false;
-
-                    for ( var i = 0, l = this.length; i < l; i++ )
-                    {
-                        // check if we have nested arrays
-                        if ( this[ i ] instanceof Array && array[ i ] instanceof Array )
-                        {
-                            // recurse into the nested arrays
-                            if ( !this[ i ].equals( array[ i ] ) )
-                                return false;
-                        }
-                        else if ( this[ i ] != array[ i ] )
-                        {
-                            // warning - two different object instances will never be equal: {x:20} != {x:20}
-                            return false;
-                        }
-                    }
-
-                    return true;
-                };
-                // hide method from for-in loops
-                Object.defineProperty( Array.prototype, "equals", { enumerable: false } );
             }
     };
 
@@ -5818,6 +5879,11 @@
             }
     };
 
+    // private data object holding all queries' filtered data
+    var _CACHE = {
+
+    }
+
 
 
     // private proxy trap object
@@ -6109,6 +6175,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6240,6 +6307,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6321,6 +6389,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6402,6 +6471,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6483,6 +6553,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6584,6 +6655,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6684,6 +6756,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6785,6 +6858,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6884,6 +6958,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -6989,6 +7064,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -7088,6 +7164,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -7193,6 +7270,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -7286,7 +7364,28 @@
                 },
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
-                acp: null,
+                acp: {
+                    // functions to execute
+                    cpf: [
+                        // to determine the type of value of property of the source collection if query flow will arrive in this method
+                        _COMMON.determinePropertyType
+                    ],
+                    // metadata describing fetching the right params
+                    cpfdm: [
+                        [
+                            function ()
+                            {
+                                return this;
+                            },
+
+                            function ()
+                            {
+                                return 'keyPartSelectorArray'; // rsc_syntax
+                            }
+                        ]
+                    ]
+                },
+
                 // action context object (aco)
                 aco: null,
 
@@ -7380,7 +7479,28 @@
                 },
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
-                acp: null,
+                acp: {
+                    // functions to execute
+                    cpf: [
+                        // to determine the type of value of property of the source collection if query flow will arrive in this method
+                        _COMMON.determinePropertyType
+                    ],
+                    // metadata describing fetching the right params
+                    cpfdm: [
+                        [
+                            function ()
+                            {
+                                return this;
+                            },
+
+                            function ()
+                            {
+                                return 'keyPartSelectorArray'; // rsc_syntax
+                            }
+                        ]
+                    ]
+                },
+
                 // action context object (aco)
                 aco: null,
 
@@ -7476,6 +7596,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -7571,6 +7692,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -7656,6 +7778,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -7791,6 +7914,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -7894,6 +8018,7 @@
                         ]
                     ]
                 },
+
                 // action context object (aco)
                 aco: null,
 
@@ -7991,6 +8116,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8099,6 +8225,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8207,6 +8334,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8336,6 +8464,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8465,6 +8594,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8594,6 +8724,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8723,6 +8854,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8822,6 +8954,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -8941,6 +9074,7 @@
                         ]
                     ]
                 },
+
                 // action context object (aco)
                 aco: null,
 
@@ -9037,6 +9171,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -9133,6 +9268,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -9229,6 +9365,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -9325,6 +9462,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -9421,6 +9559,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -9517,6 +9656,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -9622,10 +9762,16 @@
                             function ()
                             {
                                 return this;
+                            },
+
+                            function ()
+                            {
+                                return 'property'; // rsc_syntax
                             }
                         ]
                     ]
                 },
+
                 // action context object (aco)
                 aco: null,
 
@@ -9731,10 +9877,16 @@
                             function ()
                             {
                                 return this;
+                            },
+
+                            function ()
+                            {
+                                return 'property'; // rsc_syntax
                             }
                         ]
                     ]
                 },
+
                 // action context object (aco)
                 aco: null,
 
@@ -9849,10 +10001,16 @@
                             function ()
                             {
                                 return this;
+                            },
+
+                            function ()
+                            {
+                                return 'property'; // rsc_syntax
                             }
                         ]
                     ]
                 },
+
                 // action context object (aco)
                 aco: null,
 
@@ -9940,6 +10098,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -10027,6 +10186,7 @@
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
                 acp: null,
+
                 // action context object (aco)
                 aco: null,
 
@@ -10397,14 +10557,15 @@
                         */
                         if ( method_def_obj.acp )
                         {
+                            var func, func_args;
                             // iterate over all functions to execute
                             for ( var i = 0, length = method_def_obj.acp.cpf.length; i < length; i++ )
                             {
                                 // reference function to execute
-                                var func = method_def_obj.acp.cpf[ i ];
+                                func = method_def_obj.acp.cpf[ i ];
 
                                 // function arguments
-                                var func_args = [];
+                                func_args = [];
 
                                 // iterate over all function params accessors
                                 for ( var j = 0, fpa_length = method_def_obj.acp.cpfdm[ i ].length; j < fpa_length; j++ )
