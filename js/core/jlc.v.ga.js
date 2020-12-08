@@ -1778,6 +1778,8 @@
         }
     };
 
+
+
     // private common object
     var _COMMON = {
         isNumeric: /**
@@ -3080,12 +3082,12 @@
                             // go the ASC way
                             case _ENUM.ORDER.By.ASC:
                             case _ENUM.ORDER.By.THEN_ASC:
-                                return applyCSharpCompliance_I_3L(true);
+                                return doBooleanComparison_I_3L(true);
 
                             // go the DESC way
                             case _ENUM.ORDER.By.DESC:
                             case _ENUM.ORDER.By.THEN_DESC:
-                                return applyCSharpCompliance_I_3L(false);
+                                return doBooleanComparison_I_3L(false);
 
                             default:
                                 throw Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol( sort_mode ) + ' ] !\r\n\r\n' );
@@ -3123,7 +3125,7 @@
                             return [v1, v2];
                         }
 
-                        function applyCSharpCompliance_I_3L(isAsc) {
+                        function doBooleanComparison_I_3L(isAsc) {
                             // perform ASC comparison
                             if(isAsc) {
                                 if ( nVC > nVP )
@@ -3229,8 +3231,6 @@
                 }
             }
     };
-
-
 
     // private core object
     var _CORE = {
@@ -3450,6 +3450,8 @@
                 );
             }
     };
+
+
 
     // private logical filters object
     var _LOGICAL_FILTER = {
