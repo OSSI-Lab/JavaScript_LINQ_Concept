@@ -195,11 +195,10 @@
                     [ "tags", true ]
                 ],
                 'udfGroupKeySelector': null,
-                'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupProjector': null,
-                'udfGroupElementsProjector': null,
-                'udfGroupResultValueSelector': null,
-
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
             }
         ).toArray();
         /**
@@ -209,6 +208,151 @@
         */
         groupBy_f1[ 0 ].resultsView[ 0 ].name = 'Product 2 -> Mutated only in groupBy_f1 !';
 
+
+        // final query - produces output
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f2 = collection.groupBy(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "tags", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).toArray();
+
+        // final query - produces output
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f3 = collection.groupBy(
+            {
+                'predicateArray': [
+                    [ "object!", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f4 = collection.groupBy(
+            {
+                'predicateArray': [
+                    [ "object!", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).toArray();
+
+        // final query - produces output
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f5 = collection_nullProps.groupBy(
+            {
+                'predicateArray': [
+                    [ "duty", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f6 = collection_nullProps.groupBy(
+            {
+                'predicateArray': [
+                    [ "duty", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).toArray();
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [duty.fitness] !
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f7 = collection_nullProps.groupBy(
+            {
+                'predicateArray': [
+                    [ "duty.fitness", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
+            }
+        ).toArray();
+        */
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [duty.fitness] !
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f8 = collection_nullProps.groupBy(
+            {
+                'predicateArray': [
+                    [ "duty.fitness", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).toArray();
+        */
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [duty.fitness.jump] !
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f9 = collection_nullProps.groupBy(
+            {
+                'predicateArray': [
+                    [ "duty.fitness.jump", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
+            }
+        ).toArray();
+        */
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [duty.fitness.jump] !
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_f10 = collection_nullProps.groupBy(
+            {
+                'predicateArray': [
+                    [ "duty.fitness.jump", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).toArray();
+        */
 
         // partial query - produces intermediate query state
         var where_p1 = collection.where(
@@ -230,8 +374,8 @@
                 ],
                 'udfGroupKeySelector': null,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupProjector': null,
-                'udfGroupElementsProjector': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
                 'udfGroupResultValueSelector': null,
 
             }
@@ -1465,7 +1609,7 @@
             }
         );
         */
-       
+
         // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f3 = [{id: 1, name: 'Name 1'}].min(
             {

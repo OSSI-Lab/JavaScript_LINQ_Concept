@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #38 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #39 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -2123,6 +2123,9 @@
                     // reference JLC proxied instance
                     var api = param_arr[ 0 ];
 
+                    // is t2sr required
+                    var is_t2sr_r = param_arr[ 1 ];
+
                     // get filtering property name
                     var selectorName = param_arr[param_arr.length - 2];
 
@@ -2149,7 +2152,7 @@
                          * Get property value and carry out validation phase if it's ordinary property.
                          * Only carry out validation phase if it's special property.
                         */
-                        propertyValue = _COMMON.getPropertyValueFromObject( property, currentColl[ i ], isp );
+                        propertyValue = _COMMON.getPropertyValueFromObject( property, currentColl[ i ], isp, is_t2sr_r );
 
                         // if property doesn't exist or has non-defined value
                         if ( propertyValue === undefined || propertyValue === null ) continue;
@@ -2243,17 +2246,18 @@
          * @param {any} propName Property of object or property path from object.
          * @param {any} obj Object to fetch property or property path from.
          * @param {any} isValidationContext Fetch property from object in the validation context mode or not.
+         * @param {any} is_T2SR_Required Is T2SR required (custom toString presence).
          */
-            function ( propName, obj, isValidationContext )
+            function ( propName, obj, isValidationContext, is_T2SR_Required )
             {
-                return get_PVfO_I_1L( propName, obj, isValidationContext );
+                return get_PVfO_I_1L( propName, obj, isValidationContext, is_T2SR_Required );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function get_PVfO_I_1L ( propName, obj, validate )
+                function get_PVfO_I_1L ( propName, obj, validate, checkT2SR )
                 {
                     /**
                      * Is it a complex property ?
@@ -2285,7 +2289,7 @@
                         }
 
                         // validate against sorting context and return custom string representation of the object in question, or just return property value.
-                        return validateAgainstSortingContext_I_2L(pvh, validate);
+                        return validateAgainstSortingContext_I_2L(pvh, validate, checkT2SR);
                     }
                     /**
                      * Or is it a current-level property or a special property ?
@@ -2304,7 +2308,7 @@
                          * Check for special property that is used primarily during sorting collection by objects themselves.
                          * Validate against sorting context and return custom string representation of the object in question.
                         */ 
-                        return isp ? validateAgainstSortingContext_I_2L(obj, isp) : validateAgainstSortingContext_I_2L(obj[ propName ], validate);
+                        return isp ? validateAgainstSortingContext_I_2L(obj, isp, checkT2SR) : validateAgainstSortingContext_I_2L(obj[ propName ], validate, checkT2SR);
                     }
 
 
@@ -2312,9 +2316,9 @@
                     /**
                      * Local helper functions
                     */
-                    function validateAgainstSortingContext_I_2L(o, validate) {
+                    function validateAgainstSortingContext_I_2L(o, validate, checkToString) {
                         // if it's an object
-                        if((_COMMON.convertTypeToString(o) === _ENUM.T2SR.OBJECT) && validate) {
+                        if((_COMMON.convertTypeToString(o) === _ENUM.T2SR.OBJECT) && validate && checkToString) {
                             /**
                              * User must provide implementation of toString method if sorting by the object itself is required ⚠️
                              * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
@@ -2621,27 +2625,47 @@
                         // @ts-ignore
                         keyPart = key_prop_arr[ i ];
 
-                        // is it complex ?
+                        // is it main object itself ?
+                        if(_COMMON.isSpecialProperty(keyPart.value) && _COMMON.determineSpecialPropertyType(keyPart.value) === _ENUM.T2SR.OBJECT)
+                            //  key is a object itself !
+                            key = item;
+
+                        // is it complex (nested-level primitive one or a nested-level object) ?
                         // @ts-ignore
-                        if ( keyPart.isValidProperty && keyPart.isComplex )
+                        else if ( keyPart.isValidProperty && keyPart.isComplex )
                         {
                             // if key is already initialized
                             if ( key )
-                                // get the property value from both, the current and the previous object
+                                // get the property value from passed-in object
                                 // @ts-ignore
-                                key += _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
+                                key += _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value, true, true );
                             else
                             {
-                                // get the key value - get the property value from both, the current and the previous object
+                                // get the property value from passed-in object
                                 // @ts-ignore
-                                var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value );
+                                var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value, true, true );
 
-                                // initialize a key with a default value
-                                key = _COMMON.getDefaultValueOf( rkv );
-                                key += rkv;
+                                // convert object to type string representation
+                                var t2sr = _COMMON.convertTypeToString(rkv);
+
+                                // if a key part is an object, not object string representation
+                                if(t2sr === _ENUM.T2SR.OBJECT)
+                                    // assign a key with an object
+                                    key = rkv;
+                                // is null or undefined => non-existing grouping key
+                                else if(t2sr === _ENUM.T2SR.UNDEFINED || t2sr === _ENUM.T2SR.NULL)
+                                    throw Error('\r\nObject reference not set to an instance of an object [' + keyPart.value + '] !\r\n\r\n');
+                                // deal with primitives
+                                else {
+                                    // initialize a key with a default value
+                                    key = _COMMON.getDefaultValueOf( rkv );
+
+                                    // add proper value to the key
+                                    key += rkv;
+                                }
                             }
                         }
-                        // is it simple ?
+                        // is it simple (current-level primitive one or a current-level object) ?
                         // @ts-ignore
                         else if ( keyPart.isValidProperty )
                         {
@@ -2655,17 +2679,23 @@
                                 // @ts-ignore
                                 var rkv = item[ keyPart.value ];
 
-                                // initialize a key with a default value
-                                key = _COMMON.getDefaultValueOf( rkv );
-                                key += rkv;
+                                // if a key part is an object, not object string representation
+                                if(_COMMON.convertTypeToString(rkv) === _ENUM.T2SR.OBJECT)
+                                    // assign a key with an object
+                                    key = rkv;
+                                else {
+                                    // initialize a key with a default value
+                                    key = _COMMON.getDefaultValueOf( rkv );
+
+                                    // add proper value to the key
+                                    key += rkv;
+                                }
                             }
                         }
                         // otherwise apply some part that is not a property of an object
                         else
-                        {
                             // @ts-ignore
                             key += keyPart.value;
-                        }
                     }
 
                     // return the key from object
@@ -2738,7 +2768,7 @@
                                 // loop over updated sort set input
                                 for ( var i = 0; i < sort_cols_arr.length; i++ )
                                     // build the sorting phrase
-                                    phrase += _COMMON.getPropertyValueFromObject( sort_cols_arr[ i ], obj, true ) + '-';
+                                    phrase += _COMMON.getPropertyValueFromObject( sort_cols_arr[ i ], obj, true, false ) + '-';
 
                                 // remove the last dash - phrase joining sign
                                 phrase = phrase.substring( 0, phrase.length - 1 );
@@ -3037,8 +3067,8 @@
                                 if ( sortCol.indexOf( '.' ) > 0 )
                                 {
                                     // get the property value from both, the current and the previous object
-                                    itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter( oC, sortCol, true );
-                                    itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter( oP, sortCol, true );
+                                    itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter( oC, sortCol, true, false );
+                                    itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter( oP, sortCol, true, false );
                                 }
                                 // is it simple ?
                                 else
@@ -3281,8 +3311,8 @@
          *  - predicateArray
          *  - udfGroupKeySelector
          *  - udfEqualityComparer
-         *  - udfGroupProjector
-         *  - udfGroupElementsProjector
+         *  - udfGroupKeyProjector
+         *  - udfGroupElementSelector
          *  - udfGroupResultValueSelector
          *  - terminateFlowAndReturnData
          *  - isDictionaryContext
@@ -3296,8 +3326,8 @@
                     params.predicateArray,
                     params.udfGroupKeySelector,
                     params.udfEqualityComparer,
-                    params.udfGroupProjector,
-                    params.udfGroupElementsProjector,
+                    params.udfGroupKeyProjector,
+                    params.udfGroupElementSelector,
                     params.udfGroupResultValueSelector,
                     params.terminateFlowAndReturnData,
                     params.isDictionaryContext
@@ -3505,7 +3535,7 @@
                     /**
                      * Local helper functions
                     */
-                    function applyPrimitivePredicate_I_2L ( predicate, currentObject )
+                    function applyPrimitivePredicate_I_2L ( predicate, obj )
                     {
                         // filtering property name
                         var propName = predicate[ 0 ];
@@ -3542,21 +3572,21 @@
                         */
                         function executePrimitivePredicate_I_3L ()
                         {
-                            // input value to compare
-                            var propOrVal;
+                            // input value to compare (propOrVal)
+                            var pov;
 
-                            // determine if the current object is primitive one, i.e. int, string, number, etc.
-                            var isPrimitive = _COMMON.isPrimitiveType( currentObject );
+                            // determine if the current object is primitive one, i.e. int, string, number, boolean, etc.
+                            var is_prim = _COMMON.isPrimitiveType( obj );
 
                             // if is primitive...
-                            if ( isPrimitive )
-                                propOrVal = currentObject;
+                            if ( is_prim )
+                                pov = obj;
                             else
                                 // otherwise seek the destination property
-                                propOrVal = _LOGICAL_FILTER.applyPropertyValueFilter( currentObject, propName, true );
+                                pov = _LOGICAL_FILTER.applyPropertyValueFilter( obj, propName, true, false );
 
                             // run native comparison
-                            return _OPERATOR.checkValue( propOrVal, propOperator, propValue );
+                            return _OPERATOR.checkValue( pov, propOperator, propValue );
                         }
                     }
 
@@ -3655,34 +3685,35 @@
          * @param {any} currentObject
          * @param {any} propertyName
          * @param {any} returnValue
+         * @param {any} throwErrorWhenNullOrUndefined
          */
-            function ( currentObject, propertyName, returnValue )
+            function ( currentObject, propertyName, returnValue, throwErrorWhenNullOrUndefined )
             {
-                return apply_PVF_I_1L( currentObject, propertyName, returnValue );
+                return apply_PVF_I_1L( currentObject, propertyName, returnValue, throwErrorWhenNullOrUndefined );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function apply_PVF_I_1L ( currentObject, propertyName, returnValue )
+                function apply_PVF_I_1L ( obj, pn, rv, doThrow )
                 {
                     // create array of prop's path
-                    var path_arr = propertyName.split( '.' );
+                    var path_arr = pn.split( '.' );
 
                     // define property value holder (pvh)
                     var pvh;
 
                     // loop over array of prop's path to seek the destination property and/or return its value
-                    for ( var i = 0, length = returnValue ? path_arr.length : path_arr.length - 1; i < length; i++ )
+                    for ( var i = 0, length = rv ? path_arr.length : path_arr.length - 1; i < length; i++ )
                     {
                         if ( pvh )
                             pvh = pvh[ path_arr[ i ] ];
                         else
-                            pvh = currentObject[ path_arr[ i ] ];
+                            pvh = obj[ path_arr[ i ] ];
 
                         // if along the way you come across non-existing property in the object, break the drilling down and return undefined
-                        if ( !pvh ) break;
+                        if ( !pvh && !doThrow ) break;
                     }
 
                     // return value of the property or property
@@ -3788,22 +3819,22 @@
          * @param {any} predicateArray
          * @param {any} udfGroupKeySelector
          * @param {any} udfEqualityComparer
-         * @param {any} udfGroupProjector
-         * @param {any} udfGroupElementsProjector
+         * @param {any} udfGroupKeyProjector
+         * @param {any} udfGroupElementSelector
          * @param {any} udfGroupResultValueSelector
          * @param {any} terminateFlowAndReturnData
          * @param {any} isDictionaryContext
          */
-            function ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext )
+            function ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext )
             {
-                return execute_GF_I_1L( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext );
+                return execute_GF_I_1L( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function execute_GF_I_1L ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupProjector, udfGroupElementsProjector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext )
+                function execute_GF_I_1L ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext )
                 {
                     // check if grouping key is present
                     if ( predicateArray || udfGroupKeySelector )
@@ -3814,6 +3845,7 @@
                         // declare groups object being an array !
                         var groups = [];
 
+
                         // create the key if key selector array defined
                         var key_array;
                         if ( predicateArray )
@@ -3822,11 +3854,13 @@
                             // otherwise define an empty array
                             key_array = [];
 
+
                         // reference first object in the collection and determine the type ASAP
                         var o = currentColl[ 0 ];
 
                         // reference grouping-by util object
                         var gbo = _COMMON.usingGroupingBy();
+
 
                         // do grouping of primitives
                         if ( _COMMON.isPrimitiveType( o ) )
@@ -3836,14 +3870,31 @@
                             currentColl.forEach( groupObjects_I_2L );
 
 
-                        // sort the groups by using user-defined or a default comparator
-                        if ( udfEqualityComparer )
-                            groups = sortGroups_I_2L( udfEqualityComparer );
+                        // sort the groups by using user-defined equality comparer (if defined) or a default comparator (Array.sort)
+                        groups = sortGroups_I_2L( udfEqualityComparer );
 
-                        // update HPID object to enable further data flow
-                        _ACTION.hpid.data = groups;
+
+                        // if user defined result value selector
+                        if(udfGroupResultValueSelector) {
+                            // result value array
+                            var rva = [];
+
+                            // iterate over all groups
+                            for(let group of groups)
+                                // transform each group into result value defined by the user
+                                rva.push(udfGroupResultValueSelector(group.key, group.resultsView));
+
+                            // update HPID object to enable further data flow
+                            _ACTION.hpid.data = rva;
+                        }
+                        // otherwise keep sorted groups
+                        else
+                            // update HPID object to enable further data flow
+                            _ACTION.hpid.data = groups;
+
+
+                        // ensure that HPID is turned on
                         if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
-
                         // check if terminate data flow
                         if ( terminateFlowAndReturnData )
                             _ACTION.hpid.done = true;
@@ -3863,19 +3914,19 @@
                         var id;
                         // get the group id by applying UDF to current primitive value
                         if ( udfGroupKeySelector )
-                            id = ( udfGroupKeySelector.bind( null, item, index, sourceColl ) )();
+                            id = ( udfGroupKeySelector.bind( jlc._ctx, item, index, sourceColl ) )();
                         // get the group id being the primitive value itself
                         else
                             id = item;
 
 
                         // project group id if required
-                        if ( udfGroupProjector )
-                            id = ( udfGroupProjector.bind( null, id ) )();
+                        if ( udfGroupKeyProjector )
+                            id = ( udfGroupKeyProjector.bind( jlc._ctx, id ) )();
 
-                        // project group elements if required
-                        if ( udfGroupElementsProjector )
-                            item = ( udfGroupElementsProjector.bind( null, item ) )();
+                        // project group element if required
+                        if ( udfGroupElementSelector )
+                            item = ( udfGroupElementSelector.bind( jlc._ctx, item ) )();
 
 
                         /**
@@ -3928,22 +3979,26 @@
 
                     function groupObjects_I_2L ( item )
                     {
+                        // if grouping key is not defined & UDF key selector is required
+                        if(!key_array.length && !predicateArray)
+                            key_array = udfGroupKeySelector.bind(jlc._ctx, item)();
+
                         // get the group id
                         var id = _COMMON.fetchObjectKeyValue( item, key_array );
 
                         // project group id if required
-                        if ( udfGroupProjector )
-                            id = ( udfGroupProjector.bind( null, id ) )();
+                        if ( udfGroupKeyProjector )
+                            id = ( udfGroupKeyProjector.bind( jlc._ctx, id ) )();
 
-                        // project group elements if required
-                        if ( udfGroupElementsProjector )
-                            item = ( udfGroupElementsProjector.bind( null, item ) )();
+                        // project group element if required
+                        if ( udfGroupElementSelector )
+                            item = ( udfGroupElementSelector.bind( jlc._ctx, item ) )();
 
 
                         /**
                          * Distinguish between dictionary and grouped objects
-                         *  - dictionary keys has to be unique
-                         *  - values are primitives values or objects, not single elements of array 
+                         *  - dictionary keys have to be unique
+                         *  - values are primitives values or objects, not single elements of array
                         */
                         if ( isDictionaryContext && gbo.getGrouping( id, groups ).arr )
                             throw Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
@@ -3998,8 +4053,12 @@
                             // store current group key
                             keys.push( groups[ i ].key );
 
-                        // sort the keys
-                        keys.sort( equalityComparer );
+                        // sort the keys using UDF comparator
+                        if ( udfEqualityComparer )
+                            keys.sort( equalityComparer );
+                        // sort the keys in ascending ASCII character order
+                        else
+                            keys.sort();
 
                         // declare object holding sorted groups
                         var sorted_groups = [];
@@ -4012,6 +4071,9 @@
                         {
                             // get grouping seeker object from the group
                             var gso = gbo.getGrouping( key, groups );
+
+                            // reset gso's index
+                            gso.idx = -1;
 
                             // update grouping object
                             gbo.setGrouping( key, gso, sorted_groups );
@@ -4645,7 +4707,7 @@
                     function ldfSelector_I_2L ( item, selectors, idx, keepTheShape )
                     {
                         // get the property value from the object in question
-                        var value = _COMMON.getPropertyValueFromObject( selectors[ 0 ], item, false );
+                        var value = _COMMON.getPropertyValueFromObject( selectors[ 0 ], item, false, false );
 
                         // preserve the shape of the value fetched from the source (select)
                         if ( keepTheShape )
@@ -5027,10 +5089,10 @@
                                 for ( var k = 0; k < left_key_arr.length; k++ )
                                 {
                                     // get key value from 'left-side' object
-                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][ 0 ], left_obj, false ) );
+                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][ 0 ], left_obj, false, false ) );
 
                                     // get key value from 'right-side' object
-                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][ 0 ], right_obj, false ) );
+                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][ 0 ], right_obj, false, false ) );
                                 }
 
                                 /**
@@ -5246,7 +5308,7 @@
                                 return _ACTION.hpid.data[ index ];
                             // return the item's property value from the collection
                             else
-                                return _COMMON.getPropertyValueFromObject( jlc._ctx.mmavt.selector, _ACTION.hpid.data[ index ], false );
+                                return _COMMON.getPropertyValueFromObject( jlc._ctx.mmavt.selector, _ACTION.hpid.data[ index ], false, false );
                         }
                     }
                 }
@@ -6269,14 +6331,14 @@
                             // position of the parameter in the method
                             pos_idx: 4,
 
-                            name: 'udfGroupProjector'
+                            name: 'udfGroupKeyProjector'
                         },
 
                         {
                             // position of the parameter in the method
                             pos_idx: 5,
 
-                            name: 'udfGroupElementsProjector'
+                            name: 'udfGroupElementSelector'
                         },
 
                         {
@@ -6308,7 +6370,32 @@
                 },
 
                 // action custom prerequisites (acp) - predefined if required, otherwise null
-                acp: null,
+                acp: {
+                    // functions to execute
+                    cpf: [
+                        // to determine the type of value of property of the source collection if query flow will arrive in this method
+                        _COMMON.determinePropertyType
+                    ],
+                    // metadata describing fetching the right params
+                    cpfdm: [
+                        [
+                            function ()
+                            {
+                                return this;
+                            },
+
+                            function ()
+                            {
+                                return false;
+                            },
+
+                            function ()
+                            {
+                                return 'predicateArray'; // rsc_syntax
+                            }
+                        ]
+                    ]
+                },
 
                 // action context object (aco)
                 aco: null,
@@ -7382,6 +7469,11 @@
 
                             function ()
                             {
+                                return true;
+                            },
+
+                            function ()
+                            {
                                 return 'keyPartSelectorArray'; // rsc_syntax
                             }
                         ]
@@ -7493,6 +7585,11 @@
                             function ()
                             {
                                 return this;
+                            },
+
+                            function ()
+                            {
+                                return true;
                             },
 
                             function ()
@@ -7880,7 +7977,7 @@
                             // position of the parameter in the method
                             pos_idx: 4,
 
-                            name: 'udfGroupProjector',
+                            name: 'udfGroupKeyProjector',
 
                             value: null
                         },
@@ -7889,7 +7986,7 @@
                             // position of the parameter in the method
                             pos_idx: 5,
 
-                            name: 'udfGroupElementsProjector',
+                            name: 'udfGroupElementSelector',
 
                             value: null
                         },
@@ -8011,6 +8108,11 @@
                             function ()
                             {
                                 return this;
+                            },
+
+                            function ()
+                            {
+                                return false;
                             },
 
                             function ()
@@ -9071,6 +9173,11 @@
 
                             function ()
                             {
+                                return false;
+                            },
+
+                            function ()
+                            {
                                 return this._ctx.fim.item;
                             }
                         ]
@@ -9768,6 +9875,11 @@
 
                             function ()
                             {
+                                return true;
+                            },
+
+                            function ()
+                            {
                                 return 'property'; // rsc_syntax
                             }
                         ]
@@ -9879,6 +9991,11 @@
                             function ()
                             {
                                 return this;
+                            },
+
+                            function ()
+                            {
+                                return true;
                             },
 
                             function ()
@@ -10003,6 +10120,11 @@
                             function ()
                             {
                                 return this;
+                            },
+
+                            function ()
+                            {
+                                return false;
                             },
 
                             function ()

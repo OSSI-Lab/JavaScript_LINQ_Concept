@@ -25,6 +25,9 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #16 - DPR #39:&nbsp;2020-12-10 &nbsp;&nbsp;4:39 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - bugs found since TEST #15
  - TEST #15 - DPR #38:&nbsp;2020-12-08 &nbsp;&nbsp;3:00 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #14
