@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #39 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #40 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -10769,26 +10769,58 @@
                              * api's _ctx will be injected further in the query flow ! 
                             */
 
-                            // backup current proxy GET trap
-                            var currentGetTrapType = _LINQ_CONTEXT._arrayProxyHandler.get;
+                            // current proxy GET trap
+                            var currentGetTrapType;
 
-                            // enable transparent access
-                            _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
+                            try {
+                                // backup current proxy GET trap
+                                currentGetTrapType = _LINQ_CONTEXT._arrayProxyHandler.get;
 
-
-                            api._ctx;
-                            // invoke real data filtering and produce output, i.e. execute all actions
-                            _ACTION.funcCommons.executeChain( api._ctx );
-
-                            // restore metadata of the contextually current collection state
-                            _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+                                // enable transparent access
+                                _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
 
-                            // restore backup proxy GET trap as the current one
-                            _LINQ_CONTEXT._arrayProxyHandler.get = currentGetTrapType;
+                                api._ctx;
+                                // invoke real data filtering and produce output, i.e. execute all actions
+                                _ACTION.funcCommons.executeChain( api._ctx );
 
-                            // return contextually current collection state
-                            return _ACTION.hpid.data;
+                                // restore metadata of the contextually current collection state
+                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+
+                                // return contextually current collection state
+                                return _ACTION.hpid.data;
+                            }
+                            catch(err) {
+                                // restore metadata of the contextually current collection state
+                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+
+                                /**
+                                 * Display the error
+                                 * 
+                                 * This line of code is useful only during development phase !
+                                 * Should be removed while moved to production !
+                                */
+                                console.error(err);
+
+                                /**
+                                 * Update contextually current collection state with error message !
+                                */
+                                var c_err = Object.create(null);
+                                c_err.message = err.message;
+                                c_err.stack = err.stack;
+
+                                // update HPID
+                                _ACTION.hpid.data = c_err;
+
+                                // return contextually current collection state
+                                return _ACTION.hpid.data;
+                            }
+                            finally {
+                                // current proxy GET trap is defined
+                                if(currentGetTrapType)
+                                    // restore backup proxy GET trap as the current one
+                                    _LINQ_CONTEXT._arrayProxyHandler.get = currentGetTrapType;
+                            }
                         }
                     }
                 );

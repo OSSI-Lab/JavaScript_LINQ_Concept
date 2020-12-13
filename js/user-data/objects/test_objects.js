@@ -381,6 +381,21 @@
             }
         );
 
+        // partial query - produces intermediate query state - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [duty.fitness.jump] !
+        // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
+        var groupBy_p10 = collection_nullProps.groupBy(
+            {
+                'predicateArray': [
+                    [ "duty.fitness.jump", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        );
+
         // partial query - produces intermediate query state
         var where_p2 = collection_toString.where(
             {
@@ -429,7 +444,7 @@
         // final query - produces output
         var concat_f1 = collection.concatenate(
             {
-                'collectionOrItem':
+                'collectionOrItem': // array approach
                     [
                         {
                             id: 11,
@@ -452,13 +467,49 @@
                             order: { id: 12, name: "Order of Product 12" }
                         }
                     ]
+            }
+        ).toArray();
+
+        // final query - produces output
+        var concat_f2 = collection.concatenate(
+            {
+                'collectionOrItem': // array approach
+                    [
+                        {
+                            id: 13,
+                            name: "Product 13",
+                            img: 'image 13',
+                            price: 13.99,
+                            onsale: 130.0,
+                            tags: "Leash",
+                            description: "A fresh taste on a collar,",
+                            order: { id: 11, name: "Order of Product 13" }
+                        }
+                    ]
+            }
+        ).toArray();
+
+        // final query - produces output
+        var concat_f3 = collection.concatenate(
+            {
+                'collectionOrItem': // object approach
+                {
+                    id: 14,
+                    name: "Product 14",
+                    img: 'image 14',
+                    price: 14.99,
+                    onsale: 140.0,
+                    tags: "Leash",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 11, name: "Order of Product 14" }
+                }
             }
         ).toArray();
 
         // partial query - produces intermediate query state
         var concat_p1 = collection.concatenate(
             {
-                'collectionOrItem':
+                'collectionOrItem': // array approach
                     [
                         {
                             id: 11,
@@ -484,10 +535,28 @@
             }
         );
 
+
+        // final query - produces output
+        var concat_p2 = collection.concatenate(
+            {
+                'collectionOrItem': // object approach
+                {
+                    id: 14,
+                    name: "Product 14",
+                    img: 'image 14',
+                    price: 14.99,
+                    onsale: 140.0,
+                    tags: "Leash",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 11, name: "Order of Product 14" }
+                }
+            }
+        );
+
         // final query - produces output
         var append_f1 = collection.append(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 11,
                     name: "Product 11",
@@ -502,10 +571,29 @@
         ).toArray();
 
 
+        // final query - produces output -> example of invalid usage ! ('append' should only use object approach)
+        var append_f2 = collection.append(
+            {
+                'collectionOrItem': // array approach -> logically invalid usage !
+                    [
+                        {
+                            id: 11,
+                            name: "Product 11",
+                            img: 'image 11',
+                            price: 1.99,
+                            onsale: 0.0,
+                            tags: "Leash",
+                            description: "A fresh taste on a collar,",
+                            order: { id: 11, name: "Order of Product 11" }
+                        }
+                    ]
+            }
+        ).toArray();
+
         // partial query - produces intermediate query state
         var append_p1 = collection.append(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 11,
                     name: "Product 11",
@@ -519,10 +607,29 @@
             }
         );
 
+        // partial query - produces intermediate query state -> example of invalid usage ! ('append' should only use object approach)
+        var append_p2 = collection.append(
+            {
+                'collectionOrItem': // array approach -> logically invalid usage !
+                    [
+                        {
+                            id: 11,
+                            name: "Product 11",
+                            img: 'image 11',
+                            price: 1.99,
+                            onsale: 0.0,
+                            tags: "Leash",
+                            description: "A fresh taste on a collar,",
+                            order: { id: 11, name: "Order of Product 11" }
+                        }
+                    ]
+            }
+        );
+
         // final query - produces output
         var prepend_f1 = collection.prepend(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: -1,
                     name: "Product -1",
@@ -536,10 +643,29 @@
             }
         ).toArray();
 
+        // final query - produces output -> example of invalid usage ! ('prepend' should only use object approach)
+        var prepend_f2 = collection.prepend(
+            {
+                'collectionOrItem': // array approach -> logically invalid usage !
+                [
+                    {
+                        id: -1,
+                        name: "Product -1",
+                        img: 'image -1',
+                        price: 1.99,
+                        onsale: 0.0,
+                        tags: "Leash",
+                        description: "A fresh taste on a collar,",
+                        order: { id: -1, name: "Order of Product -1" }
+                    }
+                ]
+            }
+        ).toArray();
+
         // partial query - produces intermediate query state
         var prepend_p1 = collection.prepend(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: -1,
                     name: "Product -1",
@@ -550,6 +676,25 @@
                     description: "A fresh taste on a collar,",
                     order: { id: -1, name: "Order of Product -1" }
                 }
+            }
+        );
+
+        // partial query - produces intermediate query state -> example of invalid usage ! ('prepend' should only use object approach)
+        var prepend_p2 = collection.prepend(
+            {
+                'collectionOrItem': // array approach -> logically invalid usage !
+                [
+                    {
+                        id: -1,
+                        name: "Product -1",
+                        img: 'image -1',
+                        price: 1.99,
+                        onsale: 0.0,
+                        tags: "Leash",
+                        description: "A fresh taste on a collar,",
+                        order: { id: -1, name: "Order of Product -1" }
+                    }
+                ]
             }
         );
 
@@ -941,7 +1086,7 @@
             }
         ).toArray();
         */
-        
+
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
         var orderBy_f7 = collection_nullProps.orderBy(
@@ -1611,7 +1756,7 @@
         */
 
         // final query - produces output [ find item with the smallest value of property called 'id' ]
-        var min_f3 = [{id: 1, name: 'Name 1'}].min(
+        var min_f3 = [ { id: 1, name: 'Name 1' } ].min(
             {
                 'property': [ 'id', true ],
                 'udfValueSelector': null
@@ -1619,7 +1764,7 @@
         );
 
         // final query - produces output [ find item with the biggest value of property called 'id' ]
-        var max_f3 = [{id: 1, name: 'Name 1'}].max(
+        var max_f3 = [ { id: 1, name: 'Name 1' } ].max(
             {
                 'property': [ 'id', true ],
                 'udfValueSelector': null
@@ -1627,7 +1772,7 @@
         );
 
         // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
-        var average_f3 = [{id: 1, name: 'Name 1'}].average(
+        var average_f3 = [ { id: 1, name: 'Name 1' } ].average(
             {
                 'property': [ 'id', true ],
                 'udfValueSelector': null
@@ -1700,7 +1845,7 @@
         // final query - produces output
         //var orderBy_p3_take_p1_thenBy_p1_toArray_f1 = orderBy_p3_take_p1_thenBy_p1.toArray();
 
-        
+
         // partial query - produces intermediate query state
         var orderBy_p3_thenBy_p1 = orderBy_p3.thenBy(
             {
