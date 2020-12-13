@@ -80,6 +80,104 @@ var my_custom_jlc_common = {
         }
     },
 
+    udfDefaultObjectContentComparer : function(obj1, obj2) {
+        /**
+         * Define logic of your custom object content comparer to compare the content of two objects.
+         * 
+         * The required value to return is true/false
+        */
+        
+        var haveTheSameContent = use_DOCC_C_I_1L(obj1, obj2); 
+
+
+        return haveTheSameContent;
+
+
+
+        /**
+         * Local helper methods
+        */
+       function use_DOCC_C_I_1L ( obj1, obj2 )
+       {
+           // are two objects equal
+           var match_found = false;
+
+
+           // both objects are null or undefined, hence considered to be equal
+           if ( !obj1 && !obj2 )
+           {
+               // match found
+               match_found = true;
+
+               // return match result
+               return match_found;
+           }
+
+
+           // get all props if object non-empty
+           var propNames_1 = Object.getOwnPropertyNames( obj1 || Object.create( null ) );
+           var propNames_2 = Object.getOwnPropertyNames( obj2 || Object.create( null ) );
+
+           // if the number of props are different
+           if ( propNames_1.length !== propNames_2.length ) return match_found;
+
+           // sort property names natively
+           propNames_1.sort();
+           propNames_2.sort();
+
+           // compare object's property name vs object's property name
+           for ( var i = 0; i < propNames_1.length; i++ )
+               if ( propNames_1[ i ] !== propNames_2[ i ] ) return match_found;
+
+           // compare current level values of these two object
+           for ( var i = 0; i < propNames_1.length; i++ )
+           {
+               // get two values to compare
+               var o1_v = obj1[ propNames_1[ i ] ];
+               var o2_v = obj2[ propNames_2[ i ] ];
+
+               // if both types are different
+               if ( typeof o1_v !== typeof o2_v ) return match_found;
+
+               // check if both values are primitive
+               var v_prim = is_PT_I_2L( o1_v || o2_v );
+
+               // if are primitive and not equal
+               if ( v_prim && o1_v !== o2_v ) return match_found;
+               // if are objects
+               else if ( !v_prim )
+               {
+                   // check these two nested objects recursively
+                   match_found = use_DOCC_C_I_1L( o1_v, o2_v );
+
+                   // if inequality found, break the comparison
+                   if ( !match_found ) return match_found;
+               }
+           }
+
+
+           /**
+            *
+            * Otherwise all props are of the same type and have the same values, i.e. both objects are equal
+           */
+           // match found
+           match_found = true;
+
+           // return match result
+           return match_found;
+
+
+
+           /**
+            * Local helper functions
+           */
+           function is_PT_I_2L ( o )
+           {
+                return [ 'string', 'number', 'boolean' ].indexOf( typeof o ) > -1;
+           }
+       }
+    },
+
     udfObjectGroupKeySelector: function ( coll_item )
     {
         // JLC context accessible from here

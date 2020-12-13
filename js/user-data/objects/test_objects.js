@@ -712,13 +712,31 @@
                     description: "A fresh taste on a collar,",
                     order: { id: -1, name: "Order of Product -1" }
                 },
-                'udfEqualityComparer': null,
-                'strongSearch': true
+                'udfEqualityComparer': null
             }
         );
 
         // final query - produces output
+        // 'contains' query method stores udf object content comparer under the param name of 'udfEqualityComparer'
         var contains_f2 = collection.contains(
+            {
+                'collectionOrItem':
+                {
+                    id: -1,
+                    name: "Product -1",
+                    img: 'image -1',
+                    price: 1.99,
+                    onsale: 0.0,
+                    tags: "Leash",
+                    description: "A fresh taste on a collar,",
+                    order: { id: -1, name: "Order of Product -1" }
+                },
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        );
+
+        // final query - produces output
+        var contains_f3 = collection.contains(
             {
                 'collectionOrItem':
                 {
@@ -731,13 +749,172 @@
                     description: "A fresh taste on a collar,",
                     order: null
                 },
-                'udfEqualityComparer': null,
-                'strongSearch': true
+                'udfEqualityComparer': null
             }
         );
 
         // final query - produces output
-        var contains_f3 = collection.contains(
+        var contains_f4 = collection.contains(
+            {
+                'collectionOrItem':
+                {
+                    id: 7,
+                    name: "Product 7",
+                    img: 'image 3',
+                    price: 3.99,
+                    onsale: 3.0,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: null
+                },
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        );
+
+        // partial query - produces intermediate query state
+        var distinct_p1 = collection.distinct(
+            {
+                'udfEqualityComparer': null
+            }
+        );
+
+        // partial query - produces intermediate query state
+        var distinct_p2 = collection.distinct(
+            {
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        );
+
+        // final query - produces output
+        var distinct_f1 = collection.distinct(
+            {
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var distinct_f2 = collection.distinct(
+            {
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f1 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5" }
+                },
+                'udfEqualityComparer': null,
+                'strongSearch': false
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f2 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5" }
+                },
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'strongSearch': false
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f3 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5" }
+                },
+                'udfEqualityComparer': null,
+                'strongSearch': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f4 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5" }
+                },
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'strongSearch': true
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var except_p1 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5" }
+                },
+                'udfEqualityComparer': null,
+                'strongSearch': false
+            }
+        );
+
+        // partial query - produces intermediate query state
+        var except_p2 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 5,
+                    name: "Product 5",
+                    img: 'image 5',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 5, name: "Order of Product 5" }
+                },
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'strongSearch': false
+            }
+        );
+
+        // partial query - produces intermediate query state
+        var except_p3 = collection.except(
             {
                 'collectionOrItem':
                 {
@@ -755,8 +932,8 @@
             }
         );
 
-        // final query - produces output
-        var contains_f4 = collection.contains(
+        // partial query - produces intermediate query state
+        var except_p4 = collection.except(
             {
                 'collectionOrItem':
                 {
@@ -767,64 +944,93 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5," }
+                    order: { id: 5, name: "Order of Product 5" }
                 },
-                'udfEqualityComparer': null,
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
                 'strongSearch': true
             }
         );
 
-        // partial query - produces intermediate query state
-        var distinct_p1 = collection.distinct(
-            {
-                'udfEqualityComparer': null
-            }
-        );
-
         // final query - produces output
-        var distinct_f1 = collection.distinct(
-            {
-                'udfEqualityComparer': null
-            }
-        ).toArray();
-
-        // final query - produces output
-        var except_f1 = collection.except(
+        var except_f5 = collection.except(
             {
                 'collectionOrItem':
                 {
-                    id: 7,
-                    name: "Product 7",
-                    img: 'image 3',
-                    price: 3.99,
-                    onsale: 3.0,
+                    id: 10,
+                    name: "Product 10",
+                    img: 'image 10',
+                    price: 1.99,
+                    onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: null
+                    order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
                 },
                 'udfEqualityComparer': null,
                 'strongSearch': false
             }
         ).toArray();
 
-        // partial query - produces intermediate query state
-        var except_p1 = collection.except(
+        // final query - produces output
+        var except_f6 = collection.except(
             {
                 'collectionOrItem':
                 {
-                    id: 7,
-                    name: "Product 7",
-                    img: 'image 3',
-                    price: 3.99,
-                    onsale: 3.0,
+                    id: 10,
+                    name: "Product 10",
+                    img: 'image 10',
+                    price: 1.99,
+                    onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: null
+                    order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
                 },
                 'udfEqualityComparer': null,
+                'strongSearch': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f7 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 10,
+                    name: "Product 10",
+                    img: 'image 10',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
+                },
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
                 'strongSearch': false
             }
-        );
+        ).toArray();
+
+        // final query - produces output
+        var except_f8 = collection.except(
+            {
+                'collectionOrItem':
+                {
+                    id: 10,
+                    name: "Product 10",
+                    img: 'image 10',
+                    price: 1.99,
+                    onsale: 2,
+                    tags: "Tag 5",
+                    description: "A fresh taste on a collar,",
+                    order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
+                },
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'strongSearch': true
+            }
+        ).toArray();
+
+
+
+
+
 
         // final query - produces output
         var skip_f1 = collection.skip(

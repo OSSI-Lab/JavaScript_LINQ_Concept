@@ -4336,7 +4336,7 @@
                         {
                             case _ENUM.CONTAINS:
                                 // determine whether source collection contains particular item
-                                currentColl = doesContain_I_2L( currentColl, collectionOrItem ).is;
+                                currentColl = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer ).is;
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -4377,7 +4377,7 @@
                         match.index = -1;
 
 
-                        // determine whether to use UDF comparer...
+                        // determine whether to use UDF content comparer...
                         if ( udfComparer )
                         {
                             // iterate over whole collection
@@ -4397,6 +4397,7 @@
                                 }
                             }
                         }
+                        // otherwise use internal content comparer...
                         else
                         {
                             // iterate over whole collection
@@ -6721,19 +6722,21 @@
                             pos_idx: 2,
 
                             name: 'udfEqualityComparer'
-                        },
-
-                        {
-                            // position of the parameter in the method
-                            pos_idx: 3,
-
-                            name: 'strongSearch'
                         }
                     ],
                     misc: [
                         {
                             // position of the parameter in the method
                             pos_idx: 3,
+
+                            name: 'strongSearch', // this method doesn't use this parameter
+
+                            value: undefined
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
@@ -6818,7 +6821,7 @@
                             // position of the parameter in the method
                             pos_idx: 1,
 
-                            name: 'collectionOrItem',
+                            name: 'collectionOrItem', // this method doesn't use this parameter
 
                             value: undefined
                         },
@@ -6827,7 +6830,7 @@
                             // position of the parameter in the method
                             pos_idx: 3,
 
-                            name: 'strongSearch',
+                            name: 'strongSearch', // this method doesn't use this parameter
 
                             value: undefined
                         },
@@ -6936,7 +6939,7 @@
                     misc: [
                         {
                             // position of the parameter in the method
-                            pos_idx: 3,
+                            pos_idx: 4,
 
                             name: 'enumValue',
 
