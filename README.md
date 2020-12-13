@@ -25,7 +25,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #17 - DPR #40:&nbsp;2020-12-13 &nbsp;&nbsp;7:37 PM Local Time&nbsp;:heavy_check_mark:
+ - TEST #17 - DPR #40:&nbsp;2020-12-13 &nbsp;&nbsp;8:08 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #16
         - added encapsulation of error handling - while displaying partial query state - to prevent from runtime program termination !

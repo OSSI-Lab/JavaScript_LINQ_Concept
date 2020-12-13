@@ -4335,6 +4335,10 @@
                         switch ( enumValue )
                         {
                             case _ENUM.CONTAINS:
+                                // if the parameter called 'collection' is not a single object, throw the error
+                                if(_COMMON.convertTypeToString(collectionOrItem) === _ENUM.T2SR.ARRAY)
+                                    throw Error( '\r\nInput type of parameter called "collectionOrItem" has to be ' + jlc._ctx.fim.is_prim ? 'a primitive' : 'an object' + ' !\r\n\r\n' );
+
                                 // determine whether source collection contains particular item
                                 currentColl = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer ).is;
 
