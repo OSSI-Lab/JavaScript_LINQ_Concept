@@ -701,7 +701,7 @@
         // final query - produces output
         var contains_f1 = collection.contains(
             {
-                'collectionOrItem':
+                'collectionOrItem': // only object approach available
                 {
                     id: -1,
                     name: "Product -1",
@@ -720,7 +720,7 @@
         // 'contains' query method stores udf object content comparer under the param name of 'udfEqualityComparer'
         var contains_f2 = collection.contains(
             {
-                'collectionOrItem':
+                'collectionOrItem': // only object approach available
                 {
                     id: -1,
                     name: "Product -1",
@@ -738,7 +738,7 @@
         // final query - produces output
         var contains_f3 = collection.contains(
             {
-                'collectionOrItem':
+                'collectionOrItem': // only object approach available
                 {
                     id: 7,
                     name: "Product 7",
@@ -756,7 +756,7 @@
         // final query - produces output
         var contains_f4 = collection.contains(
             {
-                'collectionOrItem':
+                'collectionOrItem': // only object approach available
                 {
                     id: 7,
                     name: "Product 7",
@@ -802,7 +802,7 @@
         // final query - produces output
         var except_f1 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -821,7 +821,7 @@
         // final query - produces output
         var except_f2 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -840,7 +840,7 @@
         // final query - produces output
         var except_f3 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -859,7 +859,7 @@
         // final query - produces output
         var except_f4 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -878,7 +878,7 @@
         // partial query - produces intermediate query state
         var except_p1 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -897,7 +897,7 @@
         // partial query - produces intermediate query state
         var except_p2 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -916,7 +916,7 @@
         // partial query - produces intermediate query state
         var except_p3 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -935,7 +935,7 @@
         // partial query - produces intermediate query state
         var except_p4 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 5,
                     name: "Product 5",
@@ -954,7 +954,7 @@
         // final query - produces output
         var except_f5 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 10,
                     name: "Product 10",
@@ -973,7 +973,7 @@
         // final query - produces output
         var except_f6 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 10,
                     name: "Product 10",
@@ -992,7 +992,7 @@
         // final query - produces output
         var except_f7 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 10,
                     name: "Product 10",
@@ -1011,7 +1011,7 @@
         // final query - produces output
         var except_f8 = collection.except(
             {
-                'collectionOrItem':
+                'collectionOrItem': // object approach
                 {
                     id: 10,
                     name: "Product 10",
@@ -1027,8 +1027,67 @@
             }
         ).toArray();
 
+        // final query - produces output
+        var except_f9 = collection.except(
+            {
+                'collectionOrItem': // array approach
+                [
+                    {
+                        id: 5,
+                        name: "Product 5",
+                        img: 'image 5',
+                        price: 1.99,
+                        onsale: 2,
+                        tags: "Tag 5",
+                        description: "A fresh taste on a collar,",
+                        order: { id: 5, name: "Order of Product 5" }
+                    },
+                    {
+                        id: 7,
+                        name: "Product 7",
+                        img: 'image 3',
+                        price: 3.99,
+                        onsale: 3.0,
+                        tags: "Tag 5",
+                        description: "A fresh taste on a collar,",
+                        order: null
+                    }
+                ],
+                'udfEqualityComparer': null,
+                'strongSearch': false
+            }
+        ).toArray();
 
-
+        // final query - produces output
+        var except_f10 = collection.except(
+            {
+                'collectionOrItem': // array approach
+                [
+                    {
+                        id: 5,
+                        name: "Product 5",
+                        img: 'image 5',
+                        price: 1.99,
+                        onsale: 2,
+                        tags: "Tag 5",
+                        description: "A fresh taste on a collar,",
+                        order: { id: 5, name: "Order of Product 5" }
+                    },
+                    {
+                        id: 7,
+                        name: "Product 7",
+                        img: 'image 3',
+                        price: 3.99,
+                        onsale: 3.0,
+                        tags: "Tag 5",
+                        description: "A fresh taste on a collar,",
+                        order: null
+                    }
+                ],
+                'udfEqualityComparer': null,
+                'strongSearch': true
+            }
+        ).toArray();
 
 
 
