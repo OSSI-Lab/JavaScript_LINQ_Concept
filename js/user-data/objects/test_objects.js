@@ -811,7 +811,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': null,
                 'strongSearch': false
@@ -830,7 +830,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
                 'strongSearch': false
@@ -849,7 +849,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': null,
                 'strongSearch': true
@@ -868,7 +868,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
                 'strongSearch': true
@@ -887,7 +887,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': null,
                 'strongSearch': false
@@ -906,7 +906,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
                 'strongSearch': false
@@ -925,7 +925,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': null,
                 'strongSearch': true
@@ -944,7 +944,7 @@
                     onsale: 2,
                     tags: "Tag 5",
                     description: "A fresh taste on a collar,",
-                    order: { id: 5, name: "Order of Product 5" }
+                    order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                 },
                 'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
                 'strongSearch': true
@@ -1040,7 +1040,7 @@
                         onsale: 2,
                         tags: "Tag 5",
                         description: "A fresh taste on a collar,",
-                        order: { id: 5, name: "Order of Product 5" }
+                        order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                     },
                     {
                         id: 7,
@@ -1071,7 +1071,7 @@
                         onsale: 2,
                         tags: "Tag 5",
                         description: "A fresh taste on a collar,",
-                        order: { id: 5, name: "Order of Product 5" }
+                        order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
                     },
                     {
                         id: 7,
@@ -1088,8 +1088,6 @@
                 'strongSearch': true
             }
         ).toArray();
-
-
 
         // final query - produces output
         var skip_f1 = collection.skip(

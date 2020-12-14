@@ -4339,8 +4339,11 @@
                                 if(_COMMON.convertTypeToString(collectionOrItem) === _ENUM.T2SR.ARRAY)
                                     throw Error( '\r\nInput type of parameter called "collectionOrItem" has to be ' + jlc._ctx.fim.is_prim ? 'a primitive' : 'an object' + ' !\r\n\r\n' );
 
-                                // determine whether source collection contains particular item
-                                currentColl = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer ).is;
+                                // determine whether source collection contains particular item, i.e get match object array (match_arr)
+                                var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
+
+                                // update temporary data state
+                                currentColl = match_arr.length > 0;
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -4349,7 +4352,7 @@
 
                             case _ENUM.DISTINCT:
                                 // compute distinct collection
-                                currentColl = makeDistinct_I_2L( currentColl, udfEqualityComparer );
+                                currentColl = makeDistinct_I_2L( currentColl, udfEqualityComparer, strongSearch );
 
                                 break;
 
@@ -4373,31 +4376,41 @@
                     /**
                      * Local helper functions
                     */
-                    function doesContain_I_2L ( coll, item, udfComparer )
+                    function doesContain_I_2L ( coll, item, udfComparer, isFullScan )
                     {
+                        // array of match objects
+                        var match_arr = [];
+
+
                         // declare whether match was found (match)
-                        var match = Object.create( null );
-                        match.is = false;
-                        match.index = -1;
-
-
+                        var match;
                         // determine whether to use UDF content comparer...
                         if ( udfComparer )
                         {
                             // iterate over whole collection
                             for ( var i = 0; i < coll.length; i++ )
                             {
+                                // declare whether match was found (match)
+                                match = Object.create( null );
+
                                 // determine the match success
                                 match.is = udfComparer( item, coll[ i ] );
 
-                                // if match was found, break the checking
+                                // if match was found and not full scan, break the checking
                                 if ( match.is )
                                 {
                                     // store the index of the match
                                     match.index = i;
 
-                                    // match found
-                                    return match;
+                                    // store match object
+                                    match_arr.push(match);
+
+                                    /**
+                                     * Check the search mode
+                                     *  - true -> scan the whole collection rather than stop at first match
+                                     *  - false -> scan the collection until first match
+                                    */
+                                    if ( !isFullScan ) break;
                                 }
                             }
                         }
@@ -4407,26 +4420,36 @@
                             // iterate over whole collection
                             for ( var i = 0; i < coll.length; i++ )
                             {
+                                // declare whether match was found (match)
+                                match = Object.create( null );
+
                                 // determine the match success
                                 match.is = _COMMON.useDefaultObjectContentComparer( item, coll[ i ] );
 
-                                // if match was found, break the checking
+                                // if match was found and not full scan, break the checking
                                 if ( match.is )
                                 {
                                     // store the index of the match
                                     match.index = i;
 
-                                    // match found
-                                    return match;
+                                    // store match object
+                                    match_arr.push(match);
+
+                                    /**
+                                     * Check the search mode
+                                     *  - true -> scan the whole collection rather than stop at first match
+                                     *  - false -> scan the collection until first match
+                                    */
+                                    if ( !isFullScan ) break;
                                 }
                             }
                         }
 
-                        // return match result
-                        return match;
+                        // return match array
+                        return match_arr;
                     }
 
-                    function makeDistinct_I_2L ( coll, comparer )
+                    function makeDistinct_I_2L ( coll, comparer, strongSearch )
                     {
                         // filter the collection if there are any items
                         if ( coll.length )
@@ -4437,8 +4460,8 @@
                             // push the first item from a source collection 
                             distinct_coll.push( coll[ 0 ] );
 
-                            // declare current item (ci) and match object (mo)
-                            var ci, mo;
+                            // declare current item (ci) and match object array (match_arr)
+                            var ci, match_arr;
 
                             // iterate over whole collection starting from the second item in the collection
                             for ( var i = 1; i < coll.length; i++ )
@@ -4446,11 +4469,11 @@
                                 // access current item in the collection
                                 ci = coll[ i ];
 
-                                // get the match
-                                mo = doesContain_I_2L( distinct_coll, ci, comparer );
+                                // get the match object array (match_arr)
+                                match_arr = doesContain_I_2L( distinct_coll, ci, comparer, strongSearch );
 
                                 // if match wasn't found, add such item to the distinct collection
-                                if ( !mo.is )
+                                if ( !match_arr.length )
                                     distinct_coll.push( ci );
                             }
 
@@ -4481,38 +4504,42 @@
                             // store indices of items to be removed from the query flow collection
                             var indexes = [];
 
-                            // declare current item (ci) and match object (mo)
-                            var ci, mo;
+                            // declare current item (ci) and match object array (match_arr)
+                            var ci, match_arr;
                             // iterate over whole collection
                             for ( var i = 0; i < collection.length; i++ )
                             {
                                 // access current item in the collection
                                 ci = collection[ i ];
 
-                                // get the match
-                                mo = doesContain_I_2L( coll, ci, comparer );
+                                // get the match object array (match_arr)
+                                match_arr = doesContain_I_2L( coll, ci, comparer, strongSearch );
 
                                 // if match was found
-                                if ( mo.is )
+                                if ( match_arr.length > 0 )
                                 {
-                                    // add such item index to the indexes array
-                                    indexes.push( mo.index );
-
-                                    /**
-                                     * Check the search mode
-                                     *  - true -> scan the whole collection rather than stop at first match
-                                     *  - false -> scan the collection until first match
-                                    */
-
-                                    if ( !strongSearch ) break;
+                                    match_arr.forEach(function(match) {
+                                        // add such item index to the indexes array
+                                        indexes.push( match.index );
+                                    });
                                 }
                             }
 
-                            // remove all required items
-                            indexes.forEach( index => { coll.splice( index, 1 ); } );
+                            /**
+                             * Remove all required items
+                            */
+                            var exceptColl = [];
+                            
+                            for(var i = 0; i < coll.length; i++) {
+                                // skip items that should not be included !
+                                if(indexes.includes(i)) continue;
+
+                                // add items to the output collection
+                                exceptColl.push(coll[i]);
+                            }
 
                             // return query flow collection without collection in question
-                            return coll;
+                            return exceptColl;
                         }
                         // otherwise return execution to the caller
                         else return coll;
