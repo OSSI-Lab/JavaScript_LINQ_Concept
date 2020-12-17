@@ -4334,7 +4334,7 @@
                             case _ENUM.CONTAINS:
                                 // if the parameter called 'collection' is not a single object, throw the error
                                 if(_COMMON.convertTypeToString(collectionOrItem) === _ENUM.T2SR.ARRAY)
-                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" has to be ' + jlc._ctx.fim.is_prim ? 'a primitive' : 'an object' + ' !\r\n\r\n' );
+                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol(_ENUM.CONTAINS).toLowerCase() + '" query method has to be ' + (jlc._ctx.fim.is_prim ? 'a primitive' : 'an object') + ' !\r\n\r\n' );
 
                                 // determine whether source collection contains particular item, i.e get match object array (match_arr)
                                 var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );

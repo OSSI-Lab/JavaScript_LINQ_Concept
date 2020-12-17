@@ -771,6 +771,28 @@
             }
         );
 
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Input type of parameter called "collectionOrItem" in the context of "contains" query method has to be an object !
+        var contains_f5 = collection.contains(
+            {
+                'collectionOrItem': // only object approach available
+                [
+                    {
+                        id: -1,
+                        name: "Product -1",
+                        img: 'image -1',
+                        price: 1.99,
+                        onsale: 0.0,
+                        tags: "Leash",
+                        description: "A fresh taste on a collar,",
+                        order: { id: -1, name: "Order of Product -1" }
+                    }
+                ],
+                'udfEqualityComparer': null
+            }
+        );
+        */
+
         // partial query - produces intermediate query state
         var distinct_p1 = collection.distinct(
             {

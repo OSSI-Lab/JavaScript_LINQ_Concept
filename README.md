@@ -25,11 +25,11 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #18 - DPR #41:&nbsp;2020-12-17 &nbsp;&nbsp;10:25 AM Local Time&nbsp;:heavy_check_mark:
+ - TEST #18 - DPR #41:&nbsp;2020-12-17 &nbsp;&nbsp;10:50 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #17
       - testing the whole interface
-        - the interface of query methods was tested up to 'order-*' family of query methods (line 1289) !
+        - the interface of query methods was tested up to 'order-*' family of query methods (line 1311) !
  - TEST #17 - DPR #40:&nbsp;2020-12-13 &nbsp;&nbsp;8:17 PM Local Time, &nbsp;2020-12-14 &nbsp;&nbsp;11:23 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #16
