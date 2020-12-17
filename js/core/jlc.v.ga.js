@@ -234,13 +234,13 @@
                  */
                     function ( v1, v2 )
                     {
-                        return v1 === v2 ? true : false;
+                        return v1 === v2;
                     }
             }
         },
 
         checkValue: /**
-         * @param {number | boolean} propOrVal
+         * @param {any} propOrVal
          * @param {string} propOperator
          * @param {any} propValue
          */
@@ -252,7 +252,7 @@
                 */
                 var valid = propOrVal || propOrVal === 0 || propOrVal === false;
 
-                // execute the operator provided that the found prop "is not null"
+                // execute the operator provided that the found prop "IS NOT NULL"
                 if ( valid )
                 {
                     // get the proper bool operator
@@ -263,7 +263,7 @@
                         return b_op.call( propOrVal, propValue );
                     // in case you provided 'not-implemented' one, throw an error
                     else
-                        throw Error( '\r\nUnsupported operator [ ' + propOperator + ' ] !\r\n\r\n' );
+                        throw new Error( '\r\nUnsupported operator [ ' + propOperator + ' ] !\r\n\r\n' );
                 }
                 else
                     return false;
@@ -761,7 +761,7 @@
                             ; // with collection input type set to UNKNOWN do nothing as the collection is empty
                         else
                             // throw error about unsupported collection input type !
-                            throw Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.cit ) + '" is not supported !\r\n\r\n' );
+                            throw new Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.cit ) + '" is not supported !\r\n\r\n' );
 
 
 
@@ -870,7 +870,7 @@
                                 get: function ()
                                 {
                                     if ( typeof value !== 'function' )
-                                        throw Error( '\r\nYou have to provide a function that will deliver custom syntax checking !\r\n\r\n' );
+                                        throw new Error( '\r\nYou have to provide a function that will deliver custom syntax checking !\r\n\r\n' );
 
                                     // return a UDF to check custom syntax
                                     return value.bind( null, user_filter_key, ...param_args )();
@@ -1193,7 +1193,7 @@
                                 */
 
                                 if ( !this._present )
-                                    throw Error( '\r\nYou can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !\r\nAdditionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.\r\nOtherwise it "would be illogical", as I was told :-) !\r\nThank You :-)\r\n\r\n' );
+                                    throw new Error( '\r\nYou can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !\r\nAdditionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.\r\nOtherwise it "would be illogical", as I was told :-) !\r\nThank You :-)\r\n\r\n' );
                             },
 
                         set:/**
@@ -2654,7 +2654,7 @@
                                     key = rkv;
                                 // is null or undefined => non-existing grouping key
                                 else if(t2sr === _ENUM.T2SR.UNDEFINED || t2sr === _ENUM.T2SR.NULL)
-                                    throw Error('\r\nObject reference not set to an instance of an object [' + keyPart.value + '] !\r\n\r\n');
+                                    throw new Error('\r\nObject reference not set to an instance of an object [' + keyPart.value + '] !\r\n\r\n');
                                 // deal with primitives
                                 else {
                                     // initialize a key with a default value
@@ -3047,7 +3047,7 @@
                             }
                             // throw error
                             else
-                                throw Error(
+                                throw new Error(
                                     '\r\nThis collection input type (cit) called "' + _COMMON.getCustomValueOfSymbol( citCtx ) +
                                     '" is not supported by PLAIN comparator !\r\nValid contexts are [' +
                                     _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + ', ' +
@@ -3120,7 +3120,7 @@
                                 return doBooleanComparison_I_3L(false);
 
                             default:
-                                throw Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol( sort_mode ) + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol( sort_mode ) + ' ] !\r\n\r\n' );
                         }
 
 
@@ -3501,34 +3501,36 @@
                 */
                 function apply_LBF_I_1L ( currentObject, predicateArray, elementIndex )
                 {
-                    // flag that tells whether object passes or fails the filter
-                    var passed = true;
-
+                    // flag that tells whether object passes or fails the filter => bool operation result
+                    var bor = true;
+                    
+                    // current filter (cf)
+                    var cf;
                     // loop over predicates
                     for ( var i = 0; i < predicateArray.length; i++ )
                     {
                         // access current filter
-                        var predicate = predicateArray[ i ];
+                        cf = predicateArray[ i ];
 
                         // determine the type of filter, i.e. user-defined function or a primitive one (string, int, float)
-                        if ( typeof predicate === 'object' )
+                        if ( typeof cf === 'object' )
                         {
                             // apply predefined basic comparison operators
-                            passed = applyPrimitivePredicate_I_2L( predicate, currentObject );
+                            bor = applyPrimitivePredicate_I_2L( cf, currentObject );
                         }
-                        else if ( typeof predicate === 'function' )
+                        else if ( typeof cf === 'function' )
                         {
                             // apply predefined user-defined comparison function
-                            passed = applyUdfPredicate_I_2L( predicate, currentObject, elementIndex );
+                            bor = applyUdfPredicate_I_2L( cf, currentObject, elementIndex );
                         }
 
-                        // check ASAP if object failed the filter for other query method
-                        if ( !passed )
+                        // check ASAP if object failed the filter
+                        if ( !bor )
                             break;
                     }
 
-                    // return filtering result (true/false)
-                    return passed;
+                    // return filtering result, aka bool operation result (true/false)
+                    return bor;
 
 
 
@@ -3562,7 +3564,7 @@
                         // filtering operator
                         var propOperator = predicate[ 1 ];
 
-                        // navigate to the destination property of the current object, execute the filter and return the filter bool result
+                        // navigate to the destination property of the current object, execute the filter and return the bool operation result
                         return executePrimitivePredicate_I_3L();
 
 
@@ -3572,21 +3574,21 @@
                         */
                         function executePrimitivePredicate_I_3L ()
                         {
-                            // input value to compare (propOrVal)
-                            var pov;
+                            // property value holder (pvh)
+                            var pvh;
 
                             // determine if the current object is primitive one, i.e. int, string, number, boolean, etc.
                             var is_prim = _COMMON.isPrimitiveType( obj );
 
                             // if is primitive...
                             if ( is_prim )
-                                pov = obj;
+                                pvh = obj;
                             else
                                 // otherwise seek the destination property
-                                pov = _LOGICAL_FILTER.applyPropertyValueFilter( obj, propName, true, false );
+                                pvh = _LOGICAL_FILTER.applyPropertyValueFilter( obj, propName, true, false );
 
                             // run native comparison
-                            return _OPERATOR.checkValue( pov, propOperator, propValue );
+                            return _OPERATOR.checkValue( pvh, propOperator, propValue );
                         }
                     }
 
@@ -3595,9 +3597,9 @@
                         /**
                          * 1. Bind current collection object to user-defined function - having some predefined values - with 'bind' keyword
                          *
-                         * 2. Invoke a filter with '()' invocation syntax
+                         * 2. Invoke a filter with '()'
                          *
-                         * 3. return the filter result with 'return' keyword
+                         * 3. return the filter result, aka bool operation result
                          *
                         */
 
@@ -3746,6 +3748,8 @@
                     // declare current intermediate collection
                     var c_i_c = [];
 
+                    // bool operation result (bor) ; current object (c_o)
+                    var bor, c_o;
                     // if we're dealing with skipWhile...
                     if ( skipOrTakeEnum === _ENUM.SKIP )
                     {
@@ -3753,18 +3757,18 @@
                         for ( var i = 0; i < currentColl.length; i++ )
                         {
                             // access current object
-                            var c_o = currentColl[ i ];
+                            c_o = currentColl[ i ];
 
                             // apply where filter(s) and get the result
-                            var passed = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
+                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
 
                             // if object didn't pass the filter
-                            if ( !passed )
+                            if ( !bor )
                             {
                                 // take the rest of the collection
                                 c_i_c = currentColl.slice( i );
 
-                                // and break further skipping 
+                                // and break further skipping
                                 break;
                             }
                         }
@@ -3776,13 +3780,13 @@
                         for ( var i = 0; i < currentColl.length; i++ )
                         {
                             // access current object
-                            var c_o = currentColl[ i ];
+                            c_o = currentColl[ i ];
 
                             // apply where filter(s) and get the result
-                            var passed = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
+                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
 
                             // if object passed the filter
-                            if ( passed )
+                            if ( bor )
                                 c_i_c.push( c_o );
                             // if object didn't pass the filter
                             else
@@ -3797,13 +3801,13 @@
                         for ( var i = 0; i < currentColl.length; i++ )
                         {
                             // access current object
-                            var c_o = currentColl[ i ];
+                            c_o = currentColl[ i ];
 
                             // apply where filter(s) and get the result
-                            passed = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
+                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
 
                             // based on filtering result (true/false) pass object further down the flow
-                            if ( passed )
+                            if ( bor )
                                 c_i_c.push( c_o );
                         }
                     }
@@ -3901,7 +3905,7 @@
                     }
                     // otherwise throw error
                     else
-                        throw Error( '\r\n"groupBy" method requires a grouping key selector to be present.\r\nCurrent invocation is missing the grouping key selector (primitive one || UDF) !\r\n\r\n' );
+                        throw new Error( '\r\n"groupBy" method requires a grouping key selector to be present.\r\nCurrent invocation is missing the grouping key selector (primitive one || UDF) !\r\n\r\n' );
 
 
 
@@ -3935,7 +3939,7 @@
                          *  - values are primitives values or objects, not single elements of array 
                         */
                         if ( isDictionaryContext && gbo.getGrouping( id, groups ).arr )
-                            throw Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
+                            throw new Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
 
                         // create pure empty object
                         var eo = Object.create( null );
@@ -4001,7 +4005,7 @@
                          *  - values are primitives values or objects, not single elements of array
                         */
                         if ( isDictionaryContext && gbo.getGrouping( id, groups ).arr )
-                            throw Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
+                            throw new Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
 
                         // create pure empty object
                         var eo = Object.create( null );
@@ -4144,7 +4148,7 @@
                                     if ( ( index || index === 0 ) && count )
                                     {
                                         if ( index + count - 1 > currentColl.length - 1 )
-                                            throw Error( '\r\nOffset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !\r\n\r\n' );
+                                            throw new Error( '\r\nOffset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !\r\n\r\n' );
                                         else if ( index + count - 1 === currentColl.length - 1 )
                                             i = currentColl.length - 1;
                                         else if ( index + count - 1 < currentColl.length - 1 )
@@ -4205,7 +4209,7 @@
                                     {
                                         // for null or undefined count just throw an error
                                         if ( !count && count !== 0 )
-                                            throw Error( '\r\nSupply required parameter called "count" !\r\n\r\n' );
+                                            throw new Error( '\r\nSupply required parameter called "count" !\r\n\r\n' );
 
                                         // determine the valid range of sequence to extract
                                         if ( count > 0 && count < currentColl.length )
@@ -4218,15 +4222,8 @@
                                             // @ts-ignore
                                             ;
                                         // skip nothing, which means taking whole sequence
-                                        else if ( count < 0 )
+                                        else if ( count <= 0 )
                                             r_seq = currentColl;
-
-                                        // skip the first element with index equal to 0
-                                        else if ( count === 0 )
-                                        {
-                                            for ( i = 1; i < currentColl.length; i++ )
-                                                r_seq.push( currentColl[ i ] );
-                                        }
 
                                         // replace original sequence with the new sequence
                                         currentColl = r_seq;
@@ -4239,8 +4236,8 @@
                                     if ( !withPredicates )
                                     {
                                         // for null or undefined count just throw an error
-                                        if ( !count )
-                                            throw Error( '\r\nSupply required parameter called "count" !\r\n\r\n' );
+                                        if ( !count && count !== 0 )
+                                            throw new Error( '\r\nSupply required parameter called "count" !\r\n\r\n' );
 
                                         // determine the valid range of sequence to extract
                                         if ( count >= currentColl.length )
@@ -4272,7 +4269,7 @@
 
                                     // handle OutOfRangeException in the method called 'elementAt'
                                     if ( ( index < 0 || index >= currentColl.length ) && !count )
-                                        throw Error( '\r\nThe index was out of range.\r\nIt must be non-negative and smaller than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
+                                        throw new Error( '\r\nThe index was out of range.\r\nIt must be non-negative and smaller than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
                                     // handle OutOfRangeException in the method called 'elementAtOrDefault'
                                     else if ( ( index < 0 || index >= currentColl.length ) && count )
                                     {
@@ -4297,7 +4294,7 @@
                                     }
 
                                 default:
-                                    throw Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
+                                    throw new Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
                             }
 
                             // update HPID object to enable further data flow
@@ -4337,7 +4334,7 @@
                             case _ENUM.CONTAINS:
                                 // if the parameter called 'collection' is not a single object, throw the error
                                 if(_COMMON.convertTypeToString(collectionOrItem) === _ENUM.T2SR.ARRAY)
-                                    throw Error( '\r\nInput type of parameter called "collectionOrItem" has to be ' + jlc._ctx.fim.is_prim ? 'a primitive' : 'an object' + ' !\r\n\r\n' );
+                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" has to be ' + jlc._ctx.fim.is_prim ? 'a primitive' : 'an object' + ' !\r\n\r\n' );
 
                                 // determine whether source collection contains particular item, i.e get match object array (match_arr)
                                 var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
@@ -4363,7 +4360,7 @@
                                 break;
 
                             default:
-                                throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
                         }
 
                         // update HPID object to enable further data flow
@@ -4586,7 +4583,7 @@
                                 break;
 
                             default:
-                                throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
                         }
 
                         // update HPID object to enable further data flow
@@ -4618,7 +4615,7 @@
                         {
                             // if user failed to provide UDF selector
                             if ( !udfSelector )
-                                throw Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
+                                throw new Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
 
                             // current array item processed by UDF selector
                             var item;
@@ -4671,7 +4668,7 @@
                         {
                             // if user failed to provide UDF selector
                             if ( !udfSelector )
-                                throw Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
+                                throw new Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
 
                             // current array item processed by UDF selector; input item from a input collection; array holding processed input items
                             var item, ci, interimArr;
@@ -4860,7 +4857,7 @@
                                 break;
 
                             default:
-                                throw Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
                         }
 
                         // update HPID object to enable further data flow
@@ -4927,10 +4924,10 @@
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
                                 if ( doGrouping )
-                                    throw Error( '\r\nThe context of [ ' + enumValue + ' ] requires providing valid "outerSelectorArray" or "innerSelectorArray" !\r\n\r\n' );
+                                    throw new Error( '\r\nThe context of [ ' + enumValue + ' ] requires providing valid "outerSelectorArray" or "innerSelectorArray" !\r\n\r\n' );
                             }
                             else
-                                throw Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
 
                             /**
                              * Here we arrive with created JOIN result !
@@ -5024,7 +5021,7 @@
                             {
                                 // if user failed to provide equality UDF
                                 if ( !udfEqualityComparer )
-                                    throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" key extractors only, you need to provide equality UDF !\r\n\r\n' );
+                                    throw new Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" key extractors only, you need to provide equality UDF !\r\n\r\n' );
 
                                 // loop over 'left-side' collection
                                 for ( var i = 0; i < currentColl.length; i++ )
@@ -5112,7 +5109,7 @@
 
                                 // both arrays have to have matching keys
                                 if ( left_key_arr.length !== right_key_arr.length )
-                                    throw Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" keys only, both arrays has to have matching keys !\r\n\r\n' );
+                                    throw new Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" keys only, both arrays has to have matching keys !\r\n\r\n' );
 
                                 // arrays of key values from both objects
                                 var left_key_value_arr = [], right_key_value_arr = [];
@@ -5180,7 +5177,7 @@
                         {
                             // check if props match in corresponding objects
                             if ( sourceItemPropArray.length !== outputItemPropArray.length )
-                                throw Error( '\r\nInvalid number of keys in either "left-side" or "right-side" array !\r\n\r\n' );
+                                throw new Error( '\r\nInvalid number of keys in either "left-side" or "right-side" array !\r\n\r\n' );
 
                             // create output object
                             var outputItem = Object.create( null );
@@ -5288,11 +5285,11 @@
                             if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
                                 return undefined;
                             else if ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX )
-                                throw Error( '\r\The sequence has no elements.\r\n\r\n' );
+                                throw new Error( '\r\The sequence has no elements.\r\n\r\n' );
                             else if ( ( enumValue === _ENUM.AVG ) && ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.STRING || jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.BOOLEAN || jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
-                                throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                                throw new Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
                             else if ( ( enumValue === _ENUM.AVG ) && ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.NUMBER ) )
-                                throw Error( '\r\The sequence has no elements.\r\n\r\n' );
+                                throw new Error( '\r\The sequence has no elements.\r\n\r\n' );
                         }
                         // check the edge case (one item in collection)
                         else if ( _ACTION.hpid.data.length === 1 )
@@ -5324,7 +5321,7 @@
                                         return fetchItemOrItemProp_I_3L( Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 );
                                 }
                                 else
-                                    throw Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                                    throw new Error( '\r\There is no implicit conversion from type ' + jlc._ctx.mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
                             }
                         }
 
@@ -5392,7 +5389,7 @@
 
                         // check for '_ENUM.DEFAULT' if collection != null
                         if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
-                            throw Error( '\r\nSource collection is null !\r\n\r\n' );
+                            throw new Error( '\r\nSource collection is null !\r\n\r\n' );
 
                         // if the sequence contains elements
                         if ( currentColl.length )
@@ -5429,7 +5426,7 @@
                                         break;
                                     }
                                     else
-                                        throw Error( '\r\nSequence contains more than one element !\r\n\r\n' );
+                                        throw new Error( '\r\nSequence contains more than one element !\r\n\r\n' );
 
                                 case _ENUM.ALL:
                                 case _ENUM.DEFAULT:
@@ -5449,7 +5446,7 @@
                                     break;
 
                                 default:
-                                    throw Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
+                                    throw new Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
                             }
                         }
                         // if the sequence contains no elements
@@ -5489,13 +5486,13 @@
                             else
                             {
                                 if ( ( enumValue === _ENUM.SINGLE ) && withPredicates )
-                                    throw Error( '\r\nSequence contains no elements !\r\n\r\n' );
+                                    throw new Error( '\r\nSequence contains no elements !\r\n\r\n' );
                                 else if ( withPredicates )
-                                    throw Error( '\r\nSequence contains no matching element !\r\n\r\n' );
+                                    throw new Error( '\r\nSequence contains no matching element !\r\n\r\n' );
                                 else if ( enumValue === _ENUM.REVERSE )
-                                    throw Error( '\r\nSource is null !\r\n\r\n' );
+                                    throw new Error( '\r\nSource is null !\r\n\r\n' );
                                 else
-                                    throw Error( '\r\nSequence contains no elements !\r\n\r\n' );
+                                    throw new Error( '\r\nSequence contains no elements !\r\n\r\n' );
                             }
                         }
 
@@ -5641,7 +5638,7 @@
 
                                 // check if attempted sorting using Value.PLAIN
                                 if ( col.substring( 0, 6 ) === 'value.' && col.length > 6 )
-                                    throw Error( '\r\nSorting KVPs by Value.PLAIN is invalid !\r\nValue.PLAIN column is "' + col + '" !\r\n\r\n' );
+                                    throw new Error( '\r\nSorting KVPs by Value.PLAIN is invalid !\r\nValue.PLAIN column is "' + col + '" !\r\n\r\n' );
                             }
                         }
                     }
@@ -10423,7 +10420,7 @@
                             }
 
                         default:
-                            throw Error( '\r\nInvalid query flow context -> [' + flow_ctx + ']\r\n\r\n' );
+                            throw new Error( '\r\nInvalid query flow context -> [' + flow_ctx + ']\r\n\r\n' );
                     }
 
 

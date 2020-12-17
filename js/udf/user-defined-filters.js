@@ -66,7 +66,7 @@ var my_custom_jlc_filters = {
             return currentItem;
         else
             return currentItem[ 'id' ]; // for objects assume that the key is stored in property name called 'id' 
-    }
+    },
 };
 
 

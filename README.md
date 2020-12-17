@@ -25,12 +25,17 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #18 - DPR #41:&nbsp;2020-12-17 &nbsp;&nbsp;10:25 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - bugs found since TEST #17
+      - testing the whole interface
+        - the interface of query methods was tested up to 'order-*' family of query methods (line 1289) !
  - TEST #17 - DPR #40:&nbsp;2020-12-13 &nbsp;&nbsp;8:17 PM Local Time, &nbsp;2020-12-14 &nbsp;&nbsp;11:23 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #16
         - added encapsulation of error handling - while displaying partial query state - to prevent from runtime program termination !
       - testing the whole interface
-        - the interface of query methods was tested up to 'skip' query method !  
+        - the interface of query methods was tested up to 'skip' query method !
  - TEST #16 - DPR #39:&nbsp;2020-12-10 &nbsp;&nbsp;4:39 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #15

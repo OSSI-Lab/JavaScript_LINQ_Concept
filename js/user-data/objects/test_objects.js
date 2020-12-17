@@ -1096,6 +1096,41 @@
             }
         ).toArray();
 
+        // partial query - produces intermediate query state
+        var skip_p1 = collection.skip(
+            {
+                'count': 2
+            }
+        );
+
+        // final query - produces output
+        var skip_f2 = collection.skip(
+            {
+                'count': -1
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var skip_p2 = collection.skip(
+            {
+                'count': -1
+            }
+        );
+
+        // final query - produces output
+        var skip_f3 = collection.skip(
+            {
+                'count': 0
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var skip_p3 = collection.skip(
+            {
+                'count': 0
+            }
+        );
+
         // final query - produces output
         var skipWhile_f1 = collection.skipWhile(
             {
@@ -1105,12 +1140,94 @@
             }
         ).toArray();
 
+        // partial query - produces intermediate query state
+        var skipWhile_p1 = collection.skipWhile(
+            {
+                'predicateArray': [
+                    [ "id", "<", 7 ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var skipWhile_f2 = collection.skipWhile(
+            {
+                'predicateArray': [
+                    [ "id", "<", 7 ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var skipWhile_p2 = collection.skipWhile(
+            {
+                'predicateArray': [
+                    [ "id", "<", 7 ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var skipWhile_f3 = collection.skipWhile(
+            {
+                'predicateArray': [
+                    jlc_predicates.udfWherePredicate
+                ]
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var skipWhile_p3 = collection.skipWhile(
+            {
+                'predicateArray': [
+                    jlc_predicates.udfWherePredicate
+                ]
+            }
+        );
+
         // final query - produces output
         var take_f1 = collection.take(
             {
                 'count': 2
             }
         ).toArray();
+
+        // partial query - produces intermediate query state
+        var take_p1 = collection.take(
+            {
+                'count': 2
+            }
+        );
+
+        // final query - produces output
+        var take_f2 = collection.take(
+            {
+                'count': -1
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var take_p2 = collection.take(
+            {
+                'count': -1
+            }
+        );
+
+        // final query - produces output
+        var take_f3 = collection.take(
+            {
+                'count': 0
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var take_p3 = collection.take(
+            {
+                'count': 0
+            }
+        );
 
         // final query - produces output
         var takeWhile_f1 = collection.takeWhile(
@@ -1122,14 +1239,7 @@
         ).toArray();
 
         // partial query - produces intermediate query state
-        var skip_p1 = collection.skip(
-            {
-                'count': 2
-            }
-        );
-
-        // partial query - produces intermediate query state
-        var skipWhile_p1 = collection.skipWhile(
+        var takeWhile_p1 = collection.takeWhile(
             {
                 'predicateArray': [
                     [ "id", "<", 7 ]
@@ -1137,18 +1247,40 @@
             }
         );
 
-        // partial query - produces intermediate query state
-        var take_p1 = collection.take(
+        // final query - produces output
+        var takeWhile_f2 = collection.takeWhile(
             {
-                'count': 2
+                'predicateArray': [
+                    [ "id", "<", 7 ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var takeWhile_p2 = collection.takeWhile(
+            {
+                'predicateArray': [
+                    [ "id", "<", 7 ],
+                    [ "order.item.size", ">", 10 ]
+                ]
             }
         );
 
-        // partial query - produces intermediate query state
-        var takeWhile_p1 = collection.takeWhile(
+        // final query - produces output
+        var takeWhile_f3 = collection.takeWhile(
             {
                 'predicateArray': [
-                    [ "id", "<", 7 ]
+                    jlc_predicates.udfWherePredicate
+                ]
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var takeWhile_p3 = collection.takeWhile(
+            {
+                'predicateArray': [
+                    jlc_predicates.udfWherePredicate
                 ]
             }
         );
