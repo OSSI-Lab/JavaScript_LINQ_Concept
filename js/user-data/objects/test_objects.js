@@ -166,15 +166,42 @@
             },
         ];
 
+        var collection_nullProps_where_take_skip_all_any = [
+            {
+                id: 1,
+                order: { xyz: { abc: 1 } }
+            },
+            {
+                id: 2,
+                order: { xyz: null }
+            },
+            {
+                id: 3,
+                order: null
+            }
+        ];
 
+        var collection_nullProps_where_take_skip_all_any_2 = [
+            {
+                id: 1,
+                order: { xyz: null }
+            },
+            {
+                id: 2,
+                order: { xyz: { abc: 1 } }
+            },
+            {
+                id: 3,
+                order: null
+            }
+        ];
 
 
         // final query - produces output
         var where_f1 = collection.where(
             {
                 'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "order.id", "<", 10, true ]
+                    [ "id", ">=", 2, true ]
                 ]
             }
         ).toArray();
@@ -354,7 +381,7 @@
         ).toArray();
         */
 
-        // partial query - produces intermediate query state
+        // partial query - produces intermediate query state - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.id ] !
         var where_p1 = collection.where(
             {
                 'predicateArray': [
@@ -427,13 +454,20 @@
         var where_f2 = collection.where(
             {
                 'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "order.id", "<", 10, true ]
+                    [ "id", ">=", 2, true ]
                 ]
             }
         ).toArray();
 
-
+        // partial query - produces intermediate query state - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
+        var where_error_p1 = collection.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        );
 
 
         // when you're done with all querying regarding some collections, you can tidy them up by removing some internally generated stuff
@@ -647,18 +681,18 @@
         var prepend_f2 = collection.prepend(
             {
                 'collectionOrItem': // array approach -> logically invalid usage !
-                [
-                    {
-                        id: -1,
-                        name: "Product -1",
-                        img: 'image -1',
-                        price: 1.99,
-                        onsale: 0.0,
-                        tags: "Leash",
-                        description: "A fresh taste on a collar,",
-                        order: { id: -1, name: "Order of Product -1" }
-                    }
-                ]
+                    [
+                        {
+                            id: -1,
+                            name: "Product -1",
+                            img: 'image -1',
+                            price: 1.99,
+                            onsale: 0.0,
+                            tags: "Leash",
+                            description: "A fresh taste on a collar,",
+                            order: { id: -1, name: "Order of Product -1" }
+                        }
+                    ]
             }
         ).toArray();
 
@@ -683,18 +717,18 @@
         var prepend_p2 = collection.prepend(
             {
                 'collectionOrItem': // array approach -> logically invalid usage !
-                [
-                    {
-                        id: -1,
-                        name: "Product -1",
-                        img: 'image -1',
-                        price: 1.99,
-                        onsale: 0.0,
-                        tags: "Leash",
-                        description: "A fresh taste on a collar,",
-                        order: { id: -1, name: "Order of Product -1" }
-                    }
-                ]
+                    [
+                        {
+                            id: -1,
+                            name: "Product -1",
+                            img: 'image -1',
+                            price: 1.99,
+                            onsale: 0.0,
+                            tags: "Leash",
+                            description: "A fresh taste on a collar,",
+                            order: { id: -1, name: "Order of Product -1" }
+                        }
+                    ]
             }
         );
 
@@ -1053,28 +1087,28 @@
         var except_f9 = collection.except(
             {
                 'collectionOrItem': // array approach
-                [
-                    {
-                        id: 5,
-                        name: "Product 5",
-                        img: 'image 5',
-                        price: 1.99,
-                        onsale: 2,
-                        tags: "Tag 5",
-                        description: "A fresh taste on a collar,",
-                        order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
-                    },
-                    {
-                        id: 7,
-                        name: "Product 7",
-                        img: 'image 3',
-                        price: 3.99,
-                        onsale: 3.0,
-                        tags: "Tag 5",
-                        description: "A fresh taste on a collar,",
-                        order: null
-                    }
-                ],
+                    [
+                        {
+                            id: 5,
+                            name: "Product 5",
+                            img: 'image 5',
+                            price: 1.99,
+                            onsale: 2,
+                            tags: "Tag 5",
+                            description: "A fresh taste on a collar,",
+                            order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
+                        },
+                        {
+                            id: 7,
+                            name: "Product 7",
+                            img: 'image 3',
+                            price: 3.99,
+                            onsale: 3.0,
+                            tags: "Tag 5",
+                            description: "A fresh taste on a collar,",
+                            order: null
+                        }
+                    ],
                 'udfEqualityComparer': null,
                 'strongSearch': false
             }
@@ -1084,28 +1118,28 @@
         var except_f10 = collection.except(
             {
                 'collectionOrItem': // array approach
-                [
-                    {
-                        id: 5,
-                        name: "Product 5",
-                        img: 'image 5',
-                        price: 1.99,
-                        onsale: 2,
-                        tags: "Tag 5",
-                        description: "A fresh taste on a collar,",
-                        order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
-                    },
-                    {
-                        id: 7,
-                        name: "Product 7",
-                        img: 'image 3',
-                        price: 3.99,
-                        onsale: 3.0,
-                        tags: "Tag 5",
-                        description: "A fresh taste on a collar,",
-                        order: null
-                    }
-                ],
+                    [
+                        {
+                            id: 5,
+                            name: "Product 5",
+                            img: 'image 5',
+                            price: 1.99,
+                            onsale: 2,
+                            tags: "Tag 5",
+                            description: "A fresh taste on a collar,",
+                            order: { id: 5, name: "Order of Product 5", item: { size: 5, discount: 10 } }
+                        },
+                        {
+                            id: 7,
+                            name: "Product 7",
+                            img: 'image 3',
+                            price: 3.99,
+                            onsale: 3.0,
+                            tags: "Tag 5",
+                            description: "A fresh taste on a collar,",
+                            order: null
+                        }
+                    ],
                 'udfEqualityComparer': null,
                 'strongSearch': true
             }
@@ -1209,6 +1243,17 @@
             }
         );
 
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.xyz.abc ] !
+        var skipWhile_f4 = collection_nullProps_where_take_skip_all_any.skipWhile(
+            {
+                'predicateArray': [
+                    [ "order.xyz.abc", "<", 10 ]
+                ]
+            }
+        ).toArray();
+        */
+
         // final query - produces output
         var take_f1 = collection.take(
             {
@@ -1307,6 +1352,17 @@
             }
         );
 
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.xyz.abc ] !
+        var takeWhile_f4 = collection_nullProps_where_take_skip_all_any.takeWhile(
+            {
+                'predicateArray': [
+                    [ "order.xyz.abc", "<", 10 ]
+                ]
+            }
+        ).toArray();
+        */
+
         // final query - produces output
         var orderBy_f1 = collection.orderBy(
             {
@@ -1334,6 +1390,16 @@
                     [ "id", true ]
                 ],
                 'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderByDescending_f2 = collection.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
             }
         ).toArray();
 
@@ -1385,6 +1451,23 @@
                     [ "name", true ]
                 ],
                 'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var thenByDescending_f2 = collection.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
+            }
+        ).thenByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "name", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
             }
         ).toArray();
 
@@ -1442,7 +1525,6 @@
             }
         );
 
-
         // partial query - produces intermediate query state
         var orderBy_p2 = collection.orderBy(
             {
@@ -1454,6 +1536,15 @@
         );
         // partial query - produces intermediate query state
         var thenBy_p2 = orderBy_p2.thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        );
+        // partial query - produces intermediate query state
+        var thenByDescending_p2 = orderBy_p2.thenByDescending(
             {
                 'keyPartSelectorArray': [
                     [ "id", true ]
@@ -1544,6 +1635,20 @@
                 'udfEqualityComparer': null,
                 'udfGroupResultValueSelector': null,
 
+            }
+        );
+
+        // final query - produces output
+        var toDictionary_f2 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
             }
         );
 
@@ -2052,10 +2157,51 @@
         );
 
         // final query - produces output
-        var any_f2 = collection.any();
+        var any_f2 = collection_nullProps_where_take_skip_all_any.any(
+            {
+                'predicateArray': [
+                    [ "order.xyz.abc", ">", 10 ]
+                ]
+            }
+        );
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.xyz.abc ] !
+        var all_f2 = collection_nullProps_where_take_skip_all_any.all(
+            {
+                'predicateArray': [
+                    [ "order.xyz.abc", "<", 10 ]
+                ]
+            }
+        );
+        */
+
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! ->
+        /*
+            Dealing with objects of type [PLAIN_OBJECT] in the context of [PLAIN_OBJECT] requires providing valid column name or column path !
+            This column called "order.xyz.abc" is not a valid column name or column path (property name or property path) !
+
+
+            Why such error ?
+            Because for syntax checking you need to know all valid columns !
+            Hence, to learn the structure of the collection objects, you analyze the first object from the collection !
+        */
+       /*
+        var all_f3 = collection_nullProps_where_take_skip_all_any_2.all(
+            {
+                'predicateArray': [
+                    [ "order.xyz.abc", "<", 10 ]
+                ]
+            }
+        );
+        */
+
+        // final query - produces output
+        var any_f3 = collection.any();
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Method [ all ] has to have "params" object provided !
-        //var all_f2 = collection.all();
+        //var all_f3 = collection.all();
 
         // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f1 = collection.min(

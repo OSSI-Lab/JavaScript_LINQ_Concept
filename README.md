@@ -25,6 +25,11 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #19 - DPR #42:&nbsp;2020-12-19 &nbsp;&nbsp;3:06 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - bugs found since TEST #18
+      - testing the whole interface
+        - the interface of query methods was tested up to 'defaultIfEmpty' query methods (line 1656) !
  - TEST #18 - DPR #41:&nbsp;2020-12-17 &nbsp;&nbsp;10:57 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #17

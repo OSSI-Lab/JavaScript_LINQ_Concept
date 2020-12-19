@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #41 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #42 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -634,13 +634,13 @@
                                 {
                                     // sort PLAIN by 'object!'
                                     metadata.byObjectString =
-                                            ( user_filter_array.length === 1 && user_filter_array[ 0 ].length === 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' && user_filter_array[ 0 ][ 1 ] === true ) ||
-                                            actionConstr.actionContext.mmavt.t2sr.type === _ENUM.T2SR.OBJECT;
+                                        ( user_filter_array.length === 1 && user_filter_array[ 0 ].length === 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' && user_filter_array[ 0 ][ 1 ] === true ) ||
+                                        actionConstr.actionContext.mmavt.t2sr.type === _ENUM.T2SR.OBJECT;
 
                                     // user provide 'object!' filter with 2+ more parameters
-                                    if ( 
-                                        (user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!') ||
-                                        (user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && actionConstr.actionContext.mmavt.t2sr.type === _ENUM.T2SR.OBJECT)
+                                    if (
+                                        ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'object!' ) ||
+                                        ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && actionConstr.actionContext.mmavt.t2sr.type === _ENUM.T2SR.OBJECT )
                                     )
                                     {
                                         // throw error about invalid syntax when dealing with PLAIN objects and using "object!" predicate, which means comparing whole objects
@@ -788,8 +788,8 @@
                                         var cit_ctx_toString = _COMMON.getCustomValueOfSymbol( cit );
 
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the PLAIN context
-                                        throw ReferenceError(
-                                            '\r\nDealing with objects of type [' + cit_ctx_toString + '] in the context of ' + cit_ctx_toString + ' ' +
+                                        throw new ReferenceError(
+                                            '\r\nDealing with objects of type [' + cit_ctx_toString + '] in the context of [' + cit_ctx_toString + '] ' +
                                             'requires providing valid column name or column path !' +
                                             '\r\nThis column called "' + user_ovc[ i ] + '" is not a valid column name or column path (property name or property path) !\r\n\r\n'
                                         );
@@ -814,8 +814,8 @@
                                         var ctx_toString = _COMMON.getCustomValueOfSymbol( ctx );
 
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the KVP context
-                                        throw ReferenceError(
-                                            'Dealing with objects of type [' + cit_toString + '] in the context of ' + ctx_toString + ' ' +
+                                        throw new ReferenceError(
+                                            'Dealing with objects of type [' + cit_toString + '] in the context of [' + ctx_toString + '] ' +
                                             'requires providing valid column path !' +
                                             '\r\nThis column called "' + user_ovc[ i ] + '" is not a valid column path (property path) !' +
                                             '\r\nValid column paths should be constracted in this way: "value.obj_prop_name" or "value.nested_obj.nested_obj_prop_name"'
@@ -1925,7 +1925,7 @@
                     var type = getType_I_2L( value );
 
                     // type must be a string
-                    if ( typeof type !== 'string' ) throw TypeError( '\r\nType must be a string.\r\n\r\n' );
+                    if ( typeof type !== 'string' ) throw new TypeError( '\r\nType must be a string.\r\n\r\n' );
 
                     // handle simple types (primitives and plain function/object)
                     switch ( type )
@@ -2127,17 +2127,17 @@
                     var is_t2sr_r = param_arr[ 1 ];
 
                     // get filtering property name
-                    var selectorName = param_arr[param_arr.length - 2];
+                    var selectorName = param_arr[ param_arr.length - 2 ];
 
                     // reference core method args and get filtering property
                     var property = param_arr[ param_arr.length - 1 ][ selectorName ][ 0 ];
 
                     // if it's an array, get the first item
-                    if(_COMMON.convertTypeToString(property) === _ENUM.T2SR.ARRAY)
-                        property = property[0];
+                    if ( _COMMON.convertTypeToString( property ) === _ENUM.T2SR.ARRAY )
+                        property = property[ 0 ];
 
                     // is special property
-                    var isp = _COMMON.isSpecialProperty ( property );
+                    var isp = _COMMON.isSpecialProperty( property );
 
                     /**
                      * Loop this-query-flow collection and find the first existing property, based on which we can determine its type !
@@ -2168,7 +2168,7 @@
                     api._ctx.mmavt.selector = property;
                     api._ctx.mmavt.t2sr = Object.create( null );
                     api._ctx.mmavt.t2sr.isp = isp;
-                    api._ctx.mmavt.t2sr.type = isp ? _COMMON.determineSpecialPropertyType(property) : _COMMON.convertTypeToString( propertyValue );
+                    api._ctx.mmavt.t2sr.type = isp ? _COMMON.determineSpecialPropertyType( property ) : _COMMON.convertTypeToString( propertyValue );
 
 
 
@@ -2271,25 +2271,10 @@
                     if ( propName.includes( '.' ) )
                     {
                         // define property value holder (pvh)
-                        var pvh;
-
-                        // create array of prop's path
-                        var path_arr = propName.split( '.' );
-
-                        // loop over array of prop's path to seek the destination property and return its value
-                        for ( var i = 0; i < path_arr.length; i++ )
-                        {
-                            if ( pvh )
-                                pvh = pvh[ path_arr[ i ] ];
-                            else
-                                pvh = obj[ path_arr[ i ] ];
-
-                            // if along the way you come across non-existing property in the object, break the drilling down and return undefined
-                            if ( !pvh ) break;
-                        }
+                        var pvh = _COMMON.seekPropertyOrThrowErrorIfRequired(obj, propName, propName.split( '.' ).length, false);
 
                         // validate against sorting context and return custom string representation of the object in question, or just return property value.
-                        return validateAgainstSortingContext_I_2L(pvh, validate, checkT2SR);
+                        return validateAgainstSortingContext_I_2L( pvh, validate, checkT2SR );
                     }
                     /**
                      * Or is it a current-level property or a special property ?
@@ -2302,13 +2287,14 @@
                      *  
                      *  - "special property" (object!)
                     */
-                    else {
-                        var isp = _COMMON.isSpecialProperty(propName);
+                    else
+                    {
+                        var isp = _COMMON.isSpecialProperty( propName );
                         /**
                          * Check for special property that is used primarily during sorting collection by objects themselves.
                          * Validate against sorting context and return custom string representation of the object in question.
-                        */ 
-                        return isp ? validateAgainstSortingContext_I_2L(obj, isp, checkT2SR) : validateAgainstSortingContext_I_2L(obj[ propName ], validate, checkT2SR);
+                        */
+                        return isp ? validateAgainstSortingContext_I_2L( obj, isp, checkT2SR ) : validateAgainstSortingContext_I_2L( obj[ propName ], validate, checkT2SR );
                     }
 
 
@@ -2316,15 +2302,17 @@
                     /**
                      * Local helper functions
                     */
-                    function validateAgainstSortingContext_I_2L(o, validate, checkToString) {
+                    function validateAgainstSortingContext_I_2L ( o, validate, checkToString )
+                    {
                         // if it's an object
-                        if((_COMMON.convertTypeToString(o) === _ENUM.T2SR.OBJECT) && validate && checkToString) {
+                        if ( ( _COMMON.convertTypeToString( o ) === _ENUM.T2SR.OBJECT ) && validate && checkToString )
+                        {
                             /**
                              * User must provide implementation of toString method if sorting by the object itself is required ⚠️
                              * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
                             */
                             if ( !o.toString || ( o.toString === Object.prototype.toString ) )
-                                throw ReferenceError(
+                                throw new ReferenceError(
                                     '\r\nSorting PLAIN or KVP\'s VALUE by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
                                 );
 
@@ -2334,6 +2322,76 @@
                         // otherwise, return this property value
                         else
                             return o;
+                    }
+                }
+            },
+
+        seekPropertyOrThrowErrorIfRequired: /**
+            * @param {object} currentObject
+            * @param {string} propertyName
+            * @param {number} arrayLength
+            * @param {bool} throwErrorWhenNullOrUndefined
+            */
+            function ( currentObject, propertyName, arrayLength, throwErrorWhenNullOrUndefined )
+            {
+                return seek_PoTEIR_I_1L( currentObject, propertyName, arrayLength, throwErrorWhenNullOrUndefined );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function seek_PoTEIR_I_1L ( obj, pn, length, letThrowError )
+                {
+                    // create array of prop's path
+                    var path_arr = pn.split( '.' );
+
+                    // define property value holder (pvh); was pvh initialized (pvh_init)
+                    var pvh, pvh_init;
+
+                    // loop over array of prop's path to seek the destination property and/or return its value
+                    for ( var i = 0; i < length; i++ )
+                    {
+                        // pvh was initialized, but some property in the path evaluated to null or undefined
+                        if ( pvh_init && !validatePvh_I_2L( pvh ) ) {
+                            if(letThrowError)
+                                throw new Error( '\r\n Object reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
+                        }
+                        // pvh was initialized
+                        else if ( pvh_init )
+                            pvh = pvh[ path_arr[ i ] ];
+                        // initialize pvh
+                        else
+                        {
+                            pvh = obj[ path_arr[ i ] ];
+
+                            // pvh was initialized
+                            pvh_init = true;
+                        }
+
+                        // if along the way you come across non-existing property in the object, break the drilling down and return undefined
+                        if ( !validatePvh_I_2L( pvh ) && !letThrowError ) break;
+                    }
+
+                        // pvh was initialized, but last property in the path evaluated to null or undefined
+                        if ( !validatePvh_I_2L( pvh ) && letThrowError)
+                            throw new Error( '\r\n Object reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
+
+                    // return value of the property or property
+                    return pvh;
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function validatePvh_I_2L ( v )
+                    {
+                        // convert value to its string type representation
+                        var t2sr = _COMMON.convertTypeToString( v );
+
+                        // assert the validity
+                        return t2sr !== _ENUM.T2SR.UNDEFINED && t2sr !== _ENUM.T2SR.NULL;
                     }
                 }
             },
@@ -2572,8 +2630,14 @@
                                 // add primitive property name or primitive property path
                                 primitives.push( parent + key );
 
-                                // add object identified by the key to process
-                                objects.push( key );
+
+                                // convert value to type string representation
+                                var t2sr = _COMMON.convertTypeToString(value);
+
+                                // if value !== null || value !== undefined
+                                if(t2sr !== _ENUM.T2SR.NULL && t2sr !== _ENUM.T2SR.UNDEFINED)
+                                    // add object identified by the key to process
+                                    objects.push( key );
                             }
                         }
 
@@ -2626,7 +2690,7 @@
                         keyPart = key_prop_arr[ i ];
 
                         // is it main object itself ?
-                        if(_COMMON.isSpecialProperty(keyPart.value) && _COMMON.determineSpecialPropertyType(keyPart.value) === _ENUM.T2SR.OBJECT)
+                        if ( _COMMON.isSpecialProperty( keyPart.value ) && _COMMON.determineSpecialPropertyType( keyPart.value ) === _ENUM.T2SR.OBJECT )
                             //  key is a object itself !
                             key = item;
 
@@ -2646,17 +2710,18 @@
                                 var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value, true, true );
 
                                 // convert object to type string representation
-                                var t2sr = _COMMON.convertTypeToString(rkv);
+                                var t2sr = _COMMON.convertTypeToString( rkv );
 
                                 // if a key part is an object, not object string representation
-                                if(t2sr === _ENUM.T2SR.OBJECT)
+                                if ( t2sr === _ENUM.T2SR.OBJECT )
                                     // assign a key with an object
                                     key = rkv;
                                 // is null or undefined => non-existing grouping key
-                                else if(t2sr === _ENUM.T2SR.UNDEFINED || t2sr === _ENUM.T2SR.NULL)
-                                    throw new Error('\r\nObject reference not set to an instance of an object [' + keyPart.value + '] !\r\n\r\n');
+                                else if ( t2sr === _ENUM.T2SR.UNDEFINED || t2sr === _ENUM.T2SR.NULL )
+                                    throw new Error( '\r\nObject reference not set to an instance of an object [' + keyPart.value + '] !\r\n\r\n' );
                                 // deal with primitives
-                                else {
+                                else
+                                {
                                     // initialize a key with a default value
                                     key = _COMMON.getDefaultValueOf( rkv );
 
@@ -2680,10 +2745,11 @@
                                 var rkv = item[ keyPart.value ];
 
                                 // if a key part is an object, not object string representation
-                                if(_COMMON.convertTypeToString(rkv) === _ENUM.T2SR.OBJECT)
+                                if ( _COMMON.convertTypeToString( rkv ) === _ENUM.T2SR.OBJECT )
                                     // assign a key with an object
                                     key = rkv;
-                                else {
+                                else
+                                {
                                     // initialize a key with a default value
                                     key = _COMMON.getDefaultValueOf( rkv );
 
@@ -2845,6 +2911,39 @@
                                     groups_obj.push( grouping_obj );
                                 else
                                     groups_obj[ gso.idx ] = grouping_obj;
+                            },
+
+                        getKvpValue:
+                            function (key_id, kvps_obj) {
+                                // create pure empty object
+                                var kvp = Object.create( null );
+
+                                // define KVP object
+                                kvp.key = undefined;                  // key of KVP object in the dictionary
+                                kvp.value = undefined;                // KVP's value object
+
+                                // loop over dictionary object
+                                for ( var i = 0; i < kvps_obj.length; i++ )
+                                {
+                                    // access KVP object
+                                    var item = kvps_obj[ i ];
+
+                                    // find the right one with key id
+                                    if ( item.key === key_id )
+                                    {
+                                        // store key of KVP object
+                                        kvp.key = key_id;
+
+                                        // store KVP's value object
+                                        kvp.value = item.value;
+
+                                        // discard further search
+                                        break;
+                                    }
+                                }
+
+                                // return KVP object
+                                return kvp;
                             }
                     };
 
@@ -2931,12 +3030,12 @@
                                      * Implementation of toString method by design and by nature must return the unique identification of such object across the whole collection ⚠️
                                     */
                                     if ( !itemCurrent.value.toString || ( itemCurrent.value.toString === Object.prototype.toString ) )
-                                        throw ReferenceError(
+                                        throw new ReferenceError(
                                             '\r\nSorting KVP Value by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
                                         );
 
                                     if ( !itemPrevious.value.toString || ( itemPrevious.value.toString === Object.prototype.toString ) )
-                                        throw ReferenceError(
+                                        throw new ReferenceError(
                                             '\r\nSorting KVP Value by itself requires presence of custom method "toString()" !\r\n\r\nSource :'
                                         );
 
@@ -3100,8 +3199,8 @@
                          * Check if both values are digits or any of them is null or undefined.
                          * Comparing two values of "strongly" different types is simply illogical !
                          * If at least one value is a digit, compare them as digits by making the second one - being null or undefined - holding default value of the type of the first value.
-                        */ 
-                        const [nVC, nVP] = nativeOrDefaultIfNullOrUndefined_I_1L(vC, vP);
+                        */
+                        const [ nVC, nVP ] = nativeOrDefaultIfNullOrUndefined_I_1L( vC, vP );
 
                         // reference the current sorting mode
                         var sort_mode = _ACTION.hpid.sorting.sort_order;
@@ -3112,12 +3211,12 @@
                             // go the ASC way
                             case _ENUM.ORDER.By.ASC:
                             case _ENUM.ORDER.By.THEN_ASC:
-                                return doBooleanComparison_I_3L(true);
+                                return doBooleanComparison_I_3L( true );
 
                             // go the DESC way
                             case _ENUM.ORDER.By.DESC:
                             case _ENUM.ORDER.By.THEN_DESC:
-                                return doBooleanComparison_I_3L(false);
+                                return doBooleanComparison_I_3L( false );
 
                             default:
                                 throw new Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol( sort_mode ) + ' ] !\r\n\r\n' );
@@ -3128,47 +3227,55 @@
                         /**
                          * Local helper functions
                         */
-                        function nativeOrDefaultIfNullOrUndefined_I_1L(v1, v2) {
+                        function nativeOrDefaultIfNullOrUndefined_I_1L ( v1, v2 )
+                        {
                             /**
                              * Check which of the two values are defined
                             */
                             var is_V1 = v1 !== 'undefined' && v1 !== 'null';
                             var is_V2 = v2 !== 'undefined' && v2 !== 'null';
-                            
+
                             // if both
-                            if(is_V1 && is_V2) {
-                                v1 = _COMMON.isNumeric(v1) ? _COMMON.toNumeric(v1, true) : v1;
-                                v2 = _COMMON.isNumeric(v2) ? _COMMON.toNumeric(v2, true) : v2;
+                            if ( is_V1 && is_V2 )
+                            {
+                                v1 = _COMMON.isNumeric( v1 ) ? _COMMON.toNumeric( v1, true ) : v1;
+                                v2 = _COMMON.isNumeric( v2 ) ? _COMMON.toNumeric( v2, true ) : v2;
                             }
                             // otherwise having one of them defined, get default value for the second one
-                            else {
-                                if(!is_V1 && is_V2) {
-                                    v2 = _COMMON.isNumeric(v2) ? _COMMON.toNumeric(v2, true) : v2;
-                                    v1 = _COMMON.getDefaultValueOf(v2);
+                            else
+                            {
+                                if ( !is_V1 && is_V2 )
+                                {
+                                    v2 = _COMMON.isNumeric( v2 ) ? _COMMON.toNumeric( v2, true ) : v2;
+                                    v1 = _COMMON.getDefaultValueOf( v2 );
                                 }
-                                if(!is_V2 && is_V1) {
-                                    v1 = _COMMON.isNumeric(v1) ? _COMMON.toNumeric(v1, true) : v1;
-                                    v2 = _COMMON.getDefaultValueOf(v1);
+                                if ( !is_V2 && is_V1 )
+                                {
+                                    v1 = _COMMON.isNumeric( v1 ) ? _COMMON.toNumeric( v1, true ) : v1;
+                                    v2 = _COMMON.getDefaultValueOf( v1 );
                                 }
                             }
 
-                            return [v1, v2];
+                            return [ v1, v2 ];
                         }
 
-                        function doBooleanComparison_I_3L(isAsc) {
+                        function doBooleanComparison_I_3L ( isAsc )
+                        {
                             // perform ASC comparison
-                            if(isAsc) {
+                            if ( isAsc )
+                            {
                                 if ( nVC > nVP )
                                     return 1;
                                 else
                                     return -1;
                             }
                             // perform DESC comparison
-                            else {
+                            else
+                            {
                                 if ( nVC > nVP )
                                     return -1;
                                 else
-                                    return 1
+                                    return 1;
                             }
                         }
                     }
@@ -3489,21 +3596,22 @@
          * @param {any} currentObject
          * @param {any} predicateArray
          * @param {any} elementIndex
+         * @param {bool} throwErrorWhenNullOrUndefined
          */
-            function ( currentObject, predicateArray, elementIndex )
+            function ( currentObject, predicateArray, elementIndex, throwErrorWhenNullOrUndefined )
             {
-                return apply_LBF_I_1L( currentObject, predicateArray, elementIndex );
+                return apply_LBF_I_1L( currentObject, predicateArray, elementIndex, throwErrorWhenNullOrUndefined );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function apply_LBF_I_1L ( currentObject, predicateArray, elementIndex )
+                function apply_LBF_I_1L ( currentObject, predicateArray, elementIndex, letThrowError )
                 {
                     // flag that tells whether object passes or fails the filter => bool operation result
                     var bor = true;
-                    
+
                     // current filter (cf)
                     var cf;
                     // loop over predicates
@@ -3514,15 +3622,11 @@
 
                         // determine the type of filter, i.e. user-defined function or a primitive one (string, int, float)
                         if ( typeof cf === 'object' )
-                        {
                             // apply predefined basic comparison operators
                             bor = applyPrimitivePredicate_I_2L( cf, currentObject );
-                        }
                         else if ( typeof cf === 'function' )
-                        {
                             // apply predefined user-defined comparison function
                             bor = applyUdfPredicate_I_2L( cf, currentObject, elementIndex );
-                        }
 
                         // check ASAP if object failed the filter
                         if ( !bor )
@@ -3585,7 +3689,7 @@
                                 pvh = obj;
                             else
                                 // otherwise seek the destination property
-                                pvh = _LOGICAL_FILTER.applyPropertyValueFilter( obj, propName, true, false );
+                                pvh = _LOGICAL_FILTER.applyPropertyValueFilter( obj, propName, true, letThrowError );
 
                             // run native comparison
                             return _OPERATOR.checkValue( pvh, propOperator, propValue );
@@ -3624,31 +3728,32 @@
                 */
                 function apply_LWF_I_1L ( jlc, predicateArray, enumValue )
                 {
-                    // declare the bool filter result
-                    var passed = false;
+                    // declare bool operation result (bor)
+                    var bor = false;
 
                     // create input collection cache
                     var currentColl = _DATA.fetchFlowData( jlc._ctx.coll_index, false );
 
-
+                    // current object
+                    var c_o;
                     // loop over current collection and apply filters
                     for ( var i = 0; i < currentColl.length; i++ )
                     {
                         // access current object
-                        var c_o = currentColl[ i ];
+                        c_o = currentColl[ i ];
 
                         // apply where filter(s) and get the result
-                        passed = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
+                        bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i, enumValue === _ENUM.ALL );
 
                         // based on filtering result (true/false) trigger further action
-                        if ( enumValue === _ENUM.ALL && !passed )
+                        if ( enumValue === _ENUM.ALL && !bor )
                             break;
-                        else if ( enumValue === _ENUM.ANY && passed )
+                        else if ( enumValue === _ENUM.ANY && bor )
                             break;
                     }
 
-                    // return the bool filter result
-                    return passed;
+                    // return the bool operation result
+                    return bor;
                 }
             },
 
@@ -3687,7 +3792,7 @@
          * @param {any} currentObject
          * @param {any} propertyName
          * @param {any} returnValue
-         * @param {any} throwErrorWhenNullOrUndefined
+         * @param {bool} throwErrorWhenNullOrUndefined
          */
             function ( currentObject, propertyName, returnValue, throwErrorWhenNullOrUndefined )
             {
@@ -3698,28 +3803,16 @@
                 /**
                  * Local helper functions
                 */
-                function apply_PVF_I_1L ( obj, pn, rv, doThrow )
+                function apply_PVF_I_1L ( obj, pn, rv, letThrowError )
                 {
                     // create array of prop's path
                     var path_arr = pn.split( '.' );
 
-                    // define property value holder (pvh)
-                    var pvh;
-
-                    // loop over array of prop's path to seek the destination property and/or return its value
-                    for ( var i = 0, length = rv ? path_arr.length : path_arr.length - 1; i < length; i++ )
-                    {
-                        if ( pvh )
-                            pvh = pvh[ path_arr[ i ] ];
-                        else
-                            pvh = obj[ path_arr[ i ] ];
-
-                        // if along the way you come across non-existing property in the object, break the drilling down and return undefined
-                        if ( !pvh && !doThrow ) break;
-                    }
+                    // loop iteration count
+                    var length = rv ? path_arr.length : path_arr.length - 1;
 
                     // return value of the property or property
-                    return pvh;
+                    return _COMMON.seekPropertyOrThrowErrorIfRequired(obj, pn, length, letThrowError);
                 }
             }
     };
@@ -3760,7 +3853,7 @@
                             c_o = currentColl[ i ];
 
                             // apply where filter(s) and get the result
-                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
+                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i, true );
 
                             // if object didn't pass the filter
                             if ( !bor )
@@ -3783,7 +3876,7 @@
                             c_o = currentColl[ i ];
 
                             // apply where filter(s) and get the result
-                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
+                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i, true );
 
                             // if object passed the filter
                             if ( bor )
@@ -3804,7 +3897,7 @@
                             c_o = currentColl[ i ];
 
                             // apply where filter(s) and get the result
-                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i );
+                            bor = _LOGICAL_FILTER.applyLogicalBoolFilter( c_o, predicateArray, i, true );
 
                             // based on filtering result (true/false) pass object further down the flow
                             if ( bor )
@@ -3879,14 +3972,15 @@
 
 
                         // if user defined result value selector
-                        if(udfGroupResultValueSelector) {
+                        if ( udfGroupResultValueSelector )
+                        {
                             // result value array
                             var rva = [];
 
                             // iterate over all groups
-                            for(let group of groups)
+                            for ( let group of groups )
                                 // transform each group into result value defined by the user
-                                rva.push(udfGroupResultValueSelector(group.key, group.resultsView));
+                                rva.push( udfGroupResultValueSelector( group.key, group.resultsView ) );
 
                             // update HPID object to enable further data flow
                             _ACTION.hpid.data = rva;
@@ -3944,7 +4038,7 @@
                         // create pure empty object
                         var eo = Object.create( null );
 
-                        // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
+                        // handle dictionary
                         if ( isDictionaryContext )
                         {
                             // define object as a KVP object (KeyValuePair)
@@ -3954,6 +4048,7 @@
                             // store KVP object
                             groups.push( eo );
                         }
+                        // handle grouping object
                         else
                         {
                             // get grouping seeker object from the group
@@ -3984,8 +4079,8 @@
                     function groupObjects_I_2L ( item )
                     {
                         // if grouping key is not defined & UDF key selector is required
-                        if(!key_array.length && !predicateArray)
-                            key_array = udfGroupKeySelector.bind(jlc._ctx, item)();
+                        if ( !key_array.length && !predicateArray )
+                            key_array = udfGroupKeySelector.bind( jlc._ctx, item )();
 
                         // get the group id
                         var id = _COMMON.fetchObjectKeyValue( item, key_array );
@@ -4010,7 +4105,7 @@
                         // create pure empty object
                         var eo = Object.create( null );
 
-                        // distinguish between dictionary and grouped objects while preparing Key <-> Value pairs
+                        // handle dictionary
                         if ( isDictionaryContext )
                         {
                             // define object as a KVP object (KeyValuePair)
@@ -4020,6 +4115,7 @@
                             // store KVP object
                             groups.push( eo );
                         }
+                        // handle grouping object
                         else
                         {
                             // get grouping seeker object from the group
@@ -4067,21 +4163,34 @@
                         // declare object holding sorted groups
                         var sorted_groups = [];
 
-                        // reference grouping-by util object
-                        var gbo = _COMMON.usingGroupingBy();
+                        // handle dictionary
+                        if ( isDictionaryContext ) {
 
-                        // store grouped objects sorted in a proper way
-                        keys.forEach( function ( key )
-                        {
-                            // get grouping seeker object from the group
-                            var gso = gbo.getGrouping( key, groups );
+                            // store grouped objects sorted in a proper way
+                            keys.forEach( function ( key )
+                            {
+                                // get KVP object from the dictionary
+                                var kvp = gbo.getKvpValue( key, groups );
 
-                            // reset gso's index
-                            gso.idx = -1;
+                                // push kvp to sorted dictionary
+                                sorted_groups.push(kvp);
+                            } );
+                        }
+                        // handle grouping object
+                        else {
+                            // store grouped objects sorted in a proper way
+                            keys.forEach( function ( key )
+                            {
+                                // get grouping seeker object from the group
+                                var gso = gbo.getGrouping( key, groups );
 
-                            // update grouping object
-                            gbo.setGrouping( key, gso, sorted_groups );
-                        } );
+                                // reset gso's index
+                                gso.idx = -1;
+
+                                // update grouping object
+                                gbo.setGrouping( key, gso, sorted_groups );
+                            } );
+                        }
 
                         // return sorted groups
                         return sorted_groups;
@@ -4333,8 +4442,8 @@
                         {
                             case _ENUM.CONTAINS:
                                 // if the parameter called 'collection' is not a single object, throw the error
-                                if(_COMMON.convertTypeToString(collectionOrItem) === _ENUM.T2SR.ARRAY)
-                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol(_ENUM.CONTAINS).toLowerCase() + '" query method has to be ' + (jlc._ctx.fim.is_prim ? 'a primitive' : 'an object') + ' !\r\n\r\n' );
+                                if ( _COMMON.convertTypeToString( collectionOrItem ) === _ENUM.T2SR.ARRAY )
+                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc._ctx.fim.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
 
                                 // determine whether source collection contains particular item, i.e get match object array (match_arr)
                                 var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
@@ -4400,7 +4509,7 @@
                                     match.index = i;
 
                                     // store match object
-                                    match_arr.push(match);
+                                    match_arr.push( match );
 
                                     /**
                                      * Check the search mode
@@ -4430,7 +4539,7 @@
                                     match.index = i;
 
                                     // store match object
-                                    match_arr.push(match);
+                                    match_arr.push( match );
 
                                     /**
                                      * Check the search mode
@@ -4515,10 +4624,11 @@
                                 // if match was found
                                 if ( match_arr.length > 0 )
                                 {
-                                    match_arr.forEach(function(match) {
+                                    match_arr.forEach( function ( match )
+                                    {
                                         // add such item index to the indexes array
                                         indexes.push( match.index );
-                                    });
+                                    } );
                                 }
                             }
 
@@ -4526,13 +4636,14 @@
                              * Remove all required items
                             */
                             var exceptColl = [];
-                            
-                            for(var i = 0; i < coll.length; i++) {
+
+                            for ( var i = 0; i < coll.length; i++ )
+                            {
                                 // skip items that should not be included !
-                                if(indexes.includes(i)) continue;
+                                if ( indexes.includes( i ) ) continue;
 
                                 // add items to the output collection
-                                exceptColl.push(coll[i]);
+                                exceptColl.push( coll[ i ] );
                             }
 
                             // return query flow collection without collection in question
@@ -4757,7 +4868,7 @@
                             // just throw TypeError if is primitive type the value is not iterable
                             else if ( is_prim && !value[ "length" ] )
                             {
-                                throw TypeError( '\r\n Selected property [ ' + selectors[ 0 ] + ' ] is not iterable in the context of "selectMany" !\r\n\r\n' );
+                                throw new TypeError( '\r\n Selected property [ ' + selectors[ 0 ] + ' ] is not iterable in the context of "selectMany" !\r\n\r\n' );
                             }
                             // is Array
                             else if ( !is_prim && Array.isArray( value ) )
@@ -5332,7 +5443,7 @@
                         */
                         function fetchItemOrItemProp_I_3L ( index )
                         {
-                            if ( jlc._ctx.mmavt.t2sr.isp && (jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.OBJECT) )
+                            if ( jlc._ctx.mmavt.t2sr.isp && ( jlc._ctx.mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
                                 // return the only item from the collection
                                 return _ACTION.hpid.data[ index ];
                             // return the item's property value from the collection
@@ -5649,9 +5760,10 @@
                         _ACTION.hpid.data = [ ..._ACTION.hpid.data ];
 
                         // if user defined his own comparator
-                        if ( udfComparer ) {
+                        if ( udfComparer )
+                        {
                             // create sort metadata object
-                            var sortMetadataObj = Object.create(null);
+                            var sortMetadataObj = Object.create( null );
                             // sort meta object describing type of sorting
                             sortMetadataObj.sortMetaObject = sortMetaObject;
                             // selectors to be used to sort collection
@@ -5748,9 +5860,10 @@
                             if ( sls_item.length > 1 )
                             {
                                 // if user defined his own comparator
-                                if ( udfComparer ) {
+                                if ( udfComparer )
+                                {
                                     // create sort metadata object
-                                    var sortMetadataObj = Object.create(null);
+                                    var sortMetadataObj = Object.create( null );
                                     // sort meta object describing type of sorting
                                     sortMetadataObj.sortMetaObject = sortMetaObject;
                                     // selectors to be used to sort collection
@@ -5975,7 +6088,7 @@
     // private data object holding all queries' filtered data
     var _CACHE = {
 
-    }
+    };
 
 
 
@@ -10282,8 +10395,8 @@
                     function ( params )
                     {
                         // handle missing params object
-                        if ( params === undefined ) throw ReferenceError( '\r\nMethod [ all ] has to have "params" object provided !\r\n\r\n' );
-                        if ( params[ 'predicateArray' ] === undefined ) throw TypeError( '\r\nMethod [ all ] with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
+                        if ( params === undefined ) throw new ReferenceError( '\r\nMethod [ all ] has to have "params" object provided !\r\n\r\n' );
+                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nMethod [ all ] with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
                     }
                 ],
 
@@ -10803,7 +10916,8 @@
                             // current proxy GET trap
                             var currentGetTrapType;
 
-                            try {
+                            try
+                            {
                                 // backup current proxy GET trap
                                 currentGetTrapType = _LINQ_CONTEXT._arrayProxyHandler.get;
 
@@ -10821,7 +10935,8 @@
                                 // return contextually current collection state
                                 return _ACTION.hpid.data;
                             }
-                            catch(err) {
+                            catch ( err )
+                            {
                                 // restore metadata of the contextually current collection state
                                 _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
 
@@ -10831,12 +10946,12 @@
                                  * This line of code is useful only during development phase !
                                  * Should be removed while moved to production !
                                 */
-                                console.error(err);
+                                console.error( err );
 
                                 /**
                                  * Update contextually current collection state with error message !
                                 */
-                                var c_err = Object.create(null);
+                                var c_err = Object.create( null );
                                 c_err.message = err.message;
                                 c_err.stack = err.stack;
 
@@ -10846,9 +10961,10 @@
                                 // return contextually current collection state
                                 return _ACTION.hpid.data;
                             }
-                            finally {
+                            finally
+                            {
                                 // current proxy GET trap is defined
-                                if(currentGetTrapType)
+                                if ( currentGetTrapType )
                                     // restore backup proxy GET trap as the current one
                                     _LINQ_CONTEXT._arrayProxyHandler.get = currentGetTrapType;
                             }
