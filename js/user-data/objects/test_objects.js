@@ -195,6 +195,10 @@
                 order: null
             }
         ];
+        // you fetch this collection from the backend with being added such special field called ofss (object full structure string)
+        collection_nullProps_where_take_skip_all_any_2.ofss = 'id, order, order.xyz, order.xyz.abc';
+
+
 
 
         // final query - produces output
@@ -2179,15 +2183,21 @@
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! ->
         /*
+            THE PREVIOUS ERROR:
             Dealing with objects of type [PLAIN_OBJECT] in the context of [PLAIN_OBJECT] requires providing valid column name or column path !
             This column called "order.xyz.abc" is not a valid column name or column path (property name or property path) !
 
 
-            Why such error ?
+            Why was such error ?
             Because for syntax checking you need to know all valid columns !
             Hence, to learn the structure of the collection objects, you analyze the first object from the collection !
         */
-       /*
+
+        /*
+            THE CURRENT ERROR:
+
+            Object reference not set to an instance of an object [ order.xyz.abc ] !
+        */
         var all_f3 = collection_nullProps_where_take_skip_all_any_2.all(
             {
                 'predicateArray': [
@@ -2195,7 +2205,6 @@
                 ]
             }
         );
-        */
 
         // final query - produces output
         var any_f3 = collection.any();

@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #42 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #43 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -938,10 +938,8 @@
                             propNames.unshift( 'object!' );
                         }
                         else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
-                        {
                             // prepend key
                             propNames = [ 'key' ];
-                        }
                         else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
                         {
                             // get value all object property names at all levels
@@ -952,16 +950,11 @@
 
                             // prepend key
                             propNames.unshift( 'key' );
-
                         }
                         else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE )
-                        {
                             propNames = [];
-                        }
                         else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN )
-                        {
                             propNames = [];
-                        }
 
                         // store it for sorting purposes - all columns available for usage in sorting operations
                         _ACTION.hpid.columnSet.all_columns = propNames;
@@ -1346,7 +1339,7 @@
             * Updates collection metadata required by the current query flow.
             * It detects current column input type (cit) and updates column set of the contextually current collection.
             */
-                function ( length_gte_2, firstItem )
+                function ( length_gte_2, firstItem, ofss )
                 {
                     /**
                      * To enable syntax check, fetch object structure (all keys at all levels).
@@ -1359,8 +1352,50 @@
                     // if cit is UNKNOWN, skip further operations
                     if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
 
-                    // otherwise initialize column metadata set based on current collection
-                    _ACTION.hpid.columnSet.init( firstItem );
+                    // check if object full structure string (ofss) is provided to deliver metadata for syntax checking
+                    if(ofss && _COMMON.convertTypeToString(ofss) === _ENUM.T2SR.STRING)
+                        // update column set with ofss
+                        updateHpidColumnSet_I_1L(ofss);
+                    else
+                        // otherwise initialize column metadata set based on current collection
+                        _ACTION.hpid.columnSet.init( firstItem );
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function updateHpidColumnSet_I_1L(ofss) {
+                        // collection input column set
+                        var propNames = ofss.split(',');
+                        // remove empty spaces
+                        propNames.forEach(function(item, index, arr) {
+                            arr[index] = item.trim();
+                        });
+                        
+
+                        if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PLAIN )
+                            // prepend object!
+                            propNames.unshift( 'object!' );
+                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
+                            // prepend key
+                            propNames = [ 'key' ];
+                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
+                        {
+                            // prepend value.
+                            propNames.unshift( 'value.' );
+
+                            // prepend key
+                            propNames.unshift( 'key' );
+                        }
+                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE )
+                            propNames = [];
+                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN )
+                            propNames = [];
+
+                        // store it for sorting purposes - all columns available for usage in sorting operations
+                        _ACTION.hpid.columnSet.all_columns = propNames;
+                    }
                 },
 
             detectCIT: /**
@@ -10550,7 +10585,7 @@
                     function createProxiedInstance_I_2L ( acn_ctr, qmi_ctr )
                     {
                         // restore metadata of the contextually current collection state
-                        _ACTION.hpidCommons.updateColumnSetColsAndCIT( acn_ctr.fim.length_gte_2, acn_ctr.fim.item );
+                        _ACTION.hpidCommons.updateColumnSetColsAndCIT( acn_ctr.fim.length_gte_2, acn_ctr.fim.item, acn_ctr.fim.ofss );
 
                         // create partial query new JLC proxied instance
                         return createNewJLC_I_3L( acn_ctr, qmi_ctr );
@@ -10565,7 +10600,7 @@
                          * Create new instance of JLC.
                          *
                          * @param {Object} ctx Container of actions for this newly being created JLC instance.
-                         * @param {Object} qmi Container of query method implementations for this newly being created JLC instance.                       
+                         * @param {Object} qmi Container of query method implementations for this newly being created JLC instance.
                         */
                         function createNewJLC_I_3L ( ctx, qmi )
                         {
@@ -10930,7 +10965,7 @@
                                 _ACTION.funcCommons.executeChain( api._ctx );
 
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
 
                                 // return contextually current collection state
                                 return _ACTION.hpid.data;
@@ -10938,7 +10973,7 @@
                             catch ( err )
                             {
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item );
+                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
 
                                 /**
                                  * Display the error
@@ -11172,6 +11207,9 @@
                 // get first item from a collection
                 var firstItem = source_collection[ 0 ];
 
+                // get object full structure string (ofss)
+                var ofss = source_collection.ofss;
+
                 /**
                  * coll_idx     ->  internal positional index of this collection
                  * rootToken    ->  token associated with current collection, aka root token
@@ -11277,7 +11315,7 @@
                 function applyJlcCommon_I_1L ()
                 {
                     // store updated metadata about collection
-                    _ACTION.hpidCommons.updateColumnSetColsAndCIT( source_collection.length > 1, firstItem );
+                    _ACTION.hpidCommons.updateColumnSetColsAndCIT( source_collection.length > 1, firstItem, ofss );
 
                     // check type primitivity of collection input type
                     is_prim = check_TP_I_2L();
@@ -11309,6 +11347,7 @@
                         ctx.fim = Object.create( null );
                         ctx.fim.is_prim = is_prim;
                         ctx.fim.item = firstItem;
+                        ctx.fim.ofss = ofss;
                         ctx.fim.length_gte_2 = source_collection.length > 1;
 
                         // initially parent set to null
