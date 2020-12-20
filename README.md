@@ -25,11 +25,13 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #20 - DPR #43:&nbsp;2020-12-20 &nbsp;&nbsp;9:56 PM Local Time&nbsp;:heavy_check_mark:
+ - TEST #20 - DPR #43:&nbsp;2020-12-20 &nbsp;&nbsp;10:04 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - the interface of query methods was tested up to 'defaultIfEmpty' query methods (line 1660) !
       - adding 'object full structure string' (ofss) special property to address the case with null properties ! (line 2201)
+        - go for 'ofss' if defined, otherwise check the first item in the collection !
+        - other solutions like doing anylysis of next and next object from collection would cause the effect of 'C/C++ memory leak' in some serious scenarios ! 
  - TEST #19 - DPR #42:&nbsp;2020-12-19 &nbsp;&nbsp;3:06 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - bugs found since TEST #18
