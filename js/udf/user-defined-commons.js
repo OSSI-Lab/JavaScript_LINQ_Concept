@@ -37,8 +37,8 @@ var my_custom_jlc_common = {
         if ( typeof kC === 'string' )
         {
             // nothing extraordinary, just showing the examplary usage !
-            if ( kC.length > kP.length ) return 1;
-            else if ( kC.length < kP.length ) return -1;
+            if ( kC > kP ) return 1;
+            else if ( kC < kP ) return -1;
             else return 0;
         }
         // compare numbers
@@ -260,7 +260,7 @@ var my_custom_jlc_common = {
         return newShape;
     },
 
-    udfObjectGroupResultValueSelector: function(groupKey, groupItems )
+    udfObjectGroupResultValueSelector: function(groupKey, groupItems, isDictionary )
     {
         /**
          * Do some logic with grouping key (groupKey) and all item falling into this group (groupItems) - f.e. provide a new object consisting of some math calculations !
@@ -272,8 +272,23 @@ var my_custom_jlc_common = {
         var newShape = Object.create(null);
             
         newShape.key = groupKey;
-        newShape.groupHasAnyItems = hasAnyItems_I_1L(groupItems);
-        newShape.groupHasUniqueItems = hasUniqueItems_I_1L(groupItems);
+
+        // dictionary has to always be a dictionary, i.e. KVP object {key: some_key, value: some_value}
+        if(isDictionary) {
+            // create value object
+            var value = Object.create(null);
+
+            value.groupHasAnyItems = hasAnyItems_I_1L(groupItems);
+            value.groupHasUniqueItems = hasUniqueItems_I_1L(groupItems);
+            value.price = extractValueObjectProperty_I_1L(groupItems);
+
+            // assign value object to value property of KVP
+            newShape.value = value;
+        }
+        else {
+            newShape.groupHasAnyItems = hasAnyItems_I_1L(groupItems);
+            newShape.groupHasUniqueItems = hasUniqueItems_I_1L(groupItems);
+        }
 
         // return output object
         return newShape;
@@ -295,6 +310,13 @@ var my_custom_jlc_common = {
              * Exemplary logic here !
             */
             return true;
+        }
+
+        function extractValueObjectProperty_I_1L(valueObject) {
+            /**
+             * Exemplary logic here !
+            */
+            return valueObject.price;
         }
     },
 

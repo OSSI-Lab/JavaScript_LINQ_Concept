@@ -39,7 +39,7 @@
                 id: 9,
                 name: "Product 9",
                 img: 'image 9',
-                price: 4,
+                price: 9.99,
                 onsale: 3,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
@@ -49,7 +49,7 @@
                 id: 4,
                 name: "Product 4",
                 img: 'image 4',
-                price: 4,
+                price: 4.99,
                 onsale: 3,
                 tags: "Leash",
                 description: "A fresh taste on a collar,",
@@ -59,7 +59,7 @@
                 id: 5,
                 name: "Product 5",
                 img: 'image 5',
-                price: 1.99,
+                price: 5.99,
                 onsale: 2,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
@@ -69,7 +69,7 @@
                 id: 6,
                 name: "Product 6",
                 img: 'image 6',
-                price: 2.99,
+                price: 6.99,
                 onsale: 0.0,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
@@ -79,7 +79,7 @@
                 id: 7,
                 name: "Product 7",
                 img: 'image 3',
-                price: 3.99,
+                price: 7.99,
                 onsale: 3.0,
                 tags: "Tag 5",
                 description: "A fresh taste on a collar,",
@@ -89,28 +89,28 @@
                 id: 8,
                 name: "Product 8",
                 img: 'image 8',
-                price: 4,
+                price: 11.99,
                 onsale: 3,
-                tags: "Tag 5",
+                tags: "Tag 8",
                 description: "A fresh taste on a collar,"
             },
             {
                 id: 10,
                 name: "Product 10",
-                img: 'image 10',
-                price: 1.99,
+                img: 'image 10a',
+                price: 10.99,
                 onsale: 2,
-                tags: "Tag 5",
+                tags: "Tag 10a",
                 description: "A fresh taste on a collar,",
                 order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
             },
             {
                 id: 10,
                 name: "Product 10",
-                img: 'image 10',
-                price: 1.99,
+                img: 'image 10b',
+                price: 10.99,
                 onsale: 2,
-                tags: "Tag 5",
+                tags: "Tag 10b",
                 description: "A fresh taste on a collar,",
                 order: { id: 10, name: "Order of Product 10", item: { size: 10, discount: 10 } }
             }
@@ -1378,6 +1378,125 @@
         ).toArray();
 
         // final query - produces output
+        var orderBy_f1a = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ],
+                    [ "-", false ],
+                    [ "description", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
+        var orderBy_f1b = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "object!", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
+        var orderBy_f1c = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "order", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
+
+
+
+        /**
+         *
+         * FUTURE FEATURES - check them already in C# ( already means that the're available !!!! )
+         * 
+         * I have added them here for convenience.
+         *
+        */
+       
+        /*
+        // final query - produces output
+        var orderBy_f1d = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ],
+                    [ "-", false ],
+                    [ "description", true ],
+                    [ "-", false ],
+                    [ "order", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_f1e = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ],
+                    [ "-", false ],
+                    [ "description", true ],
+                    [ "-", false ],
+                    [ "order", true ]
+                    [ "-", false ],
+                    [ "object!", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_f1f = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "object!", true ]
+                    [ "-", false ],
+                    [ "order", true ]
+                    [ "-", false ],
+                    [ "description", true ],
+                    [ "-", false ],
+                    [ "id", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_f1f = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "object!", true ]
+                    [ "-", false ],
+                    [ "order", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_f1g = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "object!", true ]
+                    [ "order", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
+
+
+
+        // final query - produces output
         var orderBy_f2 = collection.orderBy(
             {
                 'keyPartSelectorArray': [
@@ -1655,6 +1774,91 @@
                 'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
             }
         );
+
+        // final query - produces output
+        var toDictionary_f1_orderBy_thenBy_f1 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupResultValueSelector': null,
+
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.", true]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var toDictionary_f1_orderBy_thenBy_f2 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.", true]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var toDictionary_f1_orderBy_thenBy_f2 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.price", true]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
 
         // final query - produces output
         var defaultIfEmpty_f1 = collection.defaultIfEmpty(
@@ -2198,6 +2402,7 @@
 
             Object reference not set to an instance of an object [ order.xyz.abc ] !
         */
+        /*
         var all_f3 = collection_nullProps_where_take_skip_all_any_2.all(
             {
                 'predicateArray': [
@@ -2205,6 +2410,7 @@
                 ]
             }
         );
+        */
 
         // final query - produces output
         var any_f3 = collection.any();

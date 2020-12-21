@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #43 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #44 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -89,8 +89,8 @@
                 THEN_DESC: Symbol( 'then_desc' )
             }
         },
-        // collection input type
-        CIT: {
+        // collection element structure type (cest)
+        CEST: {
             PRIMITIVE: Symbol( 'primitive_type' ),
             PLAIN: Symbol( 'plain_object' ),
             GROUPING: Symbol( 'grouping_object' ),
@@ -464,17 +464,18 @@
          * @param {any} sortingContext
          * @param {any} actionConstr
          * @param {any} thisAction
+         * @param {string} context
          */
-            function ( user_filter_array, is_query_flow_cit_primitive, sortingContext, actionConstr, thisAction )
+            function ( user_filter_array, is_query_flow_cit_primitive, sortingContext, actionConstr, thisAction, context )
             {
-                return c_I_1L( user_filter_array, is_query_flow_cit_primitive, sortingContext, actionConstr, thisAction );
+                return c_I_1L( user_filter_array, is_query_flow_cit_primitive, sortingContext, actionConstr, thisAction, context );
 
 
 
                 /**
                  * Local helper functions 
                 */
-                function c_I_1L ( user_filter_array, is_primitive, sortingContext, actionConstr, thisAction )
+                function c_I_1L ( user_filter_array, is_primitive, sortingContext, actionConstr, thisAction, context )
                 {
                     /**
                      * If user omitted filters for some query methods, do not run the check.
@@ -488,7 +489,7 @@
                      * 
                      * Get this information from JLC instance context
                      *  - in case it's primitive, run syntax checking for primitive types
-                     *  - otherwise if cit is not UNKNOWN run syntax checking for objects
+                     *  - otherwise if cest is not UNKNOWN run syntax checking for objects
                     */
                     if ( is_primitive )
                         return user_filter_array.forEach(
@@ -610,7 +611,7 @@
                          * Do the appropriate syntax checking 
                         */
 
-                        if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PLAIN )
+                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
                         {
                             // this metadata is required only in the sorting context and only when sorting PLAIN collection by its objects themselves
                             var metadata;
@@ -622,10 +623,10 @@
                                 metadata = Object.create( null );
 
                                 // user provided many filters
-                                if ( user_filter_array.length > 1 )
+                                if ( user_filter_array.length > 1 && [System.Linq.Context.min, System.Linq.Context.max, System.Linq.Context.average].includes(context))
                                     // throw error about too many filters
                                     throw SyntaxError(
-                                        '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] in the context of ['
+                                        '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.PLAIN ) + '] in the context of ['
                                         + _COMMON.getCustomValueOfSymbol( _ENUM.MIN ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.MAX ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.AVG )
                                         + '] requires presence of only one filter !\r\n\r\n'
                                     );
@@ -644,19 +645,19 @@
                                     )
                                     {
                                         // throw error about invalid syntax when dealing with PLAIN objects and using "object!" predicate, which means comparing whole objects
-                                        throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + '] using "object!" requires the following syntax ["object!", true] or ["currentLevelObject.NestedObject.AnotherNestedObject (...etc)", true] !\r\n\r\n' );
+                                        throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.PLAIN ) + '] using "object!" requires the following syntax ["object!", true] or ["currentLevelObject.NestedObject.AnotherNestedObject (...etc)", true] !\r\n\r\n' );
                                     }
                                 }
                             }
 
                             // if there is no 'object!' filter, we are dealing with PLAIN
-                            check_PLAIN_I_2L( _ENUM.CIT.PLAIN, _ENUM.CIT.PLAIN );
+                            check_PLAIN_I_2L( _ENUM.CEST.PLAIN, _ENUM.CEST.PLAIN );
 
                             // if this is sorting context, return required PLAIN sorting metadata
                             if ( sortingContext )
                                 return metadata;
                         }
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
                         {
                             // the only valid column is key 
                             var valid = _ACTION.hpid.columnSet.all_columns.length === 1 && _ACTION.hpid.columnSet.all_columns[ 0 ] === 'key';
@@ -664,9 +665,9 @@
                             // if it's not valid
                             if ( !valid )
                                 // throw error about invalid column name called 'key' when dealing with GROUPING objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.GROUPING ) + '] requires providing only "key" property !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.GROUPING ) + '] requires providing only "key" property !\r\n\r\n' );
                         }
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
                         {
                             // this metadata is required only in the sorting context and only when sorting KVP
                             var metadata;
@@ -691,13 +692,13 @@
                             if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'key' )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "key" predicate
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
                             }
                             // user provide 'value.' filter with 2+ more parameters
                             else if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'value.' )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "value." predicate, which means comparing whole objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
+                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
                             }
                             /**
                              * If neither 'key' nor 'value.', user must have provided many filters - in the context of KVP it basically means f.e. such valid filters :
@@ -721,7 +722,7 @@
                                     if ( predicateArray[ 0 ].trim() === 'key' || predicateArray[ 0 ].trim() === 'value.' )
                                         // throw error about 'key' filter presence among other filters
                                         throw SyntaxError(
-                                            '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) + '] using "' +
+                                            '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "' +
                                             predicateArray[ 0 ] + '" among other filters does not make sense !\r\n\r\n'
                                         );
                                 }
@@ -735,7 +736,7 @@
                                     metadata.byValuePLAIN = true;
 
                                 // if there is neither 'key' nor 'value.' filter, we are dealing with value's PLAIN
-                                check_PLAIN_I_2L( _ENUM.CIT.KVP, _ENUM.CIT.PLAIN );
+                                check_PLAIN_I_2L( _ENUM.CEST.KVP, _ENUM.CEST.PLAIN );
                             }
 
                             // if this is sorting context, return required KVP sorting metadata
@@ -756,24 +757,24 @@
                                 return metadata;
                             }
                         }
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN )
                             // @ts-ignore
                             ; // with collection input type set to UNKNOWN do nothing as the collection is empty
                         else
                             // throw error about unsupported collection input type !
-                            throw new Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.cit ) + '" is not supported !\r\n\r\n' );
+                            throw new Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.cest ) + '" is not supported !\r\n\r\n' );
 
 
 
                         /**
                          * Local helper functions
                         */
-                        function check_PLAIN_I_2L ( cit, ctx )
+                        function check_PLAIN_I_2L ( cest, ctx )
                         {
                             // assume that all user columns are valid 
                             var valid = true;
 
-                            if ( cit === ctx )
+                            if ( cest === ctx )
                             {
                                 // loop over all user 'real' columns
                                 for ( var i = 0; i < user_ovc.length; i++ )
@@ -784,8 +785,8 @@
                                     // if it's not valid
                                     if ( !valid )
                                     {
-                                        // convert cit and ctx to string
-                                        var cit_ctx_toString = _COMMON.getCustomValueOfSymbol( cit );
+                                        // convert cest and ctx to string
+                                        var cit_ctx_toString = _COMMON.getCustomValueOfSymbol( cest );
 
                                         // throw error about invalid column name or invalid column path when dealing with PLAIN objects in the PLAIN context
                                         throw new ReferenceError(
@@ -807,8 +808,8 @@
                                     // if it's not valid
                                     if ( !valid )
                                     {
-                                        // convert cit to string
-                                        var cit_toString = _COMMON.getCustomValueOfSymbol( cit );
+                                        // convert cest to string
+                                        var cit_toString = _COMMON.getCustomValueOfSymbol( cest );
 
                                         // convert ctx to string
                                         var ctx_toString = _COMMON.getCustomValueOfSymbol( ctx );
@@ -916,8 +917,8 @@
 
             // this object allows for syntax checking during data flow operations
             columnSet: {
-                // collection input type of data
-                cit: undefined,
+                // collection element structure type (cest)
+                cest: undefined,
                 // all columns of an data object
                 all_columns: [],
 
@@ -929,7 +930,7 @@
                         // collection input column set
                         var propNames;
 
-                        if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PLAIN )
+                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
                         {
                             // get all object property names at all levels
                             propNames = _COMMON.fetchObjectStructureKeys( obj );
@@ -937,10 +938,10 @@
                             // prepend object!
                             propNames.unshift( 'object!' );
                         }
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
                             // prepend key
                             propNames = [ 'key' ];
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
                         {
                             // get value all object property names at all levels
                             propNames = _COMMON.fetchObjectStructureKeys( obj.value );
@@ -951,9 +952,9 @@
                             // prepend key
                             propNames.unshift( 'key' );
                         }
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE )
                             propNames = [];
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN )
                             propNames = [];
 
                         // store it for sorting purposes - all columns available for usage in sorting operations
@@ -1059,7 +1060,7 @@
                         var c_o;
 
                         // check the sorting phrase uniqueness based on PLAIN
-                        if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PLAIN )
+                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
                         {
                             // loop over current data to be sorted
                             for ( var i = 0; i < hpid_cache.length; i++ )
@@ -1091,11 +1092,11 @@
                             }
                         }
                         // check the sorting phrase uniqueness based on GROUPING - by default grouping objects have to have unique keys !
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
                             // @ts-ignore
                             ;
                         // check the sorting phrase uniqueness based on KVP
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
                         {
                             // if you use the key - "key", "value." - by default, kvp objects must return unique values !
                             if ( phrase_source_arr.length === 1 && ( phrase_source_arr[ 0 ].trim() === 'key' || phrase_source_arr[ 0 ].trim() === 'value.' ) )
@@ -1300,7 +1301,7 @@
                 clear: function ( sharedSecondLevelSortingContext )
                 {
                     // reset column set object (current data flow cached metadata)
-                    _ACTION.hpid.columnSet.cit = undefined;
+                    _ACTION.hpid.columnSet.cest = undefined;
                     _ACTION.hpid.columnSet.all_columns.length = 0;
 
                     // reset sorting object
@@ -1335,9 +1336,9 @@
         },
 
         hpidCommons: {
-            updateColumnSetColsAndCIT: /**
+            updateColumnSetColsAndCest: /**
             * Updates collection metadata required by the current query flow.
-            * It detects current column input type (cit) and updates column set of the contextually current collection.
+            * It detects current collection element structure type (cest) and updates column set of the contextually current collection.
             */
                 function ( length_gte_2, firstItem, ofss )
                 {
@@ -1347,10 +1348,10 @@
                     */
 
                     // detect collection input data type to provide type of source of syntax checking
-                    _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( firstItem, !firstItem ? false : true, length_gte_2 );
+                    _ACTION.hpid.columnSet.cest = _ACTION.hpidCommons.detectCest( firstItem, !firstItem ? false : true, length_gte_2 );
 
-                    // if cit is UNKNOWN, skip further operations
-                    if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN ) return;
+                    // if cest is UNKNOWN, skip further operations
+                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN ) return;
 
                     // check if object full structure string (ofss) is provided to deliver metadata for syntax checking
                     if(ofss && _COMMON.convertTypeToString(ofss) === _ENUM.T2SR.STRING)
@@ -1374,13 +1375,13 @@
                         });
                         
 
-                        if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PLAIN )
+                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
                             // prepend object!
                             propNames.unshift( 'object!' );
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
                             // prepend key
                             propNames = [ 'key' ];
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
                         {
                             // prepend value.
                             propNames.unshift( 'value.' );
@@ -1388,9 +1389,9 @@
                             // prepend key
                             propNames.unshift( 'key' );
                         }
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE )
                             propNames = [];
-                        else if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.UNKNOWN )
+                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN )
                             propNames = [];
 
                         // store it for sorting purposes - all columns available for usage in sorting operations
@@ -1398,8 +1399,8 @@
                     }
                 },
 
-            detectCIT: /**
-             * Detect collection input type (cit).
+            detectCest: /**
+             * Detect collection element structure type (cest).
              *
              * @param {any} collectionItem
              * @param {any} doCurrentSort
@@ -1418,10 +1419,10 @@
                     {
                         // if collection does not require sorting
                         if ( !doCurrentSort && !doNextSort )
-                            return _ENUM.CIT.UNKNOWN;
+                            return _ENUM.CEST.UNKNOWN;
                         // if it's primitive type
                         else if ( _COMMON.isPrimitiveType( collectionItem ) )
-                            return _ENUM.CIT.PRIMITIVE;
+                            return _ENUM.CEST.PRIMITIVE;
                         // otherwise let's deal with objects
                         else
                         {
@@ -1433,15 +1434,15 @@
                             {
                                 // if it's KVP (object || primitive type)
                                 if ( propNames.indexOf( 'value' ) > -1 && ( typeof collectionItem[ 'value' ] === 'object' || _COMMON.isPrimitiveType( collectionItem[ 'value' ] ) ) )
-                                    return _ENUM.CIT.KVP;
+                                    return _ENUM.CEST.KVP;
                                 // if it's GROUPING
                                 else if ( propNames.indexOf( 'resultsView' ) > -1 && Array.isArray( collectionItem[ 'resultsView' ] ) )
                                     // check for GROUPING
-                                    return _ENUM.CIT.GROUPING;
+                                    return _ENUM.CEST.GROUPING;
                             }
                             // otherwise it must be PLAIN
                             else
-                                return _ENUM.CIT.PLAIN;
+                                return _ENUM.CEST.PLAIN;
                         }
                     }
                 },
@@ -1698,7 +1699,7 @@
                                 // if this action constraint contains syntax check constraint
                                 if ( actionConstr.requireSyntaxCheck )
                                     // apply syntax check constraint
-                                    c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.thisAction );
+                                    c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.thisAction, this.name );
                                 else
                                     // apply regular constraint function
                                     c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( actionConstr.data[ c_funcs.length - 1 ] );
@@ -2064,13 +2065,13 @@
                         // if it's dictionary then break it
                         if ( method_name === System.Linq.Context.toDictionary )
                         {
-                            possible_type = _ENUM.CIT.KVP;
+                            possible_type = _ENUM.CEST.KVP;
                             break;
                         }
                         // if it's grouping object then check it further down the chain
                         else if ( method_name === System.Linq.Context.groupBy )
                         {
-                            possible_type = _ENUM.CIT.GROUPING;
+                            possible_type = _ENUM.CEST.GROUPING;
 
                             var method_name_2;
                             // iterate all query method names from the current position in the chain towards the bottom
@@ -2082,7 +2083,7 @@
                                 // if it's dictionary then break it
                                 if ( method_name_2 === System.Linq.Context.toDictionary )
                                 {
-                                    possible_type = _ENUM.CIT.KVP;
+                                    possible_type = _ENUM.CEST.KVP;
                                     break;
                                 }
                             }
@@ -2090,7 +2091,7 @@
                     }
 
                     // for 'KVP' or 'GROUPING' default value is undefined
-                    if ( possible_type === _ENUM.CIT.KVP || possible_type === _ENUM.CIT.GROUPING )
+                    if ( possible_type === _ENUM.CEST.KVP || possible_type === _ENUM.CEST.GROUPING )
                         // define collection default value
                         api._ctx.cdv = undefined;
                     // it must be 'PLAIN' or 'PRIMITIVE'
@@ -3024,7 +3025,7 @@
                                     return Boolean_Comparator_I_2L( itemCurrent.toString(), itemPrevious.toString() );
 
                                 // invoke PLAIN comparator private function
-                                return PLAIN_Comparator_I_2L( itemCurrent, itemPrevious, _ENUM.CIT.PLAIN );
+                                return PLAIN_Comparator_I_2L( itemCurrent, itemPrevious, _ENUM.CEST.PLAIN );
                             },
 
                         GROUPING_Comparator:
@@ -3082,7 +3083,7 @@
                                 else if ( sortMetadata.byValuePLAIN )
                                 {
                                     // invoke PLAIN comparator private function
-                                    return PLAIN_Comparator_I_2L( itemCurrent, itemPrevious, _ENUM.CIT.KVP );
+                                    return PLAIN_Comparator_I_2L( itemCurrent, itemPrevious, _ENUM.CEST.KVP );
                                 }
                             },
 
@@ -3097,7 +3098,7 @@
 
                     /**
                      * Determine what type of comparator to get
-                     *  - automatically based on cit (collection input type)
+                     *  - automatically based on cest (collection element structure type)
                      *  - by force using requested comparator name 
                     */
 
@@ -3105,19 +3106,19 @@
                         // return the FORCED_COMPARATOR_NAME function itself
                         return comparators[ forced_comparator_name ];
 
-                    if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PLAIN )
+                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
                         // return the PLAIN comparator function itself
                         return comparators.PLAIN_Comparator;
 
-                    if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.GROUPING )
+                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
                         // return the GROUPING comparator function itself
                         return comparators.GROUPING_Comparator;
 
-                    if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP )
+                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
                         // return the KVP comparator function itself
                         return comparators.KVP_Comparator;
 
-                    if ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE )
+                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE )
                         // return the PRIMITIVE comparator function itself
                         return comparators.PRIMITIVE_Comparator;
 
@@ -3126,13 +3127,13 @@
                     /**
                      * Local helper functions
                     */
-                    function PLAIN_Comparator_I_2L ( itemCurrent, itemPrevious, cit )
+                    function PLAIN_Comparator_I_2L ( itemCurrent, itemPrevious, cest )
                     {
                         // current and previous values to compare
                         var itemCurrentValue = '', itemPreviousValue = '';
 
                         // create two sorting phrases to compare against each other, 'itemCurrentValue' vs 'itemPreviousValue' respectively
-                        createSortPhrases_I_3L( cit );
+                        createSortPhrases_I_3L( cest );
 
                         // invoke basic boolean comparison 
                         return Boolean_Comparator_I_2L( itemCurrentValue, itemPreviousValue );
@@ -3168,13 +3169,13 @@
                             var oC, oP;
 
                             // go for PLAIN
-                            if ( citCtx === _ENUM.CIT.PLAIN )
+                            if ( citCtx === _ENUM.CEST.PLAIN )
                             {
                                 oC = itemCurrent;
                                 oP = itemPrevious;
                             }
                             // go for KVP Value's PLAIN
-                            else if ( citCtx === _ENUM.CIT.KVP )
+                            else if ( citCtx === _ENUM.CEST.KVP )
                             {
                                 oC = itemCurrent.value;
                                 oP = itemPrevious.value;
@@ -3182,10 +3183,10 @@
                             // throw error
                             else
                                 throw new Error(
-                                    '\r\nThis collection input type (cit) called "' + _COMMON.getCustomValueOfSymbol( citCtx ) +
+                                    '\r\nThis collection element structure type (cest) called "' + _COMMON.getCustomValueOfSymbol( citCtx ) +
                                     '" is not supported by PLAIN comparator !\r\nValid contexts are [' +
-                                    _COMMON.getCustomValueOfSymbol( _ENUM.CIT.PLAIN ) + ', ' +
-                                    _COMMON.getCustomValueOfSymbol( _ENUM.CIT.KVP ) +
+                                    _COMMON.getCustomValueOfSymbol( _ENUM.CEST.PLAIN ) + ', ' +
+                                    _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) +
                                     '] !\r\n\r\n'
                                 );
 
@@ -4012,10 +4013,15 @@
                             // result value array
                             var rva = [];
 
-                            // iterate over all groups
-                            for ( let group of groups )
-                                // transform each group into result value defined by the user
-                                rva.push( udfGroupResultValueSelector( group.key, group.resultsView ) );
+                            // iterate over all groups and transform each group into result value defined by the user
+                            for ( let group of groups ) {
+                                // handle dictionary context
+                                if(isDictionaryContext)
+                                    rva.push( udfGroupResultValueSelector( group.key, group.value, isDictionaryContext ) );
+                                // handle grouping object context
+                                else
+                                    rva.push( udfGroupResultValueSelector( group.key, group.resultsView, isDictionaryContext ) );
+                            }
 
                             // update HPID object to enable further data flow
                             _ACTION.hpid.data = rva;
@@ -5719,7 +5725,7 @@
                         if ( !cmo.allow_next_sorting || !cmo.first_obj )
                         {
                             // detect and store current sort input type of collection - no sorting required, hence return UNKNOWN
-                            _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
+                            _ACTION.hpid.columnSet.cest = _ACTION.hpidCommons.detectCest( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // discard subsequent sorting operations
                             _ACTION.hpid.sorting.stop = true;
@@ -5727,19 +5733,19 @@
                         // otherwise examine object type of sort input to evaluate sorting necessity during next sort operation 
                         else
                         {
-                            // detect and store current sort input type of collection - sorting required, hence determine cit (collection input type)
-                            _ACTION.hpid.columnSet.cit = _ACTION.hpidCommons.detectCIT( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
+                            // detect and store current sort input type of collection - sorting required, hence determine cest (collection element structure type)
+                            _ACTION.hpid.columnSet.cest = _ACTION.hpidCommons.detectCest( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // get only valid column names from user column set
                             var ovc = _ACTION.hpid.columnSet.extractOVC( keyPartSelectorArray, false );
 
                             /**
-                             * Check for "special" case, i.e. cit being KVP and KVP's Value is a primitive type !
+                             * Check for "special" case, i.e. cest being KVP and KVP's Value is a primitive type !
                              * In such a case there is no such thing like sorting Value object by its any property name !
                              * Hence, all columns starting with 'value.' provided by the user are in this particular context invalid !
                             */
                             if (
-                                ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.KVP ) &&
+                                ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP ) &&
                                 cmo.first_obj && _COMMON.isPrimitiveType( cmo.first_obj.value )
                             )
                                 checkForValuePLAINBreach_I_3L( ovc );
@@ -10585,7 +10591,7 @@
                     function createProxiedInstance_I_2L ( acn_ctr, qmi_ctr )
                     {
                         // restore metadata of the contextually current collection state
-                        _ACTION.hpidCommons.updateColumnSetColsAndCIT( acn_ctr.fim.length_gte_2, acn_ctr.fim.item, acn_ctr.fim.ofss );
+                        _ACTION.hpidCommons.updateColumnSetColsAndCest( acn_ctr.fim.length_gte_2, acn_ctr.fim.item, acn_ctr.fim.ofss );
 
                         // create partial query new JLC proxied instance
                         return createNewJLC_I_3L( acn_ctr, qmi_ctr );
@@ -10965,7 +10971,7 @@
                                 _ACTION.funcCommons.executeChain( api._ctx );
 
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
+                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
 
                                 // return contextually current collection state
                                 return _ACTION.hpid.data;
@@ -10973,7 +10979,7 @@
                             catch ( err )
                             {
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCIT( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
+                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
 
                                 /**
                                  * Display the error
@@ -11315,7 +11321,7 @@
                 function applyJlcCommon_I_1L ()
                 {
                     // store updated metadata about collection
-                    _ACTION.hpidCommons.updateColumnSetColsAndCIT( source_collection.length > 1, firstItem, ofss );
+                    _ACTION.hpidCommons.updateColumnSetColsAndCest( source_collection.length > 1, firstItem, ofss );
 
                     // check type primitivity of collection input type
                     is_prim = check_TP_I_2L();
@@ -11331,7 +11337,7 @@
                     function check_TP_I_2L ()
                     {
                         // is primitive type of this item
-                        return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cit === _ENUM.CIT.PRIMITIVE );
+                        return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE );
                     }
 
                     function create_JC_I_2L ()
