@@ -1742,6 +1742,48 @@
         ).toArray();
         */
 
+
+        // final query - produces output
+        var orderBy_f8 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "price", true ]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_p8 = collection.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "price", true ]
+                ],
+                'udfComparer': null
+            }
+        );
+        // final query - produces output
+        var thenBy_f8 = orderBy_p8.thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+
         // final query - produces output
         var toArray_f1 = collection.toArray();
 

@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #44 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #45 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -10971,7 +10971,7 @@
                                 _ACTION.funcCommons.executeChain( api._ctx );
 
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
+                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, api._ctx.fim.ofss );
 
                                 // return contextually current collection state
                                 return _ACTION.hpid.data;
@@ -10979,7 +10979,7 @@
                             catch ( err )
                             {
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, acn_ctr.fim.ofss );
+                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, api._ctx.fim.ofss );
 
                                 /**
                                  * Display the error
