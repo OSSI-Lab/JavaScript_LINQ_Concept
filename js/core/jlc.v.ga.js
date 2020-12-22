@@ -3143,7 +3143,7 @@
                         /**
                          * Local helper functions
                         */
-                        function createSortPhrases_I_3L ( citCtx )
+                        function createSortPhrases_I_3L ( cestCtx )
                         {
                             // reference to the right sorting columns
                             var sortCols;
@@ -3169,13 +3169,13 @@
                             var oC, oP;
 
                             // go for PLAIN
-                            if ( citCtx === _ENUM.CEST.PLAIN )
+                            if ( cestCtx === _ENUM.CEST.PLAIN )
                             {
                                 oC = itemCurrent;
                                 oP = itemPrevious;
                             }
                             // go for KVP Value's PLAIN
-                            else if ( citCtx === _ENUM.CEST.KVP )
+                            else if ( cestCtx === _ENUM.CEST.KVP )
                             {
                                 oC = itemCurrent.value;
                                 oP = itemPrevious.value;
@@ -3183,7 +3183,7 @@
                             // throw error
                             else
                                 throw new Error(
-                                    '\r\nThis collection element structure type (cest) called "' + _COMMON.getCustomValueOfSymbol( citCtx ) +
+                                    '\r\nThis collection element structure type (cest) called "' + _COMMON.getCustomValueOfSymbol( cestCtx ) +
                                     '" is not supported by PLAIN comparator !\r\nValid contexts are [' +
                                     _COMMON.getCustomValueOfSymbol( _ENUM.CEST.PLAIN ) + ', ' +
                                     _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) +
@@ -3198,8 +3198,18 @@
                                 // reference a sorting column
                                 sortCol = sortCols[ i ];
 
-                                // is it complex ?
-                                if ( sortCol.indexOf( '.' ) > 0 )
+                                // is it complex KVP
+                                if ( cestCtx === _ENUM.CEST.KVP && sortCol.indexOf( '.' ) > 0 )
+                                {
+                                    // subtract the type marker
+                                    if(sortCol.startsWith('value.')) sortCol = sortCol.substring(sortCol.indexOf('.') + 1);
+
+                                    // get the property value from both, the current and the previous object
+                                    itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter( oC, sortCol, true, false );
+                                    itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter( oP, sortCol, true, false );
+                                }
+                                // is it complex PLAIN
+                                else if ( sortCol.indexOf( '.' ) > 0 )
                                 {
                                     // get the property value from both, the current and the previous object
                                     itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter( oC, sortCol, true, false );

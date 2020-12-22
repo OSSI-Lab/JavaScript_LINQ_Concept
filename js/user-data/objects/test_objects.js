@@ -1762,7 +1762,7 @@
             }
         ).toArray();
 
-        // final query - produces output
+        // partial query - produces intermediate query state
         var orderBy_p8 = collection.orderBy(
             {
                 'keyPartSelectorArray': [
@@ -1771,6 +1771,7 @@
                 'udfComparer': null
             }
         );
+
         // final query - produces output
         var thenBy_f8 = orderBy_p8.thenBy(
             {
@@ -1894,6 +1895,37 @@
                 'udfComparer': null
             }
         ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // partial query - produces intermediate query state
+        var toDictionary_f1_orderBy_p1 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.price", true]
+                ],
+                'udfComparer': null
+            }
+        );
+        
+        // final query - produces output
+        var toDictionary_f1_orderBy_p1_thenBy_f1 = toDictionary_f1_orderBy_p1.thenBy(
             {
                 'keyPartSelectorArray': [
                     ["key", true]
