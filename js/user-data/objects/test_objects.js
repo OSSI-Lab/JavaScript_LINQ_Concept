@@ -1876,7 +1876,7 @@
         ).toArray();
 
         // final query - produces output
-        var toDictionary_f1_orderBy_thenBy_f2 = collection.toDictionary(
+        var toDictionary_f1_orderBy_thenBy_f3 = collection.toDictionary(
             {
                 'predicateArray': [
                     [ "id", true ],
@@ -1902,6 +1902,37 @@
                 'udfComparer': null
             }
         ).toArray();
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting KVP Value by itself requires presence of custom method "toString()" !
+        var toDictionary_f1_orderBy_thenBy_f4 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupResultValueSelector': null,
+
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.", true]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
 
         // partial query - produces intermediate query state
         var toDictionary_f1_orderBy_p1 = collection.toDictionary(
