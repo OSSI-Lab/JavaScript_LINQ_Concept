@@ -25,11 +25,11 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #22 - DPR #45:&nbsp;2020-12-22 &nbsp;&nbsp;2:07 PM Local Time&nbsp;:heavy_check_mark:
+ - TEST #22 - DPR #45:&nbsp;2020-12-22 &nbsp;&nbsp;2:28 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - the interface of query methods was tested up to 'defaultIfEmpty' query methods (line 1906)
-          - fixing bug - taking into account 1st sorting while using 2nd sorting
+          - fixing bug - taking into account 1st level sorting while using 2nd level sorting
  - TEST #21 - DPR #44:&nbsp;2020-12-21 &nbsp;&nbsp;4:04 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
