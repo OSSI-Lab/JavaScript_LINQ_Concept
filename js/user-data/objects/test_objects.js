@@ -1998,6 +1998,137 @@
         );
 
         // final query - produces output
+        var defaultIfEmpty_f4 = collection.defaultIfEmpty(
+            {
+                'fallbackOnDefault': {
+                    yes: false // return default value deducted on this query flow (cdv) if collection is empty
+                }
+            }
+        );
+
+        // final query - produces output
+        var defaultIfEmpty_f5 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).where(
+            {
+                'predicateArray': [
+                    [ "key", ">=", 10000, true ]
+                ]
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.price", true]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).defaultIfEmpty(
+            {
+                'fallbackOnDefault': {
+                    yes: false // return default value deducted on this query flow (cdv) if collection is empty
+                }
+            }
+        );
+
+        // final query - produces output
+        var defaultIfEmpty_f6 = collection.groupBy(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).where(
+            {
+                'predicateArray': [
+                    [ "key", ">=", 10000, true ]
+                ]
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.price", true]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).defaultIfEmpty(
+            {
+                'fallbackOnDefault': {
+                    yes: false // return default value deducted on this query flow (cdv) if collection is empty
+                }
+            }
+        );
+
+        // final query - produces output
+        var defaultIfEmpty_f7 = collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "img", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+            }
+        ).where(
+            {
+                'predicateArray': [
+                    [ "key", ">=", 10000, true ]
+                ]
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    ["value.price", true]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    ["key", true]
+                ],
+                'udfComparer': null
+            }
+        ).defaultIfEmpty(
+            {
+                'fallbackOnDefault': {
+                    yes: false // return default value deducted on this query flow (cdv) if collection is empty
+                }
+            }
+        );
+
+        // final query - produces output
         var reverse_f1 = collection.reverseAllOrSubset();
 
         // final query - produces output
@@ -2713,8 +2844,6 @@
          * Error message states this:
          * You can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !
          * Additionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.
-         * Otherwise it "would be illogical", as I was told :-) !
-         * Thank You :-)
         */
         // var orderBy_p3_take_p1_thenBy_p1 = orderBy_p3_take_p1.thenBy(
         //     {
@@ -2747,8 +2876,6 @@
          * Error message states this:
          * You can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !
          * Additionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.
-         * Otherwise it "would be illogical", as I was told :-) !
-         * Thank You :-)
         */
         // var orderBy_take_thenBy_toArray_f1 = collection.orderBy(
         //     {
@@ -2770,7 +2897,13 @@
         //     }
         // ).toArray();
 
-        // partial query - produces intermediate query state
+
+        // partial query - produces intermediate query state - THIS METHOD THROWS EXPECTED ERROR ! ->
+        /*
+         * You can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !
+         * Additionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.
+        */
+        /*
         var thenBy_p3 = collection.thenBy(
             {
                 'keyPartSelectorArray': [
@@ -2779,6 +2912,7 @@
                 'udfComparer': null
             }
         );
+        */
 
         console.log( '~ Objects' );
 

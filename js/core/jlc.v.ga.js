@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #45 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #46 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -551,7 +551,7 @@
 
                             // throw error about invalid number of predicate values
                             if ( length !== 2 && length !== 3 && length !== 4 )
-                                throw SyntaxError( '\r\nDealing with primitive types requires providing only 2, 3, or 4 values all starting with empty string - "" !\r\n\r\n' );
+                                throw new SyntaxError( '\r\nDealing with primitive types requires providing only 2, 3, or 4 values all starting with empty string - "" !\r\n\r\n' );
 
                             /**
                              *  For the following operations
@@ -565,7 +565,7 @@
                              *  the filter syntax called 'predicateArray' is just an empty string with second parameter set to true -> ["", true] 
                             */
                             if ( length === 2 && ( user_filter[ 0 ].trim() !== "" || user_filter[ 1 ] !== true ) )
-                                throw SyntaxError( '\r\nDealing with primitive types in the context of THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} \r\nrequires providing only empty string predicate with second parameter set to true ! \r\n\r\nExamplary usage -> ["", true]\r\n\r\n' );
+                                throw new SyntaxError( '\r\nDealing with primitive types in the context of THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} \r\nrequires providing only empty string predicate with second parameter set to true ! \r\n\r\nExamplary usage -> ["", true]\r\n\r\n' );
 
                             /**
                              * Other operations require from 3 to 4 parameters to be present 
@@ -574,7 +574,7 @@
                             // handling 3 filter parameters with special case where 3rd parameter is equal to 0 (which logically in JavaScript evaluates to false)
                             else if ( length === 3 && ( user_filter[ 0 ].trim() !== "" || user_filter[ 1 ].trim() === "" || !user_filter[ 2 ] && user_filter[ 2 ] !== 0 ) )
                                 // throw error about invalid parameters
-                                throw SyntaxError(
+                                throw new SyntaxError(
                                     '\r\nDealing with primitive types in the context of NOT THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} \r\nrequires providing empty string predicate, second parameter set to non-empty string, and third parameter being some kind of valid stuff (number, UDF, user string) ! \r\n\r\nExamplary usage -> ["", "<", 7]\r\n\r\n'
                                 );
 
@@ -584,7 +584,7 @@
                             )
                             )
                                 // throw error about invalid parameters
-                                throw SyntaxError(
+                                throw new SyntaxError(
                                     '\r\nDealing with primitive types in the context of NOT THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} with specifying 4th parameter, \r\nrequires providing empty string predicate, second parameter set to non-empty string, third parameter being some kind of valid stuff (number, UDF, user string) and forth parameter being boolean value (true/false) ! \r\n\r\nExamplary usage -> ["", "<", 7, true]\r\n\r\n'
                                 );
                         }
@@ -607,11 +607,16 @@
                             // get user syntax metadata (valid column name(s) or valid column path(s) for inner object(s))
                             user_ovc = _ACTION.hpid.columnSet.extractOVC( user_filter_array, false );
 
+
+                        // To do the appropriate syntax checking in the right way, analyze the very next query flow at the "action creation" layer !
+                        _ACTION.hpidCommons.simulateNextQueryIcest( actionConstr.actionContext, context );
+
+
                         /**
-                         * Do the appropriate syntax checking 
+                         * Do the appropriate syntax checking !
                         */
 
-                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
+                        if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PLAIN )
                         {
                             // this metadata is required only in the sorting context and only when sorting PLAIN collection by its objects themselves
                             var metadata;
@@ -623,9 +628,9 @@
                                 metadata = Object.create( null );
 
                                 // user provided many filters
-                                if ( user_filter_array.length > 1 && [System.Linq.Context.min, System.Linq.Context.max, System.Linq.Context.average].includes(context))
+                                if ( user_filter_array.length > 1 && [ System.Linq.Context.min, System.Linq.Context.max, System.Linq.Context.average ].includes( context ) )
                                     // throw error about too many filters
-                                    throw SyntaxError(
+                                    throw new SyntaxError(
                                         '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.PLAIN ) + '] in the context of ['
                                         + _COMMON.getCustomValueOfSymbol( _ENUM.MIN ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.MAX ) + ', ' + _COMMON.getCustomValueOfSymbol( _ENUM.AVG )
                                         + '] requires presence of only one filter !\r\n\r\n'
@@ -645,7 +650,7 @@
                                     )
                                     {
                                         // throw error about invalid syntax when dealing with PLAIN objects and using "object!" predicate, which means comparing whole objects
-                                        throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.PLAIN ) + '] using "object!" requires the following syntax ["object!", true] or ["currentLevelObject.NestedObject.AnotherNestedObject (...etc)", true] !\r\n\r\n' );
+                                        throw new SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.PLAIN ) + '] using "object!" requires the following syntax ["object!", true] or ["currentLevelObject.NestedObject.AnotherNestedObject (...etc)", true] !\r\n\r\n' );
                                     }
                                 }
                             }
@@ -657,7 +662,7 @@
                             if ( sortingContext )
                                 return metadata;
                         }
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
                         {
                             // the only valid column is key 
                             var valid = _ACTION.hpid.columnSet.all_columns.length === 1 && _ACTION.hpid.columnSet.all_columns[ 0 ] === 'key';
@@ -665,9 +670,9 @@
                             // if it's not valid
                             if ( !valid )
                                 // throw error about invalid column name called 'key' when dealing with GROUPING objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.GROUPING ) + '] requires providing only "key" property !\r\n\r\n' );
+                                throw new SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.GROUPING ) + '] requires providing only "key" property !\r\n\r\n' );
                         }
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
                         {
                             // this metadata is required only in the sorting context and only when sorting KVP
                             var metadata;
@@ -688,17 +693,17 @@
                                 metadata.byValuePLAIN = ( user_filter_array.length === 1 && user_filter_array[ 0 ].length === 2 && user_filter_array[ 0 ][ 0 ].trim() !== 'value.' && user_filter_array[ 0 ][ 0 ].trim().substring( 0, 6 ) === 'value.' && user_filter_array[ 0 ][ 1 ] === true );
                             }
 
-                            // user provide 'key' filter with 2+ more parameters
-                            if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'key' )
+                            // user provide 'key' filter with 2+ more parameters in the context of sorting
+                            if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'key' && [ System.Linq.Context.orderBy, System.Linq.Context.orderByDescending, System.Linq.Context.thenBy, System.Linq.Context.thenByDescending ].includes( context ) )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "key" predicate
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
+                                throw new SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
                             }
                             // user provide 'value.' filter with 2+ more parameters
                             else if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'value.' )
                             {
                                 // throw error about invalid syntax when dealing with KVP objects and using "value." predicate, which means comparing whole objects
-                                throw SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
+                                throw new SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
                             }
                             /**
                              * If neither 'key' nor 'value.', user must have provided many filters - in the context of KVP it basically means f.e. such valid filters :
@@ -721,7 +726,7 @@
                                     // if it's key, throw error
                                     if ( predicateArray[ 0 ].trim() === 'key' || predicateArray[ 0 ].trim() === 'value.' )
                                         // throw error about 'key' filter presence among other filters
-                                        throw SyntaxError(
+                                        throw new SyntaxError(
                                             '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "' +
                                             predicateArray[ 0 ] + '" among other filters does not make sense !\r\n\r\n'
                                         );
@@ -757,12 +762,12 @@
                                 return metadata;
                             }
                         }
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.UNKNOWN )
                             // @ts-ignore
                             ; // with collection input type set to UNKNOWN do nothing as the collection is empty
                         else
                             // throw error about unsupported collection input type !
-                            throw new Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.cest ) + '" is not supported !\r\n\r\n' );
+                            throw new Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.currentQueryIcest ) + '" is not supported !\r\n\r\n' );
 
 
 
@@ -917,8 +922,9 @@
 
             // this object allows for syntax checking during data flow operations
             columnSet: {
-                // collection element structure type (cest)
-                cest: undefined,
+                // current query input collection element structure type (currentQueryIcest)
+                currentQueryIcest: undefined,
+
                 // all columns of an data object
                 all_columns: [],
 
@@ -930,7 +936,7 @@
                         // collection input column set
                         var propNames;
 
-                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
+                        if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PLAIN )
                         {
                             // get all object property names at all levels
                             propNames = _COMMON.fetchObjectStructureKeys( obj );
@@ -938,10 +944,10 @@
                             // prepend object!
                             propNames.unshift( 'object!' );
                         }
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
                             // prepend key
                             propNames = [ 'key' ];
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
                         {
                             // get value all object property names at all levels
                             propNames = _COMMON.fetchObjectStructureKeys( obj.value );
@@ -952,9 +958,9 @@
                             // prepend key
                             propNames.unshift( 'key' );
                         }
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE )
                             propNames = [];
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.UNKNOWN )
                             propNames = [];
 
                         // store it for sorting purposes - all columns available for usage in sorting operations
@@ -1060,7 +1066,7 @@
                         var c_o;
 
                         // check the sorting phrase uniqueness based on PLAIN
-                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
+                        if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PLAIN )
                         {
                             // loop over current data to be sorted
                             for ( var i = 0; i < hpid_cache.length; i++ )
@@ -1092,11 +1098,11 @@
                             }
                         }
                         // check the sorting phrase uniqueness based on GROUPING - by default grouping objects have to have unique keys !
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
                             // @ts-ignore
                             ;
                         // check the sorting phrase uniqueness based on KVP
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
+                        else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
                         {
                             // if you use the key - "key", "value." - by default, kvp objects must return unique values !
                             if ( phrase_source_arr.length === 1 && ( phrase_source_arr[ 0 ].trim() === 'key' || phrase_source_arr[ 0 ].trim() === 'value.' ) )
@@ -1187,7 +1193,7 @@
                                 */
 
                                 if ( !this._present )
-                                    throw new Error( '\r\nYou can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !\r\nAdditionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.\r\nOtherwise it "would be illogical", as I was told :-) !\r\nThank You :-)\r\n\r\n' );
+                                    throw new Error( '\r\nYou can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !\r\nAdditionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.\r\n\r\n' );
                             },
 
                         set:/**
@@ -1301,7 +1307,7 @@
                 clear: function ( sharedSecondLevelSortingContext )
                 {
                     // reset column set object (current data flow cached metadata)
-                    _ACTION.hpid.columnSet.cest = undefined;
+                    _ACTION.hpid.columnSet.currentQueryIcest = undefined;
                     _ACTION.hpid.columnSet.all_columns.length = 0;
 
                     // reset sorting object
@@ -1336,7 +1342,7 @@
         },
 
         hpidCommons: {
-            updateColumnSetColsAndCest: /**
+            updateColumnSetCestAndCols: /**
             * Updates collection metadata required by the current query flow.
             * It detects current collection element structure type (cest) and updates column set of the contextually current collection.
             */
@@ -1347,56 +1353,71 @@
                      * Fetch them provided that collection is not empty !
                     */
 
-                    // detect collection input data type to provide type of source of syntax checking
-                    _ACTION.hpid.columnSet.cest = _ACTION.hpidCommons.detectCest( firstItem, !firstItem ? false : true, length_gte_2 );
+                    // detect collection element structure type to provide type of source of syntax checking
+                    _ACTION.hpid.columnSet.currentQueryIcest = _ACTION.hpidCommons.detectCest( firstItem, !firstItem ? false : true, length_gte_2 );
 
                     // if cest is UNKNOWN, skip further operations
-                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN ) return;
+                    if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.UNKNOWN ) return;
 
                     // check if object full structure string (ofss) is provided to deliver metadata for syntax checking
-                    if(ofss && _COMMON.convertTypeToString(ofss) === _ENUM.T2SR.STRING)
+                    if ( ofss && _COMMON.convertTypeToString( ofss ) === _ENUM.T2SR.STRING )
                         // update column set with ofss
-                        updateHpidColumnSet_I_1L(ofss);
+                        _ACTION.hpidCommons.updateColumnSetColsOnlyWithInternalOfss( ofss );
                     else
                         // otherwise initialize column metadata set based on current collection
                         _ACTION.hpid.columnSet.init( firstItem );
+                },
 
 
+            updateColumnSetColsOnlyWithInternalOfss: /**
+            * Updates collection metadata required by the current query flow by updating column set of the contextually current collection.
+            */
+                function ( ofss )
+                {
+                    // separator of props
+                    let sep = ',';
+
+                    // cater for undefined case
+                    if ( !ofss )
+                        ofss = '';
+
+                    // add coma if missing
+                    if ( !ofss.includes( sep ) )
+                        ofss = ofss + ',';
+
+                    // collection input column set
+                    var propNames = ofss.split( sep );
+                    // remove empty spaces
+                    propNames.forEach( function ( item, index, arr )
+                    {
+                        arr[ index ] = item.trim();
+                    } );
 
                     /**
-                     * Local helper functions
+                     * Handle appropriate cest
                     */
-                    function updateHpidColumnSet_I_1L(ofss) {
-                        // collection input column set
-                        var propNames = ofss.split(',');
-                        // remove empty spaces
-                        propNames.forEach(function(item, index, arr) {
-                            arr[index] = item.trim();
-                        });
-                        
 
-                        if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
-                            // prepend object!
-                            propNames.unshift( 'object!' );
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
-                            // prepend key
-                            propNames = [ 'key' ];
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
-                        {
-                            // prepend value.
-                            propNames.unshift( 'value.' );
+                    if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PLAIN )
+                        // prepend object!
+                        propNames.unshift( 'object!' );
+                    else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
+                        // prepend key
+                        propNames = [ 'key' ];
+                    else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
+                    {
+                        // prepend value.
+                        propNames.unshift( 'value.' );
 
-                            // prepend key
-                            propNames.unshift( 'key' );
-                        }
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE )
-                            propNames = [];
-                        else if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.UNKNOWN )
-                            propNames = [];
-
-                        // store it for sorting purposes - all columns available for usage in sorting operations
-                        _ACTION.hpid.columnSet.all_columns = propNames;
+                        // prepend key
+                        propNames.unshift( 'key' );
                     }
+                    else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE )
+                        propNames = [];
+                    else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.UNKNOWN )
+                        propNames = [];
+
+                    // store it for sorting purposes - all columns available for usage in sorting operations
+                    _ACTION.hpid.columnSet.all_columns = propNames;
                 },
 
             detectCest: /**
@@ -1408,14 +1429,14 @@
              */
                 function ( collectionItem, doCurrentSort, doNextSort )
                 {
-                    return d_CIT_I_1L( collectionItem, doCurrentSort, doNextSort );
+                    return d_CEST_I_1L( collectionItem, doCurrentSort, doNextSort );
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function d_CIT_I_1L ( collectionItem, doCurrentSort, doNextSort )
+                    function d_CEST_I_1L ( collectionItem, doCurrentSort, doNextSort )
                     {
                         // if collection does not require sorting
                         if ( !doCurrentSort && !doNextSort )
@@ -1443,6 +1464,133 @@
                             // otherwise it must be PLAIN
                             else
                                 return _ENUM.CEST.PLAIN;
+                        }
+                    }
+                },
+
+            simulateNextQueryIcest:/**
+            * Detect type of collection element structure (cest) of the very next query in the flow.
+            *
+            * @param {any} actionCtx Action context
+            * @param {any} queryName Current query name
+            */
+                function ( actionCtx, queryName )
+                {
+                    return s_NQI_I_1L( actionCtx, queryName );
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function s_NQI_I_1L ( ctx, name )
+                    {
+                        // the very next query icest (input collection element structure type)
+                        var nqIcest;
+
+                        /**
+                         * Determine cest type if allowed
+                        */
+                        // dictionary
+                        if ( name === System.Linq.Context.toDictionary )
+                            nqIcest = _ENUM.CEST.KVP;
+                        // grouping object
+                        else if ( name === System.Linq.Context.groupBy )
+                            nqIcest = _ENUM.CEST.GROUPING;
+                        // plain if allowed
+                        else if ( System.Linq.Context[ name ] )
+                        {
+                            // because cannot downgrade to plain if already grouping object or dictionary, continue with plain
+                            if ( ![ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( _ACTION.hpid.columnSet.currentQueryIcest ) )
+                                nqIcest = _ENUM.CEST.PLAIN;
+                            // otherwise continue with grouping object or dictionary
+                            else
+                                nqIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                        }
+                        // unknown
+                        else
+                            nqIcest = _ENUM.CEST.UNKNOWN;
+
+                        // store the very next query icest
+                        storeIcestIfAllowed_I_2L();
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function storeIcestIfAllowed_I_2L ()
+                        {
+                            // cannot downgrade to plain if already grouping object or dictionary
+                            if (
+                                [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest ) &&
+                                ![ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( nqIcest )
+                            )
+                                // hence update current query icest to grouping object or dictionary
+                                _ACTION.hpid.columnSet.currentQueryIcest = ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest;
+                            // switch between grouping object and dictionary
+                            else if (
+                                [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest ) &&
+                                [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( nqIcest )
+                            )
+                                ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = nqIcest;
+                            // otherwise continue with plain or switch to grouping object or dictionary
+                            else
+                                ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = nqIcest;
+
+                            // update hpid column set (hcs)
+                            updateHCS_I_3L();
+
+
+
+                            /**
+                             * Local helper functions
+                            */
+                            function updateHCS_I_3L ()
+                            {
+                                // update current hpid column set for grouping object
+                                if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
+                                    updateHCSForGrouping_I_4L();
+                                // update current hpid column set for dictionary
+                                else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
+                                    updateHCSForKvp_I_4L();
+
+
+
+                                /**
+                                 * Local helper functions
+                                */
+                                function updateHCSForGrouping_I_4L ()
+                                {
+                                    // update current hpid column set
+                                    _ACTION.hpidCommons.updateColumnSetColsOnlyWithInternalOfss();
+                                }
+
+                                function updateHCSForKvp_I_4L ()
+                                {
+                                    // get all props to learn the type of the object that is the raw input collection
+                                    var typeProps = Object.getOwnPropertyNames( ctx.currentQueryIceMetaObject.item );
+
+                                    // all contextually valid property names
+                                    var propNames;
+
+                                    // if dictionary
+                                    if ( typeProps.length === 2 && ( typeProps[ 0 ] === 'key' && typeProps[ 1 ] === 'value' || typeProps[ 0 ] === 'value' && typeProps[ 1 ] === 'key' ) )
+                                        // get value all object property names at all levels
+                                        propNames = _COMMON.fetchObjectStructureKeys( ctx.currentQueryIceMetaObject.item.value );
+                                    // if grouping object
+                                    else if ( typeProps.length === 2 && ( typeProps[ 0 ] === 'key' && typeProps[ 1 ] === 'resultsView' || typeProps[ 0 ] === 'resultsView' && typeProps[ 1 ] === 'key' ) )
+                                        // only property called 'key' is valid
+                                        propNames = [ 'key' ];
+                                    // otherwise plain object
+                                    else
+                                        // get all object property names at all levels
+                                        propNames = _COMMON.fetchObjectStructureKeys( ctx.currentQueryIceMetaObject.item );
+
+                                    // update current hpid column set
+                                    _ACTION.hpidCommons.updateColumnSetColsOnlyWithInternalOfss( propNames.join( ',' ) );
+                                }
+                            }
                         }
                     }
                 },
@@ -1579,7 +1727,7 @@
                         taco.root_token = jlc_ctx.root_token;
 
                         // collection fim (first item metadata)
-                        taco.fim = jlc_ctx.fim;
+                        taco.currentQueryIceMetaObject = jlc_ctx.currentQueryIceMetaObject;
 
                         // collection mmavt (order-min-max-average meta object of the type of the value)
                         taco.mmavt = jlc_ctx.mmavt;
@@ -1622,7 +1770,7 @@
 
 
                             // store whether this-query-flow collection input type is a primitive
-                            a_constr.isPrimitive = jlc_ctx.fim.is_prim;
+                            a_constr.isPrimitive = jlc_ctx.currentQueryIceMetaObject.is_prim;
 
                             // store user-provided query filtering predicates
                             a_constr.predicate_array = constr_def.predicate_array;
@@ -1783,6 +1931,11 @@
                             // go all the way down to the root action
                             if ( parentAction.parent )
                                 executeActionsRecursively_I_2L( parentAction.parent );
+
+
+                            // restore the initial icest of the current query flow
+                            _ACTION.hpid.columnSet.currentQueryIcest = jlc_ctx.currentQueryIceMetaObject.realFlowInitialIcest;
+
 
                             // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
                             if ( parentAction.returnsData )
@@ -2049,7 +2202,7 @@
                     var api = param_arr[ 0 ];
 
                     // get source collection input item
-                    var inputItem = param_arr[ 1 ];
+                    var inputItem = param_arr[ 2 ];
 
 
                     // determine current query flow (all invoked methods up to this method)
@@ -2096,8 +2249,18 @@
                         api._ctx.cdv = undefined;
                     // it must be 'PLAIN' or 'PRIMITIVE'
                     else
-                        // define collection default value
-                        api._ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
+                    {
+                        // get the type string representation
+                        var t2sr = _COMMON.convertTypeToString( inputItem );
+
+                        // if null or undefined
+                        if ( t2sr === _ENUM.T2SR.UNDEFINED || t2sr === _ENUM.T2SR.NULL )
+                            // just return it
+                            return inputItem;
+                        else
+                            // define collection default value
+                            api._ctx.cdv = _COMMON.getDefaultValueOf( inputItem );
+                    }
 
 
 
@@ -2119,7 +2282,7 @@
 
                         // loop over api and store only query method names
                         for ( let key in qmcf )
-                            if ( typeof qmcf[ key ] === 'function' && _LINQ_CONTEXT._all.indexOf( key ) > -1 )
+                            if ( typeof qmcf[ key ] === 'function' && _LINQ_CONTEXT._all.includes( key ) )
                                 queryNames.push( key );
 
                         // return all valid query method names
@@ -2307,7 +2470,7 @@
                     if ( propName.includes( '.' ) )
                     {
                         // define property value holder (pvh)
-                        var pvh = _COMMON.seekPropertyOrThrowErrorIfRequired(obj, propName, propName.split( '.' ).length, false);
+                        var pvh = _COMMON.seekPropertyOrThrowErrorIfRequired( obj, propName, propName.split( '.' ).length, false );
 
                         // validate against sorting context and return custom string representation of the object in question, or just return property value.
                         return validateAgainstSortingContext_I_2L( pvh, validate, checkT2SR );
@@ -2389,8 +2552,9 @@
                     for ( var i = 0; i < length; i++ )
                     {
                         // pvh was initialized, but some property in the path evaluated to null or undefined
-                        if ( pvh_init && !validatePvh_I_2L( pvh ) ) {
-                            if(letThrowError)
+                        if ( pvh_init && !validatePvh_I_2L( pvh ) )
+                        {
+                            if ( letThrowError )
                                 throw new Error( '\r\n Object reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
                         }
                         // pvh was initialized
@@ -2409,9 +2573,9 @@
                         if ( !validatePvh_I_2L( pvh ) && !letThrowError ) break;
                     }
 
-                        // pvh was initialized, but last property in the path evaluated to null or undefined
-                        if ( !validatePvh_I_2L( pvh ) && letThrowError)
-                            throw new Error( '\r\n Object reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
+                    // pvh was initialized, but last property in the path evaluated to null or undefined
+                    if ( !validatePvh_I_2L( pvh ) && letThrowError )
+                        throw new Error( '\r\n Object reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
 
                     // return value of the property or property
                     return pvh;
@@ -2668,10 +2832,10 @@
 
 
                                 // convert value to type string representation
-                                var t2sr = _COMMON.convertTypeToString(value);
+                                var t2sr = _COMMON.convertTypeToString( value );
 
                                 // if value !== null || value !== undefined
-                                if(t2sr !== _ENUM.T2SR.NULL && t2sr !== _ENUM.T2SR.UNDEFINED)
+                                if ( t2sr !== _ENUM.T2SR.NULL && t2sr !== _ENUM.T2SR.UNDEFINED )
                                     // add object identified by the key to process
                                     objects.push( key );
                             }
@@ -2950,7 +3114,8 @@
                             },
 
                         getKvpValue:
-                            function (key_id, kvps_obj) {
+                            function ( key_id, kvps_obj )
+                            {
                                 // create pure empty object
                                 var kvp = Object.create( null );
 
@@ -3106,19 +3271,19 @@
                         // return the FORCED_COMPARATOR_NAME function itself
                         return comparators[ forced_comparator_name ];
 
-                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PLAIN )
+                    if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PLAIN )
                         // return the PLAIN comparator function itself
                         return comparators.PLAIN_Comparator;
 
-                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.GROUPING )
+                    if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
                         // return the GROUPING comparator function itself
                         return comparators.GROUPING_Comparator;
 
-                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP )
+                    if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
                         // return the KVP comparator function itself
                         return comparators.KVP_Comparator;
 
-                    if ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE )
+                    if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE )
                         // return the PRIMITIVE comparator function itself
                         return comparators.PRIMITIVE_Comparator;
 
@@ -3202,7 +3367,7 @@
                                 if ( cestCtx === _ENUM.CEST.KVP && sortCol.indexOf( '.' ) > 0 )
                                 {
                                     // subtract the type marker
-                                    if(sortCol.startsWith('value.')) sortCol = sortCol.substring(sortCol.indexOf('.') + 1);
+                                    if ( sortCol.startsWith( 'value.' ) ) sortCol = sortCol.substring( sortCol.indexOf( '.' ) + 1 );
 
                                     // get the property value from both, the current and the previous object
                                     itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter( oC, sortCol, true, false );
@@ -3858,7 +4023,7 @@
                     var length = rv ? path_arr.length : path_arr.length - 1;
 
                     // return value of the property or property
-                    return _COMMON.seekPropertyOrThrowErrorIfRequired(obj, pn, length, letThrowError);
+                    return _COMMON.seekPropertyOrThrowErrorIfRequired( obj, pn, length, letThrowError );
                 }
             }
     };
@@ -4024,9 +4189,10 @@
                             var rva = [];
 
                             // iterate over all groups and transform each group into result value defined by the user
-                            for ( let group of groups ) {
+                            for ( let group of groups )
+                            {
                                 // handle dictionary context
-                                if(isDictionaryContext)
+                                if ( isDictionaryContext )
                                     rva.push( udfGroupResultValueSelector( group.key, group.value, isDictionaryContext ) );
                                 // handle grouping object context
                                 else
@@ -4215,7 +4381,8 @@
                         var sorted_groups = [];
 
                         // handle dictionary
-                        if ( isDictionaryContext ) {
+                        if ( isDictionaryContext )
+                        {
 
                             // store grouped objects sorted in a proper way
                             keys.forEach( function ( key )
@@ -4224,11 +4391,12 @@
                                 var kvp = gbo.getKvpValue( key, groups );
 
                                 // push kvp to sorted dictionary
-                                sorted_groups.push(kvp);
+                                sorted_groups.push( kvp );
                             } );
                         }
                         // handle grouping object
-                        else {
+                        else
+                        {
                             // store grouped objects sorted in a proper way
                             keys.forEach( function ( key )
                             {
@@ -4494,7 +4662,7 @@
                             case _ENUM.CONTAINS:
                                 // if the parameter called 'collection' is not a single object, throw the error
                                 if ( _COMMON.convertTypeToString( collectionOrItem ) === _ENUM.T2SR.ARRAY )
-                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc._ctx.fim.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
+                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc._ctx.currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
 
                                 // determine whether source collection contains particular item, i.e get match object array (match_arr)
                                 var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
@@ -5735,7 +5903,7 @@
                         if ( !cmo.allow_next_sorting || !cmo.first_obj )
                         {
                             // detect and store current sort input type of collection - no sorting required, hence return UNKNOWN
-                            _ACTION.hpid.columnSet.cest = _ACTION.hpidCommons.detectCest( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
+                            _ACTION.hpid.columnSet.currentQueryIcest = _ACTION.hpidCommons.detectCest( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // discard subsequent sorting operations
                             _ACTION.hpid.sorting.stop = true;
@@ -5744,7 +5912,7 @@
                         else
                         {
                             // detect and store current sort input type of collection - sorting required, hence determine cest (collection element structure type)
-                            _ACTION.hpid.columnSet.cest = _ACTION.hpidCommons.detectCest( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
+                            _ACTION.hpid.columnSet.currentQueryIcest = _ACTION.hpidCommons.detectCest( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // get only valid column names from user column set
                             var ovc = _ACTION.hpid.columnSet.extractOVC( keyPartSelectorArray, false );
@@ -5755,7 +5923,7 @@
                              * Hence, all columns starting with 'value.' provided by the user are in this particular context invalid !
                             */
                             if (
-                                ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.KVP ) &&
+                                ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP ) &&
                                 cmo.first_obj && _COMMON.isPrimitiveType( cmo.first_obj.value )
                             )
                                 checkForValuePLAINBreach_I_3L( ovc );
@@ -8312,7 +8480,7 @@
 
                             function ()
                             {
-                                return this._ctx.fim.item;
+                                return this._ctx.currentQueryIceMetaObject.item;
                             }
                         ]
                     ]
@@ -9373,7 +9541,7 @@
 
                             function ()
                             {
-                                return this._ctx.fim.item;
+                                return this._ctx.currentQueryIceMetaObject.item;
                             }
                         ]
                     ]
@@ -10601,7 +10769,7 @@
                     function createProxiedInstance_I_2L ( acn_ctr, qmi_ctr )
                     {
                         // restore metadata of the contextually current collection state
-                        _ACTION.hpidCommons.updateColumnSetColsAndCest( acn_ctr.fim.length_gte_2, acn_ctr.fim.item, acn_ctr.fim.ofss );
+                        _ACTION.hpidCommons.updateColumnSetCestAndCols( acn_ctr.currentQueryIceMetaObject.length_gte_2, acn_ctr.currentQueryIceMetaObject.item, acn_ctr.currentQueryIceMetaObject.ofss );
 
                         // create partial query new JLC proxied instance
                         return createNewJLC_I_3L( acn_ctr, qmi_ctr );
@@ -10981,7 +11149,7 @@
                                 _ACTION.funcCommons.executeChain( api._ctx );
 
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, api._ctx.fim.ofss );
+                                _ACTION.hpidCommons.updateColumnSetCestAndCols( api._ctx.currentQueryIceMetaObject.length_gte_2, api._ctx.currentQueryIceMetaObject.item, api._ctx.currentQueryIceMetaObject.ofss );
 
                                 // return contextually current collection state
                                 return _ACTION.hpid.data;
@@ -10989,7 +11157,7 @@
                             catch ( err )
                             {
                                 // restore metadata of the contextually current collection state
-                                _ACTION.hpidCommons.updateColumnSetColsAndCest( api._ctx.fim.length_gte_2, api._ctx.fim.item, api._ctx.fim.ofss );
+                                _ACTION.hpidCommons.updateColumnSetCestAndCols( api._ctx.currentQueryIceMetaObject.length_gte_2, api._ctx.currentQueryIceMetaObject.item, api._ctx.currentQueryIceMetaObject.ofss );
 
                                 /**
                                  * Display the error
@@ -11032,6 +11200,7 @@
 
                 // invoke on demand the original query method with dynamically applied arguments that produces the final output send to the calling client
                 var result = api[ _ENUM.MISC._QMI ][ property ].apply( receiver, arguments );
+
 
                 // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
                 if ( Array.isArray( result ) )
@@ -11331,7 +11500,7 @@
                 function applyJlcCommon_I_1L ()
                 {
                     // store updated metadata about collection
-                    _ACTION.hpidCommons.updateColumnSetColsAndCest( source_collection.length > 1, firstItem, ofss );
+                    _ACTION.hpidCommons.updateColumnSetCestAndCols( source_collection.length > 1, firstItem, ofss );
 
                     // check type primitivity of collection input type
                     is_prim = check_TP_I_2L();
@@ -11347,7 +11516,7 @@
                     function check_TP_I_2L ()
                     {
                         // is primitive type of this item
-                        return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.cest === _ENUM.CEST.PRIMITIVE );
+                        return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE );
                     }
 
                     function create_JC_I_2L ()
@@ -11360,11 +11529,13 @@
                         ctx.root_token = rootToken;
 
                         // create first item metadata object (fim)
-                        ctx.fim = Object.create( null );
-                        ctx.fim.is_prim = is_prim;
-                        ctx.fim.item = firstItem;
-                        ctx.fim.ofss = ofss;
-                        ctx.fim.length_gte_2 = source_collection.length > 1;
+                        ctx.currentQueryIceMetaObject = Object.create( null );
+                        ctx.currentQueryIceMetaObject.is_prim = is_prim;
+                        ctx.currentQueryIceMetaObject.item = firstItem;
+                        ctx.currentQueryIceMetaObject.ofss = ofss;
+                        ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                        ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                        ctx.currentQueryIceMetaObject.length_gte_2 = source_collection.length > 1;
 
                         // initially parent set to null
                         ctx.parent = null;

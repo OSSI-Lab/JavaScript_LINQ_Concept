@@ -25,6 +25,11 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #23 - DPR #46:&nbsp;2020-12-28 &nbsp;&nbsp;2:30 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - the interface of query methods was tested up to 'reverseAllOrSubset' query methods (line 2132)
+          - fixing bug - syntax checking while taking into account applying query methods in any order !
  - TEST #22 - DPR #45:&nbsp;2020-12-22 &nbsp;&nbsp;3:59 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
