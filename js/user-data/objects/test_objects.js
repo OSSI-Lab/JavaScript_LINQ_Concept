@@ -2374,6 +2374,23 @@
             }
         ).toArray();
 
+        // final query - produces output - THIS QUERY USES CACHE (query called 'join_f1' uses the same filters, hence this query 'join_f1_cache' only fetches data from cache running away from all the expensive operations of the POL, i.e. Physical Operations Layer)
+        var join_f1_cache = collection.innerJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "id", true ]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    [ "id", true ]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': null,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
         // partial query - produces intermediate query state
         var join_p1 = collection.innerJoin(
             {
