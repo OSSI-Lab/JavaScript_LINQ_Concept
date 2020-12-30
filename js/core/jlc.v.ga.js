@@ -3656,7 +3656,7 @@
                         params.udfEqualityComparer
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3679,7 +3679,7 @@
                         params.predicateArray
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3717,7 +3717,7 @@
                         params.isDictionaryContext
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3747,7 +3747,7 @@
                         actionContext.sharedSecondLevelSortingCtx
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3778,7 +3778,7 @@
                         params.incorporateIndex
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3804,7 +3804,7 @@
                         params.enumValue
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3833,7 +3833,7 @@
                         params.enumValue
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3860,7 +3860,7 @@
                         params.enumValue
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3889,7 +3889,7 @@
                         params.enumValue
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
                 }
             },
@@ -3918,7 +3918,7 @@
                         params.roundEnumValue // can be null for min & max
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
 
                     // return physical filter result (pfr)
@@ -3946,7 +3946,7 @@
                         params.enumValue
                     );
 
-                    // cache the query rsult
+                    // cache the query result
                     _CACHE.cacheCommons.store();
 
                     // return physical filter result (pfr)
