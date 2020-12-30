@@ -11754,6 +11754,6 @@
 
 
     /* THIS IS ENTRY POINT TO THE JLC 1.0 */
-    _SETUP.___init___( false );
+    _SETUP.___init___( true );
 }
 )();
