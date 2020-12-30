@@ -3667,12 +3667,21 @@
          */
             function ( params )
             {
-                // invoke core logic
-                // @ts-ignore
-                _PHYSICAL_FILTER.executeWhereFilter(
-                    this,
-                    params.predicateArray
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeWhereFilter(
+                        this,
+                        params.predicateArray
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         group_mtds: /**
@@ -3689,18 +3698,28 @@
          */
             function ( params, sharedSecondLevelSortingCtx )
             {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeGroupByFilter(
-                    this,
-                    params.predicateArray,
-                    params.udfGroupKeySelector,
-                    params.udfEqualityComparer,
-                    params.udfGroupKeyProjector,
-                    params.udfGroupElementSelector,
-                    params.udfGroupResultValueSelector,
-                    params.terminateFlowAndReturnData,
-                    params.isDictionaryContext
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeGroupByFilter(
+                        this,
+                        params.predicateArray,
+                        params.udfGroupKeySelector,
+                        params.udfEqualityComparer,
+                        params.udfGroupKeyProjector,
+                        params.udfGroupElementSelector,
+                        params.udfGroupResultValueSelector,
+                        params.terminateFlowAndReturnData,
+                        params.isDictionaryContext
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         order_mtds: /**
@@ -3712,15 +3731,25 @@
          */
             function ( params, actionContext )
             {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeOrderFilter(
-                    this,
-                    params.keyPartSelectorArray,
-                    params.udfComparer,
-                    params.enumValue,
-                    actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
-                    actionContext.sharedSecondLevelSortingCtx
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeOrderFilter(
+                        this,
+                        params.keyPartSelectorArray,
+                        params.udfComparer,
+                        params.enumValue,
+                        actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
+                        actionContext.sharedSecondLevelSortingCtx
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         projection_mtds: /**
@@ -3733,15 +3762,25 @@
             // @ts-ignore
             function ( params )
             {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeSelectFilter(
-                    this,
-                    params.selectorArray,
-                    params.enumValue,
-                    params.udfSelector,
-                    params.udfResultSelector,
-                    params.incorporateIndex
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeSelectFilter(
+                        this,
+                        params.selectorArray,
+                        params.enumValue,
+                        params.udfSelector,
+                        params.udfResultSelector,
+                        params.incorporateIndex
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         paging_mtds: /**
@@ -3751,13 +3790,23 @@
          */
             function ( params )
             {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeOneItemFilter(
-                    this,
-                    params.predicateArray,
-                    params.fallbackOnDefault,
-                    params.enumValue
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeOneItemFilter(
+                        this,
+                        params.predicateArray,
+                        params.fallbackOnDefault,
+                        params.enumValue
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         range_mtds: /**
@@ -3769,14 +3818,24 @@
          */
             function ( params )
             {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeRangeFilter(
-                    this,
-                    params.predicateArray,
-                    params.index,
-                    params.count,
-                    params.enumValue
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeRangeFilter(
+                        this,
+                        params.predicateArray,
+                        params.index,
+                        params.count,
+                        params.enumValue
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         merge_mtds: /**
@@ -3786,14 +3845,24 @@
          */
             function ( params )
             {
-                // considering different scenarios there should not be syntax checking
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
 
-                // invoke core logic
-                _PHYSICAL_FILTER.executeMergeFilter(
-                    this,
-                    params.collectionOrItem,
-                    params.enumValue
-                );
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // considering different scenarios there should not be syntax checking
+
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeMergeFilter(
+                        this,
+                        params.collectionOrItem,
+                        params.enumValue
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         set_mtds: /**
@@ -3805,14 +3874,24 @@
             // @ts-ignore
             function ( params )
             {
-                // invoke core logic
-                _PHYSICAL_FILTER.executeSetFilter(
-                    this,
-                    params.collectionOrItem,
-                    params.udfEqualityComparer,
-                    params.strongSearch,
-                    params.enumValue
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    _PHYSICAL_FILTER.executeSetFilter(
+                        this,
+                        params.collectionOrItem,
+                        params.udfEqualityComparer,
+                        params.strongSearch,
+                        params.enumValue
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+                }
             },
 
         aggregate_mtds: /**
@@ -3822,16 +3901,29 @@
          */
             function ( params, actionContext )
             {
-                // invoke core logic
-                return _PHYSICAL_FILTER.executeMathFilter(
-                    this,
-                    params.property, // can be primitive or UDF
-                    params.udfValueSelector,
-                    params.enumValue,
-                    actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
-                    actionContext.sharedSecondLevelSortingCtx,
-                    params.roundEnumValue // can be null for min & max
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    var pfr = _PHYSICAL_FILTER.executeMathFilter(
+                        this,
+                        params.property, // can be primitive or UDF
+                        params.udfValueSelector,
+                        params.enumValue,
+                        actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
+                        actionContext.sharedSecondLevelSortingCtx,
+                        params.roundEnumValue // can be null for min & max
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+
+                    // return physical filter result (pfr)
+                    return pfr;
+                }
             },
 
         quantifying_mtds: /**
@@ -3841,12 +3933,25 @@
          */
             function ( params )
             {
-                // invoke core logic
-                return _PHYSICAL_FILTER.executeAllAnyFilter(
-                    this,
-                    params.predicateArray,
-                    params.enumValue
-                );
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+
+                // not found cached result for this query
+                if ( !isCacheHit )
+                {
+                    // invoke core logic
+                    var pfr = _PHYSICAL_FILTER.executeAllAnyFilter(
+                        this,
+                        params.predicateArray,
+                        params.enumValue
+                    );
+
+                    // cache the query rsult
+                    _CACHE.cacheCommons.store();
+
+                    // return physical filter result (pfr)
+                    return pfr;
+                }
             }
     };
 
@@ -6373,7 +6478,8 @@
                 function ( runtimeContext )
                 {
                     // is cache enabled
-                    if(_CACHE._useCache) {
+                    if ( _CACHE._useCache )
+                    {
                         // compute cache key for current query in the flow
                         computeKey_I_1L( runtimeContext );
 
@@ -6461,9 +6567,10 @@
                 function ()
                 {
                     // is cache enabled
-                    if(_CACHE._useCache) {
+                    if ( _CACHE._useCache )
+                    {
                         // cache the current query result
-                        _CACHE._qrc[ _CACHE._key ] = _COMMON.deepCopyYesCR(_ACTION.hpid.data);
+                        _CACHE._qrc[ _CACHE._key ] = _COMMON.deepCopyYesCR( _ACTION.hpid.data );
 
                         // reset the key used for current query
                         _CACHE._key = undefined;
@@ -11150,7 +11257,7 @@
                             // create array of parameters that store user-provided query filters
                             var rsc_syntax_arr = method_def_obj.rsc_syntax.split( ',' );
                             // trim spaces around array items
-                            _COMMON.trimSpaces(rsc_syntax_arr);
+                            _COMMON.trimSpaces( rsc_syntax_arr );
 
                             // loop over array, fetch predicates and store them in the array
                             for ( let rsc_syntax of rsc_syntax_arr )
