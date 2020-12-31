@@ -217,6 +217,40 @@
         where_f1[ 0 ].name = 'Product 2 -> Mutated only in where_f1 !';
 
 
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'where_f1' uses the same filters, hence this query 'where_f1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var where_f1_cache = collection.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ]
+                ]
+            }
+        ).toArray();
+
+        /**
+         * At any point you can interact with cache
+         *
+         * - enable/disable it      ->  System.Linq.Context.Cache.enable(true/false)
+         * - clear it               ->  System.Linq.Context.Cache.clear()
+         *
+        */
+        // f.e. turn off the cache
+        System.Linq.Context.Cache.enable(false);
+
+
+        // final query - produces output - THIS QUERY DOESN'T USE CACHE (cache was turned off a step above)
+        var where_f1_cache2 = collection.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ]
+                ]
+            }
+        ).toArray();
+
+
         // final query - produces output
         var groupBy_f1 = collection.groupBy(
             {
@@ -475,7 +509,7 @@
 
 
         // when you're done with all querying regarding some collections, you can tidy them up by removing some internally generated stuff
-        System.Linq.Context.tidyUp( collection, collection_toString );
+        System.Linq.Context.Collection.tidyUp( collection, collection_toString );
 
 
 
@@ -2374,7 +2408,11 @@
             }
         ).toArray();
 
-        // final query - produces output - THIS QUERY USES CACHE (query called 'join_f1' uses the same filters, hence this query 'join_f1_cache' only fetches data from cache running away from all the expensive operations of the POL, i.e. Physical Operations Layer)
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'join_f1' uses the same filters, hence this query 'join_f1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
         var join_f1_cache = collection.innerJoin(
             {
                 'innerColl': innerColl,

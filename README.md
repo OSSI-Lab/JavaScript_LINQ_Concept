@@ -25,12 +25,21 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #25 - DPR #48:&nbsp;2020-12-31 &nbsp;&nbsp;10:50 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - the interface of query methods was tested up to 'reverseAllOrSubset' query methods (line 2166)
+          - adding some further code perf optimizations, i.e. caching queries
+            - demo includes 'where' and 'innerJoin' query examples' usage ! (line 225 - 245, line 2416)
+            - added two API methods:
+              - System.Linq.Context.Cache.enable(true/false)
+              - System.Linq.Context.Cache.clear();
  - TEST #24 - DPR #47:&nbsp;2020-12-30 &nbsp;&nbsp;3:50 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - the interface of query methods was tested up to 'reverseAllOrSubset' query methods (line 2132)
-          - adding some further code perf optimizations, i.e. caching queries (line 2378)
-            - demo includes 'innerJoin' query example usage !
+          - adding some further code perf optimizations, i.e. caching queries
+            - demo includes 'innerJoin' and 'where' query examples usage ! (line 225, line 2396)
  - TEST #23 - DPR #46:&nbsp;2020-12-28 &nbsp;&nbsp;2:30 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

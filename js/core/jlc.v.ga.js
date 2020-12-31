@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #47 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #48 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -1631,13 +1631,10 @@
                     var action = createAction_I_1L( jlc_query_name, jlc_instance_ctx, core_method_bound );
 
                     // create an action context 
-                    var action_context = createActionContext_I_1L( jlc_instance_ctx, action );
+                    var action_context = createActionContext_I_1L( jlc_query_name, jlc_instance_ctx, jlc_query_filters, action );
 
                     // create an action constraint
                     var action_constraint = createActionConstraint_I_1L( jlc_instance_ctx, jlc_query_constraint_def, action_context );
-
-                    // create a cache object for current action query
-                    createActionCache_I_1L( jlc_query_name, jlc_instance_ctx, jlc_query_filters );
 
                     /**
                      * Before proceeding with action chain execution or action chaining, run constraint checking for action chain up the road !
@@ -1676,12 +1673,6 @@
                         // store information whether this action is executable one
                         ao.returnsData = System.Linq.QueryResult[ jqn ];
 
-                        // store collection index
-                        //ao.coll_ref = runtime_ctx.collectionIndex;
-
-                        // store root of the chain filters
-                        //ao.chain_root_id = runtime_ctx.rootToken;
-
                         // get second-level sorting context shared across query flow
                         ao.sharedSecondLevelSortingCtx = runtime_ctx.sharedSecondLevelSortingCtx
                             ?
@@ -1715,7 +1706,7 @@
                         return ao;
                     }
 
-                    function createActionContext_I_1L ( runtime_ctx, action )
+                    function createActionContext_I_1L ( jqn, runtime_ctx, jqf_arr, action )
                     {
                         // create action context object
                         var aco = Object.create( null );
@@ -1726,8 +1717,23 @@
                         // collection token
                         aco.rootToken = runtime_ctx.rootToken;
 
-                        // collection fim (first item metadata)
+                        // collection ice (input collection element) meta object
                         aco.currentQueryIceMetaObject = runtime_ctx.currentQueryIceMetaObject;
+
+                        // if runtime context contains action chain cache object
+                        if(runtime_ctx.currentQueryChainCacheObject) {
+                            // clone action chain cache object
+                            var currentQueryChainCacheObject = _COMMON.deepCopyYesCR( runtime_ctx.currentQueryChainCacheObject );
+
+                            // create cache object for current query and add it to action chain cache object
+                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jlc_query_name, runtime_ctx, jqf_arr, true, currentQueryChainCacheObject);
+                        }
+                        else
+                            // create action chain cache object as well as cache object for current query, and add cache object of current query to action chain cache object
+                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jlc_query_name, runtime_ctx, jqf_arr, false);
+
+                        // action chain cache objectt
+                        aco.currentQueryChainCacheObject = runtime_ctx.currentQueryChainCacheObject;
 
                         // collection mmavt (order-min-max-average meta object of the type of the value)
                         aco.minMaxAverageValueTypeObject = runtime_ctx.minMaxAverageValueTypeObject;
@@ -1859,23 +1865,30 @@
                         return a_constr;
                     }
 
-                    function createActionCache_I_1L ( jqn, runtime_ctx, jqf_arr )
+                    function createActionCacheObjectOrActionCacheQueryCacheObject_I_1L ( jqn, runtime_ctx, jqf_arr, addCurrentQueryCacheObjectOnly, currentQueryChainCacheObject)
                     {
-                        // create action chain cache object
-                        runtime_ctx.currentQueryChainCacheObject = [];
+                        // create action chain cache object and add cache object of current query
+                        if(!addCurrentQueryCacheObjectOnly)
+                            // create action chain cache object
+                            runtime_ctx.currentQueryChainCacheObject = [];
+                        // update action chain cache object and add cache object of current query
+                        else
+                            // update action chain cache object
+                            runtime_ctx.currentQueryChainCacheObject = currentQueryChainCacheObject;
 
                         // create query meta object
                         var currentQuery = Object.create( null );
                         // store current query name
                         currentQuery.name = jqn;
+                        // store current query filters
                         currentQuery.filters = jqf_arr;
+                        // store whether current query can use the cache
+                        currentQuery.useCache = _CACHE._useCache;
 
                         // store current query meta object into cache
                         runtime_ctx.currentQueryChainCacheObject.push( currentQuery );
-
-                        // reference parent action of this action
-                        //var thisActionParent = runtime_ctx.parent;
                     }
+
                     function runActionConstraintRecursively_I_1L ( actionCtx, actionConstr )
                     {
                         return prepare_ACRR_I_2L( actionCtx, actionConstr );
@@ -6465,6 +6478,9 @@
         // cache query result or not
         _useCache: false,
 
+        // cache current query result or not
+        _useCurrentQueryCache: false,
+
         // computed key of current query in question used to search the cache
         _key: undefined,
 
@@ -6477,15 +6493,13 @@
             */
                 function ( runtimeContext )
                 {
-                    // is cache enabled
-                    if ( _CACHE._useCache )
-                    {
-                        // compute cache key for current query in the flow
-                        computeKey_I_1L( runtimeContext );
+                    // compute cache key for current query in the flow
+                    computeKey_I_1L( runtimeContext );
 
+                    // is JLC cache enabled && is current query cache enabled
+                    if ( _CACHE._useCache && _CACHE._useCurrentQueryCache )
                         // try to load cached result
                         return load_I_1L();
-                    }
                     // otherwise apply full operation workflow
                     else
                         return false;
@@ -6498,16 +6512,27 @@
                     // Computes query key required by the current query flow to search the cache for cached query result.
                     function computeKey_I_1L ( runtime_ctx )
                     {
+                        // cache query chain cache object
+                        var cqcco = runtime_ctx.currentQueryChainCacheObject;
+
+                        // initialize the current query cache key
+                        _CACHE._key = '';
+
                         // query cache object
                         var qco;
                         // loop over query chain cache objects
-                        for ( var i = 0; i < runtime_ctx.currentQueryChainCacheObject.length; i++ )
+                        for ( var i = 0; i < cqcco.length; i++ )
                         {
                             // get query cache object
-                            qco = runtime_ctx.currentQueryChainCacheObject[ i ];
+                            qco = cqcco[ i ];
+
+                            // create cache key until it's allowed
+                            if(!qco.useCache) break;
+                            // mark that current query can use the cache
+                            else _CACHE._useCurrentQueryCache = true;
 
                             // compute key - part 1
-                            _CACHE._key = qco.name + '_' + runtime_ctx.collectionIndex + '_';
+                            _CACHE._key += qco.name + '_' + runtime_ctx.collectionIndex + '_';
 
                             // compute key - part 2
                             for ( let filter_arr of qco.filters )
@@ -6552,6 +6577,9 @@
                             // mark that HPID is on
                             _ACTION.hpid.isOn = true;
 
+                            // mark that HPID is ready to return data
+                            _ACTION.hpid.done = true;
+
                             // return cache hit positive bool result
                             return true;
                         }
@@ -6566,16 +6594,19 @@
                 */
                 function ()
                 {
-                    // is cache enabled
-                    if ( _CACHE._useCache )
+                    // is JLC cache enabled && is current query cache enabled
+                    if ( _CACHE._useCache && _CACHE._useCurrentQueryCache )
                     {
                         // cache the current query result
                         _CACHE._qrc[ _CACHE._key ] = _COMMON.deepCopyYesCR( _ACTION.hpid.data );
 
                         // reset the key used for current query
                         _CACHE._key = undefined;
+
+                        // reset current query result availability of cache usage
+                        _CACHE._useCurrentQueryCache = false;
                     }
-                },
+                }
         }
     };
 
@@ -11575,12 +11606,28 @@
                         // @ts-ignore
                         window.System.Linq.Context = window.System.Linq.Context || Object.create( null );
                         // @ts-ignore
+                        window.System.Linq.Context.Cache = window.System.Linq.Context.Cache || Object.create( null );                        
+                        // @ts-ignore
+                        window.System.Linq.Context.Collection = window.System.Linq.Context.Collection || Object.create( null );
+                        // @ts-ignore
                         window.System.Linq.QueryResult = window.System.Linq.QueryResult || Object.create( null );
                         // @ts-ignore
                         window.System.Linq.Resources = window.System.Linq.Resources || Object.create( null );
 
 
-                        window.System.Linq.Context.tidyUp = function ( ...user_coll_arr )
+                        window.System.Linq.Context.Cache.enable = function ( isEnabled )
+                        {
+                            // enable or disable JLC cache
+                            _CACHE._useCache = isEnabled;
+                        };
+
+                        window.System.Linq.Context.Cache.clear = function ( )
+                        {
+                            // clear JLC cache
+                            _CACHE._qrc = Object.create(null);
+                        };
+
+                        window.System.Linq.Context.Collection.tidyUp = function ( ...user_coll_arr )
                         {
                             // cleanup user collections if any
                             _SETUP.Funcs.cleanupJLC( user_coll_arr );
@@ -11638,6 +11685,7 @@
                             }
                         };
                     }
+
                     function enableExtensions_I_2L ()
                     {
                         // get all extensions' keys
@@ -11648,11 +11696,13 @@
                             // enable this extension
                             _EXTENSION[ ext_key_arr[ i ] ]();
                     }
+
                     function enableOrDisableCache_I_2L ( isEnabled )
                     {
                         // turn the cache on or off
                         _CACHE._useCache = isEnabled;
                     }
+
                     function updateProxyHandler_I_2L ()
                     {
                         // enable intercepting query method call
