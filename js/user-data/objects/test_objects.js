@@ -230,6 +230,19 @@
             }
         ).toArray();
 
+        // partial query - produces intermediate query state - THIS QUERY USES CACHE ->
+        /*
+            Query called 'where_f1' uses the same filters, hence this query 'where_p1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var where_p1_cache = collection.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ]
+                ]
+            }
+        );
+
         /**
          * At any point you can interact with cache
          *
@@ -241,7 +254,7 @@
         System.Linq.Context.Cache.enable(false);
 
 
-        // final query - produces output - THIS QUERY DOESN'T USE CACHE (cache was turned off a step above)
+        // final query - produces output - THIS QUERY DOESN'T USE CACHE (cache was turned off a step above, and this is new query !)
         var where_f1_cache2 = collection.where(
             {
                 'predicateArray': [
@@ -250,6 +263,13 @@
             }
         ).toArray();
 
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'where_p1_cache' fetches data from cache because it was created when JLC cache was enabled !
+            At this point JLC cache is disabled for new queries, but all queries based on 'where_p1_cache' can use the cache if enabled in the runtime context of such queries !
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var where_f1_cache3 = where_p1_cache.toArray();
 
         // final query - produces output
         var groupBy_f1 = collection.groupBy(

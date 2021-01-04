@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #48 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #49 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -130,10 +130,10 @@
         },
 
         RUNTIME: {
-            _CI: Symbol( 'collectionIndex' ), // collection index that marks that collection was internally indexed
-            _RT: Symbol( 'rootToken' ), // token associated with current collection, aka root token
-            _CTX: 'runtimeContext', // context of all actions defined for this proxied JLC instance
-            _QMI: Symbol( 'queryMethodImplContainer' ) // query method implementation container
+            CI: Symbol( 'collectionIndex' ), // collection index that marks that collection was internally indexed
+            CT: Symbol( 'collectionToken' ), // token associated with current collection, aka root token
+            RTC: 'runtimeContext', // context of all actions defined for this proxied JLC instance
+            QCMICO: 'currentQueryChainMethodImplCacheObject' // query chain method implementation cache object
         }
     };
 
@@ -515,7 +515,7 @@
                             var metadataKVP = c_O_I_2L( user_filter_array, sortingContext );
 
                             // set sorting metadata in the running context
-                            thisAction.sortingMetadataCtx.setMetadata.call( thisAction.sortingMetadataCtx, metadataKVP, actionConstr );
+                            thisAction.sortingMetadataContext.setMetadata.call( thisAction.sortingMetadataContext, metadataKVP, actionConstr );
                         }
                         else
                             return user_filter_array.forEach(
@@ -1674,14 +1674,14 @@
                         ao.returnsData = System.Linq.QueryResult[ jqn ];
 
                         // get second-level sorting context shared across query flow
-                        ao.sharedSecondLevelSortingCtx = runtime_ctx.sharedSecondLevelSortingCtx
+                        ao.sharedSecondLevelSortingContext = runtime_ctx.sharedSecondLevelSortingContext
                             ?
-                            runtime_ctx.sharedSecondLevelSortingCtx
+                            runtime_ctx.sharedSecondLevelSortingContext
                             :
                             _ACTION.hpid.sorting.createSecondLevelCtx();
 
                         // store this action sorting metadata (if action requires so)
-                        ao.sortingMetadataCtx = [
+                        ao.sortingMetadataContext = [
                             System.Linq.Context.orderBy,
                             System.Linq.Context.orderByDescending,
                             System.Linq.Context.thenBy,
@@ -1693,7 +1693,7 @@
                             _ACTION.hpid.sorting.createSortingMetadataCtx() : undefined;
 
                         // store parent of this action (join parent of this action with this action to create action chain)
-                        ao.parent = runtime_ctx.parent;
+                        ao.parentActionObject = runtime_ctx.parentActionObject;
 
                         // execute this action by invoking its core method with binded parameters
                         ao.execute = function ()
@@ -1715,7 +1715,7 @@
                         // collection reference id
                         aco.collectionIndex = runtime_ctx.collectionIndex;
                         // collection token
-                        aco.rootToken = runtime_ctx.rootToken;
+                        aco.collectionToken = runtime_ctx.collectionToken;
 
                         // collection ice (input collection element) meta object
                         aco.currentQueryIceMetaObject = runtime_ctx.currentQueryIceMetaObject;
@@ -1726,11 +1726,11 @@
                             var currentQueryChainCacheObject = _COMMON.deepCopyYesCR( runtime_ctx.currentQueryChainCacheObject );
 
                             // create cache object for current query and add it to action chain cache object
-                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jlc_query_name, runtime_ctx, jqf_arr, true, currentQueryChainCacheObject);
+                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, true, currentQueryChainCacheObject);
                         }
                         else
                             // create action chain cache object as well as cache object for current query, and add cache object of current query to action chain cache object
-                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jlc_query_name, runtime_ctx, jqf_arr, false);
+                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, false);
 
                         // action chain cache objectt
                         aco.currentQueryChainCacheObject = runtime_ctx.currentQueryChainCacheObject;
@@ -1739,21 +1739,21 @@
                         aco.minMaxAverageValueTypeObject = runtime_ctx.minMaxAverageValueTypeObject;
 
                         // get first-level sorting context shared across query flow
-                        aco.sharedFirstLevelSortingCtx = runtime_ctx.sharedFirstLevelSortingCtx
+                        aco.sharedFirstLevelSortingContext = runtime_ctx.sharedFirstLevelSortingContext
                             ?
-                            _COMMON.deepCopyYesCR( runtime_ctx.sharedFirstLevelSortingCtx )
+                            _COMMON.deepCopyYesCR( runtime_ctx.sharedFirstLevelSortingContext )
                             :
                             _ACTION.hpid.sorting.createFirstLevelCtx();
 
                         // join this action with the previous (parent) action up the action chain
-                        aco.parent = action;
+                        aco.parentActionObject = action;
 
 
                         // return action context object
                         return aco;
                     }
 
-                    function createActionConstraint_I_1L ( runtime_ctx, constr_def, a_ctx )
+                    function createActionConstraint_I_1L ( runtime_ctx, constr_def, action_ctx )
                     {
                         // create action constraint object
                         var a_constr = Object.create( null );
@@ -1783,10 +1783,10 @@
 
 
                             // store query flow shared constraints (qfsc)
-                            if ( a_ctx.parentConstraint )
+                            if ( action_ctx.parentActionObjectConstraint )
                             {
                                 // get so-far created query flow shared constraints from parent
-                                a_constr.qfsc = a_ctx.parentConstraint.qfsc;
+                                a_constr.qfsc = action_ctx.parentActionObjectConstraint.qfsc;
 
                                 // fetch query flow shared constraints for this action
                                 var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
@@ -1801,21 +1801,22 @@
                                 a_constr.qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
 
                                 // update action context of this action's default action constraints object
-                                a_constr.qfsc[ constr_def.name ].actionContext = a_ctx;
+                                a_constr.qfsc[ constr_def.name ].actionContext = action_ctx;
 
                             }
+
                             // determine whether stop further drilling down of the parent chain
                             a_constr.stopDrillingDown = a_constr.qfsc[ constr_def.name ].isEnabled;
 
 
                             // store shared first-level sorting context
-                            a_constr.actionContext = a_ctx;
+                            a_constr.actionContext = action_ctx;
 
                             // store this-action-constraint bound action
-                            a_constr.thisAction = a_ctx.parent;
+                            a_constr.currentQueryActionObject = action_ctx.parentActionObject;
 
                             // store parent of this action constraint
-                            a_constr.parentConstraint = runtime_ctx.parentConstraint;
+                            a_constr.parentActionObjectConstraint = runtime_ctx.parentActionObjectConstraint;
 
 
                             // define action constraint apply method
@@ -1853,7 +1854,7 @@
                                 // if this action constraint contains syntax check constraint
                                 if ( actionConstr.requireSyntaxCheck )
                                     // apply syntax check constraint
-                                    c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.thisAction, this.name );
+                                    c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.currentQueryActionObject, this.name );
                                 else
                                     // apply regular constraint function
                                     c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( actionConstr.data[ c_funcs.length - 1 ] );
@@ -1898,16 +1899,16 @@
                         /**
                          * Local helper functions
                         */
-                        function prepare_ACRR_I_2L ( a_ctx, a_constr )
+                        function prepare_ACRR_I_2L ( action_ctx, action_constr )
                         {
                             /**
                              * Join the previous (parent - one level up the action constraint chain) action constraint with this action constraint.
                              * Set parent constraint of this current constraint ! 
                             */
-                            a_ctx.parentConstraint = a_constr;
+                            action_ctx.parentActionObjectConstraint = action_constr;
 
                             // execute constraint chain check
-                            run_ACR_I_2L( a_ctx.parentConstraint );
+                            run_ACR_I_2L( action_ctx.parentActionObjectConstraint );
 
 
 
@@ -1917,8 +1918,8 @@
                             function run_ACR_I_2L ( actionConstr )
                             {
                                 // navigate "down the road" to the first constraint
-                                if ( actionConstr.parentConstraint && !actionConstr.parentConstraint.stopDrillingDown )
-                                    run_ACR_I_2L( actionConstr.parentConstraint );
+                                if ( actionConstr.parentActionObjectConstraint && !actionConstr.parentActionObjectConstraint.stopDrillingDown )
+                                    run_ACR_I_2L( actionConstr.parentActionObjectConstraint );
 
                                 // from here run all constraints in the chain up to and/or including current action constraint
                                 if ( actionConstr.isNotNull && actionConstr.isEnabled )
@@ -1931,9 +1932,9 @@
             executeChain: /**
             * Execute all actions in the chain.
             */
-                function ( runtiimeContext )
+                function ( runtimeContext )
                 {
-                    return execute_C_I_1L( runtiimeContext );
+                    return execute_C_I_1L( runtimeContext );
 
 
 
@@ -1943,10 +1944,10 @@
                     function execute_C_I_1L ( runtime_ctx )
                     {
                         // do necessary cleanup before producing pre-output result
-                        _ACTION.hpidCommons.clearCache( runtime_ctx.parent.sharedSecondLevelSortingCtx );
+                        _ACTION.hpidCommons.clearCache( runtime_ctx.parentActionObject.sharedSecondLevelSortingContext );
 
                         // execute all actions and produce pre-output result
-                        var result = executeActionsRecursively_I_2L( runtime_ctx.parent );
+                        var result = executeActionsRecursively_I_2L( runtime_ctx.parentActionObject );
 
                         // return final data based on pre-output result
                         return getOutput_I_2L( result );
@@ -1959,8 +1960,8 @@
                         function executeActionsRecursively_I_2L ( parentAction )
                         {
                             // go all the way down to the root action
-                            if ( parentAction.parent )
-                                executeActionsRecursively_I_2L( parentAction.parent );
+                            if ( parentAction.parentActionObject )
+                                executeActionsRecursively_I_2L( parentAction.parentActionObject );
 
 
                             // restore the initial icest of the current query flow
@@ -2308,7 +2309,7 @@
                         var queryNames = [];
 
                         // fetch all query methods of current flow (qmcf)
-                        var qmcf = api[ _ENUM.RUNTIME._QMI ];
+                        var qmcf = api[_ENUM.RUNTIME.RTC][ _ENUM.RUNTIME.QCMICO ];
 
                         // loop over api and store only query method names
                         for ( let key in qmcf )
@@ -3651,7 +3652,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3681,7 +3682,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3707,12 +3708,12 @@
          *  - udfGroupResultValueSelector
          *  - terminateFlowAndReturnData
          *  - isDictionaryContext
-         * @param {boolean} sharedSecondLevelSortingCtx
+         * @param {boolean} sharedSecondLevelSortingContext
          */
-            function ( params, sharedSecondLevelSortingCtx )
+            function ( params, sharedSecondLevelSortingContext )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3745,7 +3746,7 @@
             function ( params, actionContext )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3756,8 +3757,8 @@
                         params.keyPartSelectorArray,
                         params.udfComparer,
                         params.enumValue,
-                        actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
-                        actionContext.sharedSecondLevelSortingCtx
+                        actionContext.sortingMetadataContext.getMetadata(), // <- _SYNTAX.check
+                        actionContext.sharedSecondLevelSortingContext
                     );
 
                     // cache the query result
@@ -3776,7 +3777,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3804,7 +3805,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3832,7 +3833,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3859,7 +3860,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3888,7 +3889,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3915,7 +3916,7 @@
             function ( params, actionContext )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3926,8 +3927,8 @@
                         params.property, // can be primitive or UDF
                         params.udfValueSelector,
                         params.enumValue,
-                        actionContext.sortingMetadataCtx.getMetadata(), // <- _SYNTAX.check
-                        actionContext.sharedSecondLevelSortingCtx,
+                        actionContext.sortingMetadataContext.getMetadata(), // <- _SYNTAX.check
+                        actionContext.sharedSecondLevelSortingContext,
                         params.roundEnumValue // can be null for min & max
                     );
 
@@ -3947,7 +3948,7 @@
             function ( params )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME._CTX ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -4112,7 +4113,7 @@
                     var bor = false;
 
                     // create input collection cache
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                     // current object
                     var c_o;
@@ -4163,7 +4164,7 @@
                     else
                     {
                         // check if there are any items in the sequence (contextually current collection within history array)
-                        return _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false ).length > 0;
+                        return _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false ).length > 0;
                     }
                 }
             },
@@ -4216,7 +4217,7 @@
                 function execute_WF_I_1L ( jlc, predicateArray, skipOrTakeEnum )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                     // declare current intermediate collection
                     var c_i_c = [];
@@ -4317,7 +4318,7 @@
                     if ( predicateArray || udfGroupKeySelector )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                         // declare groups object being an array !
                         var groups = [];
@@ -4398,7 +4399,7 @@
                         var id;
                         // get the group id by applying UDF to current primitive value
                         if ( udfGroupKeySelector )
-                            id = ( udfGroupKeySelector.bind( jlc[ _ENUM.RUNTIME._CTX ], item, index, sourceColl ) )();
+                            id = ( udfGroupKeySelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item, index, sourceColl ) )();
                         // get the group id being the primitive value itself
                         else
                             id = item;
@@ -4406,11 +4407,11 @@
 
                         // project group id if required
                         if ( udfGroupKeyProjector )
-                            id = ( udfGroupKeyProjector.bind( jlc[ _ENUM.RUNTIME._CTX ], id ) )();
+                            id = ( udfGroupKeyProjector.bind( jlc[ _ENUM.RUNTIME.RTC ], id ) )();
 
                         // project group element if required
                         if ( udfGroupElementSelector )
-                            item = ( udfGroupElementSelector.bind( jlc[ _ENUM.RUNTIME._CTX ], item ) )();
+                            item = ( udfGroupElementSelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item ) )();
 
 
                         /**
@@ -4466,18 +4467,18 @@
                     {
                         // if grouping key is not defined & UDF key selector is required
                         if ( !key_array.length && !predicateArray )
-                            key_array = udfGroupKeySelector.bind( jlc[ _ENUM.RUNTIME._CTX ], item )();
+                            key_array = udfGroupKeySelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item )();
 
                         // get the group id
                         var id = _COMMON.fetchObjectKeyValue( item, key_array );
 
                         // project group id if required
                         if ( udfGroupKeyProjector )
-                            id = ( udfGroupKeyProjector.bind( jlc[ _ENUM.RUNTIME._CTX ], id ) )();
+                            id = ( udfGroupKeyProjector.bind( jlc[ _ENUM.RUNTIME.RTC ], id ) )();
 
                         // project group element if required
                         if ( udfGroupElementSelector )
-                            item = ( udfGroupElementSelector.bind( jlc[ _ENUM.RUNTIME._CTX ], item ) )();
+                            item = ( udfGroupElementSelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item ) )();
 
 
                         /**
@@ -4627,7 +4628,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                         // if the sequence contains elements
                         if ( currentColl.length )
@@ -4771,7 +4772,7 @@
                                     else if ( ( index < 0 || index >= currentColl.length ) && count )
                                     {
                                         // fetch the default value of the collection input type
-                                        currentColl = jlc[ _ENUM.RUNTIME._CTX ].cdv;
+                                        currentColl = jlc[ _ENUM.RUNTIME.RTC ].cdv;
 
                                         // this flag tells to discard returned result and go for hpid's data
                                         _ACTION.hpid.done = true;
@@ -4821,7 +4822,7 @@
                 function execute_SF_I_1L ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -4831,7 +4832,7 @@
                             case _ENUM.CONTAINS:
                                 // if the parameter called 'collection' is not a single object, throw the error
                                 if ( _COMMON.convertTypeToString( collectionOrItem ) === _ENUM.T2SR.ARRAY )
-                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc[ _ENUM.RUNTIME._CTX ].currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
+                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc[ _ENUM.RUNTIME.RTC ].currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
 
                                 // determine whether source collection contains particular item, i.e get match object array (match_arr)
                                 var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
@@ -5062,7 +5063,7 @@
                 function execute_SF_I_1L ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -5328,7 +5329,7 @@
                 )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                     // if the sequence contains elements
                     if ( currentColl.length )
@@ -5744,12 +5745,12 @@
          * @param {any} propertyNameOrPath
          * @param {any} enumValue
          * @param {any} sortMetaObject
-         * @param {any} sharedSecondLevelSortingCtx
+         * @param {any} sharedSecondLevelSortingContext
          * @param {any} roundEnumValue
          */
-            function ( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingCtx, roundEnumValue )
+            function ( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingContext, roundEnumValue )
             {
-                return execute_MF_I_1L( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingCtx, roundEnumValue );
+                return execute_MF_I_1L( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingContext, roundEnumValue );
 
 
 
@@ -5781,13 +5782,13 @@
                         if ( _ACTION.hpid.data.length === 0 )
                         {
                             // validate item
-                            if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.STRING || jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
+                            if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.STRING || jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
                                 return undefined;
                             else if ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX )
                                 throw new Error( '\r\The sequence has no elements.\r\n\r\n' );
-                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.STRING || jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.BOOLEAN || jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
-                                throw new Error( '\r\There is no implicit conversion from type ' + jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
-                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.NUMBER ) )
+                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.STRING || jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.BOOLEAN || jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
+                                throw new Error( '\r\There is no implicit conversion from type ' + jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.NUMBER ) )
                                 throw new Error( '\r\The sequence has no elements.\r\n\r\n' );
                         }
                         // check the edge case (one item in collection)
@@ -5808,7 +5809,7 @@
                             // compute 'avg' value
                             else if ( enumValue === _ENUM.AVG )
                             {
-                                if ( jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.NUMBER )
+                                if ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.NUMBER )
                                 {
                                     // precisely 'min avg'
                                     if ( roundEnumValue === _ENUM.AVG_MIN )
@@ -5820,7 +5821,7 @@
                                         return fetchItemOrItemProp_I_3L( Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 );
                                 }
                                 else
-                                    throw new Error( '\r\There is no implicit conversion from type ' + jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                                    throw new Error( '\r\There is no implicit conversion from type ' + jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
                             }
                         }
 
@@ -5831,12 +5832,12 @@
                         */
                         function fetchItemOrItemProp_I_3L ( index )
                         {
-                            if ( jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.isp && ( jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
+                            if ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.isp && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
                                 // return the only item from the collection
                                 return _ACTION.hpid.data[ index ];
                             // return the item's property value from the collection
                             else
-                                return _COMMON.getPropertyValueFromObject( jlc[ _ENUM.RUNTIME._CTX ].minMaxAverageValueTypeObject.selector, _ACTION.hpid.data[ index ], false, false );
+                                return _COMMON.getPropertyValueFromObject( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.selector, _ACTION.hpid.data[ index ], false, false );
                         }
                     }
                 }
@@ -5884,7 +5885,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
                         // check for '_ENUM.DEFAULT' if collection != null
                         if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
@@ -5972,7 +5973,7 @@
                             else if ( enumValue === _ENUM.DEFAULT )
                             {
                                 // return default value passed by the user
-                                _ACTION.hpid.data.push( jlc[ _ENUM.RUNTIME._CTX ].cdv );
+                                _ACTION.hpid.data.push( jlc[ _ENUM.RUNTIME.RTC ].cdv );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -6050,7 +6051,7 @@
                     function evaluateSortingContext_I_2L ( sorting_level )
                     {
                         // get contextually current collection within history array
-                        _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, true );
+                        _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, true );
 
 
                         // get first object from the collection
@@ -6296,7 +6297,7 @@
                 function execute_MF_I_1L ( jlc, collectionOrItem, enumValue )
                 {
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME._CTX ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
 
                     var new_dirty_data;
@@ -6366,9 +6367,9 @@
         exists: /**
          * Check if contextually current collection is stored internally for data flows.
          * 
-         * @param {any} rootToken
+         * @param {any} collectionToken
          */
-            function ( rootToken )
+            function ( collectionToken )
             {
                 // index of this collection if already stored
                 var index = -1;
@@ -6380,7 +6381,7 @@
                     var rto = this.root_token_array[ i ];
 
                     // compare it to the root token in question
-                    if ( rto.rootToken === rootToken )
+                    if ( rto.collectionToken === collectionToken )
                     {
                         // if matched, then fetch the associated index
                         index = rto.collection_index;
@@ -6416,7 +6417,7 @@
                 // store contextually unique token of this collection
                 this.root_token_array.push(
                     {
-                        rootToken: collection.dirty_data[ _ENUM.RUNTIME._RT ],
+                        collectionToken: collection.dirty_data[ _ENUM.RUNTIME.CT ],
 
                         collection_index: this.index
                     }
@@ -6497,7 +6498,7 @@
                     computeKey_I_1L( runtimeContext );
 
                     // is JLC cache enabled && is current query cache enabled
-                    if ( _CACHE._useCache && _CACHE._useCurrentQueryCache )
+                    if ( _CACHE._useCurrentQueryCache )
                         // try to load cached result
                         return load_I_1L();
                     // otherwise apply full operation workflow
@@ -6527,7 +6528,13 @@
                             qco = cqcco[ i ];
 
                             // create cache key until it's allowed
-                            if(!qco.useCache) break;
+                            if(!qco.useCache) {
+                                // mark that current query cannot use the cache
+                                _CACHE._useCurrentQueryCache = false;
+                                
+                                // hance break computing the key
+                                break;
+                            }
                             // mark that current query can use the cache
                             else _CACHE._useCurrentQueryCache = true;
 
@@ -6566,7 +6573,7 @@
                     function load_I_1L ()
                     {
                         // try to get data from cache for given key
-                        var cached_data = _CACHE._qrc[ _CACHE._key ];
+                        var cached_data = _COMMON.deepCopyYesCR( _CACHE._qrc[ _CACHE._key ] );
 
                         // is cache hit
                         if ( cached_data )
@@ -6595,7 +6602,7 @@
                 function ()
                 {
                     // is JLC cache enabled && is current query cache enabled
-                    if ( _CACHE._useCache && _CACHE._useCurrentQueryCache )
+                    if ( _CACHE._useCurrentQueryCache )
                     {
                         // cache the current query result
                         _CACHE._qrc[ _CACHE._key ] = _COMMON.deepCopyYesCR( _ACTION.hpid.data );
@@ -6611,6 +6618,36 @@
     };
 
 
+
+    // private proxy trap dispatcher
+    var _PROXY_TRAP_DISPATCHER = {
+        get: {
+            /**
+             * @param {object} api JLC instance.
+             * @param {any} property Name of the query method in question.
+             * @param {any} receiver The object that should be used as this.
+            */
+            DISPATCH: function ( api, property, receiver )
+            {
+                // is it an array of data (is it an input collection)
+                if ( _COMMON.isObjectEmpty(api) && Array.isArray( receiver ) )
+                {
+                    // mark that next query has to store its source into internal storage
+                    return _PROXY_TRAP.traps.get.RAW_SOURCE(api, property, receiver);
+                }
+                // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
+                else if ( api && _LINQ_CONTEXT._isProxy( receiver ) )
+                {
+                    // mark that next query has to invoke api-based method
+                    return _PROXY_TRAP.traps.get.PROXY_SOURCE(api, property, receiver);
+                }
+                // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
+                else if ( !( receiver instanceof Array ) )
+                    // mark that next query has to store its source into internal storage
+                    return _PROXY_TRAP.traps.get.PROXY_SOURCE(api, property, receiver);
+            }
+        }
+    }
 
     // private proxy trap object
     var _PROXY_TRAP = {
@@ -6644,7 +6681,7 @@
                     api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ) );
 
                     // check for cached dynamically generated query method
-                    if ( ( _ENUM.RUNTIME._QMI in api ) && ( property in api[ _ENUM.RUNTIME._QMI ] ) )
+                    if ( ( _ENUM.RUNTIME.QCMICO in api[_ENUM.RUNTIME.RTC] ) && ( property in api[_ENUM.RUNTIME.RTC][ _ENUM.RUNTIME.QCMICO ] ) )
                     {
                         // restore current trap
                         _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
@@ -6704,7 +6741,7 @@
 
 
                     // check for cached dynamically generated query method
-                    if ( ( _ENUM.RUNTIME._QMI in api ) && ( property in api[ _ENUM.RUNTIME._QMI ] ) )
+                    if ( ( _ENUM.RUNTIME.QCMICO in api[_ENUM.RUNTIME.RTC] ) && ( property in api[_ENUM.RUNTIME.RTC][ _ENUM.RUNTIME.QCMICO ] ) )
                     {
                         // restore current trap
                         _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
@@ -6768,7 +6805,7 @@
                     var self = this;
 
                     // reference first-level sorting context object (flsco)
-                    var flsco = self.actionContext.sharedFirstLevelSortingCtx;
+                    var flsco = self.actionContext.sharedFirstLevelSortingContext;
 
                     // apply required constraint logic
                     flsco.set( constr_params, self );
@@ -6788,7 +6825,7 @@
                     var self = this;
 
                     // reference first-level sorting context object (flsco)
-                    var flsco = self.actionContext.sharedFirstLevelSortingCtx;
+                    var flsco = self.actionContext.sharedFirstLevelSortingContext;
 
                     // apply required constraint logic
                     flsco.check();
@@ -6808,7 +6845,7 @@
                     var self = this;
 
                     // reference first-level sorting context object (flsco)
-                    var flsco = self.actionContext.sharedFirstLevelSortingCtx;
+                    var flsco = self.actionContext.sharedFirstLevelSortingContext;
 
                     // apply required constraint logic
                     flsco.set( constr_params, self );
@@ -11036,7 +11073,7 @@
 
                         case _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT:
                             // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
-                            var ticgui = input_coll[ _ENUM.RUNTIME._CI ];
+                            var ticgui = input_coll[ _ENUM.RUNTIME.CI ];
 
                             // if internally-stored one (handle PROXY_SOURCE)
                             if ( ticgui > -1 )
@@ -11093,10 +11130,17 @@
                             var ctxClone = Object.create( null );
 
                             // cache already created query methods
-                            ctxClone[ _ENUM.RUNTIME._QMI ] = qmi_ctr;
+                            //ctxClone[ _ENUM.RUNTIME.QCMICO ] = qmi_ctr;
 
                             // do cloning
-                            ctxClone[ _ENUM.RUNTIME._CTX ] = _COMMON.deepCopyYesCR( runtime_ctx );
+                            //ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYesCR( runtime_ctx );
+
+
+                            // do cloning of runtime context
+                            ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYesCR( runtime_ctx );
+
+                            // cache already created query methods
+                            ctxClone[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] = qmi_ctr;
 
                             // create and return proxied JLC instance
                             var proxyAPI = new Proxy( ctxClone, _LINQ_CONTEXT._arrayProxyHandler );
@@ -11233,7 +11277,7 @@
                 System.Linq.QueryResult[ method.lmn ] = method.mrd.yes;
 
                 // create API method
-                api[ _ENUM.RUNTIME._QMI ][ method.lmn ] = create_MI_I_2L( method );
+                api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ][ method.lmn ] = create_MI_I_2L( method );
 
 
 
@@ -11336,9 +11380,9 @@
                          *  - context of query flow methods
                         */
                         // reference action context, aka runtime context of JLC current instance
-                        var runtimeContext = api[ _ENUM.RUNTIME._CTX ];
+                        var runtimeContext = api[ _ENUM.RUNTIME.RTC ];
                         // reference query flow methods
-                        var queryMethodImplContainer = api[ _ENUM.RUNTIME._QMI ];
+                        var queryMethodImplContainer = api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ];
 
 
 
@@ -11505,7 +11549,7 @@
 
 
                 // invoke on demand the original query method with dynamically applied arguments that produces the final output send to the calling client
-                var result = api[ _ENUM.RUNTIME._QMI ][ property ].apply( receiver, arguments );
+                var result = api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ][ property ].apply( receiver, arguments );
 
 
                 // is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
@@ -11515,7 +11559,8 @@
                     result = _COMMON.deepCopyNoCR( result );
 
                     // mark that next query has to store its source into internal storage
-                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
+                    //_LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
                 }
                 // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
                 else if ( _LINQ_CONTEXT._isProxy( result ) )
@@ -11526,12 +11571,14 @@
                         _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( result );
 
                     // mark that next query has to invoke api-based method
-                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
+                    //_LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
                 }
                 // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
                 else if ( !( result instanceof Array ) )
                     // mark that next query has to store its source into internal storage
-                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
+                    //_LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
 
 
                 // return output from original query method
@@ -11728,20 +11775,20 @@
 
                 /**
                  * collectionIndex     ->  internal positional index of this collection
-                 * rootToken    ->  token associated with current collection, aka root token
+                 * collectionToken    ->  token associated with current collection, aka root token
                  * is_prim      ->  type primitivity of collection input type
                  * runtime_ctx       ->  JLC instance context
                 */
 
-                var collectionIndex, rootToken, is_prim, runtime_ctx;
+                var collectionIndex, collectionToken, is_prim, runtime_ctx;
                 //if collection wasn't indexed internally, prepare for indexation
-                if ( !( _ENUM.RUNTIME._CI in source_collection ) && !( _ENUM.RUNTIME._RT in source_collection ) )
+                if ( !( _ENUM.RUNTIME.CI in source_collection ) && !( _ENUM.RUNTIME.CT in source_collection ) )
                 {
                     // get token associated with current collection, aka root token
-                    rootToken = new Date().getTime();
+                    collectionToken = new Date().getTime();
 
                     // check if current collection is stored internally by finding index of this collection within collection history array
-                    collectionIndex = _DATA.exists( rootToken );
+                    collectionIndex = _DATA.exists( collectionToken );
 
                     if ( collectionIndex === -1 )
                     {
@@ -11752,10 +11799,10 @@
                         collectionIndex = _DATA.yieldIndex();
 
                         // assign internal collection token
-                        source_collection[ _ENUM.RUNTIME._RT ] = rootToken;
+                        source_collection[ _ENUM.RUNTIME.CT ] = collectionToken;
 
                         // assign internal collection index
-                        source_collection[ _ENUM.RUNTIME._CI ] = collectionIndex;
+                        source_collection[ _ENUM.RUNTIME.CI ] = collectionIndex;
 
                         // pass data in to the mechanism
                         over_I_1L( source_collection );
@@ -11770,10 +11817,10 @@
                 else
                 {
                     // get cached collection index
-                    collectionIndex = source_collection[ _ENUM.RUNTIME._CI ];
+                    collectionIndex = source_collection[ _ENUM.RUNTIME.CI ];
 
                     // get cached root token
-                    rootToken = source_collection[ _ENUM.RUNTIME._RT ];
+                    collectionToken = source_collection[ _ENUM.RUNTIME.CT ];
 
                     // apply JLC common operations
                     applyJlcCommon_I_1L();
@@ -11857,7 +11904,7 @@
 
                         // define all necessary properties
                         r_ctx.collectionIndex = collectionIndex;
-                        r_ctx.rootToken = rootToken;
+                        r_ctx.collectionToken = collectionToken;
 
                         // create first item metadata object (fim)
                         r_ctx.currentQueryIceMetaObject = Object.create( null );
@@ -11869,7 +11916,7 @@
                         r_ctx.currentQueryIceMetaObject.length_gte_2 = source_collection.length > 1;
 
                         // initially parent set to null
-                        r_ctx.parent = null;
+                        r_ctx.parentActionObject = null;
 
                         // return JLC instance context object
                         return r_ctx;
