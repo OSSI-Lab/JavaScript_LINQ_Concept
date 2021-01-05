@@ -13,7 +13,9 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #49 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #50 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *                                                                              -> Objects      ->  TEST & DEV      -> (In progress)
+ *                                                                              -> Primitives   ->  Set for TEST
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -134,6 +136,10 @@
             CT: Symbol( 'collectionToken' ), // token associated with current collection, aka root token
             RTC: 'runtimeContext', // context of all actions defined for this proxied JLC instance
             QCMICO: 'currentQueryChainMethodImplCacheObject' // query chain method implementation cache object
+        },
+
+        MISC: {
+            UNDERSCORE: '_'
         }
     };
 
@@ -1721,16 +1727,17 @@
                         aco.currentQueryIceMetaObject = runtime_ctx.currentQueryIceMetaObject;
 
                         // if runtime context contains action chain cache object
-                        if(runtime_ctx.currentQueryChainCacheObject) {
+                        if ( runtime_ctx.currentQueryChainCacheObject )
+                        {
                             // clone action chain cache object
-                            var currentQueryChainCacheObject = _COMMON.deepCopyYesCR( runtime_ctx.currentQueryChainCacheObject );
+                            var currentQueryChainCacheObject = _COMMON.deepCopyYCR( runtime_ctx.currentQueryChainCacheObject );
 
                             // create cache object for current query and add it to action chain cache object
-                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, true, currentQueryChainCacheObject);
+                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, true, currentQueryChainCacheObject );
                         }
                         else
                             // create action chain cache object as well as cache object for current query, and add cache object of current query to action chain cache object
-                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, false);
+                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, false );
 
                         // action chain cache objectt
                         aco.currentQueryChainCacheObject = runtime_ctx.currentQueryChainCacheObject;
@@ -1741,7 +1748,7 @@
                         // get first-level sorting context shared across query flow
                         aco.sharedFirstLevelSortingContext = runtime_ctx.sharedFirstLevelSortingContext
                             ?
-                            _COMMON.deepCopyYesCR( runtime_ctx.sharedFirstLevelSortingContext )
+                            _COMMON.deepCopyYCR( runtime_ctx.sharedFirstLevelSortingContext )
                             :
                             _ACTION.hpid.sorting.createFirstLevelCtx();
 
@@ -1866,10 +1873,10 @@
                         return a_constr;
                     }
 
-                    function createActionCacheObjectOrActionCacheQueryCacheObject_I_1L ( jqn, runtime_ctx, jqf_arr, addCurrentQueryCacheObjectOnly, currentQueryChainCacheObject)
+                    function createActionCacheObjectOrActionCacheQueryCacheObject_I_1L ( jqn, runtime_ctx, jqf_arr, addCurrentQueryCacheObjectOnly, currentQueryChainCacheObject )
                     {
                         // create action chain cache object and add cache object of current query
-                        if(!addCurrentQueryCacheObjectOnly)
+                        if ( !addCurrentQueryCacheObjectOnly )
                             // create action chain cache object
                             runtime_ctx.currentQueryChainCacheObject = [];
                         // update action chain cache object and add cache object of current query
@@ -1980,15 +1987,14 @@
                             // declare output data (a result of input collection being filtered off through all filters)
                             var output;
 
+
                             // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true
-                            if ( _ACTION.hpid.done && Array.isArray( _ACTION.hpid.data ) )
-                                output = _ACTION.hpid.data.slice( 0 );
-                            // check if 'special case' occurred determined by the hpid's flag called 'done' being set to true and current filtered off data is either a dictionary or an object...
-                            else if ( _ACTION.hpid.done )
+                            if ( _ACTION.hpid.done )
                                 output = _ACTION.hpid.data;
                             else
-                                // ... otherwise return result as the output
+                                // otherwise return result as the output
                                 output = result;
+
 
                             // return output data
                             return output;
@@ -2309,7 +2315,7 @@
                         var queryNames = [];
 
                         // fetch all query methods of current flow (qmcf)
-                        var qmcf = api[_ENUM.RUNTIME.RTC][ _ENUM.RUNTIME.QCMICO ];
+                        var qmcf = api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ];
 
                         // loop over api and store only query method names
                         for ( let key in qmcf )
@@ -2447,6 +2453,8 @@
                         return _ENUM.T2SR.OBJECT;
                     else if ( specialPropName === _ENUM.SPECIAL_PROPS.VALUE_DOT )
                         return _ENUM.T2SR.OBJECT;
+                    else
+                        return _ENUM.T2SR.UNDEFINED;
                 }
             },
 
@@ -2627,7 +2635,7 @@
                 }
             },
 
-        deepCopyYesCR: /**
+        deepCopyYCR: /**
          * Clone object without reference with circular references.
          *
          * Source: https://stackoverflow.com/questions/40291987/javascript-deep-clone-object-with-circular-references
@@ -2648,17 +2656,17 @@
                 }
                 // optional: support for some standard constructors (extend as desired)
                 if ( obj instanceof Map )
-                    Array.from( obj, ( [ key, val ] ) => result.set( _COMMON.deepCopyYesCR( key, hash ), _COMMON.deepCopyYesCR( val, hash ) ) );
+                    Array.from( obj, ( [ key, val ] ) => result.set( _COMMON.deepCopyYCR( key, hash ), _COMMON.deepCopyYCR( val, hash ) ) );
                 else if ( obj instanceof Set )
-                    Array.from( obj, ( key ) => result.add( _COMMON.deepCopyYesCR( key, hash ) ) );
+                    Array.from( obj, ( key ) => result.add( _COMMON.deepCopyYCR( key, hash ) ) );
                 // register in hash
                 hash.set( obj, result );
                 // clone and assign enumerable own properties recursively
                 return Object.assign( result, ...Object.keys( obj ).map(
-                    key => ( { [ key ]: _COMMON.deepCopyYesCR( obj[ key ], hash ) } ) ) );
+                    key => ( { [ key ]: _COMMON.deepCopyYCR( obj[ key ], hash ) } ) ) );
             },
 
-        deepCopyNoCR: /**
+        deepCopyNCR: /**
          * Clone object without reference without circular references.
          *
          * Source: https://github.com/zellwk/javascript/blob/master/mix/mix.js
@@ -3121,7 +3129,7 @@
                                  * Declare resultsView function
                                  *  - declare non-public component called '_privateList'
                                 */
-                                var _privateList = _COMMON.deepCopyNoCR( gso.arr );
+                                var _privateList = _COMMON.deepCopyNCR( gso.arr );
                                 Object.defineProperty(
                                     grouping_obj,
                                     _ENUM.RESULTS_VIEW.ENUMERATOR,
@@ -3933,7 +3941,7 @@
                     );
 
                     // cache the query result
-                    _CACHE.cacheCommons.store();
+                    _CACHE.cacheCommons.store(true, pfr);
 
                     // return physical filter result (pfr)
                     return pfr;
@@ -3961,7 +3969,7 @@
                     );
 
                     // cache the query result
-                    _CACHE.cacheCommons.store();
+                    _CACHE.cacheCommons.store(true, pfr);
 
                     // return physical filter result (pfr)
                     return pfr;
@@ -6476,7 +6484,7 @@
 
     // private data object holding all queries' filtered data
     var _CACHE = {
-        // cache query result or not
+        // enable or disable using cache
         _useCache: false,
 
         // cache current query result or not
@@ -6497,7 +6505,7 @@
                     // compute cache key for current query in the flow
                     computeKey_I_1L( runtimeContext );
 
-                    // is JLC cache enabled && is current query cache enabled
+                    // is current query cache enabled
                     if ( _CACHE._useCurrentQueryCache )
                         // try to load cached result
                         return load_I_1L();
@@ -6528,22 +6536,23 @@
                             qco = cqcco[ i ];
 
                             // create cache key until it's allowed
-                            if(!qco.useCache) {
+                            if ( !qco.useCache )
+                            {
                                 // mark that current query cannot use the cache
                                 _CACHE._useCurrentQueryCache = false;
-                                
-                                // hance break computing the key
+
+                                // hence break computing the key
                                 break;
                             }
                             // mark that current query can use the cache
                             else _CACHE._useCurrentQueryCache = true;
 
                             // compute key - part 1
-                            _CACHE._key += qco.name + '_' + runtime_ctx.collectionIndex + '_';
+                            _CACHE._key += qco.name + _ENUM.MISC.UNDERSCORE + runtime_ctx.collectionIndex + _ENUM.MISC.UNDERSCORE;
 
                             // compute key - part 2
                             for ( let filter_arr of qco.filters )
-                                _CACHE._key += filterArrToKey_I_2L( filter_arr ) + '_';
+                                _CACHE._key += convertFilterArrToKeyString_I_2L( filter_arr );
                         }
 
 
@@ -6551,20 +6560,26 @@
                         /**
                          * Local helper functions
                         */
-                        function filterArrToKey_I_2L ( f_arr )
+                        function convertFilterArrToKeyString_I_2L ( f_arr )
                         {
-                            // key based on filter array
+                            // key string based on filter array
                             var f_arr_key = '';
 
                             // if filter array is defined
                             if ( f_arr )
                             {
-                                // convert array to string
-                                for ( let v of f_arr )
-                                    f_arr_key += v.join( '_' );
+                                // for each item
+                                for ( let v of f_arr ) {
+                                    // convert array to string if it's an array
+                                    if(Array.isArray(v))
+                                        f_arr_key += v.join( _ENUM.MISC.UNDERSCORE ) + _ENUM.MISC.UNDERSCORE;
+                                    // concatenate item
+                                    else
+                                        f_arr_key += v + _ENUM.MISC.UNDERSCORE;
+                                }
                             }
 
-                            // return filter array key
+                            // return filter array key string
                             return f_arr_key;
                         }
                     }
@@ -6573,13 +6588,13 @@
                     function load_I_1L ()
                     {
                         // try to get data from cache for given key
-                        var cached_data = _COMMON.deepCopyYesCR( _CACHE._qrc[ _CACHE._key ] );
+                        var cachedResult = getCachedData_I_2L();
 
                         // is cache hit
-                        if ( cached_data )
+                        if ( cachedResult.isHit )
                         {
                             // update HPID
-                            _ACTION.hpid.data = cached_data;
+                            _ACTION.hpid.data = cachedResult.data;
 
                             // mark that HPID is on
                             _ACTION.hpid.isOn = true;
@@ -6593,19 +6608,42 @@
 
                         // return cache hit negative bool result
                         return false;
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function getCachedData_I_2L() {
+                            // query cached result object
+                            var qcro = Object.create(null);
+
+                            // check if there is cached data
+                            if(_CACHE._key in _CACHE._qrc) {
+                                // there is cached data
+                                qcro.isHit = true;
+
+                                // cached data
+                                qcro.data = _COMMON.deepCopyYCR( _CACHE._qrc[ _CACHE._key ] );
+                            }
+
+                            // return cached result object
+                            return qcro;
+                        }
                     }
                 },
 
             store: /**
                 * Stores query result into cache.
+                * You can provide optional explicit value, being it returned value from the physical filter, or even your own custom value !
                 */
-                function ()
+                function (storeUserValue, explicitValue)
                 {
                     // is JLC cache enabled && is current query cache enabled
                     if ( _CACHE._useCurrentQueryCache )
                     {
                         // cache the current query result
-                        _CACHE._qrc[ _CACHE._key ] = _COMMON.deepCopyYesCR( _ACTION.hpid.data );
+                        _CACHE._qrc[ _CACHE._key ] = storeUserValue ? _COMMON.deepCopyYCR( explicitValue ) : _COMMON.deepCopyYCR( _ACTION.hpid.data );
 
                         // reset the key used for current query
                         _CACHE._key = undefined;
@@ -6630,24 +6668,24 @@
             DISPATCH: function ( api, property, receiver )
             {
                 // is it an array of data (is it an input collection)
-                if ( _COMMON.isObjectEmpty(api) && Array.isArray( receiver ) )
+                if ( _COMMON.isObjectEmpty( api ) && Array.isArray( receiver ) )
                 {
                     // mark that next query has to store its source into internal storage
-                    return _PROXY_TRAP.traps.get.RAW_SOURCE(api, property, receiver);
+                    return _PROXY_TRAP.traps.get.RAW_SOURCE( api, property, receiver );
                 }
                 // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
                 else if ( api && _LINQ_CONTEXT._isProxy( receiver ) )
                 {
                     // mark that next query has to invoke api-based method
-                    return _PROXY_TRAP.traps.get.PROXY_SOURCE(api, property, receiver);
+                    return _PROXY_TRAP.traps.get.PROXY_SOURCE( api, property, receiver );
                 }
                 // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
                 else if ( !( receiver instanceof Array ) )
                     // mark that next query has to store its source into internal storage
-                    return _PROXY_TRAP.traps.get.PROXY_SOURCE(api, property, receiver);
+                    return _PROXY_TRAP.traps.get.PROXY_SOURCE( api, property, receiver );
             }
         }
-    }
+    };
 
     // private proxy trap object
     var _PROXY_TRAP = {
@@ -6681,7 +6719,7 @@
                     api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ) );
 
                     // check for cached dynamically generated query method
-                    if ( ( _ENUM.RUNTIME.QCMICO in api[_ENUM.RUNTIME.RTC] ) && ( property in api[_ENUM.RUNTIME.RTC][ _ENUM.RUNTIME.QCMICO ] ) )
+                    if ( ( _ENUM.RUNTIME.QCMICO in api[ _ENUM.RUNTIME.RTC ] ) && ( property in api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] ) )
                     {
                         // restore current trap
                         _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
@@ -6741,7 +6779,7 @@
 
 
                     // check for cached dynamically generated query method
-                    if ( ( _ENUM.RUNTIME.QCMICO in api[_ENUM.RUNTIME.RTC] ) && ( property in api[_ENUM.RUNTIME.RTC][ _ENUM.RUNTIME.QCMICO ] ) )
+                    if ( ( _ENUM.RUNTIME.QCMICO in api[ _ENUM.RUNTIME.RTC ] ) && ( property in api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] ) )
                     {
                         // restore current trap
                         _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
@@ -11133,11 +11171,11 @@
                             //ctxClone[ _ENUM.RUNTIME.QCMICO ] = qmi_ctr;
 
                             // do cloning
-                            //ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYesCR( runtime_ctx );
+                            //ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYCR( runtime_ctx );
 
 
                             // do cloning of runtime context
-                            ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYesCR( runtime_ctx );
+                            ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYCR( runtime_ctx );
 
                             // cache already created query methods
                             ctxClone[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] = qmi_ctr;
@@ -11556,11 +11594,10 @@
                 if ( Array.isArray( result ) )
                 {
                     // copy result 100% by value
-                    result = _COMMON.deepCopyNoCR( result );
+                    result = _COMMON.deepCopyNCR( result );
 
                     // mark that next query has to store its source into internal storage
                     _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
-                    //_LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
                 }
                 // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
                 else if ( _LINQ_CONTEXT._isProxy( result ) )
@@ -11572,13 +11609,11 @@
 
                     // mark that next query has to invoke api-based method
                     _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
-                    //_LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
                 }
                 // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
                 else if ( !( result instanceof Array ) )
                     // mark that next query has to store its source into internal storage
                     _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
-                    //_LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
 
 
                 // return output from original query method
@@ -11653,7 +11688,7 @@
                         // @ts-ignore
                         window.System.Linq.Context = window.System.Linq.Context || Object.create( null );
                         // @ts-ignore
-                        window.System.Linq.Context.Cache = window.System.Linq.Context.Cache || Object.create( null );                        
+                        window.System.Linq.Context.Cache = window.System.Linq.Context.Cache || Object.create( null );
                         // @ts-ignore
                         window.System.Linq.Context.Collection = window.System.Linq.Context.Collection || Object.create( null );
                         // @ts-ignore
@@ -11668,10 +11703,10 @@
                             _CACHE._useCache = isEnabled;
                         };
 
-                        window.System.Linq.Context.Cache.clear = function ( )
+                        window.System.Linq.Context.Cache.clear = function ()
                         {
                             // clear JLC cache
-                            _CACHE._qrc = Object.create(null);
+                            _CACHE._qrc = Object.create( null );
                         };
 
                         window.System.Linq.Context.Collection.tidyUp = function ( ...user_coll_arr )
@@ -11753,7 +11788,7 @@
                     function updateProxyHandler_I_2L ()
                     {
                         // enable intercepting query method call
-                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
                     }
                 }
             },
@@ -11793,7 +11828,7 @@
                     if ( collectionIndex === -1 )
                     {
                         // apply deep cloning to copy source collection "by value"
-                        //source_collection = _COMMON.deepCopyYesCR( source_collection );
+                        //source_collection = _COMMON.deepCopyYCR( source_collection );
 
                         // yield the very next value of index that will refer to this new collection within collection history array
                         collectionIndex = _DATA.yieldIndex();

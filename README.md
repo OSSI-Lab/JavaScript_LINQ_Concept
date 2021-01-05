@@ -25,6 +25,14 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #27 - DPR #50:&nbsp;2021-01-05 &nbsp;&nbsp;3:07 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - the interface of query methods was tested up to 'reverseAllOrSubset' query methods (line 2191)
+          - adding some further but minor code perf optimizations
+            - query examples usage ! (all queries with '_cache' suffix)
+          - fixed issues
+            - _CORE.aggregate_mtds  & _CORE.quantifying_mtds
  - TEST #26 - DPR #49:&nbsp;2021-01-04 &nbsp;&nbsp;10:51 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

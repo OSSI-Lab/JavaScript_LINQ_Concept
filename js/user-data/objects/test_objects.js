@@ -243,6 +243,9 @@
             }
         );
 
+
+
+
         /**
          * At any point you can interact with cache
          *
@@ -251,7 +254,9 @@
          *
         */
         // f.e. turn off the cache
-        System.Linq.Context.Cache.enable(false);
+        System.Linq.Context.Cache.enable( false );
+
+
 
 
         // final query - produces output - THIS QUERY DOESN'T USE CACHE (cache was turned off a step above, and this is new query !)
@@ -1476,7 +1481,7 @@
          * I have added them here for convenience.
          *
         */
-       
+
         /*
         // final query - produces output
         var orderBy_f1d = collection.orderBy(
@@ -1888,14 +1893,14 @@
         ).orderBy(
             {
                 'keyPartSelectorArray': [
-                    ["key", true]
+                    [ "key", true ]
                 ],
                 'udfComparer': null
             }
         ).thenBy(
             {
                 'keyPartSelectorArray': [
-                    ["value.", true]
+                    [ "value.", true ]
                 ],
                 'udfComparer': null
             }
@@ -1916,14 +1921,14 @@
         ).orderBy(
             {
                 'keyPartSelectorArray': [
-                    ["key", true]
+                    [ "key", true ]
                 ],
                 'udfComparer': null
             }
         ).thenBy(
             {
                 'keyPartSelectorArray': [
-                    ["value.", true]
+                    [ "value.", true ]
                 ],
                 'udfComparer': null
             }
@@ -1944,14 +1949,14 @@
         ).orderBy(
             {
                 'keyPartSelectorArray': [
-                    ["value.price", true]
+                    [ "value.price", true ]
                 ],
                 'udfComparer': null
             }
         ).thenBy(
             {
                 'keyPartSelectorArray': [
-                    ["key", true]
+                    [ "key", true ]
                 ],
                 'udfComparer': null
             }
@@ -2003,17 +2008,17 @@
         ).orderBy(
             {
                 'keyPartSelectorArray': [
-                    ["value.price", true]
+                    [ "value.price", true ]
                 ],
                 'udfComparer': null
             }
         );
-        
+
         // final query - produces output
         var toDictionary_f1_orderBy_p1_thenBy_f1 = toDictionary_f1_orderBy_p1.thenBy(
             {
                 'keyPartSelectorArray': [
-                    ["key", true]
+                    [ "key", true ]
                 ],
                 'udfComparer': null
             }
@@ -2081,14 +2086,14 @@
         ).orderBy(
             {
                 'keyPartSelectorArray': [
-                    ["value.price", true]
+                    [ "value.price", true ]
                 ],
                 'udfComparer': null
             }
         ).thenBy(
             {
                 'keyPartSelectorArray': [
-                    ["key", true]
+                    [ "key", true ]
                 ],
                 'udfComparer': null
             }
@@ -2123,14 +2128,14 @@
         ).orderBy(
             {
                 'keyPartSelectorArray': [
-                    ["value.price", true]
+                    [ "value.price", true ]
                 ],
                 'udfComparer': null
             }
         ).thenBy(
             {
                 'keyPartSelectorArray': [
-                    ["key", true]
+                    [ "key", true ]
                 ],
                 'udfComparer': null
             }
@@ -2163,14 +2168,14 @@
         ).orderBy(
             {
                 'keyPartSelectorArray': [
-                    ["value.price", true]
+                    [ "value.price", true ]
                 ],
                 'udfComparer': null
             }
         ).thenBy(
             {
                 'keyPartSelectorArray': [
-                    ["key", true]
+                    [ "key", true ]
                 ],
                 'udfComparer': null
             }
@@ -2655,6 +2660,22 @@
         // final query - produces output
         var singleOrDefault_f3 = [].singleOrDefault();
 
+
+
+
+        /**
+         * At any point you can interact with cache
+         *
+         * - enable/disable it      ->  System.Linq.Context.Cache.enable(true/false)
+         * - clear it               ->  System.Linq.Context.Cache.clear()
+         *
+        */
+        // f.e. turn on the cache
+        System.Linq.Context.Cache.enable( true );
+
+
+
+
         // final query - produces output
         var any_f1 = collection.any(
             {
@@ -2726,6 +2747,13 @@
         // final query - produces output
         var any_f3 = collection.any();
 
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'any_f3' uses the same filters, hence this query 'any_f3_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var any_f3_cache = collection.any();
+
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Method [ all ] has to have "params" object provided !
         //var all_f3 = collection.all();
 
@@ -2737,8 +2765,32 @@
             }
         );
 
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'min_f1' uses the same filters, hence this query 'min_f1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var min_f1_cache = collection.min(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
         // final query - produces output [ find item with the smallest value of the object itself ]
         var min_f1a = collection_toString.min(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // // final query - produces output [ find item with the smallest value of the object itself ] - THIS QUERY USES CACHE ->
+        /*
+            Query called 'min_f1a' uses the same filters, hence this query 'min_f1a_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var min_f1a_cache = collection_toString.min(
             {
                 'property': [ 'object!', true ],
                 'udfValueSelector': null
@@ -2763,6 +2815,18 @@
             }
         );
 
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'max_f1' uses the same filters, hence this query 'max_f1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var max_f1_cache = collection.max(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
         // final query - produces output [ find item with the biggest value of the object itself ] - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
         /*
         var max_f1a = collection.max(
@@ -2775,6 +2839,18 @@
 
         // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
         var average_f1 = collection.average(
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'average_f1' uses the same filters, hence this query 'average_f1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var average_f1_cache = collection.average(
             {
                 'property': [ 'id', true ],
                 'udfValueSelector': null
@@ -2802,6 +2878,18 @@
         */
         // final query - produces output [ find item with the smallest value of the object itself ]
         var min_f2a = [].min(
+            {
+                'property': [ 'object!', true ],
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'min_f2a' uses the same filters, hence this query 'min_f2a_f1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var min_f2a_f1_cache = [].min(
             {
                 'property': [ 'object!', true ],
                 'udfValueSelector': null
