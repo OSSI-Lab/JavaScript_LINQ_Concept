@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #50 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #51 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->  TEST & DEV      -> (In progress)
  *                                                                              -> Primitives   ->  Set for TEST
  *          What does it mean ?
@@ -1676,6 +1676,9 @@
                         var ao = Object.create( null );
 
 
+                        // store action name, aka current query name
+                        ao.name = jqn;
+
                         // store information whether this action is executable one
                         ao.returnsData = System.Linq.QueryResult[ jqn ];
 
@@ -1702,9 +1705,9 @@
                         ao.parentActionObject = runtime_ctx.parentActionObject;
 
                         // execute this action by invoking its core method with binded parameters
-                        ao.execute = function ()
+                        ao.execute = function (queryChainCacheObject)
                         {
-                            return c_m_b.bind( null, this )();
+                            return c_m_b.bind( null, this, this.name, queryChainCacheObject )();
                         };
 
 
@@ -1726,21 +1729,17 @@
                         // collection ice (input collection element) meta object
                         aco.currentQueryIceMetaObject = runtime_ctx.currentQueryIceMetaObject;
 
-                        // if runtime context contains action chain cache object
-                        if ( runtime_ctx.currentQueryChainCacheObject )
-                        {
-                            // clone action chain cache object
-                            var currentQueryChainCacheObject = _COMMON.deepCopyYCR( runtime_ctx.currentQueryChainCacheObject );
 
-                            // create cache object for current query and add it to action chain cache object
-                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, true, currentQueryChainCacheObject );
-                        }
-                        else
-                            // create action chain cache object as well as cache object for current query, and add cache object of current query to action chain cache object
-                            createActionCacheObjectOrActionCacheQueryCacheObject_I_1L( jqn, runtime_ctx, jqf_arr, false );
+                        /**
+                         * If runtime context doesn't contain action chain cache object, create it.
+                         * Create cache object for current query and add it to action chain cache object.
+                        */
+                        // store current query cache object as a view bag data (approach from ASP.NET MVC)
+                        aco.viewBagData = createQueryCacheObjectForCurrentQueryChain_I_1L( jqn, jqf_arr );
 
-                        // action chain cache objectt
-                        aco.currentQueryChainCacheObject = runtime_ctx.currentQueryChainCacheObject;
+                        // action chain cache object
+                        aco.currentQueryChainCacheObject = _COMMON.deepCopyYCR( runtime_ctx.currentQueryChainCacheObject );
+
 
                         // collection mmavt (order-min-max-average meta object of the type of the value)
                         aco.minMaxAverageValueTypeObject = runtime_ctx.minMaxAverageValueTypeObject;
@@ -1873,17 +1872,8 @@
                         return a_constr;
                     }
 
-                    function createActionCacheObjectOrActionCacheQueryCacheObject_I_1L ( jqn, runtime_ctx, jqf_arr, addCurrentQueryCacheObjectOnly, currentQueryChainCacheObject )
+                    function createQueryCacheObjectForCurrentQueryChain_I_1L ( jqn, jqf_arr )
                     {
-                        // create action chain cache object and add cache object of current query
-                        if ( !addCurrentQueryCacheObjectOnly )
-                            // create action chain cache object
-                            runtime_ctx.currentQueryChainCacheObject = [];
-                        // update action chain cache object and add cache object of current query
-                        else
-                            // update action chain cache object
-                            runtime_ctx.currentQueryChainCacheObject = currentQueryChainCacheObject;
-
                         // create query meta object
                         var currentQuery = Object.create( null );
                         // store current query name
@@ -1893,8 +1883,8 @@
                         // store whether current query can use the cache
                         currentQuery.useCache = _CACHE._useCache;
 
-                        // store current query meta object into cache
-                        runtime_ctx.currentQueryChainCacheObject.push( currentQuery );
+                        // return query meta object
+                        return currentQuery;
                     }
 
                     function runActionConstraintRecursively_I_1L ( actionCtx, actionConstr )
@@ -1939,22 +1929,25 @@
             executeChain: /**
             * Execute all actions in the chain.
             */
-                function ( runtimeContext )
+                function ( actionContext )
                 {
-                    return execute_C_I_1L( runtimeContext );
+                    return execute_C_I_1L( actionContext );
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function execute_C_I_1L ( runtime_ctx )
+                    function execute_C_I_1L ( action_ctx )
                     {
+                        // update action context before running the chain
+                        updateQueryChainCacheObjectOfActionContext_I_2L( action_ctx );
+
                         // do necessary cleanup before producing pre-output result
-                        _ACTION.hpidCommons.clearCache( runtime_ctx.parentActionObject.sharedSecondLevelSortingContext );
+                        _ACTION.hpidCommons.clearCache( action_ctx.parentActionObject.sharedSecondLevelSortingContext );
 
                         // execute all actions and produce pre-output result
-                        var result = executeActionsRecursively_I_2L( runtime_ctx.parentActionObject );
+                        var result = executeActionsRecursively_I_2L( action_ctx.parentActionObject, action_ctx.currentQueryChainCacheObject );
 
                         // return final data based on pre-output result
                         return getOutput_I_2L( result );
@@ -1964,22 +1957,35 @@
                         /**
                          * Local helper functions
                         */
-                        function executeActionsRecursively_I_2L ( parentAction )
+                        function updateQueryChainCacheObjectOfActionContext_I_2L ( action_ctx )
+                        {
+                            // check for current query cache object as a view bag data (approach from ASP.NET MVC)
+                            if ( action_ctx.viewBagData )
+                            {
+                                // store current query cache object into current query chain cache object
+                                action_ctx.currentQueryChainCacheObject.push( _COMMON.deepCopyYCR( action_ctx.viewBagData ) );
+
+                                // reset current view bag data
+                                action_ctx.viewBagData = undefined;
+                            }
+                        }
+
+                        function executeActionsRecursively_I_2L ( parentAction, queryChainCacheObject )
                         {
                             // go all the way down to the root action
                             if ( parentAction.parentActionObject )
-                                executeActionsRecursively_I_2L( parentAction.parentActionObject );
+                                executeActionsRecursively_I_2L( parentAction.parentActionObject, queryChainCacheObject );
 
 
                             // restore the initial icest of the current query flow
-                            _ACTION.hpid.columnSet.currentQueryIcest = runtime_ctx.currentQueryIceMetaObject.realFlowInitialIcest;
+                            _ACTION.hpid.columnSet.currentQueryIcest = action_ctx.currentQueryIceMetaObject.realFlowInitialIcest;
 
 
                             // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
                             if ( parentAction.returnsData )
-                                return parentAction.execute();
+                                return parentAction.execute(queryChainCacheObject);
                             else
-                                parentAction.execute();
+                                parentAction.execute(queryChainCacheObject);
                         }
 
                         function getOutput_I_2L ( result )
@@ -3646,21 +3652,25 @@
     // private core object
     var _CORE = {
         join_mtds: /**
-         * @param {any} innerColl
-         * @param {any} outerSelectorArray
-         * @param {any} outerUdfSelector
-         * @param {any} innerSelectorArray
-         * @param {any} innerUdfSelector
-         * @param {any} enumValue
-         * @param {any} udfResultSelector
-         * @param {any} udfEqualityComparer
-         * @param {any} strongUnmatch
+         * @param {Object} params
+         *  - innerColl
+         *  - outerSelectorArray
+         *  - outerUdfSelector
+         *  - innerSelectorArray
+         *  - innerUdfSelector
+         *  - enumValue
+         *  - udfResultSelector
+         *  - udfEqualityComparer
+         *  - strongUnmatch
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
             // @ts-ignore
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3687,10 +3697,10 @@
          * @param {Object} params
          *  - predicateArray
          */
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3716,12 +3726,15 @@
          *  - udfGroupResultValueSelector
          *  - terminateFlowAndReturnData
          *  - isDictionaryContext
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          * @param {boolean} sharedSecondLevelSortingContext
          */
-            function ( params, sharedSecondLevelSortingContext )
+            function ( params, actionContext, queryName, queryChainCacheObject, sharedSecondLevelSortingContext )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3750,11 +3763,13 @@
          *  - udfComparer
          *  - enumValue
          * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
-            function ( params, actionContext )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3775,17 +3790,21 @@
             },
 
         projection_mtds: /**
-         * @param {any} selectorArray
-         * @param {any} enumValue
-         * @param {any} udfSelector
-         * @param {any} udfResultSelector
-         * @param {any} incorporateIndex
+         * @param {Object} params
+         *  - selectorArray
+         *  - enumValue
+         *  - udfSelector
+         *  - udfResultSelector
+         *  - incorporateIndex
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
             // @ts-ignore
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3809,11 +3828,14 @@
          * @param {Object} params
          *  - predicateArray
          *  - fallbackOnDefault
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3837,11 +3859,14 @@
          *  - index
          *  - count
          *  - enumValue
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3864,11 +3889,14 @@
          * @param {Object} params
          *  - collectionOrItem
          *  - enumValue
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3888,16 +3916,20 @@
             },
 
         set_mtds: /**
-         * @param {any} collectionOrItem
-         * @param {any} udfEqualityComparer
-         * @param {any} strongSearch
-         * @param {any} enumValue
+         * @param {Object} params
+         *  - collectionOrItem
+         *  - udfEqualityComparer
+         *  - strongSearch
+         *  - enumValue
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
             // @ts-ignore
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3920,11 +3952,13 @@
          * @param {Object} params
          *  - property
          * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
-            function ( params, actionContext )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3941,7 +3975,7 @@
                     );
 
                     // cache the query result
-                    _CACHE.cacheCommons.store(true, pfr);
+                    _CACHE.cacheCommons.store( true, pfr );
 
                     // return physical filter result (pfr)
                     return pfr;
@@ -3952,11 +3986,14 @@
          * @param {Object} params
          *  - predicateArray
          *  - enumValue
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
          */
-            function ( params )
+            function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( this[ _ENUM.RUNTIME.RTC ] );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3969,7 +4006,7 @@
                     );
 
                     // cache the query result
-                    _CACHE.cacheCommons.store(true, pfr);
+                    _CACHE.cacheCommons.store( true, pfr );
 
                     // return physical filter result (pfr)
                     return pfr;
@@ -6500,10 +6537,10 @@
             tryToLoad: /**
             * Computes query key required by the current query flow to search the cache for cached query result.
             */
-                function ( runtimeContext )
+                function ( queryName, queryChainCacheObject, collectionIndex )
                 {
                     // compute cache key for current query in the flow
-                    computeKey_I_1L( runtimeContext );
+                    computeKey_I_1L( queryName, queryChainCacheObject, collectionIndex );
 
                     // is current query cache enabled
                     if ( _CACHE._useCurrentQueryCache )
@@ -6519,21 +6556,18 @@
                      * Local helper functions
                     */
                     // Computes query key required by the current query flow to search the cache for cached query result.
-                    function computeKey_I_1L ( runtime_ctx )
+                    function computeKey_I_1L ( jqn, queryChainCacheObject, coll_idx )
                     {
-                        // cache query chain cache object
-                        var cqcco = runtime_ctx.currentQueryChainCacheObject;
-
                         // initialize the current query cache key
                         _CACHE._key = '';
 
                         // query cache object
                         var qco;
                         // loop over query chain cache objects
-                        for ( var i = 0; i < cqcco.length; i++ )
+                        for ( var i = 0; i < queryChainCacheObject.length; i++ )
                         {
                             // get query cache object
-                            qco = cqcco[ i ];
+                            qco = queryChainCacheObject[ i ];
 
                             // create cache key until it's allowed
                             if ( !qco.useCache )
@@ -6548,11 +6582,14 @@
                             else _CACHE._useCurrentQueryCache = true;
 
                             // compute key - part 1
-                            _CACHE._key += qco.name + _ENUM.MISC.UNDERSCORE + runtime_ctx.collectionIndex + _ENUM.MISC.UNDERSCORE;
+                            _CACHE._key += qco.name + _ENUM.MISC.UNDERSCORE + coll_idx + _ENUM.MISC.UNDERSCORE;
 
                             // compute key - part 2
                             for ( let filter_arr of qco.filters )
                                 _CACHE._key += convertFilterArrToKeyString_I_2L( filter_arr );
+
+                            // run whole query chain cache until current query
+                            if(qco.name === jqn) break;
                         }
 
 
@@ -6569,9 +6606,10 @@
                             if ( f_arr )
                             {
                                 // for each item
-                                for ( let v of f_arr ) {
+                                for ( let v of f_arr )
+                                {
                                     // convert array to string if it's an array
-                                    if(Array.isArray(v))
+                                    if ( Array.isArray( v ) )
                                         f_arr_key += v.join( _ENUM.MISC.UNDERSCORE ) + _ENUM.MISC.UNDERSCORE;
                                     // concatenate item
                                     else
@@ -6614,12 +6652,14 @@
                         /**
                          * Local helper functions
                         */
-                        function getCachedData_I_2L() {
+                        function getCachedData_I_2L ()
+                        {
                             // query cached result object
-                            var qcro = Object.create(null);
+                            var qcro = Object.create( null );
 
                             // check if there is cached data
-                            if(_CACHE._key in _CACHE._qrc) {
+                            if ( _CACHE._key in _CACHE._qrc )
+                            {
                                 // there is cached data
                                 qcro.isHit = true;
 
@@ -6637,7 +6677,7 @@
                 * Stores query result into cache.
                 * You can provide optional explicit value, being it returned value from the physical filter, or even your own custom value !
                 */
-                function (storeUserValue, explicitValue)
+                function ( storeUserValue, explicitValue )
                 {
                     // is JLC cache enabled && is current query cache enabled
                     if ( _CACHE._useCurrentQueryCache )
@@ -11086,17 +11126,17 @@
 
         // common methods shared across all traps
         _proxyTrapsCommon: {
-            queryCreateContinuumFlowContext: function ( flowContext, collectionInQuestion, runtimeContext, queryMethodContainer )
+            queryCreateContinuumFlowContext: function ( flowContext, collectionInQuestion, actionContext, queryChainMethodImplCacheObject )
             {
                 // create new proxied JLC instance with proper action context and required query methods
-                return query_CCFC_I_1L( flowContext, collectionInQuestion, runtimeContext, queryMethodContainer );
+                return query_CCFC_I_1L( flowContext, collectionInQuestion, actionContext, queryChainMethodImplCacheObject );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function query_CCFC_I_1L ( flow_ctx, input_coll, runtime_ctx, qmi_ctr )
+                function query_CCFC_I_1L ( flow_ctx, input_coll, action_ctx, qmi_ctr )
                 {
                     switch ( flow_ctx )
                     {
@@ -11107,7 +11147,7 @@
                         case _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT:
                         case _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT:
                             // return JLC proxied instance
-                            return createProxiedInstance_I_2L( runtime_ctx, qmi_ctr );
+                            return createProxiedInstance_I_2L( action_ctx, qmi_ctr );
 
                         case _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT:
                             // check for collection index that tells whether collection-in-question already internally-stored one or a new one that needs to be indexed
@@ -11116,9 +11156,9 @@
                             // if internally-stored one (handle PROXY_SOURCE)
                             if ( ticgui > -1 )
                             {
-                                var cached_acn_ctr = _SETUP._ccm[ ticgui ];
+                                var cached_action_ctx = _SETUP._ccm[ ticgui ];
                                 // then get the cached context associated with this collection and return JLC proxied instance
-                                return createProxiedInstance_I_2L( cached_acn_ctr, qmi_ctr );
+                                return createProxiedInstance_I_2L( cached_action_ctx, qmi_ctr );
                             }
                             // if a new one (handle RAW_SOURCE)
                             else
@@ -11142,13 +11182,13 @@
                         return _SETUP.Funcs.applyJLC( input_coll );
                     }
 
-                    function createProxiedInstance_I_2L ( runtime_ctx, qmi_ctr )
+                    function createProxiedInstance_I_2L ( action_ctx, qmi_ctr )
                     {
                         // restore metadata of the contextually current collection state
-                        _ACTION.hpidCommons.updateColumnSetCestAndCols( runtime_ctx.currentQueryIceMetaObject.length_gte_2, runtime_ctx.currentQueryIceMetaObject.item, runtime_ctx.currentQueryIceMetaObject.ofss );
+                        _ACTION.hpidCommons.updateColumnSetCestAndCols( action_ctx.currentQueryIceMetaObject.length_gte_2, action_ctx.currentQueryIceMetaObject.item, action_ctx.currentQueryIceMetaObject.ofss );
 
                         // create partial query new JLC proxied instance
-                        return createNewJLC_I_3L( runtime_ctx, qmi_ctr );
+                        return createNewJLC_I_3L( action_ctx, qmi_ctr );
 
 
 
@@ -11159,32 +11199,41 @@
                         /**
                          * Create new instance of JLC.
                          *
-                         * @param {Object} runtime_ctx Container of actions for this newly being created JLC instance.
+                         * @param {Object} action_ctx Container of actions for this newly being created JLC instance.
                          * @param {Object} qmi_ctr Container of query method implementations for this newly being created JLC instance.
                         */
-                        function createNewJLC_I_3L ( runtime_ctx, qmi_ctr )
+                        function createNewJLC_I_3L ( action_ctx, qmi_ctr )
                         {
                             // create template object to clone current action context object
                             var ctxClone = Object.create( null );
 
-                            // cache already created query methods
-                            //ctxClone[ _ENUM.RUNTIME.QCMICO ] = qmi_ctr;
-
-                            // do cloning
-                            //ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYCR( runtime_ctx );
-
-
                             // do cloning of runtime context
-                            ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYCR( runtime_ctx );
+                            ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYCR( action_ctx );
+
+                            // check for current query cache object as a view bag data (approach from ASP.NET MVC)
+                            if ( action_ctx.viewBagData )
+                            {
+                                // // clone it
+                                // var currentQueryCacheObject = _COMMON.deepCopyYCR( action_ctx.viewBagData );
+
+                                // // do cloning of runtime context
+                                // ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYCR( action_ctx );
+
+                                // store current query cache object into current query chain cache object
+                                ctxClone[ _ENUM.RUNTIME.RTC ].currentQueryChainCacheObject.push( ctxClone[ _ENUM.RUNTIME.RTC ].viewBagData );
+
+                                // reset current view bag data
+                                action_ctx.viewBagData = undefined;
+                            }
+                            // else
+                            //     // do cloning of runtime context
+                            //     ctxClone[ _ENUM.RUNTIME.RTC ] = _COMMON.deepCopyYCR( action_ctx );
 
                             // cache already created query methods
                             ctxClone[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] = qmi_ctr;
 
                             // create and return proxied JLC instance
-                            var proxyAPI = new Proxy( ctxClone, _LINQ_CONTEXT._arrayProxyHandler );
-
-                            // return proxied JLC instance
-                            return proxyAPI;
+                            return new Proxy( ctxClone, _LINQ_CONTEXT._arrayProxyHandler );
                         }
                     }
                 }
@@ -11827,9 +11876,6 @@
 
                     if ( collectionIndex === -1 )
                     {
-                        // apply deep cloning to copy source collection "by value"
-                        //source_collection = _COMMON.deepCopyYCR( source_collection );
-
                         // yield the very next value of index that will refer to this new collection within collection history array
                         collectionIndex = _DATA.yieldIndex();
 
@@ -11950,6 +11996,9 @@
                         r_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
                         r_ctx.currentQueryIceMetaObject.length_gte_2 = source_collection.length > 1;
 
+                        // create query chain cache object
+                        r_ctx.currentQueryChainCacheObject = [];
+
                         // initially parent set to null
                         r_ctx.parentActionObject = null;
 
@@ -11993,6 +12042,6 @@
 
 
     /* THIS IS ENTRY POINT TO THE JLC 1.0 */
-    _SETUP.___init___( true );
+    _SETUP.___init___( true /** set whether enable using caching all queries' results */ );
 }
 )();

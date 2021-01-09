@@ -25,6 +25,14 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #28 - DPR #51:&nbsp;2021-01-09 &nbsp;&nbsp;3:20 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - the interface of query methods was tested up to 'reverseAllOrSubset' query methods (line 2191)
+        - fixed issues
+          - mutation of current query chain cache object, i.e. currentQueryChainCacheObject (line 2991 - 3034 of test_objects.js file)
+        - pending issues
+          - ![Mutation of current query chain cache object while viewing partial results](/_PENDING_ISSUES/01.issue.png)
  - TEST #27 - DPR #50:&nbsp;2021-01-05 &nbsp;&nbsp;3:07 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
@@ -39,7 +47,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - the interface of query methods was tested up to 'reverseAllOrSubset' query methods (line 2186)
           - adding some further code perf optimizations, i.e. caching queries (final & partial ones)
             - query examples usage ! (line 225 - 275, line 2436)
-          - issues
+          - pending issues
             - _CORE.aggregate_mtds  & _CORE.quantifying_mtds to be checked !
  - TEST #25 - DPR #48:&nbsp;2020-12-31 &nbsp;&nbsp;12:35 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
