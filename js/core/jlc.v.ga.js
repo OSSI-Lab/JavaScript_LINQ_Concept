@@ -1941,7 +1941,7 @@
                     function execute_C_I_1L ( action_ctx )
                     {
                         // update action context before running the chain
-                        updateQueryChainCacheObjectOfActionContext_I_2L( action_ctx );
+                        _ACTION.funcCommons.updateQueryChainCacheObjectOfActionContext( action_ctx, false );
 
                         // do necessary cleanup before producing pre-output result
                         _ACTION.hpidCommons.clearCache( action_ctx.parentActionObject.sharedSecondLevelSortingContext );
@@ -1957,19 +1957,6 @@
                         /**
                          * Local helper functions
                         */
-                        function updateQueryChainCacheObjectOfActionContext_I_2L ( action_ctx )
-                        {
-                            // check for current query cache object as a view bag data (approach from ASP.NET MVC)
-                            if ( action_ctx.viewBagData )
-                            {
-                                // store current query cache object into current query chain cache object
-                                action_ctx.currentQueryChainCacheObject.push( _COMMON.deepCopyYCR( action_ctx.viewBagData ) );
-
-                                // reset current view bag data
-                                action_ctx.viewBagData = undefined;
-                            }
-                        }
-
                         function executeActionsRecursively_I_2L ( parentAction, queryChainCacheObject )
                         {
                             // go all the way down to the root action
@@ -2006,6 +1993,31 @@
                             return output;
                         }
                     }
+                },
+
+            updateQueryChainCacheObjectOfActionContext: /**
+            * Update action context before running the chain.
+            */
+                function ( action_ctx, doAndReturnBackup ) {
+                    // backup of action context
+                    var action_ctx_backup;
+
+                    // create backup
+                    if(doAndReturnBackup)
+                        action_ctx_backup = _COMMON.deepCopyYCR(action_ctx);
+
+                    // check for current query cache object as a view bag data (approach from ASP.NET MVC)
+                    if ( action_ctx.viewBagData )
+                    {
+                        // store current query cache object into current query chain cache object
+                        action_ctx.currentQueryChainCacheObject.push( _COMMON.deepCopyYCR( action_ctx.viewBagData ) );
+
+                        // reset current view bag data
+                        action_ctx.viewBagData = undefined;
+                    }
+
+                    // return backup for later restoration
+                    return action_ctx_backup;
                 }
         }
     };
@@ -11570,7 +11582,7 @@
                             */
 
                             // current proxy GET trap
-                            var currentGetTrapType;
+                            var currentGetTrapType, actionCtxBackup;
 
                             try
                             {
@@ -11581,18 +11593,31 @@
                                 _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
 
+
                                 api.runtimeContext;
+                                // create backup of action context, update action context before running the chain and return the backup
+                                actionCtxBackup = _ACTION.funcCommons.updateQueryChainCacheObjectOfActionContext( api.runtimeContext, true );
                                 // invoke real data filtering and produce output, i.e. execute all actions
                                 _ACTION.funcCommons.executeChain( api.runtimeContext );
 
+
+
+                                // restore action context to the previous state
+                                api.runtimeContext = actionCtxBackup;
+
                                 // restore metadata of the contextually current collection state
                                 _ACTION.hpidCommons.updateColumnSetCestAndCols( api.runtimeContext.currentQueryIceMetaObject.length_gte_2, api.runtimeContext.currentQueryIceMetaObject.item, api.runtimeContext.currentQueryIceMetaObject.ofss );
+
+
 
                                 // return contextually current collection state
                                 return _ACTION.hpid.data;
                             }
                             catch ( err )
                             {
+                                // restore action context to the previous state
+                                api.runtimeContext = actionCtxBackup;
+
                                 // restore metadata of the contextually current collection state
                                 _ACTION.hpidCommons.updateColumnSetCestAndCols( api.runtimeContext.currentQueryIceMetaObject.length_gte_2, api.runtimeContext.currentQueryIceMetaObject.item, api.runtimeContext.currentQueryIceMetaObject.ofss );
 
