@@ -32,7 +32,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - fixed issues
           - mutation of current query chain cache object, i.e. currentQueryChainCacheObject (line 2991 - 3034 of test_objects.js file)
         - pending issues
-          - ![Mutation of current query chain cache object while viewing partial results](/_PENDING_ISSUES/01.issue.png, "Mutation of current query chain cache object while viewing partial results")
+          - ![Mutation of current query chain cache object while viewing partial results](/_PENDING_ISSUES/01.issue.png "Mutation of current query chain cache object while viewing partial results")
  - TEST #27 - DPR #50:&nbsp;2021-01-05 &nbsp;&nbsp;3:07 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
