@@ -3678,7 +3678,6 @@
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
          */
-            // @ts-ignore
             function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
@@ -3812,7 +3811,6 @@
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
          */
-            // @ts-ignore
             function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
@@ -3937,7 +3935,6 @@
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
          */
-            // @ts-ignore
             function ( params, actionContext, queryName, queryChainCacheObject )
             {
                 // check cache for this query
@@ -4699,11 +4696,16 @@
                             switch ( enumValue )
                             {
                                 case _ENUM.REVERSE:
+                                    if(index < 0 || count < 0) {
+                                        if(index < 0) throw new Error( '\r\nA non-negative number is required.\r\nParameter name: index.\r\n\r\n' );
+
+                                        if(count < 0) throw new Error( '\r\nA non-negative number is required.\r\nParameter name: count.\r\n\r\n' );
+                                    }
                                     // determine the valid range of sequence to reverse
-                                    if ( ( index || index === 0 ) && count )
+                                    else if ( ( index || index === 0 ) && count )
                                     {
                                         if ( index + count - 1 > currentColl.length - 1 )
-                                            throw new Error( '\r\nOffset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection !\r\n\r\n' );
+                                            throw new Error( '\r\nThe offset and length values are either outside the range of the array, or the number exceeds the number of items between the index and the end of the source collection.\r\n\r\n' );
                                         else if ( index + count - 1 === currentColl.length - 1 )
                                             i = currentColl.length - 1;
                                         else if ( index + count - 1 < currentColl.length - 1 )
@@ -4717,16 +4719,8 @@
                                         for ( j = 0; j < r_seq.length; j++ )
                                             currentColl[ j + index ] = r_seq[ j ];
                                     }
-                                    else if ( index || index === 0 )
-                                    {
-                                        // reverse the sequence
-                                        for ( i = currentColl.length - 1; i >= index; i-- )
-                                            r_seq.push( currentColl[ i ] );
-
-                                        // replace original sequence with the reversed sequence
-                                        for ( j = 0; j < r_seq.length; j++ )
-                                            currentColl[ j + index ] = r_seq[ j ];
-                                    }
+                                    else if ( ( index || index === 0 ) && count === 0 )
+                                        ;
                                     else if ( count )
                                     {
                                         // determine the start index

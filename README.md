@@ -25,6 +25,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #29 - DPR #52:&nbsp;2021-01-11 &nbsp;&nbsp;12:30 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - the interface of query methods was tested up to 'select' query methods (line 2270)
+        - fixed issues
+          - adding range validation for 'reverseAllOrSubset' query method
  - TEST #28 - DPR #51:&nbsp;2021-01-09 &nbsp;&nbsp;4:15 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
@@ -131,7 +137,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
     - FIXED:
       - bugs found while testing up to a point called [ // CODE WAS TESTED UNTIL HERE ! ]
       - I switched back 'reverseAllOrSubset' to be partial method in JavaScript ! (I misunderstood something in C#)
-      - due to design approach and JavaScript nature JLC's query methods called 'join' had to be renamed to 'innerJoin'
+      - due to design approach and JavaScript nature JLC's query method called 'join' had to be renamed to 'innerJoin'
  - TEST #8 - DPR #31:&nbsp;2020-11-18 &nbsp;&nbsp;6:50 PM Local Time &nbsp;:heavy_check_mark:
     - FIXED:
       - adding some further code perf optimizations (removing code redundancy)

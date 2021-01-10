@@ -2188,7 +2188,7 @@
         );
 
         // final query - produces output
-        var reverse_f1 = collection.reverseAllOrSubset();
+        var reverse_f1 = collection.reverseAllOrSubset().toArray();
 
         // final query - produces output
         var reverse_f2 = collection.reverseAllOrSubset(
@@ -2196,7 +2196,75 @@
                 'index': 4,
                 'count': 4
             }
-        );
+        ).toArray();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The offset and length values are either outside the range of the array, or the number exceeds the number of items between the index and the end of the source collection.
+        /*
+        var reverse_f3 = collection.reverseAllOrSubset(
+            {
+                'index': 4,
+                'count': 300
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
+        /*
+        var reverse_f4 = collection.reverseAllOrSubset(
+            {
+                'index': -4,
+                'count': 3
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
+        /*
+        var reverse_f5 = collection.reverseAllOrSubset(
+            {
+                'index': -4,
+                'count': 0
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
+        /*
+        var reverse_f6 = collection.reverseAllOrSubset(
+            {
+                'index': -4,
+                'count': 300
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Wymagana jest liczba nieujemna. Nazwa parametru: count
+        /*
+        var reverse_f7 = collection.reverseAllOrSubset(
+            {
+                'index': 4,
+                'count': -1
+            }
+        ).toArray();
+        */
+
+        // final query - produces output
+        var reverse_f8 = collection.reverseAllOrSubset(
+            {
+                'index': 4,
+                'count': 0
+            }
+        ).toArray();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Wymagana jest liczba nieujemna. Nazwa parametru: index
+        /*
+        var reverse_f9 = collection.reverseAllOrSubset(
+            {
+                'index': -4,
+                'count': -1
+            }
+        ).toArray();
+        */
 
         // final query - produces output
         var select_f1 = collection.select(
