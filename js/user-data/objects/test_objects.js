@@ -3390,6 +3390,7 @@
             }
         );
 
+
         // final query - produces output
         var first_f1 = collection.first(
             {
@@ -3407,6 +3408,30 @@
                 ]
             }
         );
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
+        /*
+        var first_f2 = collection.first(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        );
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
+        /*
+        var firstOrDefault_f2 = collection.firstOrDefault(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        );
+        */
 
         // final query - produces output
         var last_f1 = collection.last(
@@ -3426,6 +3451,31 @@
             }
         );
 
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
+        /*
+        var last_f2 = collection.last(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        );
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
+        /*
+        var lastOrDefault_f2 = collection.lastOrDefault(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ],
+                    [ "order.item.size", ">", 10 ]
+                ]
+            }
+        );
+        */
+
+
         // final query - produces output
         var single_f1 = collection.single(
             {
@@ -3439,22 +3489,44 @@
         var singleOrDefault_f1 = collection.singleOrDefault(
             {
                 'predicateArray': [
-                    [ "id", ">", 1995 ]
+                    [ "id", ">", 13 ]
                 ]
             }
         );
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
-        //var single_f2 = collection.single();
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
+        /*
+        var single_f2 = collection.single(
+            {
+                'predicateArray': [
+                    [ "order.item.size", ">", 6 ]
+                ]
+            }
+        );
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
+        /*
+        var singleOrDefault_f2 = collection.singleOrDefault(
+            {
+                'predicateArray': [
+                    [ "order.item.size", ">", 6 ]
+                ]
+            }
+        );
+        */
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
-        //var singleOrDefault_f2 = collection.singleOrDefault();
+        //var single_f3 = collection.single();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
+        //var singleOrDefault_f3 = collection.singleOrDefault();
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains no elements !
-        //var single_f3 = [].single();
+        //var single_f4 = [].single();
 
         // final query - produces output
-        var singleOrDefault_f3 = [].singleOrDefault();
+        var singleOrDefault_f4 = [].singleOrDefault();
 
 
 
