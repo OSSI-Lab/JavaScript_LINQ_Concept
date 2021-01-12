@@ -4815,14 +4815,21 @@
                                      * 
                                     */
 
-                                    // handle OutOfRangeException in the method called 'elementAt'
+                                    // handle out of range exception in the method called 'elementAt'
                                     if ( ( index < 0 || index >= currentColl.length ) && !count )
-                                        throw new Error( '\r\nThe index was out of range.\r\nIt must be non-negative and smaller than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
-                                    // handle OutOfRangeException in the method called 'elementAtOrDefault'
+                                        throw new Error( '\r\nThe index was out of range.\r\nMust be non-negative and less than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
+                                    // handle out of range exception in the method called 'elementAtOrDefault'
                                     else if ( ( index < 0 || index >= currentColl.length ) && count )
                                     {
                                         // fetch the default value of the collection input type
-                                        currentColl = jlc[ _ENUM.RUNTIME.RTC ].cdv;
+                                        var default_value = jlc[ _ENUM.RUNTIME.RTC ].cdv;
+
+                                        // if default value is an object go in line with C# and return the default of C#'s object, which is null that translates to undefined in JavaScript
+                                        if(_COMMON.convertTypeToString(default_value) === _ENUM.T2SR.OBJECT)
+                                            currentColl = undefined;
+                                        // otherwise return the computed default value
+                                        else
+                                            currentColl = default_value;
 
                                         // this flag tells to discard returned result and go for hpid's data
                                         _ACTION.hpid.done = true;
@@ -4842,7 +4849,7 @@
                                     }
 
                                 default:
-                                    throw new Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
+                                    throw new Error( '\r\nUnrecognized query name called \'' + _COMMON.getCustomValueOfSymbol(enumValue) + '\' !\r\n\r\n' );
                             }
 
                             // update HPID object to enable further data flow

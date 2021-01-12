@@ -3351,6 +3351,24 @@
             }
         );
 
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The index was out of range. Must be non-negative and less than the size of the collection. Parameter name: index
+        /*
+        var elementAt_f2 = collection.elementAt(
+            {
+                'index': 100
+            }
+        );
+        */
+        
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The index was out of range. Must be non-negative and less than the size of the collection. Parameter name: index
+        /*
+        var elementAt_f3 = collection.elementAt(
+            {
+                'index': -2
+            }
+        );
+        */
+
         // final query - produces output
         var elementAtOrDefault_f1 = collection.elementAtOrDefault(
             {
@@ -3359,9 +3377,16 @@
         );
 
         // final query - produces output
-        var elementAtOrDefault_f1 = collection.elementAtOrDefault(
+        var elementAtOrDefault_f2 = collection.elementAtOrDefault(
             {
-                'index': 2000
+                'index': 100
+            }
+        );
+
+        // final query - produces output
+        var elementAtOrDefault_f3 = collection.elementAtOrDefault(
+            {
+                'index': -2
             }
         );
 
