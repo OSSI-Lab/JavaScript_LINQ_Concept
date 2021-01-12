@@ -25,13 +25,13 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #30 - DPR #53:&nbsp;2021-01-12 &nbsp;&nbsp;3:15 PM Local Time&nbsp;:heavy_check_mark:
+ - TEST #30 - DPR #53:&nbsp;2021-01-12 &nbsp;&nbsp;3:14 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - the interface of query methods was tested up to 'first' query methods (line 3394)
         - fixed issues
           - enabling full query method interface for '*-Join' family of query methods !
-          - enhancing query method interface for 'elementAt' & 'elementAtOrDefault' query methods !
+          - enhancing internals for 'elementAt' & 'elementAtOrDefault' query methods !
  - TEST #29 - DPR #52:&nbsp;2021-01-11 &nbsp;&nbsp;12:30 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
