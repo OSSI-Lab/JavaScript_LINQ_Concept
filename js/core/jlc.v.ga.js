@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #52 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #53 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->  TEST & DEV      -> (In progress)
  *                                                                              -> Primitives   ->  Set for TEST
  *          What does it mean ?
@@ -3673,7 +3673,6 @@
          *  - enumValue
          *  - udfResultSelector
          *  - udfEqualityComparer
-         *  - strongUnmatch
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
@@ -5475,10 +5474,10 @@
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
                                 if ( doGrouping )
-                                    throw new Error( '\r\nThe context of [ ' + enumValue + ' ] requires providing valid "outerSelectorArray" or "innerSelectorArray" !\r\n\r\n' );
+                                    throw new Error( '\r\nThe context of ' + _COMMON.getCustomValueOfSymbol(enumValue) + ' requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !\r\n\r\n' );
                             }
                             else
-                                throw new Error( '\r\nInvalid logical configuration for [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nInvalid logical configuration (query method interface definition) for ' + _COMMON.getCustomValueOfSymbol(enumValue) + '.\r\nDefine both types of selectors for both collections or any-but-the-same type of selectors for both collections !\r\n\r\n' );
 
                             /**
                              * Here we arrive with created JOIN result !
@@ -5530,7 +5529,7 @@
                                 for ( var j = 0; j < innerColl.length; j++ )
                                 {
                                     // get current item from 'right-side' collection
-                                    r_item = innerColl[ i ];
+                                    r_item = innerColl[ j ];
 
                                     // perform 'right-side' key lookup
                                     isJoin = rightSideUdfSelector( r_item, rightSideSelectorArray, lskv );
@@ -5542,81 +5541,52 @@
                                 }
 
                                 // check for 'LEFT JOIN' case
-                                if ( isCollectionFixed && !r_item )
-                                {
+                                if ( isCollectionFixed && !r_item ) {
+                                    // get object keys
+                                    var keys = Object.getOwnPropertyNames( l_item );
+
                                     // discover default values for the 'right-side' collection object given current 'left-side' collection object
-                                    r_item = assignDefaultValues_I_3L( l_item, leftSideSelectorArray, rightSideSelectorArray );
+                                    r_item = assignDefaultValues_I_3L( l_item, keys, keys );
                                 }
 
-                                // create joined object if UDF Result Selector provided
-                                if ( udfResultSelector )
-                                {
+                                // create joined object if UDF Result Selector provided for 'LEFT JOIN' case
+                                if ( udfResultSelector && isCollectionFixed)
                                     // store joined object in the output array
                                     result.push( udfResultSelector( l_item, r_item ) );
-                                }
+                                // create joined object if UDF Result Selector provided for 'INNER JOIN' case
+                                else if ( udfResultSelector && r_item)
+                                    // store joined object in the output array
+                                    result.push( udfResultSelector( l_item, r_item ) );
                                 // otherwise perfom default object merge operation
-                                else
-                                {
+                                else if(!udfResultSelector)
                                     // store merged object in the output array
                                     result.push( { ...l_item, ...r_item } );
-                                }
                             }
                         }
 
                         function executeOperation_LDF_I_3L ( leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf )
                         {
-                            var l_obj, r_obj, isJoin;
+                            // outer collection key object, inner collection key object, are both key objects value-equal
+                            var l_key_obj, r_key_obj, isJoin;
 
-                            // deal with keys extractors
+                            // deal with function key extractors
                             if ( typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function' )
                             {
                                 // if user failed to provide equality UDF
                                 if ( !udfEqualityComparer )
-                                    throw new Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" key extractors only, you need to provide equality UDF !\r\n\r\n' );
+                                    throw new Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" array extractors only, you need to provide equality UDF !\r\n\r\n' );
+
+                                // outer collection current item, inner collection current item
+                                var l_obj_full, r_obj_full;
 
                                 // loop over 'left-side' collection
                                 for ( var i = 0; i < currentColl.length; i++ )
                                 {
-                                    // get the 'left-side' partial object
-                                    l_obj = leftSideSelectorArrayOrUdf( currentColl[ i ] );
+                                    // access current outer collection item
+                                    l_obj_full = currentColl[ i ];
 
-                                    // unmark joined object
-                                    isJoin = false;
-
-                                    // loop over 'right-side' collection
-                                    for ( var i = 0; i < innerColl.length; i++ )
-                                    {
-                                        // get the 'right-side' partial object
-                                        r_obj = rightSideSelectorArrayOrUdf( innerColl[ i ] );
-
-                                        // if objects match given the key
-                                        if ( udfEqualityComparer( l_obj, r_obj ) )
-                                        {
-                                            // execute JOIN
-                                            performJoinOperation_I_4L( l_obj, r_obj );
-
-                                            // mark joined object
-                                            isJoin = true;
-
-                                            // break the 'right-side' collection loop
-                                            break;
-                                        }
-                                    }
-
-                                    // check for 'LEFT JOIN' case
-                                    if ( isCollectionFixed && !isJoin )
-                                        // execute LEFT JOIN
-                                        performLeftJoinOperation_I_4L( l_obj );
-                                }
-                            }
-                            // deal with keys
-                            else
-                            {
-                                // loop over 'left-side' collection
-                                for ( var i = 0; i < currentColl.length; i++ )
-                                {
-                                    // get the 'left-side' partial object
-                                    l_obj = currentColl[ i ];
+                                    // get the 'left-side' key object
+                                    l_key_obj = leftSideSelectorArrayOrUdf( l_obj_full );
 
                                     // unmark joined object
                                     isJoin = false;
@@ -5624,14 +5594,17 @@
                                     // loop over 'right-side' collection
                                     for ( var j = 0; j < innerColl.length; j++ )
                                     {
-                                        // get the 'right-side' partial object
-                                        r_obj = innerColl[ j ];
+                                        // access current outer collection item
+                                        r_obj_full = innerColl[ j ];
 
-                                        // if objects match given the key
-                                        if ( ldfEqualityComparer_I_4L( l_obj, r_obj, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
+                                        // get the 'right-side' key object
+                                        r_key_obj = rightSideSelectorArrayOrUdf( r_obj_full );
+
+                                        // if objects match the key
+                                        if ( udfEqualityComparer( l_key_obj, r_key_obj ) )
                                         {
                                             // execute JOIN
-                                            performJoinOperation_I_4L( l_obj, r_obj );
+                                            performJoinOperation_I_4L( l_obj_full, r_obj_full );
 
                                             // mark joined object
                                             isJoin = true;
@@ -5644,9 +5617,49 @@
                                     // check for 'LEFT JOIN' case
                                     if ( isCollectionFixed && !isJoin )
                                         // execute LEFT JOIN
-                                        performLeftJoinOperation_I_4L( l_obj );
+                                        performLeftJoinOperation_I_4L( l_obj_full );
                                 }
                             }
+                            // deal with array key extractors
+                            else if ( Array.isArray(leftSideSelectorArrayOrUdf) && Array.isArray(rightSideSelectorArrayOrUdf) )
+                            {
+                                // loop over 'left-side' collection
+                                for ( var i = 0; i < currentColl.length; i++ )
+                                {
+                                    // access current outer collection item
+                                    l_obj_full = currentColl[ i ];
+
+                                    // unmark joined object
+                                    isJoin = false;
+
+                                    // loop over 'right-side' collection
+                                    for ( var j = 0; j < innerColl.length; j++ )
+                                    {
+                                        // access current outer collection item
+                                        r_obj_full = innerColl[ j ];
+
+                                        // if objects match the key
+                                        if ( ldfEqualityComparer_I_4L( l_obj_full, r_obj_full, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
+                                        {
+                                            // execute JOIN
+                                            performJoinOperation_I_4L( l_obj_full, r_obj_full );
+
+                                            // mark joined object
+                                            isJoin = true;
+
+                                            // break the 'right-side' collection loop
+                                            break;
+                                        }
+                                    }
+
+                                    // check for 'LEFT JOIN' case
+                                    if ( isCollectionFixed && !isJoin )
+                                        // execute LEFT JOIN
+                                        performLeftJoinOperation_I_4L( l_obj_full );
+                                }
+                            }
+                            else
+                                throw new Error( '\r\nWhen performing JOIN operation using either "left-side" && "right-side" array extractors only or "left-side" && "right-side" function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
 
 
 
@@ -5713,11 +5726,11 @@
                                 var keys = Object.getOwnPropertyNames( l_o );
 
                                 // assign default values
-                                r_obj = assignDefaultValues_I_3L( l_o, keys, keys );
+                                r_key_obj = assignDefaultValues_I_3L( l_o, keys, keys );
 
                                 // concat left object and right object, aka join them together
                                 Object.assign( leftJoinObj.left, l_o );
-                                Object.assign( leftJoinObj.right, r_obj );
+                                Object.assign( leftJoinObj.right, r_key_obj );
 
                                 // store joined object in the final output array
                                 result.push( leftJoinObj );

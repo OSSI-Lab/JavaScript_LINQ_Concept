@@ -59,7 +59,7 @@ var my_custom_jlc_common = {
         }
         // compare booleans
         else if ( typeof kC === 'object' )
-        {
+        {   
             if(selectors) {
                 //extract property -  nothing extraordinary, just showing the examplary usage !
                 var property = selectors[ 0 ][ 0 ];

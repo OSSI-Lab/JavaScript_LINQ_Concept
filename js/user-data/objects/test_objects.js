@@ -2238,7 +2238,7 @@
         ).toArray();
         */
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Wymagana jest liczba nieujemna. Nazwa parametru: count
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: count
         /*
         var reverse_f7 = collection.reverseAllOrSubset(
             {
@@ -2256,7 +2256,7 @@
             }
         ).toArray();
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Wymagana jest liczba nieujemna. Nazwa parametru: index
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
         /*
         var reverse_f9 = collection.reverseAllOrSubset(
             {
@@ -2322,7 +2322,7 @@
         ).toArray();
 
         /*
-        // final query - produces output -> throws Error because 'order.item.size' is not iterable -> error message = 'Selected property [ order.item.size ] is not iterable in the context of "selectMany" !'
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> 'Selected property [ order.item.size ] is not iterable in the context of "selectMany" !'
         var selectMany_f2 = collection.selectMany(
             {
                 //
@@ -2466,6 +2466,68 @@
             }
         );
 
+        // final query - produces output
+        var select_f4 = collection.select(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+                'selectorArray': [
+                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
+                ],
+                // define inline UDF selector
+                'udfSelector': function ( item, selectors, index )
+                {
+                    /**
+                     * Provide the logic valid for your cases !
+                     * 
+                     * This is only exemplary implementation logic.
+                    */
+
+                    // declare select result object
+                    var result = Object.create( null );
+
+                    /**
+                     * Select all required props
+                    */
+                    result.id = item[ 'id' ];
+                    result.name = item[ 'name' ];
+                    result.img = item[ 'img' ];
+                    result.order = item[ 'order' ];
+
+                    // if original positional index in the collection is required, add it
+                    if ( index !== undefined )
+                        result.collectionPositionalIndex = index;
+
+                    // return select result object
+                    return result;
+                },
+                'udfResultSelector': null, // 'select' does not require UDF results selector !
+                'incorporateIndex': false
+            }
+        ).toArray();
+
+        // final query - produces output
+        var selectMany_f4 = collection.selectMany(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+
+                'selectorArray': [
+                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
+                ],
+                // define library UDF selector
+                'udfSelector': udf_commons.udfSelector,
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'incorporateIndex': false
+            }
+        ).toArray();
+
         /**
          * JOINS
         */
@@ -2540,6 +2602,143 @@
         );
 
         // final query - produces output
+        var join_f2 = collection.innerJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem, outerSelectorArray) {
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of outerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue) {
+                    // is join
+                    var isJoin = false;
+
+                    if(!innerCollectionItem) return isJoin;
+
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of innerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the right-side item to check the key
+                    var outputItem = Object.create(null);
+
+                    // create the right-side item
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem[prop];
+
+
+                    /**
+                     * Determine "join condition" - exemplary logic !
+                    */
+                    
+                    // create array of keys and array of their values of the passed left-side key
+                    var allKeyPropNames, allKeyPropValues = [];
+                    allKeyPropNames = Object.getOwnPropertyNames(outerCollectionItemKeyValue);
+                    for(let keyProp of allKeyPropNames)
+                        allKeyPropValues.push(outerCollectionItemKeyValue[keyProp]);
+
+
+                    // create array of keys and array of their values of the passed inner collection item
+                    var allInnerPropNames, allInnerPropValues = [];
+                    allInnerPropNames = Object.getOwnPropertyNames(outputItem);
+                    for(let keyProp of allInnerPropNames)
+                        allInnerPropValues.push(outputItem[keyProp]);
+
+                    // check the join
+                    isJoin = allKeyPropNames.equals(allInnerPropNames) && allKeyPropValues.equals(allInnerPropValues);
+
+
+                    // return the key lookup bool result
+                    return isJoin;
+                },
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem) {
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    outputItem.left = outerCollectionMatchingItem;
+                    outputItem.right = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfEqualityComparer': udf_commons.udfEqualityComparer
+            }
+        ).toArray();
+
+        // final query - produces output
+        var join_f3 = collection.innerJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        ).toArray();
+
+
+
+        // final query - produces output
         var leftJoin_f1 = collection.leftJoin(
             {
                 'innerColl': innerColl,
@@ -2572,6 +2771,143 @@
                 'udfEqualityComparer': null
             }
         );
+
+        // final query - produces output
+        var leftJoin_f2 = collection.leftJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem, outerSelectorArray) {
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of outerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue) {
+                    // is join
+                    var isJoin = false;
+
+                    if(!innerCollectionItem) return isJoin;
+
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of innerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the right-side item to check the key
+                    var outputItem = Object.create(null);
+
+                    // create the right-side item
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem[prop];
+
+
+                    /**
+                     * Determine "join condition" - exemplary logic !
+                    */
+                    
+                    // create array of keys and array of their values of the passed left-side key
+                    var allKeyPropNames, allKeyPropValues = [];
+                    allKeyPropNames = Object.getOwnPropertyNames(outerCollectionItemKeyValue);
+                    for(let keyProp of allKeyPropNames)
+                        allKeyPropValues.push(outerCollectionItemKeyValue[keyProp]);
+
+
+                    // create array of keys and array of their values of the passed inner collection item
+                    var allInnerPropNames, allInnerPropValues = [];
+                    allInnerPropNames = Object.getOwnPropertyNames(outputItem);
+                    for(let keyProp of allInnerPropNames)
+                        allInnerPropValues.push(outputItem[keyProp]);
+
+                    // check the join
+                    isJoin = allKeyPropNames.equals(allInnerPropNames) && allKeyPropValues.equals(allInnerPropValues);
+
+
+                    // return the key lookup bool result
+                    return isJoin;
+                },
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem) {
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    outputItem.left = outerCollectionMatchingItem;
+                    outputItem.right = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfEqualityComparer': udf_commons.udfEqualityComparer
+            }
+        ).toArray();
+
+        // final query - produces output
+        var leftJoin_f3 = collection.leftJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        ).toArray();
+
+
 
         // final query - produces output
         var groupJoin_f1 = collection.groupJoin(
@@ -2608,6 +2944,235 @@
         );
 
         // final query - produces output
+        var groupJoin_f2 = collection.groupJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem, outerSelectorArray) {
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of outerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue) {
+                    // is join
+                    var isJoin = false;
+
+                    if(!innerCollectionItem) return isJoin;
+
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of innerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the right-side item to check the key
+                    var outputItem = Object.create(null);
+
+                    // create the right-side item
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem[prop];
+
+
+                    /**
+                     * Determine "join condition" - exemplary logic !
+                    */
+                    
+                    // create array of keys and array of their values of the passed left-side key
+                    var allKeyPropNames, allKeyPropValues = [];
+                    allKeyPropNames = Object.getOwnPropertyNames(outerCollectionItemKeyValue);
+                    for(let keyProp of allKeyPropNames)
+                        allKeyPropValues.push(outerCollectionItemKeyValue[keyProp]);
+
+
+                    // create array of keys and array of their values of the passed inner collection item
+                    var allInnerPropNames, allInnerPropValues = [];
+                    allInnerPropNames = Object.getOwnPropertyNames(outputItem);
+                    for(let keyProp of allInnerPropNames)
+                        allInnerPropValues.push(outputItem[keyProp]);
+
+                    // check the join
+                    isJoin = allKeyPropNames.equals(allInnerPropNames) && allKeyPropValues.equals(allInnerPropValues);
+
+
+                    // return the key lookup bool result
+                    return isJoin;
+                },
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem) {
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    outputItem.left = outerCollectionMatchingItem;
+                    outputItem.right = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfEqualityComparer': udf_commons.udfEqualityComparer
+            }
+        ).toArray();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The context of GROUP_JOIN requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !
+        /*
+        var groupJoin_f3 = collection.groupJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
+        /*
+        var groupJoin_f4 = collection.groupJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
+        /*
+        var groupJoin_f5 = collection.groupJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        ).toArray();
+        */
+
+
+
+        // final query - produces output
         var groupLeftJoin_f1 = collection.groupLeftJoin(
             {
                 'innerColl': innerColl,
@@ -2640,6 +3205,144 @@
                 'udfEqualityComparer': null
             }
         );
+
+        // final query - produces output
+        var groupLeftJoin_f2 = collection.groupLeftJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem, outerSelectorArray) {
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of outerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue) {
+                    // is join
+                    var isJoin = false;
+
+                    if(!innerCollectionItem) return isJoin;
+
+                    // valid props array
+                    var props = [];
+
+                    // fetch all valid props from the input collection item
+                    for(let selector of innerSelectorArray) {
+                        if(selector[1] === true)
+                            props.push(selector[0]);
+                    }
+
+                    // define the right-side item to check the key
+                    var outputItem = Object.create(null);
+
+                    // create the right-side item
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem[prop];
+
+
+                    /**
+                     * Determine "join condition" - exemplary logic !
+                    */
+                    
+                    // create array of keys and array of their values of the passed left-side key
+                    var allKeyPropNames, allKeyPropValues = [];
+                    allKeyPropNames = Object.getOwnPropertyNames(outerCollectionItemKeyValue);
+                    for(let keyProp of allKeyPropNames)
+                        allKeyPropValues.push(outerCollectionItemKeyValue[keyProp]);
+
+
+                    // create array of keys and array of their values of the passed inner collection item
+                    var allInnerPropNames, allInnerPropValues = [];
+                    allInnerPropNames = Object.getOwnPropertyNames(outputItem);
+                    for(let keyProp of allInnerPropNames)
+                        allInnerPropValues.push(outputItem[keyProp]);
+
+                    // check the join
+                    isJoin = allKeyPropNames.equals(allInnerPropNames) && allKeyPropValues.equals(allInnerPropValues);
+
+
+                    // return the key lookup bool result
+                    return isJoin;
+                },
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem) {
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    outputItem.left = outerCollectionMatchingItem;
+                    outputItem.right = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfEqualityComparer': udf_commons.udfEqualityComparer
+            }
+        ).toArray();
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The context of GROUP_LEFT_JOIN requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !
+        /*
+        var groupLeftJoin_f3 = collection.groupLeftJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+            }
+        ).toArray();
+        */
+
 
         // final query - produces output
         var elementAt_f1 = collection.elementAt(
