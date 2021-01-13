@@ -3584,25 +3584,8 @@
         );
         */
 
-
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! ->
         /*
-            THE PREVIOUS ERROR:
-            Dealing with objects of type [PLAIN_OBJECT] in the context of [PLAIN_OBJECT] requires providing valid column name or column path !
-            This column called "order.xyz.abc" is not a valid column name or column path (property name or property path) !
-
-
-            Why was such error ?
-            Because for syntax checking you need to know all valid columns !
-            Hence, to learn the structure of the collection objects, you analyze the first object from the collection !
-        */
-
-        /*
-            THE CURRENT ERROR:
-
-            Object reference not set to an instance of an object [ order.xyz.abc ] !
-        */
-        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.xyz.abc ] !
         var all_f3 = collection_nullProps_where_take_skip_all_any_2.all(
             {
                 'predicateArray': [
@@ -3624,6 +3607,7 @@
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Method [ all ] has to have "params" object provided !
         //var all_f3 = collection.all();
+
 
         // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f1 = collection.min(
