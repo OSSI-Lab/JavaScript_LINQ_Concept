@@ -25,7 +25,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #31 - DPR #54:&nbsp;2021-01-13 &nbsp;&nbsp;1:35 PM Local Time&nbsp;:heavy_check_mark:
+ - TEST #31 - DPR #54:&nbsp;2021-01-13 &nbsp;&nbsp;1:33 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - the interface of query methods was tested up to 'min' query methods (line 3613)
