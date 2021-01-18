@@ -13,8 +13,8 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #54 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
- *                                                                              -> Objects      ->  TEST & DEV      -> (In progress)
+ *      ⚠️ DPR #55 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *                                                                              -> Objects      ->  RC Version             -> (In progress)
  *                                                                              -> Primitives   ->  Set for TEST
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
@@ -921,7 +921,7 @@
         // create 'current' query-wide HPID, i.e. holder of physical intermediate data
         hpid: {
             // is data holder activated
-            isOn: false,
+            isSwitchedOn: false,
 
             // array for storing physical intermediate data
             data: [],
@@ -1337,7 +1337,7 @@
             reset: function ()
             {
                 // turn hpid off
-                _ACTION.hpid.isOn = false;
+                _ACTION.hpid.isSwitchedOn = false;
 
                 // reset holder of physical intermediate data
                 Array.isArray( _ACTION.hpid.data ) ? _ACTION.hpid.data.length = 0 : _ACTION.hpid.data = [];
@@ -1631,10 +1631,10 @@
             create: /**
             * Create action that represents filtering logic for given JLC method.
             */
-                function ( jlc_instance_ctx, jlc_instance_qmi, core_method_bound, jlc_query_name, jlc_query_filters, jlc_query_constraint_def, to_execute )
+                function ( jlc_instance_ctx, jlc_instance_qmi, jlc_query_cache_config, core_method_bound, jlc_query_name, jlc_query_filters, jlc_query_constraint_def, to_execute )
                 {
                     // create an action
-                    var action = createAction_I_1L( jlc_query_name, jlc_instance_ctx, core_method_bound );
+                    var action = createAction_I_1L( jlc_query_name, jlc_instance_ctx, core_method_bound, jlc_query_cache_config );
 
                     // create an action context 
                     var action_context = createActionContext_I_1L( jlc_query_name, jlc_instance_ctx, jlc_query_filters, action );
@@ -1670,7 +1670,7 @@
                     /**
                      * Local helper functions 
                     */
-                    function createAction_I_1L ( jqn, runtime_ctx, c_m_b )
+                    function createAction_I_1L ( jqn, runtime_ctx, c_m_b, j_q_c_c )
                     {
                         // create action object
                         var ao = Object.create( null );
@@ -1704,10 +1704,13 @@
                         // store parent of this action (join parent of this action with this action to create action chain)
                         ao.parentActionObject = runtime_ctx.parentActionObject;
 
+                        // store query cache config
+                        ao.queryCacheConfig = j_q_c_c;
+
                         // execute this action by invoking its core method with binded parameters
-                        ao.execute = function (queryChainCacheObject)
+                        ao.execute = function ( queryChainCacheObject )
                         {
-                            return c_m_b.bind( null, this, this.name, queryChainCacheObject )();
+                            return c_m_b.bind( null, this, this.name, queryChainCacheObject, this.queryCacheConfig )();
                         };
 
 
@@ -1970,9 +1973,9 @@
 
                             // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
                             if ( parentAction.returnsData )
-                                return parentAction.execute(queryChainCacheObject);
+                                return parentAction.execute( queryChainCacheObject );
                             else
-                                parentAction.execute(queryChainCacheObject);
+                                parentAction.execute( queryChainCacheObject );
                         }
 
                         function getOutput_I_2L ( result )
@@ -1998,13 +2001,14 @@
             updateQueryChainCacheObjectOfActionContext: /**
             * Update action context before running the chain.
             */
-                function ( action_ctx, doAndReturnBackup ) {
+                function ( action_ctx, doAndReturnBackup )
+                {
                     // backup of action context
                     var action_ctx_backup;
 
                     // create backup
-                    if(doAndReturnBackup)
-                        action_ctx_backup = _COMMON.deepCopyYCR(action_ctx);
+                    if ( doAndReturnBackup )
+                        action_ctx_backup = _COMMON.deepCopyYCR( action_ctx );
 
                     // check for current query cache object as a view bag data (approach from ASP.NET MVC)
                     if ( action_ctx.viewBagData )
@@ -2099,7 +2103,27 @@
                 */
                 function is_PT_I_1L ( o )
                 {
-                    return [ 'string', 'number', 'boolean' ].indexOf( typeof o ) > -1;
+                    return [ _ENUM.T2SR.STRING, _ENUM.T2SR.NUMBER, _ENUM.T2SR.BOOLEAN ].includes( _COMMON.convertTypeToString( o ) );
+                }
+            },
+
+        isPrimitiveType_T2SR: /**
+         * Detect type of passed item.
+         *
+         * @param {any} o
+         */
+            function ( o )
+            {
+                return is_PTT2SR_I_1L( o );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function is_PTT2SR_I_1L ( o )
+                {
+                    return [ _ENUM.T2SR.STRING, _ENUM.T2SR.NUMBER, _ENUM.T2SR.BOOLEAN ].includes( o );
                 }
             },
 
@@ -2383,36 +2407,48 @@
                     // get filtering property name
                     var selectorName = param_arr[ param_arr.length - 2 ];
 
-                    // reference core method args and get filtering property
-                    var property = param_arr[ param_arr.length - 1 ][ selectorName ][ 0 ];
+                    // get the selector
+                    var selectorObj = param_arr[ param_arr.length - 1 ][ selectorName ];
 
-                    // if it's an array, get the first item
-                    if ( _COMMON.convertTypeToString( property ) === _ENUM.T2SR.ARRAY )
-                        property = property[ 0 ];
 
-                    // is special property
-                    var isp = _COMMON.isSpecialProperty( property );
+                    // reference core method args and get filtering property; value of filtering property; is special property
+                    var property, propertyValue, isp = false;
 
                     /**
                      * Loop this-query-flow collection and find the first existing property, based on which we can determine its type !
                      * It is assumed that some object may miss such property.
                     */
-                    var currentColl = _DATA.fetchFlowData( api.runtimeContext.collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( api[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
-                    var propertyValue;
-                    for ( var i = 0; i < currentColl.length; i++ )
+
+                    // if selector is defined
+                    if ( selectorObj )
                     {
-                        /**
-                         * Get property value and carry out validation phase if it's ordinary property.
-                         * Only carry out validation phase if it's special property.
-                        */
-                        propertyValue = _COMMON.getPropertyValueFromObject( property, currentColl[ i ], isp, is_t2sr_r );
+                        // reference core method args and get filtering property
+                        property = selectorObj[ 0 ];
 
-                        // if property doesn't exist or has non-defined value
-                        if ( propertyValue === undefined || propertyValue === null ) continue;
+                        // if it's an array, get the first item
+                        if ( _COMMON.convertTypeToString( property ) === _ENUM.T2SR.ARRAY )
+                            property = property[ 0 ];
 
-                        // if exists property (if we arrive here) and has value, break further search
-                        break;
+                        // is special property
+                        isp = _COMMON.isSpecialProperty( property );
+
+                        // loop over the collection to find the first "right" value of the property-in-question
+                        for ( var i = 0; i < currentColl.length; i++ )
+                        {
+                            /**
+                             * Get property value and carry out validation phase if it's ordinary property.
+                             * Only carry out validation phase if it's special property.
+                            */
+                            propertyValue = _COMMON.getPropertyValueFromObject( property, currentColl[ i ], isp, is_t2sr_r );
+
+                            // if property doesn't exist or has non-defined value
+                            if ( propertyValue === undefined || propertyValue === null ) continue;
+
+                            // if exists property (if we arrive here) and has value, break further search
+                            break;
+                        }
                     }
 
                     /**
@@ -2423,6 +2459,8 @@
                     api.runtimeContext.minMaxAverageValueTypeObject.t2sr = Object.create( null );
                     api.runtimeContext.minMaxAverageValueTypeObject.t2sr.isp = isp;
                     api.runtimeContext.minMaxAverageValueTypeObject.t2sr.type = isp ? _COMMON.determineSpecialPropertyType( property ) : _COMMON.convertTypeToString( propertyValue );
+                    api.runtimeContext.minMaxAverageValueTypeObject.hadCollectionAtLeastTwoItems = currentColl.length > 1;
+                    api.runtimeContext.minMaxAverageValueTypeObject.throwByObjectStringError = !api.runtimeContext.minMaxAverageValueTypeObject.selector && currentColl.length > 1;
 
 
 
@@ -2612,7 +2650,7 @@
                         if ( pvh_init && !validatePvh_I_2L( pvh ) )
                         {
                             if ( letThrowError )
-                                throw new Error( '\r\n Object reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nObject reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
                         }
                         // pvh was initialized
                         else if ( pvh_init )
@@ -2632,7 +2670,7 @@
 
                     // pvh was initialized, but last property in the path evaluated to null or undefined
                     if ( !validatePvh_I_2L( pvh ) && letThrowError )
-                        throw new Error( '\r\n Object reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
+                        throw new Error( '\r\nObject reference not set to an instance of an object [ ' + pn + ' ] !\r\n\r\n' );
 
                     // return value of the property or property
                     return pvh;
@@ -3676,11 +3714,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3706,11 +3745,15 @@
         restriction_mtds: /**
          * @param {Object} params
          *  - predicateArray
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3740,11 +3783,12 @@
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
          * @param {boolean} sharedSecondLevelSortingContext
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject, sharedSecondLevelSortingContext )
+            function ( params, actionContext, queryName, queryChainCacheObject, sharedSecondLevelSortingContext, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3775,11 +3819,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3809,11 +3854,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3840,11 +3886,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3871,11 +3918,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3901,11 +3949,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3933,11 +3982,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3962,11 +4012,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -3997,11 +4048,12 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObject
+         * @param {Object} queryCacheConfig
          */
-            function ( params, actionContext, queryName, queryChainCacheObject )
+            function ( params, actionContext, queryName, queryChainCacheObject, queryCacheConfig )
             {
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( queryName, queryChainCacheObject, queryCacheConfig, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
@@ -4168,6 +4220,7 @@
                     // create input collection cache
                     var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
+
                     // current object
                     var c_o;
                     // loop over current collection and apply filters
@@ -4209,16 +4262,12 @@
                 {
                     // for given predicates
                     if ( predicateArray )
-                    {
                         // execute the "IF" filter and return the result
                         return _LOGICAL_FILTER.applyLogicalWhereFilter( jlc, predicateArray, enumValue );
-                    }
                     // for no given predicates
                     else
-                    {
                         // check if there are any items in the sequence (contextually current collection within history array)
                         return _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false ).length > 0;
-                    }
                 }
             },
 
@@ -4271,6 +4320,7 @@
                 {
                     // get contextually current collection within history array
                     var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+
 
                     // declare current intermediate collection
                     var c_i_c = [];
@@ -4341,7 +4391,7 @@
 
                     // update HPID object to enable further data flow
                     _ACTION.hpid.data = c_i_c;
-                    if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                    if ( !_ACTION.hpid.isSwitchedOn ) _ACTION.hpid.isSwitchedOn = true;
                 }
             },
 
@@ -4372,6 +4422,7 @@
                     {
                         // get contextually current collection within history array
                         var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+
 
                         // declare groups object being an array !
                         var groups = [];
@@ -4432,14 +4483,14 @@
 
 
                         // ensure that HPID is turned on
-                        if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                        if ( !_ACTION.hpid.isSwitchedOn ) _ACTION.hpid.isSwitchedOn = true;
                         // check if terminate data flow
                         if ( terminateFlowAndReturnData )
                             _ACTION.hpid.done = true;
                     }
                     // otherwise throw error
                     else
-                        throw new Error( '\r\n"groupBy" method requires a grouping key selector to be present.\r\nCurrent invocation is missing the grouping key selector (primitive one || UDF) !\r\n\r\n' );
+                        throw new Error( '\r\n\'groupBy\' query method requires a grouping key selector to be present.\r\nCurrent invocation is missing the grouping key selector (primitive one || UDF) !\r\n\r\n' );
 
 
 
@@ -4683,6 +4734,7 @@
                         // get contextually current collection within history array
                         var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
+
                         // if the sequence contains elements
                         if ( currentColl.length )
                         {
@@ -4695,10 +4747,11 @@
                             switch ( enumValue )
                             {
                                 case _ENUM.REVERSE:
-                                    if(index < 0 || count < 0) {
-                                        if(index < 0) throw new Error( '\r\nA non-negative number is required.\r\nParameter name: index.\r\n\r\n' );
+                                    if ( index < 0 || count < 0 )
+                                    {
+                                        if ( index < 0 ) throw new Error( '\r\nA non-negative number is required.\r\nParameter name: index.\r\n\r\n' );
 
-                                        if(count < 0) throw new Error( '\r\nA non-negative number is required.\r\nParameter name: count.\r\n\r\n' );
+                                        if ( count < 0 ) throw new Error( '\r\nA non-negative number is required.\r\nParameter name: count.\r\n\r\n' );
                                     }
                                     // determine the valid range of sequence to reverse
                                     else if ( ( index || index === 0 ) && count )
@@ -4757,7 +4810,7 @@
                                     {
                                         // for null or undefined count just throw an error
                                         if ( !count && count !== 0 )
-                                            throw new Error( '\r\nSupply required parameter called "count" !\r\n\r\n' );
+                                            throw new Error( '\r\nSupply required parameter called \'count\' !\r\n\r\n' );
 
                                         // determine the valid range of sequence to extract
                                         if ( count > 0 && count < currentColl.length )
@@ -4785,7 +4838,7 @@
                                     {
                                         // for null or undefined count just throw an error
                                         if ( !count && count !== 0 )
-                                            throw new Error( '\r\nSupply required parameter called "count" !\r\n\r\n' );
+                                            throw new Error( '\r\nSupply required parameter called \'count\' !\r\n\r\n' );
 
                                         // determine the valid range of sequence to extract
                                         if ( count >= currentColl.length )
@@ -4817,7 +4870,7 @@
 
                                     // handle out of range exception in the method called 'elementAt'
                                     if ( ( index < 0 || index >= currentColl.length ) && !count )
-                                        throw new Error( '\r\nThe index was out of range.\r\nMust be non-negative and less than the size of the collection.\r\nParameter name: "index" !\r\n\r\n' );
+                                        throw new Error( '\r\nThe index was out of range.\r\nMust be non-negative and less than the size of the collection.\r\nParameter name: \'index\' !\r\n\r\n' );
                                     // handle out of range exception in the method called 'elementAtOrDefault'
                                     else if ( ( index < 0 || index >= currentColl.length ) && count )
                                     {
@@ -4825,7 +4878,7 @@
                                         var default_value = jlc[ _ENUM.RUNTIME.RTC ].cdv;
 
                                         // if default value is an object go in line with C# and return the default of C#'s object, which is null that translates to undefined in JavaScript
-                                        if(_COMMON.convertTypeToString(default_value) === _ENUM.T2SR.OBJECT)
+                                        if ( _COMMON.convertTypeToString( default_value ) === _ENUM.T2SR.OBJECT )
                                             currentColl = undefined;
                                         // otherwise return the computed default value
                                         else
@@ -4849,12 +4902,12 @@
                                     }
 
                                 default:
-                                    throw new Error( '\r\nUnrecognized query name called \'' + _COMMON.getCustomValueOfSymbol(enumValue) + '\' !\r\n\r\n' );
+                                    throw new Error( '\r\nUnrecognized query name called \'' + _COMMON.getCustomValueOfSymbol( enumValue ) + '\' !\r\n\r\n' );
                             }
 
                             // update HPID object to enable further data flow
                             _ACTION.hpid.data = currentColl;
-                            if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                            if ( !_ACTION.hpid.isSwitchedOn ) _ACTION.hpid.isSwitchedOn = true;
                         }
                     }
                 }
@@ -4881,6 +4934,7 @@
                     // get contextually current collection within history array
                     var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
+
                     // if the sequence contains elements
                     if ( currentColl.length )
                     {
@@ -4889,7 +4943,7 @@
                             case _ENUM.CONTAINS:
                                 // if the parameter called 'collection' is not a single object, throw the error
                                 if ( _COMMON.convertTypeToString( collectionOrItem ) === _ENUM.T2SR.ARRAY )
-                                    throw new Error( '\r\nInput type of parameter called "collectionOrItem" in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc[ _ENUM.RUNTIME.RTC ].currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
+                                    throw new Error( '\r\nInput type of parameter called \'collectionOrItem\' in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc[ _ENUM.RUNTIME.RTC ].currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
 
                                 // determine whether source collection contains particular item, i.e get match object array (match_arr)
                                 var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
@@ -4915,12 +4969,12 @@
                                 break;
 
                             default:
-                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + _COMMOn.getCustomValueOfSymbol( enumValue ) + ' ] !\r\n\r\n' );
                         }
 
                         // update HPID object to enable further data flow
                         _ACTION.hpid.data = currentColl;
-                        if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                        if ( !_ACTION.hpid.isSwitchedOn ) _ACTION.hpid.isSwitchedOn = true;
                     }
 
 
@@ -5122,6 +5176,7 @@
                     // get contextually current collection within history array
                     var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
+
                     // if the sequence contains elements
                     if ( currentColl.length )
                     {
@@ -5140,12 +5195,12 @@
                                 break;
 
                             default:
-                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + _COMMON.getCustomValueOfSymbol( enumValue ) + ' ] !\r\n\r\n' );
                         }
 
                         // update HPID object to enable further data flow
                         _ACTION.hpid.data = currentColl;
-                        if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                        if ( !_ACTION.hpid.isSwitchedOn ) _ACTION.hpid.isSwitchedOn = true;
                     }
 
 
@@ -5172,7 +5227,7 @@
                         {
                             // if user failed to provide UDF selector
                             if ( !udfSelector )
-                                throw new Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
+                                throw new Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called \'udfSelector\' !\r\n\r\n' );
 
                             // current array item processed by UDF selector
                             var item;
@@ -5225,7 +5280,7 @@
                         {
                             // if user failed to provide UDF selector
                             if ( !udfSelector )
-                                throw new Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called "udfSelector" !\r\n\r\n' );
+                                throw new Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called \'udfSelector\' !\r\n\r\n' );
 
                             // current array item processed by UDF selector; input item from a input collection; array holding processed input items
                             var item, ci, interimArr;
@@ -5388,6 +5443,7 @@
                     // get contextually current collection within history array
                     var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
+
                     // if the sequence contains elements
                     if ( currentColl.length )
                     {
@@ -5414,12 +5470,12 @@
                                 break;
 
                             default:
-                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + enumValue + ' ] !\r\n\r\n' );
+                                throw new Error( '\r\nUnrecognized logical type of set-based operation [ ' + _COMMON.getCustomValueOfSymbol( enumValue ) + ' ] !\r\n\r\n' );
                         }
 
                         // update HPID object to enable further data flow
                         _ACTION.hpid.data = currentColl;
-                        if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                        if ( !_ACTION.hpid.isSwitchedOn ) _ACTION.hpid.isSwitchedOn = true;
                     }
 
 
@@ -5481,10 +5537,10 @@
 
                                 // create right format for creating compound key if in the context of GROUP JOIN or GROUP LEFT JOIN
                                 if ( doGrouping )
-                                    throw new Error( '\r\nThe context of ' + _COMMON.getCustomValueOfSymbol(enumValue) + ' requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !\r\n\r\n' );
+                                    throw new Error( '\r\nThe context of ' + _COMMON.getCustomValueOfSymbol( enumValue ) + ' requires providing valid \'outerSelectorArray\' and \'innerSelectorArray\' array key extractors !\r\n\r\n' );
                             }
                             else
-                                throw new Error( '\r\nInvalid logical configuration (query method interface definition) for ' + _COMMON.getCustomValueOfSymbol(enumValue) + '.\r\nDefine both types of selectors for both collections or any-but-the-same type of selectors for both collections !\r\n\r\n' );
+                                throw new Error( '\r\nInvalid logical configuration (query method interface definition) for ' + _COMMON.getCustomValueOfSymbol( enumValue ) + '.\r\nDefine both types of selectors for both collections or any-but-the-same type of selectors for both collections !\r\n\r\n' );
 
                             /**
                              * Here we arrive with created JOIN result !
@@ -5548,7 +5604,8 @@
                                 }
 
                                 // check for 'LEFT JOIN' case
-                                if ( isCollectionFixed && !r_item ) {
+                                if ( isCollectionFixed && !r_item )
+                                {
                                     // get object keys
                                     var keys = Object.getOwnPropertyNames( l_item );
 
@@ -5557,15 +5614,15 @@
                                 }
 
                                 // create joined object if UDF Result Selector provided for 'LEFT JOIN' case
-                                if ( udfResultSelector && isCollectionFixed)
+                                if ( udfResultSelector && isCollectionFixed )
                                     // store joined object in the output array
                                     result.push( udfResultSelector( l_item, r_item ) );
                                 // create joined object if UDF Result Selector provided for 'INNER JOIN' case
-                                else if ( udfResultSelector && r_item)
+                                else if ( udfResultSelector && r_item )
                                     // store joined object in the output array
                                     result.push( udfResultSelector( l_item, r_item ) );
                                 // otherwise perfom default object merge operation
-                                else if(!udfResultSelector)
+                                else if ( !udfResultSelector )
                                     // store merged object in the output array
                                     result.push( { ...l_item, ...r_item } );
                             }
@@ -5581,7 +5638,7 @@
                             {
                                 // if user failed to provide equality UDF
                                 if ( !udfEqualityComparer )
-                                    throw new Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" array extractors only, you need to provide equality UDF !\r\n\r\n' );
+                                    throw new Error( '\r\nWhen performing JOIN operation using left-side && right-side array extractors only, you need to provide equality UDF !\r\n\r\n' );
 
                                 // outer collection current item, inner collection current item
                                 var l_obj_full, r_obj_full;
@@ -5628,7 +5685,7 @@
                                 }
                             }
                             // deal with array key extractors
-                            else if ( Array.isArray(leftSideSelectorArrayOrUdf) && Array.isArray(rightSideSelectorArrayOrUdf) )
+                            else if ( Array.isArray( leftSideSelectorArrayOrUdf ) && Array.isArray( rightSideSelectorArrayOrUdf ) )
                             {
                                 // loop over 'left-side' collection
                                 for ( var i = 0; i < currentColl.length; i++ )
@@ -5666,7 +5723,7 @@
                                 }
                             }
                             else
-                                throw new Error( '\r\nWhen performing JOIN operation using either "left-side" && "right-side" array extractors only or "left-side" && "right-side" function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
+                                throw new Error( '\r\nWhen performing JOIN operation using either left-side && right-side array extractors only or left-side && right-side function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
 
 
 
@@ -5680,7 +5737,7 @@
 
                                 // both arrays have to have matching keys
                                 if ( left_key_arr.length !== right_key_arr.length )
-                                    throw new Error( '\r\nWhen performing JOIN operation using "left-side" && "right-side" keys only, both arrays has to have matching keys !\r\n\r\n' );
+                                    throw new Error( '\r\nWhen performing JOIN operation using left-side && right-side keys only, both arrays has to have matching keys !\r\n\r\n' );
 
                                 // arrays of key values from both objects
                                 var left_key_value_arr = [], right_key_value_arr = [];
@@ -5748,7 +5805,7 @@
                         {
                             // check if props match in corresponding objects
                             if ( sourceItemPropArray.length !== outputItemPropArray.length )
-                                throw new Error( '\r\nInvalid number of keys in either "left-side" or "right-side" array !\r\n\r\n' );
+                                throw new Error( '\r\nInvalid number of keys in either left-side or right-side array !\r\n\r\n' );
 
                             // create output object
                             var outputItem = Object.create( null );
@@ -5830,14 +5887,29 @@
                 */
                 function execute_MF_I_1L ( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingContext, roundEnumValue = _ENUM.AVG_MIN )
                 {
-                    // determine whether to use a UDF comparator...
-                    if ( typeof udfValueSelector === 'function' )
+                    // cache mmavt meta object
+                    var mmavt = jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject;
+
+                    // determine whether to use a UDF value selector...
+                    if ( udfValueSelector && mmavt.selector )
+                    {
+                        // apply UDF value selector
+                        filterCollectionByUdfValueSelector_I_2L();
+
                         // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
-                        _PHYSICAL_FILTER.executeOrderFilter( jlc, null, udfValueSelector, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
+                        _PHYSICAL_FILTER.executeOrderFilter( jlc, null, null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
+                    }
                     // ... or a internal comparator
-                    else
+                    else if ( mmavt.selector && mmavt.hadCollectionAtLeastTwoItems )
                         // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
                         _PHYSICAL_FILTER.executeOrderFilter( jlc, [ propertyNameOrPath, true ], null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
+                    // ... or just init HPID storage
+                    else if ( mmavt.selector && !mmavt.hadCollectionAtLeastTwoItems )
+                        justInitHpid_I_2L();
+                    // non-empty collection with empty params requires custom toString method implementation
+                    else if ( !mmavt.selector && mmavt.throwByObjectStringError )
+                        throw new Error( '\r\nNon-empty collection requires each item to implement custom toString method !\r\n\r\n' );
+
 
                     // get the right item from the collection based on 'enumValue' and/or 'roundEnumValue' flags
                     return getResult_I_2L();
@@ -5847,20 +5919,48 @@
                     /**
                      * Local helper functions
                     */
+                    function filterCollectionByUdfValueSelector_I_2L ()
+                    {
+                        // get contextually current collection within history array
+                        _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, true );
+
+
+                        // cache HPID data
+                        var hpid_cache = [..._ACTION.hpid.data];
+
+                        // for each item extract value defined by the selector
+                        hpid_cache.forEach( function ( item, index, arr )
+                        {
+                            arr[ index ] = _COMMON.getPropertyValueFromObject( mmavt.selector, item, false, false );
+                        } );
+
+                        // for each item apply UDF value selector
+                        hpid_cache.forEach( udfValueSelector );
+
+
+                        // update HPID
+                        _ACTION.hpid.data = hpid_cache;
+                    }
+
+                    function justInitHpid_I_2L() {
+                        // get contextually current collection within history array
+                        _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, true );
+                    }
+
                     function getResult_I_2L ()
                     {
                         // check the edge case (empty collection)
                         if ( _ACTION.hpid.data.length === 0 )
                         {
                             // validate item
-                            if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.STRING || jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
+                            if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( mmavt.t2sr.type === _ENUM.T2SR.STRING || mmavt.t2sr.type === _ENUM.T2SR.OBJECT || mmavt.t2sr.type === _ENUM.T2SR.UNDEFINED ) )
                                 return undefined;
                             else if ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX )
-                                throw new Error( '\r\The sequence has no elements.\r\n\r\n' );
-                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.STRING || jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.BOOLEAN || jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
-                                throw new Error( '\r\There is no implicit conversion from type ' + jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
-                            else if ( ( enumValue === _ENUM.AVG ) && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.NUMBER ) )
-                                throw new Error( '\r\The sequence has no elements.\r\n\r\n' );
+                                throw new Error( '\r\nThe sequence has no elements.\r\n\r\n' );
+                            else if ( ( enumValue === _ENUM.AVG ) && ( mmavt.t2sr.type === _ENUM.T2SR.STRING || mmavt.t2sr.type === _ENUM.T2SR.BOOLEAN || mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
+                                throw new Error( '\r\nThere is no implicit conversion from type ' + mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                            else if ( ( enumValue === _ENUM.AVG ) && ( mmavt.t2sr.type === _ENUM.T2SR.NUMBER ) )
+                                throw new Error( '\r\nThe sequence has no elements.\r\n\r\n' );
                         }
                         // check the edge case (one item in collection)
                         else if ( _ACTION.hpid.data.length === 1 )
@@ -5880,7 +5980,7 @@
                             // compute 'avg' value
                             else if ( enumValue === _ENUM.AVG )
                             {
-                                if ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.NUMBER )
+                                if ( mmavt.t2sr.type === _ENUM.T2SR.NUMBER )
                                 {
                                     // precisely 'min avg'
                                     if ( roundEnumValue === _ENUM.AVG_MIN )
@@ -5892,7 +5992,7 @@
                                         return fetchItemOrItemProp_I_3L( Math.ceil( _ACTION.hpid.data.length / 2 ) - 1 );
                                 }
                                 else
-                                    throw new Error( '\r\There is no implicit conversion from type ' + jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
+                                    throw new Error( '\r\nThere is no implicit conversion from type ' + mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
                             }
                         }
 
@@ -5903,12 +6003,18 @@
                         */
                         function fetchItemOrItemProp_I_3L ( index )
                         {
-                            if ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.isp && ( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.t2sr.type === _ENUM.T2SR.OBJECT ) )
-                                // return the only item from the collection
-                                return _ACTION.hpid.data[ index ];
-                            // return the item's property value from the collection
-                            else
-                                return _COMMON.getPropertyValueFromObject( jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject.selector, _ACTION.hpid.data[ index ], false, false );
+                            // primitive value or object (pvoo) to be returned
+                            var pvoo = _ACTION.hpid.data[ index ];
+
+                            // return this item (object)
+                            if ( mmavt.t2sr.isp && ( mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
+                                return pvoo;
+                            // return this value (primitive value)
+                            else if ( _COMMON.isPrimitiveType( pvoo ) && _COMMON.isPrimitiveType_T2SR( mmavt.t2sr.type ) )
+                                return pvoo;
+                            // return this value (item's property value)
+                            else if ( !_COMMON.isPrimitiveType( pvoo ) && _COMMON.isPrimitiveType_T2SR( mmavt.t2sr.type ) )
+                                return _COMMON.getPropertyValueFromObject( mmavt.selector, pvoo, false, false );
                         }
                     }
                 }
@@ -5958,6 +6064,7 @@
                         // get contextually current collection within history array
                         var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
+
                         // check for '_ENUM.DEFAULT' if collection != null
                         if ( ( enumValue === _ENUM.DEFAULT ) && !_ACTION.hpid.data )
                             throw new Error( '\r\nSource collection is null !\r\n\r\n' );
@@ -6003,13 +6110,13 @@
                                 case _ENUM.DEFAULT:
                                     // assert that hpid contains data of the current flow
                                     // if HPID is not ready
-                                    if ( !_ACTION.hpid.isOn )
+                                    if ( !_ACTION.hpid.isSwitchedOn )
                                     {
                                         // update HPID object to enable further data flow
                                         _ACTION.hpid.data = currentColl;
 
                                         // mark that HPID is ready
-                                        _ACTION.hpid.isOn = true;
+                                        _ACTION.hpid.isSwitchedOn = true;
                                     }
 
                                     // this flag tells to discard returned result and go for hpid's data
@@ -6017,7 +6124,7 @@
                                     break;
 
                                 default:
-                                    throw new Error( '\r\nUnrecognized logical type of collection item [ ' + enumValue + ' ] !\r\n\r\n' );
+                                    throw new Error( '\r\nUnrecognized logical type of collection item [ ' + _COMMON.getCustomValueOfSymbol( enumValue ) + ' ] !\r\n\r\n' );
                             }
                         }
                         // if the sequence contains no elements
@@ -6156,7 +6263,7 @@
                             _ACTION.hpid.columnSet.currentQueryIcest = _ACTION.hpidCommons.detectCest( cmo.first_obj, cmo.allow_current_sorting, cmo.allow_next_sorting );
 
                             // get only valid column names from user column set
-                            var ovc = _ACTION.hpid.columnSet.extractOVC( keyPartSelectorArray, false );
+                            var ovc = _ACTION.hpid.columnSet.extractOVC( keyPartSelectorArray || [], false );
 
                             /**
                              * Check for "special" case, i.e. cest being KVP and KVP's Value is a primitive type !
@@ -6397,7 +6504,7 @@
 
                     // update HPID object to enable further data flow
                     _ACTION.hpid.data = currentColl;
-                    if ( !_ACTION.hpid.isOn ) _ACTION.hpid.isOn = true;
+                    if ( !_ACTION.hpid.isSwitchedOn ) _ACTION.hpid.isSwitchedOn = true;
                 }
             },
 
@@ -6505,19 +6612,22 @@
          */
             function ( index, justInitHpid )
             {
-                // just initialize HPID if required and if necessary (if HPID is not ready)
-                if ( justInitHpid && !_ACTION.hpid.isOn )
+                // just initialize HPID if required and if necessary (if HPID is not initialized)
+                if ( justInitHpid && !_ACTION.hpid.isSwitchedOn )
                 {
                     // update HPID object to enable further data flow
                     _ACTION.hpid.data = fetchFlowData_I_1L( index ).collection;
 
                     // mark that HPID is initialized
-                    _ACTION.hpid.isOn = true;
+                    _ACTION.hpid.isSwitchedOn = true;
                 }
+                // when initialized HPID, do nothing
+                else if ( justInitHpid && _ACTION.hpid.isSwitchedOn )
+                    ;
                 else
                 {
                     // if HPID is initialized
-                    if ( _ACTION.hpid.isOn )
+                    if ( _ACTION.hpid.isSwitchedOn )
                         // return flow's collection cache
                         return _ACTION.hpid.data;
                     else
@@ -6563,10 +6673,10 @@
             tryToLoad: /**
             * Computes query key required by the current query flow to search the cache for cached query result.
             */
-                function ( queryName, queryChainCacheObject, collectionIndex )
+                function ( queryName, queryChainCacheObject, queryCacheConfig, collectionIndex )
                 {
                     // compute cache key for current query in the flow
-                    computeKey_I_1L( queryName, queryChainCacheObject, collectionIndex );
+                    computeKey_I_1L( queryName, queryChainCacheObject, queryCacheConfig, collectionIndex );
 
                     // is current query cache enabled
                     if ( _CACHE._useCurrentQueryCache )
@@ -6582,7 +6692,7 @@
                      * Local helper functions
                     */
                     // Computes query key required by the current query flow to search the cache for cached query result.
-                    function computeKey_I_1L ( jqn, queryChainCacheObject, coll_idx )
+                    function computeKey_I_1L ( jqn, queryChainCacheObject, queryCacheConfig, coll_idx )
                     {
                         // initialize the current query cache key
                         _CACHE._key = '';
@@ -6615,7 +6725,28 @@
                                 _CACHE._key += convertFilterArrToKeyString_I_2L( filter_arr );
 
                             // run whole query chain cache until current query
-                            if(qco.name === jqn) break;
+                            if ( qco.name === jqn ) break;
+                        }
+
+                        // is this query cache enabled
+                        if ( queryCacheConfig && queryCacheConfig.use )
+                        {
+                            // all query method udf functions or some objects
+                            var udfos = [];
+
+                            // for all allowable params create cache objects
+                            queryCacheConfig.udfCacheConfig.forEach( function ( paramCacheConfig )
+                            {
+                                // if this param is cacheable
+                                if ( paramCacheConfig.useCache )
+                                    // store udf cache into array
+                                    udfos.push( paramCacheConfig.name + _ENUM.MISC.UNDERSCORE + paramCacheConfig.token + _ENUM.MISC.UNDERSCORE );
+                            } );
+
+                            // loop over all per-query params' caches
+                            for ( var i = 0; i < udfos.length; i++ )
+                                // compute key - part 3
+                                _CACHE._key += udfos[ i ];
                         }
 
 
@@ -6661,7 +6792,7 @@
                             _ACTION.hpid.data = cachedResult.data;
 
                             // mark that HPID is on
-                            _ACTION.hpid.isOn = true;
+                            _ACTION.hpid.isSwitchedOn = true;
 
                             // mark that HPID is ready to return data
                             _ACTION.hpid.done = true;
@@ -6700,9 +6831,9 @@
                 },
 
             store: /**
-                * Stores query result into cache.
-                * You can provide optional explicit value, being it returned value from the physical filter, or even your own custom value !
-                */
+            * Stores query result into cache.
+            * You can provide optional explicit value, being it returned value from the physical filter, or even your own custom value !
+            */
                 function ( storeUserValue, explicitValue )
                 {
                     // is JLC cache enabled && is current query cache enabled
@@ -6991,7 +7122,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7071,7 +7202,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7228,7 +7359,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7310,7 +7441,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7392,7 +7523,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7474,7 +7605,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7578,7 +7709,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7679,7 +7810,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7781,7 +7912,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7881,7 +8012,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -7987,7 +8118,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -8087,7 +8218,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -8193,7 +8324,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -8313,7 +8444,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -8433,7 +8564,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -8529,7 +8660,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -8711,7 +8842,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -8956,7 +9087,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9054,7 +9185,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9163,7 +9294,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9272,7 +9403,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9402,7 +9533,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9532,7 +9663,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9662,7 +9793,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9792,7 +9923,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -9892,7 +10023,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10017,7 +10148,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10114,7 +10245,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10211,7 +10342,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10308,7 +10439,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10405,7 +10536,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10502,7 +10633,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10599,7 +10730,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10719,7 +10850,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -10838,9 +10969,8 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = {};
-                        return params;
+                        // handle missing params object
+                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'average\' has to have "params" object provided !\r\n\r\n' );
                     }
                 ],
 
@@ -10968,7 +11098,7 @@
                     function ( params )
                     {
                         // prevent undefined error
-                        if ( params === undefined ) params = {};
+                        if ( params === undefined ) params = Object.create( null );
                         return params;
                     }
                 ],
@@ -11056,8 +11186,8 @@
                     function ( params )
                     {
                         // handle missing params object
-                        if ( params === undefined ) throw new ReferenceError( '\r\nMethod [ all ] has to have "params" object provided !\r\n\r\n' );
-                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nMethod [ all ] with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
+                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'all\' has to have "params" object provided !\r\n\r\n' );
+                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nQuery method called \'all\' with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
                     }
                 ],
 
@@ -11194,7 +11324,7 @@
                             }
 
                         default:
-                            throw new Error( '\r\nInvalid query flow context -> [' + flow_ctx + ']\r\n\r\n' );
+                            throw new Error( '\r\nInvalid query flow context -> [' + flow_ctx + '] !\r\n\r\n' );
                     }
 
 
@@ -11400,7 +11530,7 @@
                 function create_MI_I_2L ( method_def_obj )
                 {
                     // return JLC method function implementation
-                    return function ( params )
+                    return function ( params, queryCacheConfig )
                     {
                         /**
                          * Predefined internal defensive checking.
@@ -11415,10 +11545,8 @@
                             var result;
                             // loop over all predefined internal constraints
                             for ( var i = 0, length = method_def_obj.internal_rcc.length; i < length; i++ )
-                            {
                                 // the last constraint by design can return some output value and it has to be non-empty
                                 result = method_def_obj.internal_rcc[ i ]( params );
-                            }
 
                             // check for the non-empty return value
                             if ( result && !params )
@@ -11539,6 +11667,7 @@
                         var atn = _ACTION.funcCommons.create(
                             runtimeContext,
                             queryMethodImplContainer,
+                            queryCacheConfig,
                             method_def_obj.jcm.bind(
                                 api,
                                 core_method_params

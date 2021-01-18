@@ -25,6 +25,16 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #32 - DPR #55:&nbsp;2021-01-18 &nbsp;&nbsp;3:35 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - done ! -> RC Version
+        - fixed issues
+          - all related to math calculations
+        - pending issues
+          - line 3882 ! - caching predicates for the cached query method !
+    - NEW FEATURE
+      - introducing caching on the per-query-level ! (line 3639)
  - TEST #31 - DPR #54:&nbsp;2021-01-13 &nbsp;&nbsp;1:33 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

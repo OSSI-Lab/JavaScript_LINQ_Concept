@@ -3609,11 +3609,76 @@
         //var all_f3 = collection.all();
 
 
+        // final query - produces output [ find the minimum value in a generic sequence ]
+        var min_empty = [].min();
+
+        // final query - produces output [ find the maximum value in a generic sequence ]
+        var max_empty = [].max();
+
+        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Query method called 'average' has to have "params" object provided !
+        //var average_empty = [].average();
+
+        // final query - produces output [ find the minimum value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Non-empty collection requires each item to implement custom toString method !
+        //var min_full = collection.min();
+
+        // final query - produces output [ find the maximum value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Non-empty collection requires each item to implement custom toString method !
+        //var max_full = collection.max();
+
+        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Query method called 'average' has to have "params" object provided !
+        //var average_full = collection.average();
+
         // final query - produces output [ find item with the smallest value of property called 'id' ]
         var min_f1 = collection.min(
             {
                 'property': [ 'id', true ],
                 'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the smallest value of property called 'id' ]
+        var min_f1_fi = collection.min(
+            // query method interface for this query !
+            {
+                'property': [ 'id', true ],
+                'udfValueSelector': function (collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion) {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the miniumum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[collectionItemIndex] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+                
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_qwerty'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
             }
         );
 
