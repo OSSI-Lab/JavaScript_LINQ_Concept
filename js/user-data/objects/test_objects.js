@@ -3903,6 +3903,26 @@
             }
         ).toArray();
 
+        // partial query - produces intermediate query state [example of query method definition caching - part 1]
+        var where_p3_2 = collection_toString.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ]
+                ]
+            }
+        );
+        // partial query - produces intermediate query state [example of query method definition caching - part 2]
+        var where_p3_2A = where_p3_2.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 4, true ]
+                ]
+            }
+        );
+
+        // final query - produces output
+        var where_p3_2A_f = where_p3_2A.toArray();
+
 
         // partial query - produces intermediate query state
         var orderBy_p3 = collection.orderBy(
