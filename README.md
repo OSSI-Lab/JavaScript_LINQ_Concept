@@ -25,6 +25,14 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+ - TEST #34 - DPR #57:&nbsp;2021-01-21 &nbsp;&nbsp;11:35 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - done ! -> RC Version
+        - fixed issues
+            - removal of viewBagData for optimization purposes
+            - optimization of generation 'resultsView' viewer of intermediate query state
+            - improving caching on the per-query-level ! (line 3639, 4019 - 4169)
  - TEST #33 - DPR #56:&nbsp;2021-01-20 &nbsp;&nbsp;12:21 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

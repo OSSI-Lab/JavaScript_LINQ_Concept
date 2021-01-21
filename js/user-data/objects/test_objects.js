@@ -4014,6 +4014,160 @@
         );
         */
 
+
+        // partial query - produces intermediate query state
+        var groupBy_withCache_p1 = collection.groupBy(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "tags", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null,
+
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+                
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfGroupKeySelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfGroupKeySelector',
+
+                        // use this cache config or not
+                        useCache: false,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: null
+                    },
+                    // cache config for UDF called 'udfEqualityComparer'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfEqualityComparer',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfEqualityComparer_groupBy_withCache_p1'
+                    },
+                    // cache config for UDF called 'udfGroupKeyProjector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfGroupKeyProjector',
+
+                        // use this cache config or not
+                        useCache: false
+
+                        // there is no token provided, because this cache config is not enabled !
+                    }
+                ]
+            }
+        );
+ 
+        // partial query - produces intermediate query state
+        var groupBy_orderBy_withCache_p2 = collection.groupBy(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "tags", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null,
+
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+                
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfGroupKeySelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfGroupKeySelector',
+
+                        // use this cache config or not
+                        useCache: false,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: null
+                    },
+                    // cache config for UDF called 'udfEqualityComparer'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfEqualityComparer',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfEqualityComparer_groupBy_withCache_p1'
+                    },
+                    // cache config for UDF called 'udfGroupKeyProjector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfGroupKeyProjector',
+
+                        // use this cache config or not
+                        useCache: false
+
+                        // there is no token provided, because this cache config is not enabled !
+                    }
+                ]
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "key", true ]
+                ],
+                'udfComparer': null
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+                
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfComparer'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfComparer',
+
+                        /**
+                         * Use this cache config or not, even if the udf-in-question is not provided !
+                         * 
+                         * This will create a bit more longer cache key, nothing else (just redundant cache part computation)
+                        */
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'groupBy_orderBy_withCache_p2'
+                    }
+                ]
+            }
+        );
+
+        // final query - produces output
+        var groupBy_withCache_f1 = groupBy_withCache_p1.toArray();
+
+        // final query - produces output
+        var groupBy_orderBy_withCache_f1 = groupBy_orderBy_withCache_p2.toArray();
+
         console.log( '~ Objects' );
 
 
