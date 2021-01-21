@@ -21,14 +21,14 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
  - [C# Deconstructed](https://www.apress.com/us/book/9781430266709 "Discover how C# works on the .NET Framework")&nbsp; - good for 6+ years of experience
 
 ##
-## Version:&nbsp;:one:.:zero:
+## Version:&nbsp;:one:.:zero:&nbsp; [ RC version -> objects ! ]
 ## Status:&nbsp;GA/TEST&nbsp;[ TEST out of DEV/TEST/RELEASE ]&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #34 - DPR #57:&nbsp;2021-01-21 &nbsp;&nbsp;11:35 PM Local Time&nbsp;:heavy_check_mark:
+ - TEST #34 - DPR #57:&nbsp;2021-01-21 &nbsp;&nbsp;11:42 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
-        - done ! -> RC Version
+        - done
         - fixed issues
             - removal of viewBagData for optimization purposes
             - optimization of generation 'resultsView' viewer of intermediate query state
