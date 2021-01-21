@@ -22,11 +22,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;GA/TEST&nbsp;[ RELEASE out of DEV/TEST/RELEASE ]
- ### - [ RC version -> objects ! ]:heavy_check_mark:
+## Status:&nbsp;RC&nbsp;[ RELEASE out of DEV/TEST/RELEASE ] > objects ! :heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
- - TEST #34 - DPR #57:&nbsp;2021-01-21 &nbsp;&nbsp;11:47 PM Local Time&nbsp;:heavy_check_mark:
+ - TEST #34 - DPR #57:&nbsp;2021-01-21 &nbsp;&nbsp;11:50 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - done
