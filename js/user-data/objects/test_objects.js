@@ -4170,7 +4170,7 @@
 
 
         /**
-         * Testing the structure changing of collection item
+         * Testing the structure changes of collection item
         */
 
         // partial query - produces intermediate query state
@@ -4221,20 +4221,7 @@
             }
         );
 
-        var toDictionary_s1_f = groupBy_s1_p.groupBy(
-            {
-                'predicateArray': [
-                    [ "id", true ],
-                    [ " - ", false ],
-                    [ "tags", true ]
-                ],
-                'udfGroupKeySelector': null,
-                'udfEqualityComparer': null,
-                'udfGroupKeyProjector': null,
-                'udfGroupElementSelector': null,
-                'udfGroupResultValueSelector': null
-            }
-        ).toDictionary(
+        var toDictionary_s1_f = groupBy_s1_p.toDictionary(
             {
                 'predicateArray': [
                     [ "key", true ]

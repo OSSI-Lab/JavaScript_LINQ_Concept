@@ -137,6 +137,14 @@
             QCMICO: 'currentQueryChainMethodImplCacheObject' // query chain method implementation cache object
         },
 
+        PLACEHOLDERS: {
+            PRIMITIVE: null,
+            PLAIN: Object.create(null),
+            GROUPING: {key : "", resultsView : [] },
+            KVP: {key : "", value: Object.create(null)},
+            UNKNOWN: null
+        },
+
         MISC: {
             UNDERSCORE: '_'
         }
@@ -613,8 +621,27 @@
                             user_ovc = _ACTION.hpid.columnSet.extractOVC( user_filter_array, false );
 
 
-                        // To do the appropriate syntax checking in the right way, analyze the very next query flow at the "action creation" layer !
+
+                        /**
+                         * To do the appropriate syntax checking in the right way, follow these two steps:
+                         * 
+                         *      1.  analyze the very next query flow at the "action creation" layer !
+                         *          a. update type of collection element structure (cest) of the very next query in the flow
+                         * 
+                         *      2.  analyze the very previous query flow at the "action creation" layer !
+                         *          a. update column set metadata if necessary
+                        */
+
+                        // 1.a
                         _ACTION.hpidCommons.simulateNextQueryIcest( actionConstr.actionContext, context );
+
+                        // 2.a
+                        if (
+                            actionConstr.actionContext.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                            ( context !== actionConstr.actionContext.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName )
+                        )
+                            _ACTION.hpid.columnSet.init();
+
 
 
                         /**
@@ -3706,7 +3733,7 @@
                     runtime_ctx.currentQueryIceMetaObject.item = fi;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = false;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = '';
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = '';
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = '';
                     runtime_ctx.currentQueryIceMetaObject.ofss = ofss;
                     runtime_ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
                     runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
@@ -3748,7 +3775,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3793,7 +3820,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3839,7 +3866,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3886,7 +3913,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3932,7 +3959,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3975,7 +4002,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4018,7 +4045,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4060,7 +4087,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
                     // considering different scenarios there should not be syntax checking
 
@@ -4103,7 +4130,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4144,7 +4171,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4191,7 +4218,7 @@
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4461,7 +4488,7 @@
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -4578,7 +4605,7 @@
                         */
                         if (
                             r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                         )
                             _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -5108,7 +5135,7 @@
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -5365,7 +5392,7 @@
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -5646,7 +5673,7 @@
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -6461,7 +6488,7 @@
                         */
                         if (
                             r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                         )
                             _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, _ACTION.hpid.data );
 
@@ -6722,7 +6749,7 @@
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -6784,13 +6811,14 @@
 
 
                     // for given predicates
-                    if ( predicateArray ) {
+                    if ( predicateArray )
+                    {
                         /**
                          * Update collection item structure metadata object of ice metadata object of the current runtime context
                         */
                         if (
                             r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
                         )
                             _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -12145,7 +12173,7 @@
                         // mark in the invocation context that the very next query will have to update ice metadata object
                         runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = true;
                         // the name of the query that forces the very next query to update its ice metadata object
-                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = property;
+                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = property;
                     }
                 }
                 // 2.b
