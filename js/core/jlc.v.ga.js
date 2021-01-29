@@ -13,14 +13,14 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #57 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #58 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
  *              The last phase is the RELEASE PHASE marked by RELEASE keyword.
- *              
+ *
  *              In plain English, I have just finished development of this library and have started testing it !
  *              When all will be working as expected, I will release the so-called GA version !
  *              Any errors found during testing will be depicted by moving from [GA/TEST] -> TEST phase to [GA/TEST] -> DEV phase !
@@ -1706,8 +1706,12 @@
 
 
                         // execute this action by invoking its core method with binded parameters
-                        ao.execute = function ( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
+                        ao.execute = function ( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, itemStructureChangeMeta )
                         {
+                            // add dynamic property to tell whether current query expressed via action object has to update its ice metadata object
+                            this.itemStructureChangeMeta = itemStructureChangeMeta;
+
+                            // invoke bound core method
                             return c_m_b.bind( null, this, this.name, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )();
                         };
 
@@ -1968,9 +1972,9 @@
 
                             // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
                             if ( parentAction.returnsData )
-                                return parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined );
+                                return parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, action_ctx.currentQueryIceMetaObject.itemStructureChangeMeta );
                             else
-                                parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined );
+                                parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, action_ctx.currentQueryIceMetaObject.itemStructureChangeMeta );
                         }
 
                         function getOutput_I_2L ( result )
@@ -3664,8 +3668,51 @@
                         source_arr[ index ] = item.trim();
                     } );
                 }
-            }
+            },
 
+        updateIceMetaObjectOfRuntimeContext: /**
+         * Update metadata object of an input collection element of the current query or future queries down the query chain.
+         *
+         * @param {any} inputCollection
+         * @param {any} runtimeContext
+         */
+            function ( runtimeContext, inputCollection )
+            {
+                return update_IMOoRC_I_1L( runtimeContext, inputCollection );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function update_IMOoRC_I_1L ( runtime_ctx, ic )
+                {
+                    // first item of the collection
+                    var fi = ic[ 0 ];
+
+                    // get object full structure string (ofss)
+                    var ofss = ic.ofss;
+
+                    // has collection at least two items
+                    var gte_2 = ic.length > 1;
+
+
+                    // store updated metadata about collection
+                    _ACTION.hpidCommons.updateColumnSetCestAndCols( gte_2, fi, ofss );
+
+
+                    // create input collection element metadata object (ice meta object -> IceMetaObject)
+                    runtime_ctx.currentQueryIceMetaObject.is_prim = _COMMON.isPrimitiveType( fi ) && ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE );
+                    runtime_ctx.currentQueryIceMetaObject.item = fi;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = false;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = '';
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = '';
+                    runtime_ctx.currentQueryIceMetaObject.ofss = ofss;
+                    runtime_ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                    runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                    runtime_ctx.currentQueryIceMetaObject.length_gte_2 = gte_2;
+                }
+            }
     };
 
     // private core object
@@ -3687,12 +3734,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeJoinFilter(
                         this,
@@ -3721,12 +3779,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeWhereFilter(
                         this,
@@ -3756,12 +3825,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, sharedSecondLevelSortingContext )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeGroupByFilter(
                         this,
@@ -3792,12 +3872,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeOrderFilter(
                         this,
@@ -3827,12 +3918,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeSelectFilter(
                         this,
@@ -3859,12 +3961,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeOneItemFilter(
                         this,
@@ -3891,12 +4004,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeRangeFilter(
                         this,
@@ -3922,12 +4046,22 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
                     // considering different scenarios there should not be syntax checking
 
                     // invoke core logic
@@ -3955,12 +4089,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     _PHYSICAL_FILTER.executeSetFilter(
                         this,
@@ -3985,12 +4130,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     var pfr = _PHYSICAL_FILTER.executeMathFilter(
                         this,
@@ -4021,12 +4177,23 @@
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
+                // reference runtime context
+                var runtime_ctx = this[ _ENUM.RUNTIME.RTC ];
+
                 // check cache for this query
-                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, this[ _ENUM.RUNTIME.RTC ].collectionIndex );
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex );
 
                 // not found cached result for this query
                 if ( !isCacheHit )
                 {
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = actionContext.itemStructureChangeMeta.differentThan;
+
+
                     // invoke core logic
                     var pfr = _PHYSICAL_FILTER.executeAllAnyFilter(
                         this,
@@ -4168,26 +4335,26 @@
             },
 
         applyLogicalWhereFilter: /**
-         * @param {any} jlc
+         * @param {any} currentColl
          * @param {any} predicateArray
          * @param {any} enumValue
          */
-            function ( jlc, predicateArray, enumValue )
+            function ( currentColl, predicateArray, enumValue )
             {
-                return apply_LWF_I_1L( jlc, predicateArray, enumValue );
+                return apply_LWF_I_1L( currentColl, predicateArray, enumValue );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function apply_LWF_I_1L ( jlc, predicateArray, enumValue )
+                function apply_LWF_I_1L ( currentColl, predicateArray, enumValue )
                 {
                     // declare bool operation result (bor)
                     var bor = false;
 
-                    // create input collection cache
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                    // // create input collection cache
+                    // var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
 
 
                     // current object
@@ -4229,14 +4396,8 @@
                 */
                 function apply_AAF_I_1L ( jlc, predicateArray, enumValue )
                 {
-                    // for given predicates
-                    if ( predicateArray )
-                        // execute the "IF" filter and return the result
-                        return _LOGICAL_FILTER.applyLogicalWhereFilter( jlc, predicateArray, enumValue );
-                    // for no given predicates
-                    else
-                        // check if there are any items in the sequence (contextually current collection within history array)
-                        return _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false ).length > 0;
+                    // execute the "IF" filter and return the result
+                    return _LOGICAL_FILTER.applyLogicalWhereFilter( jlc, predicateArray, enumValue );
                 }
             },
 
@@ -4287,8 +4448,23 @@
                 */
                 function execute_WF_I_1L ( jlc, predicateArray, skipOrTakeEnum )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
+
+
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    if (
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                    )
+                        _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
+
 
 
                     // declare current intermediate collection
@@ -4364,7 +4540,7 @@
                 }
             },
 
-        executeGroupByFilter:/**
+        executeGroupByFilter: /**
          * @param {any} jlc
          * @param {any} predicateArray
          * @param {any} udfGroupKeySelector
@@ -4386,11 +4562,26 @@
                 */
                 function execute_GF_I_1L ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
                     // check if grouping key is present
                     if ( predicateArray || udfGroupKeySelector )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                        var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
+
+
+                        /**
+                         * Update collection item structure metadata object of ice metadata object of the current runtime context
+                        */
+                        if (
+                            r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        )
+                            _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
+
 
 
                         // declare groups object being an array !
@@ -4472,7 +4663,7 @@
                         var id;
                         // get the group id by applying UDF to current primitive value
                         if ( udfGroupKeySelector )
-                            id = ( udfGroupKeySelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item, index, sourceColl ) )();
+                            id = ( udfGroupKeySelector.bind( r_ctx, item, index, sourceColl ) )();
                         // get the group id being the primitive value itself
                         else
                             id = item;
@@ -4480,11 +4671,11 @@
 
                         // project group id if required
                         if ( udfGroupKeyProjector )
-                            id = ( udfGroupKeyProjector.bind( jlc[ _ENUM.RUNTIME.RTC ], id ) )();
+                            id = ( udfGroupKeyProjector.bind( r_ctx, id ) )();
 
                         // project group element if required
                         if ( udfGroupElementSelector )
-                            item = ( udfGroupElementSelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item ) )();
+                            item = ( udfGroupElementSelector.bind( r_ctx, item ) )();
 
 
                         /**
@@ -4540,18 +4731,18 @@
                     {
                         // if grouping key is not defined & UDF key selector is required
                         if ( !key_array.length && !predicateArray )
-                            key_array = udfGroupKeySelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item )();
+                            key_array = udfGroupKeySelector.bind( r_ctx, item )();
 
                         // get the group id
                         var id = _COMMON.fetchObjectKeyValue( item, key_array );
 
                         // project group id if required
                         if ( udfGroupKeyProjector )
-                            id = ( udfGroupKeyProjector.bind( jlc[ _ENUM.RUNTIME.RTC ], id ) )();
+                            id = ( udfGroupKeyProjector.bind( r_ctx, id ) )();
 
                         // project group element if required
                         if ( udfGroupElementSelector )
-                            item = ( udfGroupElementSelector.bind( jlc[ _ENUM.RUNTIME.RTC ], item ) )();
+                            item = ( udfGroupElementSelector.bind( r_ctx, item ) )();
 
 
                         /**
@@ -4678,6 +4869,10 @@
                 */
                 function execute_RF_I_1L ( jlc, predicateArray, index, count, enumValue )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
                     if ( predicateArray )
                     {
                         // execute the "WHERE" filter
@@ -4701,7 +4896,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                        var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
                         // if the sequence contains elements
@@ -4844,7 +5039,7 @@
                                     else if ( ( index < 0 || index >= currentColl.length ) && count )
                                     {
                                         // fetch the default value of the collection input type
-                                        var default_value = jlc[ _ENUM.RUNTIME.RTC ].cdv;
+                                        var default_value = r_ctx.cdv;
 
                                         // if default value is an object go in line with C# and return the default of C#'s object, which is null that translates to undefined in JavaScript
                                         if ( _COMMON.convertTypeToString( default_value ) === _ENUM.T2SR.OBJECT )
@@ -4900,8 +5095,23 @@
                 */
                 function execute_SF_I_1L ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
+
+
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    if (
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                    )
+                        _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
+
 
 
                     // if the sequence contains elements
@@ -4912,7 +5122,7 @@
                             case _ENUM.CONTAINS:
                                 // if the parameter called 'collection' is not a single object, throw the error
                                 if ( _COMMON.convertTypeToString( collectionOrItem ) === _ENUM.T2SR.ARRAY )
-                                    throw new Error( '\r\nInput type of parameter called \'collectionOrItem\' in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( jlc[ _ENUM.RUNTIME.RTC ].currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
+                                    throw new Error( '\r\nInput type of parameter called \'collectionOrItem\' in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( r_ctx.currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
 
                                 // determine whether source collection contains particular item, i.e get match object array (match_arr)
                                 var match_arr = doesContain_I_2L( currentColl, collectionOrItem, udfEqualityComparer, strongSearch );
@@ -5142,8 +5352,23 @@
                 */
                 function execute_SF_I_1L ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
+
+
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    if (
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                    )
+                        _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
+
 
 
                     // if the sequence contains elements
@@ -5409,8 +5634,22 @@
                     enumValue, udfResultSelector, udfEqualityComparer
                 )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
+
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    if (
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                    )
+                        _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
+
 
 
                     // if the sequence contains elements
@@ -5856,8 +6095,13 @@
                 */
                 function execute_MF_I_1L ( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingContext, roundEnumValue = _ENUM.AVG_MIN )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
+
                     // cache mmavt meta object
-                    var mmavt = jlc[ _ENUM.RUNTIME.RTC ].minMaxAverageValueTypeObject;
+                    var mmavt = r_ctx.minMaxAverageValueTypeObject;
 
                     // determine whether to use a UDF value selector...
                     if ( udfValueSelector && mmavt.selector )
@@ -5891,7 +6135,7 @@
                     function filterCollectionByUdfValueSelector_I_2L ()
                     {
                         // get contextually current collection within history array
-                        _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, true );
+                        _DATA.fetchFlowData( r_ctx.collectionIndex, true );
 
 
                         // cache HPID data
@@ -5914,7 +6158,7 @@
                     function justInitHpid_I_2L ()
                     {
                         // get contextually current collection within history array
-                        _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, true );
+                        _DATA.fetchFlowData( r_ctx.collectionIndex, true );
                     }
 
                     function getResult_I_2L ()
@@ -6007,6 +6251,11 @@
                 */
                 function execute_OIF_I_1L ( jlc, predicateArray, fallbackOnDefault, enumValue )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
+
                     // for given predicates
                     if ( predicateArray )
                     {
@@ -6032,7 +6281,7 @@
                     function getResult_I_2L ( withPredicates )
                     {
                         // get contextually current collection within history array
-                        var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                        var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
                         // check for '_ENUM.DEFAULT' if collection != null
@@ -6121,7 +6370,7 @@
                             else if ( enumValue === _ENUM.DEFAULT )
                             {
                                 // return default value passed by the user
-                                _ACTION.hpid.data.push( jlc[ _ENUM.RUNTIME.RTC ].cdv );
+                                _ACTION.hpid.data.push( r_ctx.cdv );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -6198,8 +6447,24 @@
                     */
                     function evaluateSortingContext_I_2L ( sorting_level )
                     {
+                        // reference runtime context
+                        var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
+
                         // get contextually current collection within history array
-                        _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, true );
+                        _DATA.fetchFlowData( r_ctx.collectionIndex, true );
+
+
+                        /**
+                         * Update collection item structure metadata object of ice metadata object of the current runtime context
+                        */
+                        if (
+                            r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        )
+                            _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, _ACTION.hpid.data );
+
 
 
                         // get first object from the collection
@@ -6444,8 +6709,23 @@
                 */
                 function execute_MF_I_1L ( jlc, collectionOrItem, enumValue )
                 {
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
                     // get contextually current collection within history array
-                    var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+                    var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
+
+
+                    /**
+                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                    */
+                    if (
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                    )
+                        _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
+
 
 
                     var new_dirty_data;
@@ -6494,7 +6774,35 @@
                 */
                 function execute_AAF_I_1L ( jlc, predicateArray, enumValue )
                 {
-                    return _LOGICAL_FILTER.applyAllAnyFilter( jlc, predicateArray, enumValue );
+                    // reference runtime context
+                    var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
+
+
+                    // get contextually current collection within history array
+                    var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
+
+
+
+                    // for given predicates
+                    if ( predicateArray ) {
+                        /**
+                         * Update collection item structure metadata object of ice metadata object of the current runtime context
+                        */
+                        if (
+                            r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        )
+                            _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
+
+
+
+                        // execute the "IF" filter and return the result
+                        return _LOGICAL_FILTER.applyLogicalWhereFilter( currentColl, predicateArray, enumValue );
+                    }
+                    // for no given predicates
+                    else
+                        // check if there are any items in the sequence (contextually current collection within history array)
+                        return currentColl.length > 0;
                 }
             }
     };
@@ -11351,10 +11659,8 @@
                             }
                             // if a new one (handle RAW_SOURCE)
                             else
-                            {
                                 // index it and get back to this method arriving in the case [INDEX_SOURCE_CONTEXT]
                                 return indexCollection_I_2L();
-                            }
 
                         default:
                             throw new Error( '\r\nInvalid query flow context -> [' + flow_ctx + '] !\r\n\r\n' );
@@ -11403,8 +11709,8 @@
                             ctxClone[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] = qmi_ctr;
 
                             // create intermediate query result enumerator, if required
-                            if(is_proxy_qm)
-                                _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView(ctxClone);
+                            if ( is_proxy_qm )
+                                _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( ctxClone );
 
                             // create and return proxied JLC instance
                             return new Proxy( ctxClone, _LINQ_CONTEXT._arrayProxyHandler );
@@ -11644,7 +11950,7 @@
 
                         // detect the "right" context of runtime
                         ctx_discovery = Array.isArray( this ) ? api : this;
-                        
+
                         // reference the "right" action context, aka runtime context of JLC current instance
                         runtimeContext = ctx_discovery[ _ENUM.RUNTIME.RTC ];
 
@@ -11816,17 +12122,36 @@
                  * 1. is it an array of data (is it a final result, i.e. does this query method ends the whole chain ?)
                  * 
                  * 2.
-                 *      is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
+                 *    a.  is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
                  *          ||
-                 *      is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?) 
+                 *    b.  is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?) 
                 */
                 // 1.
                 if ( Array.isArray( result ) )
                     // copy result 100% "by value"
                     result = _COMMON.deepCopyNCR( result );
-                // 2.
-                else if ( _LINQ_CONTEXT._isProxy( result ) || !( result instanceof Array ) )
+                // 2.a
+                else if ( _LINQ_CONTEXT._isProxy( result ) )
+                {
+                    // update ice metadata object if this query changes the collection structure
+                    if ( _LINQ_CONTEXT._proxyTrapsCommon.queryIsChangingCollectionStructure( property ) )
+                    {
+                        // reference runtime context
+                        var runtime_ctx = result[ _ENUM.RUNTIME.RTC ];
+
+                        /**
+                         * Update metadata object of ice metadata object
+                        */
+                        // mark in the invocation context that the very next query will have to update ice metadata object
+                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = true;
+                        // the name of the query that forces the very next query to update its ice metadata object
+                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.differentThan = property;
+                    }
+                }
+                // 2.b
+                else if ( !( result instanceof Array ) )
                     ;
+
 
                 // mark that next query has to store its source into internal storage
                 _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP_DISPATCHER.get.DISPATCH;
@@ -11834,6 +12159,12 @@
 
                 // return output from original query method
                 return result;
+            },
+
+            queryIsChangingCollectionStructure: function ( queryName )
+            {
+                // check if current query changes collection structure that will impact further queries down the query chain
+                return [ System.Linq.Context.groupBy ].includes( queryName );
             }
         },
 
@@ -12018,20 +12349,19 @@
                 // do necessary cleanup before starting current query flow
                 _ACTION.hpidCommons.clearCache( undefined );
 
-                // get first item from a collection
-                var firstItem = source_collection[ 0 ];
+                // // get first item from a collection
+                // var firstItem = source_collection[ 0 ];
 
-                // get object full structure string (ofss)
-                var ofss = source_collection.ofss;
+                // // get object full structure string (ofss)
+                // var ofss = source_collection.ofss;
 
                 /**
-                 * collectionIndex     ->  internal positional index of this collection
-                 * collectionToken    ->  token associated with current collection, aka root token
-                 * is_prim      ->  type primitivity of collection input type
-                 * runtime_ctx       ->  JLC instance context
+                 * collectionIndex      ->  internal positional index of this collection
+                 * collectionToken      ->  token associated with current collection, aka root token
+                 * runtime_ctx          ->  JLC instance context
                 */
 
-                var collectionIndex, collectionToken, is_prim, runtime_ctx;
+                var collectionIndex, collectionToken,/* is_prim,*/ runtime_ctx;
                 //if collection wasn't indexed internally, prepare for indexation
                 if ( !( _ENUM.RUNTIME.CI in source_collection ) && !( _ENUM.RUNTIME.CT in source_collection ) )
                 {
@@ -12090,35 +12420,15 @@
                 */
                 function over_I_1L ( inputCollection )
                 {
-                    // declare a private data object holding data collection of current JLC instance, aka static or shared instance
-                    var coll_data = {
-                        dirty_data: null,   // current flow data
-                        dirty_data_temp: [],
-                        data: null,         // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
-                        type: {
-                            source: null,
-                            makeItEmpty: false,
-                            isReady: false,
-                            output: null
-                        }
-                    };
+                    // declare a private data object holding data collection of current JLC instance
+                    var coll_data = Object.create( null );
+                    coll_data.dirty_data = null;    // current flow data
+                    coll_data.data = null;          // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
 
 
                     // store the collection to iterate over
                     coll_data.dirty_data = inputCollection || coll_data.dirty_data || [];
 
-                    // otherwise create an empty object based on inputCollection's first item
-                    if ( coll_data.dirty_data.length )
-                    {
-                        coll_data.type.source = coll_data.dirty_data[ 0 ];
-                        coll_data.type.makeItEmpty = true;
-                    }
-                    // or default to an empty JavaScript object
-                    else
-                    {
-                        coll_data.type.output = {};
-                        coll_data.type.isReady = true;
-                    }
 
                     // store current collection into collection history array
                     _DATA.store( coll_data );
@@ -12126,25 +12436,20 @@
 
                 function applyJlcCommon_I_1L ()
                 {
-                    // store updated metadata about collection
-                    _ACTION.hpidCommons.updateColumnSetCestAndCols( source_collection.length > 1, firstItem, ofss );
-
-                    // check type primitivity of collection element type
-                    is_prim = check_TP_I_2L();
+                    // // store updated metadata about collection
+                    // _ACTION.hpidCommons.updateColumnSetCestAndCols( source_collection.length > 1, firstItem, ofss );
 
                     // create JLC context
                     runtime_ctx = create_JC_I_2L();
+
+                    // update metadata about ice (input collection element)
+                    _COMMON.updateIceMetaObjectOfRuntimeContext( runtime_ctx, source_collection );
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function check_TP_I_2L ()
-                    {
-                        // is primitive type of this item
-                        return _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE );
-                    }
 
                     function create_JC_I_2L ()
                     {
@@ -12155,14 +12460,19 @@
                         r_ctx.collectionIndex = collectionIndex;
                         r_ctx.collectionToken = collectionToken;
 
-                        // create first item metadata object (fim)
+                        // create input collection element metadata object (ice meta object -> IceMetaObject)
                         r_ctx.currentQueryIceMetaObject = Object.create( null );
-                        r_ctx.currentQueryIceMetaObject.is_prim = is_prim;
-                        r_ctx.currentQueryIceMetaObject.item = firstItem;
-                        r_ctx.currentQueryIceMetaObject.ofss = ofss;
-                        r_ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
-                        r_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
-                        r_ctx.currentQueryIceMetaObject.length_gte_2 = source_collection.length > 1;
+                        // create metadata object about changing collection item structure
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta = Object.create( null );
+
+                        // // create input collection element metadata object (ice meta object -> IceMetaObject)
+                        // r_ctx.currentQueryIceMetaObject = Object.create( null );
+                        // r_ctx.currentQueryIceMetaObject.is_prim = _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE );
+                        // r_ctx.currentQueryIceMetaObject.item = firstItem;
+                        // r_ctx.currentQueryIceMetaObject.ofss = ofss;
+                        // r_ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                        // r_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                        // r_ctx.currentQueryIceMetaObject.length_gte_2 = source_collection.length > 1;
 
                         // create query chain cache object internal
                         r_ctx.currentQueryChainCacheObjectInternal = [];

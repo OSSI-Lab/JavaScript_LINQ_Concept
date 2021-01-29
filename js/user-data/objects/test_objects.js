@@ -4,6 +4,7 @@
     {
         console.log( 'Objects' );
 
+
         var collection = [
             {
                 id: 2,
@@ -4027,8 +4028,7 @@
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
                 'udfGroupKeyProjector': null,
                 'udfGroupElementSelector': null,
-                'udfGroupResultValueSelector': null,
-
+                'udfGroupResultValueSelector': null
             },
             // cache configuration for this query ! ⚠️ (OPTIONAL)
             {
@@ -4085,8 +4085,7 @@
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
                 'udfGroupKeyProjector': null,
                 'udfGroupElementSelector': null,
-                'udfGroupResultValueSelector': null,
-
+                'udfGroupResultValueSelector': null
             },
             // cache configuration for this query ! ⚠️ (OPTIONAL)
             {
@@ -4168,9 +4167,87 @@
         // final query - produces output
         var groupBy_orderBy_withCache_f1 = groupBy_orderBy_withCache_p2.toArray();
 
+
+
+        /**
+         * Testing the structure changing of collection item
+        */
+
+        // partial query - produces intermediate query state
+        var where_s1_p = collection.where(
+            {
+                'predicateArray': [
+                    [ "id", ">=", 2, true ]
+                ]
+            }
+        );
+
+        // partial query - produces intermediate query state
+        var groupBy_s1_p = where_s1_p.groupBy(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "tags", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
+            }
+        );
+
+        // partial query - produces intermediate query state
+        var orderBy_s1_p = where_s1_p.groupBy(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "tags", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "key", true ]
+                ],
+                'udfComparer': null
+            }
+        );
+
+        var toDictionary_s1_f = groupBy_s1_p.groupBy(
+            {
+                'predicateArray': [
+                    [ "id", true ],
+                    [ " - ", false ],
+                    [ "tags", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupKeyProjector': null,
+                'udfGroupElementSelector': null,
+                'udfGroupResultValueSelector': null
+            }
+        ).toDictionary(
+            {
+                'predicateArray': [
+                    [ "key", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupResultValueSelector': null,
+
+            }
+        );
+
+
         console.log( '~ Objects' );
-
-
 
 
         // CODE WAS TESTED UNTIL HERE !
