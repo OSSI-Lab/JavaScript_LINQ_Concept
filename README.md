@@ -28,13 +28,13 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Primitives
  - TEST #36 - DPR #59:&nbsp;2021-01-31 &nbsp;&nbsp;11:59 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
-      - testing the whole interface (objects)
+      - testing the whole interface
         - started...
 #
 ## Objects
  - TEST #36 - DPR #59:&nbsp;2021-01-31 &nbsp;&nbsp;11:59 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
-      - testing the whole interface (objects)
+      - testing the whole interface
         - done -> 100% (I think this is already RC, just RC, simply RC ) !
         - fixed issues
             - TEST #35
