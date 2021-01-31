@@ -22,9 +22,22 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;RC&nbsp;[ RELEASE out of DEV/TEST/RELEASE ] > objects ! :heavy_check_mark:
+## Status:&nbsp;Objects RC&nbsp;[ RELEASE out of DEV/TEST/RELEASE ] :heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
+## Primitives
+ - TEST #36 - DPR #59:&nbsp;2021-01-31 &nbsp;&nbsp;11:59 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface (objects)
+        - started...
+#
+## Objects
+ - TEST #36 - DPR #59:&nbsp;2021-01-31 &nbsp;&nbsp;11:59 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface (objects)
+        - done -> 100% (I think this is already RC, just RC, simply RC ) !
+        - fixed issues
+            - TEST #35
  - TEST #35 - DPR #58:&nbsp;2021-01-29 &nbsp;&nbsp;11:43 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

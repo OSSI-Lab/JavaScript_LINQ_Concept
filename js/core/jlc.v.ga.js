@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #58 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #59 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->
  *          What does it mean ?
@@ -139,9 +139,9 @@
 
         PLACEHOLDERS: {
             PRIMITIVE: null,
-            PLAIN: Object.create(null),
-            GROUPING: {key : "", resultsView : [] },
-            KVP: {key : "", value: Object.create(null)},
+            PLAIN: Object.create( null ),
+            GROUPING: { key: "", resultsView: [] },
+            KVP: { key: "", value: Object.create( null ) },
             UNKNOWN: null
         },
 
@@ -627,20 +627,10 @@
                          * 
                          *      1.  analyze the very next query flow at the "action creation" layer !
                          *          a. update type of collection element structure (cest) of the very next query in the flow
-                         * 
-                         *      2.  analyze the very previous query flow at the "action creation" layer !
-                         *          a. update column set metadata if necessary
                         */
 
                         // 1.a
-                        _ACTION.hpidCommons.simulateNextQueryIcest( actionConstr.actionContext, context );
-
-                        // 2.a
-                        if (
-                            actionConstr.actionContext.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                            ( context !== actionConstr.actionContext.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName )
-                        )
-                            _ACTION.hpid.columnSet.init();
+                        _ACTION.hpidCommons.simulateNextQueryIcest( actionConstr.actionContext );
 
 
 
@@ -1502,53 +1492,74 @@
             * Detect type of collection element structure (cest) of the very next query in the flow.
             *
             * @param {any} runtimeContext Action context, aka runtime context of JLC current instance
-            * @param {any} queryName Current query name
             */
-                function ( runtimeContext, queryName )
+                function ( runtimeContext )
                 {
-                    return s_NQI_I_1L( runtimeContext, queryName );
+                    return s_NQI_I_1L( runtimeContext );
 
 
 
                     /**
                      * Local helper functions
                     */
-                    function s_NQI_I_1L ( runtime_ctx, name )
+                    function s_NQI_I_1L ( runtime_ctx )
                     {
-                        // the very next query icest (input collection element structure type)
+                        // the very next query's icest (input collection element structure type)
                         var nqIcest;
 
-                        /**
-                         * Determine cest type if allowed
-                        */
-                        // dictionary
-                        if ( name === System.Linq.Context.toDictionary )
-                            nqIcest = _ENUM.CEST.KVP;
-                        // grouping object
-                        else if ( name === System.Linq.Context.groupBy )
-                            nqIcest = _ENUM.CEST.GROUPING;
-                        // plain if allowed
-                        else if ( System.Linq.Context[ name ] )
-                        {
-                            // because cannot downgrade to plain if already grouping object or dictionary, continue with plain
-                            if ( ![ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( _ACTION.hpid.columnSet.currentQueryIcest ) )
-                                nqIcest = _ENUM.CEST.PLAIN;
-                            // otherwise continue with grouping object or dictionary
-                            else
-                                nqIcest = _ACTION.hpid.columnSet.currentQueryIcest;
-                        }
-                        // unknown
-                        else
-                            nqIcest = _ENUM.CEST.UNKNOWN;
+                        // all query names from bottom top
+                        var query_name_arr = [];
 
-                        // store the very next query icest
-                        storeIcestIfAllowed_I_2L();
+                        // get all query names from bottom top
+                        getQueryChainNames_I_2L( runtime_ctx.parentActionObject, query_name_arr );
+
+                        var query_name;
+                        // loop all query names from bottom top and detect valid icest
+                        for ( var i = 0; i < query_name_arr.length; i++ )
+                        {
+                            // access current query name
+                            query_name = query_name_arr[ i ];
+
+                            // dictionary
+                            if ( query_name === System.Linq.Context.toDictionary )
+                                nqIcest = _ENUM.CEST.KVP;
+                            // grouping object
+                            else if ( query_name === System.Linq.Context.groupBy )
+                                nqIcest = _ENUM.CEST.GROUPING;
+                            // plain if allowed
+                            else if ( System.Linq.Context[ query_name ] )
+                            {
+                                // because cannot downgrade to plain if already grouping object or dictionary, continue with plain
+                                if ( ![ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( _ACTION.hpid.columnSet.currentQueryIcest ) )
+                                    nqIcest = _ENUM.CEST.PLAIN;
+                                // otherwise continue with grouping object or dictionary
+                                else
+                                    nqIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                            }
+                            // unknown
+                            else
+                                nqIcest = _ENUM.CEST.UNKNOWN;
+
+
+                            // store the very next query's icest if allowed
+                            storeIcestIfAllowed_I_2L();
+                        }
 
 
 
                         /**
                          * Local helper functions
                         */
+                        function getQueryChainNames_I_2L ( actionObject, qnp_arr )
+                        {
+                            // go to bottom of the action object chain
+                            if ( actionObject.parentActionObject )
+                                getQueryChainNames_I_2L( actionObject.parentActionObject, qnp_arr );
+
+                            // add action object name (query name)
+                            qnp_arr.push( actionObject.name );
+                        }
+
                         function storeIcestIfAllowed_I_2L ()
                         {
                             // cannot downgrade to plain if already grouping object or dictionary
@@ -1556,17 +1567,17 @@
                                 [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest ) &&
                                 ![ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( nqIcest )
                             )
-                                // hence update current query icest to grouping object or dictionary
+                                // hence update current query's icest to grouping object or dictionary
                                 _ACTION.hpid.columnSet.currentQueryIcest = runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest;
                             // switch between grouping object and dictionary
                             else if (
                                 [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest ) &&
                                 [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( nqIcest )
                             )
-                                runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = nqIcest;
+                                updateNextQuerySetPreviousQueryIcest_I_3L();
                             // otherwise continue with plain or switch to grouping object or dictionary
                             else
-                                runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = nqIcest;
+                                updateNextQuerySetPreviousQueryIcest_I_3L();
 
                             // update hpid column set (hcs)
                             updateHCS_I_3L();
@@ -1576,6 +1587,14 @@
                             /**
                              * Local helper functions
                             */
+                            function updateNextQuerySetPreviousQueryIcest_I_3L() {
+                                // copy current query ice metadata object 100% "by value"
+                                runtime_ctx.currentQueryIceMetaObject = _COMMON.deepCopyYCR(runtime_ctx.currentQueryIceMetaObject);
+                                
+                                // update next query's icest for current query to properly carry out syntax checking
+                                runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = nqIcest;
+                            }
+
                             function updateHCS_I_3L ()
                             {
                                 // update current hpid column set for grouping object
@@ -2470,10 +2489,10 @@
             },
 
         isSpecialProperty: /**
-            * Check for special property that is used primarily during sorting collection by objects themselves.
-            *
-            * @param {any} propName
-            */
+         * Check for special property that is used primarily during sorting collection by objects themselves.
+         *
+         * @param {any} propName
+         */
             function ( propName )
             {
                 return is_SP_I_1L( propName );
@@ -2490,10 +2509,10 @@
             },
 
         determineSpecialPropertyType: /**
-             * Determine the type of the special property used to filter a collection during maths-based query methods.
-             *
-             * @param {any} propName
-             */
+         * Determine the type of the special property used to filter a collection during maths-based query methods.
+         *
+         * @param {any} propName
+         */
             function ( specialPropName )
             {
                 return determine_SPT_I_1L( specialPropName );
@@ -3732,12 +3751,12 @@
                     runtime_ctx.currentQueryIceMetaObject.is_prim = _COMMON.isPrimitiveType( fi ) && ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE );
                     runtime_ctx.currentQueryIceMetaObject.item = fi;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = false;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = '';
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = '';
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = '';
                     runtime_ctx.currentQueryIceMetaObject.ofss = ofss;
+                    runtime_ctx.currentQueryIceMetaObject.length_gte_2 = gte_2;
                     runtime_ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
                     runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
-                    runtime_ctx.currentQueryIceMetaObject.length_gte_2 = gte_2;
                 }
             }
     };
@@ -4380,9 +4399,6 @@
                     // declare bool operation result (bor)
                     var bor = false;
 
-                    // // create input collection cache
-                    // var currentColl = _DATA.fetchFlowData( jlc[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
-
 
                     // current object
                     var c_o;
@@ -4404,27 +4420,6 @@
 
                     // return the bool operation result
                     return bor;
-                }
-            },
-
-        applyAllAnyFilter: /**
-         * @param {any} jlc
-         * @param {any} predicateArray
-         * @param {any} enumValue
-         */
-            function ( jlc, predicateArray, enumValue )
-            {
-                return apply_AAF_I_1L( jlc, predicateArray, enumValue );
-
-
-
-                /**
-                 * Local helper functions
-                */
-                function apply_AAF_I_1L ( jlc, predicateArray, enumValue )
-                {
-                    // execute the "IF" filter and return the result
-                    return _LOGICAL_FILTER.applyLogicalWhereFilter( jlc, predicateArray, enumValue );
                 }
             },
 
@@ -12154,6 +12149,7 @@
                  *          ||
                  *    b.  is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?) 
                 */
+
                 // 1.
                 if ( Array.isArray( result ) )
                     // copy result 100% "by value"
@@ -12377,19 +12373,13 @@
                 // do necessary cleanup before starting current query flow
                 _ACTION.hpidCommons.clearCache( undefined );
 
-                // // get first item from a collection
-                // var firstItem = source_collection[ 0 ];
-
-                // // get object full structure string (ofss)
-                // var ofss = source_collection.ofss;
-
                 /**
                  * collectionIndex      ->  internal positional index of this collection
                  * collectionToken      ->  token associated with current collection, aka root token
                  * runtime_ctx          ->  JLC instance context
                 */
 
-                var collectionIndex, collectionToken,/* is_prim,*/ runtime_ctx;
+                var collectionIndex, collectionToken, runtime_ctx;
                 //if collection wasn't indexed internally, prepare for indexation
                 if ( !( _ENUM.RUNTIME.CI in source_collection ) && !( _ENUM.RUNTIME.CT in source_collection ) )
                 {
@@ -12464,9 +12454,6 @@
 
                 function applyJlcCommon_I_1L ()
                 {
-                    // // store updated metadata about collection
-                    // _ACTION.hpidCommons.updateColumnSetCestAndCols( source_collection.length > 1, firstItem, ofss );
-
                     // create JLC context
                     runtime_ctx = create_JC_I_2L();
 
@@ -12492,15 +12479,6 @@
                         r_ctx.currentQueryIceMetaObject = Object.create( null );
                         // create metadata object about changing collection item structure
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta = Object.create( null );
-
-                        // // create input collection element metadata object (ice meta object -> IceMetaObject)
-                        // r_ctx.currentQueryIceMetaObject = Object.create( null );
-                        // r_ctx.currentQueryIceMetaObject.is_prim = _COMMON.isPrimitiveType( firstItem ) && ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE );
-                        // r_ctx.currentQueryIceMetaObject.item = firstItem;
-                        // r_ctx.currentQueryIceMetaObject.ofss = ofss;
-                        // r_ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
-                        // r_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
-                        // r_ctx.currentQueryIceMetaObject.length_gte_2 = source_collection.length > 1;
 
                         // create query chain cache object internal
                         r_ctx.currentQueryChainCacheObjectInternal = [];
