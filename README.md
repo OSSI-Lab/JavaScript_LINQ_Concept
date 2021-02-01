@@ -26,6 +26,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #37 - DPR #60:&nbsp;2021-02-01 &nbsp;&nbsp;11:35 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 144 !
  - TEST #36 - DPR #59:&nbsp;2021-01-31 &nbsp;&nbsp;11:59 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

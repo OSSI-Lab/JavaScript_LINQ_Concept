@@ -13,9 +13,9 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #59 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #60 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
- *                                                                              -> Primitives   ->      Set for TEST    ->
+ *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -1564,14 +1564,14 @@
                         {
                             // cannot downgrade to plain if already grouping object or dictionary
                             if (
-                                [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest ) &&
+                                [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( runtime_ctx.currentQueryIceMetaObject.realFlowComputedIcestForNextQuery ) &&
                                 ![ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( nqIcest )
                             )
                                 // hence update current query's icest to grouping object or dictionary
-                                _ACTION.hpid.columnSet.currentQueryIcest = runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest;
+                                _ACTION.hpid.columnSet.currentQueryIcest = runtime_ctx.currentQueryIceMetaObject.realFlowComputedIcestForNextQuery;
                             // switch between grouping object and dictionary
                             else if (
-                                [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest ) &&
+                                [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( runtime_ctx.currentQueryIceMetaObject.realFlowComputedIcestForNextQuery ) &&
                                 [ _ENUM.CEST.GROUPING, _ENUM.CEST.KVP ].includes( nqIcest )
                             )
                                 updateNextQuerySetPreviousQueryIcest_I_3L();
@@ -1592,7 +1592,7 @@
                                 runtime_ctx.currentQueryIceMetaObject = _COMMON.deepCopyYCR(runtime_ctx.currentQueryIceMetaObject);
                                 
                                 // update next query's icest for current query to properly carry out syntax checking
-                                runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = nqIcest;
+                                runtime_ctx.currentQueryIceMetaObject.realFlowComputedIcestForNextQuery = nqIcest;
                             }
 
                             function updateHCS_I_3L ()
@@ -1752,10 +1752,10 @@
 
 
                         // execute this action by invoking its core method with binded parameters
-                        ao.execute = function ( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, itemStructureChangeMeta )
+                        ao.execute = function ( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, itemStructureChangeObject )
                         {
                             // add dynamic property to tell whether current query expressed via action object has to update its ice metadata object
-                            this.itemStructureChangeMeta = itemStructureChangeMeta;
+                            this.itemStructureChangeObject = itemStructureChangeObject;
 
                             // invoke bound core method
                             return c_m_b.bind( null, this, this.name, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )();
@@ -1782,14 +1782,14 @@
 
 
                         // copy action chain cache object internal 100% "by value"
-                        aco.currentQueryChainCacheObjectInternal = _COMMON.deepCopyYCR( runtime_ctx.currentQueryChainCacheObjectInternal );
+                        aco.currentQueryChainCacheInternalObject = _COMMON.deepCopyYCR( runtime_ctx.currentQueryChainCacheInternalObject );
                         // create cache object internal for current query chain
-                        aco.currentQueryChainCacheObjectInternal.push( createQueryCacheObjectForCurrentQueryChain_I_1L( jqn, jqf_arr ) );
+                        aco.currentQueryChainCacheInternalObject.push( createQueryCacheObjectForCurrentQueryChain_I_1L( jqn, jqf_arr ) );
 
                         // copy action chain cache object user-defined 100% "by value"
-                        aco.currentQueryChainCacheObjectUserDefined = _COMMON.deepCopyYCR( runtime_ctx.currentQueryChainCacheObjectUserDefined );
+                        aco.currentQueryChainCacheUserDefinedObject = _COMMON.deepCopyYCR( runtime_ctx.currentQueryChainCacheUserDefinedObject );
                         // create cache object user-defined for current query chain
-                        aco.currentQueryChainCacheObjectUserDefined.push( j_q_c_c );
+                        aco.currentQueryChainCacheUserDefinedObject.push( j_q_c_c );
 
 
                         // collection mmavt (order-min-max-average meta object of the type of the value)
@@ -1840,10 +1840,10 @@
 
 
                             // store query flow shared constraints (qfsc)
-                            if ( action_ctx.parentActionObjectConstraint )
+                            if ( action_ctx.parentActionConstraintObject )
                             {
                                 // get so-far created query flow shared constraints from parent
-                                a_constr.qfsc = action_ctx.parentActionObjectConstraint.qfsc;
+                                a_constr.qfsc = action_ctx.parentActionConstraintObject.qfsc;
 
                                 // fetch query flow shared constraints for this action
                                 var ta_qfsc = _CONSTRAINT.createQueryFlowConstraints( constr_def.name );
@@ -1873,7 +1873,7 @@
                             a_constr.currentQueryActionObject = action_ctx.parentActionObject;
 
                             // store parent of this action constraint
-                            a_constr.parentActionObjectConstraint = runtime_ctx.parentActionObjectConstraint;
+                            a_constr.parentActionConstraintObject = runtime_ctx.parentActionConstraintObject;
 
 
                             // define action constraint apply method
@@ -1953,10 +1953,10 @@
                              * Join the previous (parent - one level up the action constraint chain) action constraint with this action constraint.
                              * Set parent constraint of this current constraint ! 
                             */
-                            action_ctx.parentActionObjectConstraint = action_constr;
+                            action_ctx.parentActionConstraintObject = action_constr;
 
                             // execute constraint chain check
-                            run_ACR_I_2L( action_ctx.parentActionObjectConstraint );
+                            run_ACR_I_2L( action_ctx.parentActionConstraintObject );
 
 
 
@@ -1966,8 +1966,8 @@
                             function run_ACR_I_2L ( actionConstr )
                             {
                                 // navigate "down the road" to the first constraint
-                                if ( actionConstr.parentActionObjectConstraint && !actionConstr.parentActionObjectConstraint.stopDrillingDown )
-                                    run_ACR_I_2L( actionConstr.parentActionObjectConstraint );
+                                if ( actionConstr.parentActionConstraintObject && !actionConstr.parentActionConstraintObject.stopDrillingDown )
+                                    run_ACR_I_2L( actionConstr.parentActionConstraintObject );
 
                                 // from here run all constraints in the chain up to and/or including current action constraint
                                 if ( actionConstr.isNotNull && actionConstr.isEnabled )
@@ -1995,7 +1995,7 @@
                         _ACTION.hpidCommons.clearCache( action_ctx.parentActionObject.sharedSecondLevelSortingContext );
 
                         // execute all actions and produce pre-output result
-                        var result = executeActionsRecursively_I_2L( action_ctx.parentActionObject, action_ctx.currentQueryChainCacheObjectInternal, action_ctx.currentQueryChainCacheObjectUserDefined );
+                        var result = executeActionsRecursively_I_2L( action_ctx.parentActionObject, action_ctx.currentQueryChainCacheInternalObject, action_ctx.currentQueryChainCacheUserDefinedObject );
 
                         // return final data based on pre-output result
                         return getOutput_I_2L( result );
@@ -2018,9 +2018,9 @@
 
                             // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
                             if ( parentAction.returnsData )
-                                return parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, action_ctx.currentQueryIceMetaObject.itemStructureChangeMeta );
+                                return parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, action_ctx.currentQueryIceMetaObject.itemStructureChangeObject );
                             else
-                                parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, action_ctx.currentQueryIceMetaObject.itemStructureChangeMeta );
+                                parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, action_ctx.currentQueryIceMetaObject.itemStructureChangeObject );
                         }
 
                         function getOutput_I_2L ( result )
@@ -3750,13 +3750,13 @@
                     // create input collection element metadata object (ice meta object -> IceMetaObject)
                     runtime_ctx.currentQueryIceMetaObject.is_prim = _COMMON.isPrimitiveType( fi ) && ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PRIMITIVE );
                     runtime_ctx.currentQueryIceMetaObject.item = fi;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = false;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = '';
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = '';
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = false;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = '';
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = '';
                     runtime_ctx.currentQueryIceMetaObject.ofss = ofss;
                     runtime_ctx.currentQueryIceMetaObject.length_gte_2 = gte_2;
                     runtime_ctx.currentQueryIceMetaObject.realFlowInitialIcest = _ACTION.hpid.columnSet.currentQueryIcest;
-                    runtime_ctx.currentQueryIceMetaObject.forNextQuerySetPreviousQueryIcest = _ACTION.hpid.columnSet.currentQueryIcest;
+                    runtime_ctx.currentQueryIceMetaObject.realFlowComputedIcestForNextQuery = _ACTION.hpid.columnSet.currentQueryIcest;
                 }
             }
     };
@@ -3792,9 +3792,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3837,9 +3837,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3883,9 +3883,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3930,9 +3930,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -3976,9 +3976,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4019,9 +4019,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4062,9 +4062,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4104,9 +4104,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
                     // considering different scenarios there should not be syntax checking
 
@@ -4147,9 +4147,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4188,9 +4188,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4235,9 +4235,9 @@
                     /**
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = actionContext.itemStructureChangeMeta.requiresChange;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName = queryName;
-                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = actionContext.itemStructureChangeMeta.triggeringQueryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
 
 
                     // invoke core logic
@@ -4482,8 +4482,8 @@
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
                     if (
-                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -4599,8 +4599,8 @@
                          * Update collection item structure metadata object of ice metadata object of the current runtime context
                         */
                         if (
-                            r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                            r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                         )
                             _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -5129,8 +5129,8 @@
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
                     if (
-                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -5386,8 +5386,8 @@
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
                     if (
-                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -5667,8 +5667,8 @@
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
                     if (
-                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -6482,8 +6482,8 @@
                          * Update collection item structure metadata object of ice metadata object of the current runtime context
                         */
                         if (
-                            r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                            r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                         )
                             _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, _ACTION.hpid.data );
 
@@ -6743,8 +6743,8 @@
                      * Update collection item structure metadata object of ice metadata object of the current runtime context
                     */
                     if (
-                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                        ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                     )
                         _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -6812,8 +6812,8 @@
                          * Update collection item structure metadata object of ice metadata object of the current runtime context
                         */
                         if (
-                            r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange &&
-                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.currentQueryName )
+                            r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
+                            ( r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName !== r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName )
                         )
                             _COMMON.updateIceMetaObjectOfRuntimeContext( r_ctx, currentColl );
 
@@ -12167,9 +12167,9 @@
                          * Update metadata object of ice metadata object
                         */
                         // mark in the invocation context that the very next query will have to update ice metadata object
-                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.requiresChange = true;
+                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = true;
                         // the name of the query that forces the very next query to update its ice metadata object
-                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeMeta.triggeringQueryName = property;
+                        runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = property;
                     }
                 }
                 // 2.b
@@ -12478,13 +12478,13 @@
                         // create input collection element metadata object (ice meta object -> IceMetaObject)
                         r_ctx.currentQueryIceMetaObject = Object.create( null );
                         // create metadata object about changing collection item structure
-                        r_ctx.currentQueryIceMetaObject.itemStructureChangeMeta = Object.create( null );
+                        r_ctx.currentQueryIceMetaObject.itemStructureChangeObject = Object.create( null );
 
                         // create query chain cache object internal
-                        r_ctx.currentQueryChainCacheObjectInternal = [];
+                        r_ctx.currentQueryChainCacheInternalObject = [];
 
                         // create query chain cache object defined by the user
-                        r_ctx.currentQueryChainCacheObjectUserDefined = [];
+                        r_ctx.currentQueryChainCacheUserDefinedObject = [];
 
                         // initially parent set to null
                         r_ctx.parentActionObject = null;

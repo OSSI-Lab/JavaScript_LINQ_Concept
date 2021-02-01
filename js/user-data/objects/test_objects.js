@@ -164,7 +164,7 @@
                 salary: 100.00,
                 description: "This way or the other",
                 duty: { id: 5, name: "Duty 5" }
-            },
+            }
         ];
 
         var collection_nullProps_where_take_skip_all_any = [
@@ -4267,6 +4267,7 @@
 
 
         console.log( '~ Objects' );
+        // CODE WAS TESTED UNTIL HERE !
         debugger;
     };
 } )();
