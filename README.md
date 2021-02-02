@@ -26,6 +26,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #38 - DPR #61:&nbsp;2021-02-02 &nbsp;&nbsp;3:05 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 144 !
+        - fixed issues
+            - query methods elementAt & elementAtOrDefault cannot be parameterless
  - TEST #37 - DPR #60:&nbsp;2021-02-01 &nbsp;&nbsp;11:35 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
@@ -36,6 +42,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - started...
 #
 ## Objects
+ - TEST #38 - DPR #61:&nbsp;2021-02-02 &nbsp;&nbsp;3:05 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - done -> 100% (This is already RC, just RC, simply RC ) !
+        - fixed issues
+            - query methods elementAt & elementAtOrDefault cannot be parameterless
  - TEST #36 - DPR #59:&nbsp;2021-01-31 &nbsp;&nbsp;11:59 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

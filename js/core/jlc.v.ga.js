@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #60 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #61 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -10286,9 +10286,9 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // handle missing params object
+                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'elementAt\' has to have "params" object provided !\r\n\r\n' );
+                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nQuery method called \'elementAt\' with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
                     }
                 ],
 
@@ -10386,9 +10386,9 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // handle missing params object
+                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'elementAtOrDefault\' has to have "params" object provided !\r\n\r\n' );
+                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nQuery method called \'elementAtOrDefault\' with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
                     }
                 ],
 
