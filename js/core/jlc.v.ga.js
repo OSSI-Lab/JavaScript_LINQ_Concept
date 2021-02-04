@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #61 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #62 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -1587,10 +1587,11 @@
                             /**
                              * Local helper functions
                             */
-                            function updateNextQuerySetPreviousQueryIcest_I_3L() {
+                            function updateNextQuerySetPreviousQueryIcest_I_3L ()
+                            {
                                 // copy current query ice metadata object 100% "by value"
-                                runtime_ctx.currentQueryIceMetaObject = _COMMON.deepCopyYCR(runtime_ctx.currentQueryIceMetaObject);
-                                
+                                runtime_ctx.currentQueryIceMetaObject = _COMMON.deepCopyYCR( runtime_ctx.currentQueryIceMetaObject );
+
                                 // update next query's icest for current query to properly carry out syntax checking
                                 runtime_ctx.currentQueryIceMetaObject.realFlowComputedIcestForNextQuery = nqIcest;
                             }
@@ -2149,7 +2150,7 @@
         convertTypeToString: /**
          * Get string representation of the type of given object.
          *
-         * @param {any} o
+         * @param {any} o Object to get the string representation from.
          */
             function ( o )
             {
@@ -2170,6 +2171,8 @@
          * Test for an empty JavaScript object.
          *
          * Source: https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
+         * 
+         * @param {any} o Object to test for emptiness.
          */
             function ( obj )
             {
@@ -2189,6 +2192,44 @@
                      *  c. var o = Object.create(null);
                      */
                     return Object.keys( o ).length === 0 && ( o.constructor && o.constructor === Object ||/** this handles case c. */ true );
+                }
+            },
+
+        handleMissingParamsObject: /**
+         * Handle missing params object during query method creation.
+         *
+         * @param {any} params Main object used to create query method definition.
+         * @param {any} queryName Name of the query method to create.
+         * @param {any} paramsObjRequiredParamName Name of the object required by the "params" object or boolean false value if this param is not required.
+         */
+            function ( params, queryName, paramsObjRequiredParamName )
+            {
+                return handle_MPO_I_1L( params, queryName, paramsObjRequiredParamName );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function handle_MPO_I_1L ( params, queryName, paramsObjRequiredParamName )
+                {
+                    // name of the params object itself
+                    var paramsObjName = '\'params\'';
+
+                    // handle missing params object
+                    if ( paramsObjRequiredParamName !== true && params === undefined ) throw new ReferenceError( '\r\nQuery method called' + queryName + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
+
+                    // check if this param is required (non-empty string)
+                    if ( paramsObjRequiredParamName !== false && params !== undefined )
+                    {
+                        if ( params[ paramsObjRequiredParamName ] === undefined ) throw new TypeError( '\r\nQuery method called ' + queryName + ' with ' + paramsObjName + ' object provided is missing \'' + paramsObjRequiredParamName + '\' array !\r\n\r\n' );
+                    }
+
+                    // ensure that query method interface is empty
+                    else if ( paramsObjRequiredParamName === true && params !== undefined ) throw new TypeError( '\r\nQuery method called ' + queryName + ' has to be parameterless !\r\n\r\n' );
+
+                    // return params object
+                    return params;
                 }
             },
 
@@ -7485,9 +7526,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'where\'', paramsObjRequiredParamName = 'predicateArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7565,9 +7608,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'groupBy\'', paramsObjRequiredParamName = 'predicateArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7722,9 +7767,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'concatenate\'', paramsObjRequiredParamName = 'collectionOrItem';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7804,9 +7851,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'append\'', paramsObjRequiredParamName = 'collectionOrItem';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7886,9 +7935,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'prepend\'', paramsObjRequiredParamName = 'collectionOrItem';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7968,9 +8019,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'contains\'', paramsObjRequiredParamName = 'collectionOrItem';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8072,9 +8125,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'distinct\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8173,9 +8228,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'except\'', paramsObjRequiredParamName = 'collectionOrItem';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8275,9 +8332,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'skip\'', paramsObjRequiredParamName = 'count';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8375,9 +8434,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'skipWhile\'', paramsObjRequiredParamName = 'predicateArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8481,9 +8542,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'take\'', paramsObjRequiredParamName = 'count';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8581,9 +8644,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'takeWhile\'', paramsObjRequiredParamName = 'predicateArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8687,9 +8752,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'orderBy\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8807,9 +8874,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'orderByDescending\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8927,9 +8996,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'thenBy\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9023,9 +9094,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'thenByDescending\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9116,7 +9189,16 @@
                 },
 
                 // predefined internal constraint checking
-                internal_rcc: [],
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // declare missing params object entries
+                        var queryName = '\'toArray\'', paramsObjRequiredParamName = true;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                    }
+                ],
 
                 // requires syntax checking
                 rsc: false,
@@ -9205,9 +9287,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'toDictionary\'', paramsObjRequiredParamName = 'predicateArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9338,7 +9422,16 @@
                 },
 
                 // predefined internal constraint checking
-                internal_rcc: [],
+                internal_rcc: [
+                    function ( params )
+                    {
+                        // declare missing params object entries
+                        var queryName = '\'defaultIfEmpty\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                    }
+                ],
 
                 // requires syntax checking
                 rsc: false,
@@ -9450,9 +9543,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'reverseAllOrSubset\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9548,9 +9643,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'select\'', paramsObjRequiredParamName = 'selectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9657,9 +9754,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'selectMany\'', paramsObjRequiredParamName = 'selectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9766,9 +9865,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'innerJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9896,9 +9997,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'leftJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10026,9 +10129,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'groupJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10156,9 +10261,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'groupLeftJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10286,9 +10393,11 @@
                 internal_rcc: [
                     function ( params )
                     {
+                        // declare missing params object entries
+                        var queryName = '\'elementAt\'', paramsObjRequiredParamName = 'index';
+
                         // handle missing params object
-                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'elementAt\' has to have "params" object provided !\r\n\r\n' );
-                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nQuery method called \'elementAt\' with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10386,9 +10495,11 @@
                 internal_rcc: [
                     function ( params )
                     {
+                        // declare missing params object entries
+                        var queryName = '\'elementAtOrDefault\'', paramsObjRequiredParamName = 'index';
+
                         // handle missing params object
-                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'elementAtOrDefault\' has to have "params" object provided !\r\n\r\n' );
-                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nQuery method called \'elementAtOrDefault\' with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10511,9 +10622,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'first\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10608,9 +10721,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'firstOrDefault\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10705,9 +10820,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'last\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10802,9 +10919,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'lastOrDefault\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10899,9 +11018,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'single\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10996,9 +11117,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'singleOrDefault\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11093,9 +11216,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'min\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11213,9 +11338,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'max\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11333,8 +11460,11 @@
                 internal_rcc: [
                     function ( params )
                     {
+                        // declare missing params object entries
+                        var queryName = '\'average\'', paramsObjRequiredParamName = false;
+
                         // handle missing params object
-                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'average\' has to have "params" object provided !\r\n\r\n' );
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11461,9 +11591,11 @@
                 internal_rcc: [
                     function ( params )
                     {
-                        // prevent undefined error
-                        if ( params === undefined ) params = Object.create( null );
-                        return params;
+                        // declare missing params object entries
+                        var queryName = '\'any\'', paramsObjRequiredParamName = false;
+
+                        // handle missing params object
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11549,9 +11681,11 @@
                 internal_rcc: [
                     function ( params )
                     {
+                        // declare missing params object entries
+                        var queryName = '\'all\'', paramsObjRequiredParamName = 'predicateArray';
+
                         // handle missing params object
-                        if ( params === undefined ) throw new ReferenceError( '\r\nQuery method called \'all\' has to have "params" object provided !\r\n\r\n' );
-                        if ( params[ 'predicateArray' ] === undefined ) throw new TypeError( '\r\nQuery method called \'all\' with "params" object provided is missing "predicateArray" array !\r\n\r\n' );
+                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 

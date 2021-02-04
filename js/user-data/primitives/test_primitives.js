@@ -140,9 +140,6 @@
         groupBy_f1[ 0 ].resultsView[ 0 ] = Number.EPSILON;
 
 
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
         // final query - produces output
         // https://entityframework.net/knowledge-base/14112230/groupby-with-elementselector-and-resultselector
         var groupBy_f2 = collection_of_integers.groupBy(
@@ -354,18 +351,9 @@
             }
         ).toArray();
 
-        // partial query - produces intermediate query state
-        var where_error_p1 = collection_of_integers.where(
-            {
-                'predicateArray': [
-                    [ "", ">=", 2, true ]
-                ]
-            }
-        );
-
 
         // when you're done with all querying regarding some collections, you can tidy them up by removing some internally generated stuff
-        System.Linq.Context.Collection.tidyUp( collection, collection_of_strings );
+        System.Linq.Context.Collection.tidyUp( collection_of_integers, collection_of_strings );
 
 
 
@@ -406,16 +394,7 @@
         var concat_p2 = collection_of_integers.concatenate(
             {
                 'collectionOrItem': // object approach
-                {
-                    id: 14,
-                    name: "Product 14",
-                    img: 'image 14',
-                    price: 14.99,
-                    onsale: 140.0,
-                    tags: "Leash",
-                    description: "A fresh taste on a collar,",
-                    order: { id: 11, name: "Order of Product 14" }
-                }
+                14
             }
         );
 
@@ -1365,6 +1344,10 @@
                 'udfComparer': null
             }
         ).toArray();
+
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
 
         // final query - produces output
         var defaultIfEmpty_f1 = collection_of_integers.defaultIfEmpty(

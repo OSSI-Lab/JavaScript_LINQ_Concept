@@ -26,6 +26,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #39 - DPR #62:&nbsp;2021-02-05 &nbsp;&nbsp;12:07 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - done -> 100% (This is already RC, just RC, simply RC ) !
+        - fixed issues
+            - handling interface required params !
  - TEST #38 - DPR #61:&nbsp;2021-02-02 &nbsp;&nbsp;3:05 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
@@ -42,6 +48,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - started...
 #
 ## Objects
+ - TEST #39 - DPR #62:&nbsp;2021-02-05 &nbsp;&nbsp;12:07 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - done -> 100% (This is already RC, just RC, simply RC ) !
+        - fixed issues
+            - handling interface required params !
  - TEST #38 - DPR #61:&nbsp;2021-02-02 &nbsp;&nbsp;3:05 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
