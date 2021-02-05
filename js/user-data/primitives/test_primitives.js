@@ -478,7 +478,7 @@
             {
                 'collectionOrItem': // only object approach available
                 -1,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         );
 
@@ -496,12 +496,13 @@
             {
                 'collectionOrItem': // only object approach available
                 7,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         );
 
 
-        // final query - produces output
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Input type of parameter called 'collectionOrItem' in the context of "contains" query method has to be a primitive !
+        /*
         var contains_f5 = collection_of_integers.contains(
             {
                 'collectionOrItem': // only object approach available
@@ -509,6 +510,7 @@
                 'udfEqualityComparer': null
             }
         );
+        */
 
         // partial query - produces intermediate query state
         var distinct_p1 = collection_of_integers.distinct(
@@ -520,7 +522,7 @@
         // partial query - produces intermediate query state
         var distinct_p2 = collection_of_integers.distinct(
             {
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         );
 
@@ -534,7 +536,7 @@
         // final query - produces output
         var distinct_f2 = collection_of_integers.distinct(
             {
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
@@ -553,7 +555,7 @@
             {
                 'collectionOrItem': // object approach
                 5,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': false
             }
         ).toArray();
@@ -573,7 +575,7 @@
             {
                 'collectionOrItem': // object approach
                 5,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': true
             }
         ).toArray();
@@ -593,7 +595,7 @@
             {
                 'collectionOrItem': // object approach
                 5,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': false
             }
         );
@@ -613,7 +615,7 @@
             {
                 'collectionOrItem': // object approach
                 5,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': true
             }
         );
@@ -643,7 +645,7 @@
             {
                 'collectionOrItem': // object approach
                 10,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': false
             }
         ).toArray();
@@ -653,7 +655,7 @@
             {
                 'collectionOrItem': // object approach
                 10,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': true
             }
         ).toArray();
@@ -675,6 +677,26 @@
                     [5,7],
                 'udfEqualityComparer': null,
                 'strongSearch': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f11 = collection_of_integers.except(
+            {
+                'collectionOrItem': // object approach
+                [2,3],
+                'udfEqualityComparer': null,
+                'strongSearch': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var except_f12 = collection_of_integers.except(
+            {
+                'collectionOrItem': // object approach
+                [2,3],
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
+                'strongSearch': false
             }
         ).toArray();
 
@@ -2058,7 +2080,7 @@
                     return outputItem;
                 },
                 'udfResultSelector': null,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
@@ -2236,7 +2258,7 @@
                     return outputItem;
                 },
                 'udfResultSelector': null,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
@@ -2413,7 +2435,7 @@
                     return outputItem;
                 },
                 'udfResultSelector': null,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */
@@ -2458,7 +2480,7 @@
                     return outputItem;
                 },
                 'udfResultSelector': null,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */
@@ -2503,7 +2525,7 @@
                     return outputItem;
                 },
                 'udfResultSelector': null,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */
@@ -2681,7 +2703,7 @@
                     return outputItem;
                 },
                 'udfResultSelector': null,
-                'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */

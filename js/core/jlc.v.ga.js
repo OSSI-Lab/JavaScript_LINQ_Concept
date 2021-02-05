@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #62 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #63 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -505,11 +505,11 @@
                      *  - in case it's primitive, run syntax checking for primitive types
                      *  - otherwise if cest is not UNKNOWN run syntax checking for objects
                     */
-                    if ( is_primitive )
+                    if ( is_primitive && _COMMON.convertTypeToString(user_filter_array) === _ENUM.T2SR.ARRAY )
                         return user_filter_array.forEach(
                             function ( user_syntax_arr )
                             {
-                                if ( user_syntax_arr && typeof user_syntax_arr !== 'function' )
+                                if ( _COMMON.convertTypeToString(user_syntax_arr) === _ENUM.T2SR.ARRAY || typeof user_syntax_arr !== 'function' )
                                     c_P_I_1L( user_syntax_arr, sortingContext );
                             }
                         );
@@ -557,8 +557,8 @@
                             // access current user filter
                             user_filter = user_filter_array[ i ];
 
-                            // user filter being a UDF is considered as passing all checking
-                            if ( typeof user_filter === 'function' ) continue;
+                            // user filter being a UDF or any primitive type different than string is considered as passing all checking
+                            if ( typeof user_filter === 'function' || _COMMON. convertTypeToString(user_filter) !== _ENUM.T2SR.STRING ) continue;
 
                             // number of filter parameters can be 2, 3 or 4
                             length = user_filter.length;
@@ -5209,7 +5209,7 @@
                         switch ( enumValue )
                         {
                             case _ENUM.CONTAINS:
-                                // if the parameter called 'collection' is not a single object, throw the error
+                                // if the parameter called 'collectionOrItem' is not a single object, throw the error
                                 if ( _COMMON.convertTypeToString( collectionOrItem ) === _ENUM.T2SR.ARRAY )
                                     throw new Error( '\r\nInput type of parameter called \'collectionOrItem\' in the context of "' + _COMMON.getCustomValueOfSymbol( _ENUM.CONTAINS ).toLowerCase() + '" query method has to be ' + ( r_ctx.currentQueryIceMetaObject.is_prim ? 'a primitive' : 'an object' ) + ' !\r\n\r\n' );
 
@@ -5291,30 +5291,62 @@
                         // otherwise use internal content comparer...
                         else
                         {
-                            // iterate over whole collection
-                            for ( var i = 0; i < coll.length; i++ )
-                            {
-                                // declare whether match was found (match)
-                                match = Object.create( null );
-
-                                // determine the match success
-                                match.is = _COMMON.useDefaultObjectContentComparer( item, coll[ i ] );
-
-                                // if match was found and not full scan, break the checking
-                                if ( match.is )
+                            // handle primitive types
+                            if(r_ctx.currentQueryIceMetaObject.is_prim) {
+                                // iterate over whole collection
+                                for ( var i = 0; i < coll.length; i++ )
                                 {
-                                    // store the index of the match
-                                    match.index = i;
+                                    // declare whether match was found (match)
+                                    match = Object.create( null );
 
-                                    // store match object
-                                    match_arr.push( match );
+                                    // determine the match success
+                                    match.is = coll[ i ] === item;
 
-                                    /**
-                                     * Check the search mode
-                                     *  - true -> scan the whole collection rather than stop at first match
-                                     *  - false -> scan the collection until first match
-                                    */
-                                    if ( !isFullScan ) break;
+                                    // if match was found and not full scan, break the checking
+                                    if ( match.is )
+                                    {
+                                        // store the index of the match
+                                        match.index = i;
+
+                                        // store match object
+                                        match_arr.push( match );
+
+                                        /**
+                                         * Check the search mode
+                                         *  - true -> scan the whole collection rather than stop at first match
+                                         *  - false -> scan the collection until first match
+                                        */
+                                        if ( !isFullScan ) break;
+                                    }
+                                }
+                            }
+                            // handle objects
+                            else {
+                                // iterate over whole collection
+                                for ( var i = 0; i < coll.length; i++ )
+                                {
+                                    // declare whether match was found (match)
+                                    match = Object.create( null );
+
+                                    // determine the match success
+                                    match.is = _COMMON.useDefaultObjectContentComparer( item, coll[ i ] );
+
+                                    // if match was found and not full scan, break the checking
+                                    if ( match.is )
+                                    {
+                                        // store the index of the match
+                                        match.index = i;
+
+                                        // store match object
+                                        match_arr.push( match );
+
+                                        /**
+                                         * Check the search mode
+                                         *  - true -> scan the whole collection rather than stop at first match
+                                         *  - false -> scan the collection until first match
+                                        */
+                                        if ( !isFullScan ) break;
+                                    }
                                 }
                             }
                         }

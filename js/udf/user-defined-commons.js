@@ -388,7 +388,7 @@ var my_custom_jlc_common = {
          * The required value to return is true/false
         */
 
-        var haveTheSameContent = udf_commons.udfEqualityComparer( obj1, obj2 );
+        var haveTheSameContent = udf_commons.udfEqualityComparer( obj1, obj2 ) === 0;
 
 
         return haveTheSameContent;
