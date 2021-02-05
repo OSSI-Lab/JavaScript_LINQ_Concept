@@ -147,11 +147,11 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
-                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupKeyProjector': udf_commons.udfPrimitiveGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfPrimitiveGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).toArray();
 
@@ -177,11 +177,11 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
-                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupKeyProjector': udf_commons.udfPrimitiveGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfPrimitiveGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).toArray();
 
@@ -207,11 +207,11 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
-                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupKeyProjector': udf_commons.udfPrimitiveGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfPrimitiveGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).toArray();
 
@@ -238,11 +238,11 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
-                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupKeyProjector': udf_commons.udfPrimitiveGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfPrimitiveGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).toArray();
 
@@ -268,11 +268,11 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
-                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupKeyProjector': udf_commons.udfPrimitiveGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfPrimitiveGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).toArray();
 
@@ -307,11 +307,11 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
-                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupKeyProjector': udf_commons.udfPrimitiveGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfPrimitiveGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         );
 
@@ -1231,9 +1231,9 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         );
 
@@ -1270,9 +1270,9 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).orderBy(
             {
@@ -1296,9 +1296,9 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).orderBy(
             {
@@ -1322,9 +1322,9 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).orderBy(
             {
@@ -1396,9 +1396,9 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).where(
             {
@@ -1434,11 +1434,11 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupKeyProjector': udf_commons.udfObjectGroupKeyProjector,
-                'udfGroupElementSelector': udf_commons.udfObjectGroupElementSelector,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupKeyProjector': udf_commons.udfPrimitiveGroupKeyProjector,
+                'udfGroupElementSelector': udf_commons.udfPrimitiveGroupElementSelector,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).where(
             {
@@ -1474,9 +1474,9 @@
                 'predicateArray': [
                     [ "", true ]
                 ],
-                'udfGroupKeySelector': udf_commons.udfObjectGroupKeySelector,
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
-                'udfGroupResultValueSelector': udf_commons.udfObjectGroupResultValueSelector
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).where(
             {
