@@ -2196,8 +2196,8 @@
                 }
             },
 
-        handleMissingParamsObject: /**
-         * Handle missing params object during query method creation.
+        validateParamsObjectOfQueryInterface: /**
+         * Parse query interface's params object while creating the query method.
          *
          * @param {any} params Main object used to create query method definition.
          * @param {any} queryName Name of the query method to create.
@@ -2205,24 +2205,24 @@
          */
             function ( params, queryName, paramsObjRequiredParamName )
             {
-                return handle_MPO_I_1L( params, queryName, paramsObjRequiredParamName );
+                return validate_POoQI_I_1L( params, queryName, paramsObjRequiredParamName );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function handle_MPO_I_1L ( params, queryName, paramsObjRequiredParamName )
+                function validate_POoQI_I_1L ( params, queryName, paramsObjRequiredParamName )
                 {
                     // name of the params object itself
-                    var paramsObjName = '\'params\'';
+                    var paramsObjName = '\'params\'', error_prefix = '\r\nQuery method called ' + queryName;
 
                     // string representation of the required param of the params object
                     var t2sr = _COMMON.convertTypeToString(paramsObjRequiredParamName);
 
 
                     // handle missing params object
-                    if ( t2sr === _ENUM.T2SR.STRING && params === undefined ) throw new ReferenceError( '\r\nQuery method called' + queryName + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
+                    if ( t2sr === _ENUM.T2SR.STRING && params === undefined ) throw new ReferenceError( error_prefix + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
 
                     // check if this param is required (non-empty string)
                     else if (t2sr === _ENUM.T2SR.STRING && params !== undefined )
@@ -2245,7 +2245,7 @@
                         // if required param or params of the params object is or are undefined
                         if(!isNotUndefined)
                             // throw error
-                            throw new TypeError( '\r\nQuery method called ' + queryName + ' with ' + paramsObjName + ' object provided is missing \'' + paramsObjRequiredParamName + '\' !\r\n\r\n' );
+                            throw new TypeError( error_prefix + ' with ' + paramsObjName + ' object provided is missing ' + (req_params.length > 1 ? 'any of the following filters -> ': '') + '\'' + paramsObjRequiredParamName + '\' !\r\n\r\n' );
 
                     }
                     // don't check the params object
@@ -2707,11 +2707,11 @@
             },
 
         seekPropertyOrThrowErrorIfRequired: /**
-            * @param {object} currentObject
-            * @param {string} propertyName
-            * @param {number} arrayLength
-            * @param {bool} throwErrorWhenNullOrUndefined
-            */
+         * @param {object} currentObject
+         * @param {string} propertyName
+         * @param {number} arrayLength
+         * @param {bool} throwErrorWhenNullOrUndefined
+         */
             function ( currentObject, propertyName, arrayLength, throwErrorWhenNullOrUndefined )
             {
                 return seek_PoTEIR_I_1L( currentObject, propertyName, arrayLength, throwErrorWhenNullOrUndefined );
@@ -7556,7 +7556,7 @@
                         var queryName = '\'where\'', paramsObjRequiredParamName = 'predicateArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7638,7 +7638,7 @@
                         var queryName = '\'groupBy\'', paramsObjRequiredParamName = 'predicateArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7797,7 +7797,7 @@
                         var queryName = '\'concatenate\'', paramsObjRequiredParamName = 'collectionOrItem';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7881,7 +7881,7 @@
                         var queryName = '\'append\'', paramsObjRequiredParamName = 'collectionOrItem';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -7965,7 +7965,7 @@
                         var queryName = '\'prepend\'', paramsObjRequiredParamName = 'collectionOrItem';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8049,7 +8049,7 @@
                         var queryName = '\'contains\'', paramsObjRequiredParamName = 'collectionOrItem';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8155,7 +8155,7 @@
                         var queryName = '\'distinct\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8258,7 +8258,7 @@
                         var queryName = '\'except\'', paramsObjRequiredParamName = 'collectionOrItem';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8362,7 +8362,7 @@
                         var queryName = '\'skip\'', paramsObjRequiredParamName = 'count';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8464,7 +8464,7 @@
                         var queryName = '\'skipWhile\'', paramsObjRequiredParamName = 'predicateArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8572,7 +8572,7 @@
                         var queryName = '\'take\'', paramsObjRequiredParamName = 'count';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8674,7 +8674,7 @@
                         var queryName = '\'takeWhile\'', paramsObjRequiredParamName = 'predicateArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8782,7 +8782,7 @@
                         var queryName = '\'orderBy\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -8904,7 +8904,7 @@
                         var queryName = '\'orderByDescending\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9026,7 +9026,7 @@
                         var queryName = '\'thenBy\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9124,7 +9124,7 @@
                         var queryName = '\'thenByDescending\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9222,7 +9222,7 @@
                         var queryName = '\'toArray\'', paramsObjRequiredParamName = true;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9317,7 +9317,7 @@
                         var queryName = '\'toDictionary\'', paramsObjRequiredParamName = 'predicateArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9455,7 +9455,7 @@
                         var queryName = '\'defaultIfEmpty\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9573,7 +9573,7 @@
                         var queryName = '\'reverseAllOrSubset\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9673,7 +9673,7 @@
                         var queryName = '\'select\'', paramsObjRequiredParamName = 'selectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9784,7 +9784,7 @@
                         var queryName = '\'selectMany\'', paramsObjRequiredParamName = 'selectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -9895,7 +9895,7 @@
                         var queryName = '\'innerJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10027,7 +10027,7 @@
                         var queryName = '\'leftJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10159,7 +10159,7 @@
                         var queryName = '\'groupJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10291,7 +10291,7 @@
                         var queryName = '\'groupLeftJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10423,7 +10423,7 @@
                         var queryName = '\'elementAt\'', paramsObjRequiredParamName = 'index';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10525,7 +10525,7 @@
                         var queryName = '\'elementAtOrDefault\'', paramsObjRequiredParamName = 'index';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10652,7 +10652,7 @@
                         var queryName = '\'first\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10751,7 +10751,7 @@
                         var queryName = '\'firstOrDefault\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10850,7 +10850,7 @@
                         var queryName = '\'last\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -10949,7 +10949,7 @@
                         var queryName = '\'lastOrDefault\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11048,7 +11048,7 @@
                         var queryName = '\'single\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11147,7 +11147,7 @@
                         var queryName = '\'singleOrDefault\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11246,7 +11246,7 @@
                         var queryName = '\'min\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11368,7 +11368,7 @@
                         var queryName = '\'max\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11490,7 +11490,7 @@
                         var queryName = '\'average\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11621,7 +11621,7 @@
                         var queryName = '\'any\'', paramsObjRequiredParamName = false;
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
@@ -11711,7 +11711,7 @@
                         var queryName = '\'all\'', paramsObjRequiredParamName = 'predicateArray';
 
                         // handle missing params object
-                        return _COMMON.handleMissingParamsObject( params, queryName, paramsObjRequiredParamName );
+                        return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
