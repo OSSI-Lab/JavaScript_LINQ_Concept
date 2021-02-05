@@ -146,7 +146,8 @@
         },
 
         MISC: {
-            UNDERSCORE: '_'
+            UNDERSCORE: '_',
+            EMPTY: ''
         }
     };
 
@@ -2216,20 +2217,45 @@
                     // name of the params object itself
                     var paramsObjName = '\'params\'';
 
+                    // string representation of the required param of the params object
+                    var t2sr = _COMMON.convertTypeToString(paramsObjRequiredParamName);
+
+
                     // handle missing params object
-                    if ( paramsObjRequiredParamName !== true && params === undefined ) throw new ReferenceError( '\r\nQuery method called' + queryName + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
+                    if ( t2sr === _ENUM.T2SR.STRING && params === undefined ) throw new ReferenceError( '\r\nQuery method called' + queryName + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
 
                     // check if this param is required (non-empty string)
-                    if ( paramsObjRequiredParamName !== false && params !== undefined )
+                    else if (t2sr === _ENUM.T2SR.STRING && params !== undefined )
                     {
-                        if ( params[ paramsObjRequiredParamName ] === undefined ) throw new TypeError( '\r\nQuery method called ' + queryName + ' with ' + paramsObjName + ' object provided is missing \'' + paramsObjRequiredParamName + '\' array !\r\n\r\n' );
+                        // is required param of the params object defined
+                        var isNotUndefined = false;
+
+                        // convert to array
+                        var req_params = paramsObjRequiredParamName.split(',');
+
+                        // check all "required" params
+                        for(var i = 0; i < req_params.length; i++) {
+                            // is defined
+                            isNotUndefined = params[ req_params[i] ] !== undefined;
+
+                            // if so, then break the loop
+                            if(isNotUndefined) break;
+                        }
+
+                        // if required param or params of the params object is or are undefined
+                        if(!isNotUndefined)
+                            // throw error
+                            throw new TypeError( '\r\nQuery method called ' + queryName + ' with ' + paramsObjName + ' object provided is missing \'' + paramsObjRequiredParamName + '\' !\r\n\r\n' );
+
                     }
-
+                    // don't check the params object
+                    else if(t2sr === _ENUM.T2SR.BOOLEAN && paramsObjRequiredParamName === false)
+                        ;
                     // ensure that query method interface is empty
-                    else if ( paramsObjRequiredParamName === true && params !== undefined ) throw new TypeError( '\r\nQuery method called ' + queryName + ' has to be parameterless !\r\n\r\n' );
+                    else if (t2sr === _ENUM.T2SR.BOOLEAN && paramsObjRequiredParamName === true && params !== undefined ) throw new TypeError( '\r\nQuery method called ' + queryName + ' has to be parameterless !\r\n\r\n' );
 
-                    // return params object
-                    return params;
+                    // return params object that is not undefined
+                    return params ? params : Object.create(null);
                 }
             },
 
