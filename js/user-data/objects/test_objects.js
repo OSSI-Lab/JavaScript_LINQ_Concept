@@ -4266,6 +4266,45 @@
         );
 
 
+        var collection_bool_sort = [
+            {
+                id: 1,
+                active: true
+            },
+            {
+                id: 2,
+                active: false,
+            },
+            {
+                id: 3,
+                active: false,
+            },
+            {
+                id: 4,
+                active: true,
+            }
+        ];
+
+        // final query - produces output
+        var orderBy_active_f1 = collection_bool_sort.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "active", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_active_f2 = collection_bool_sort.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "active", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
         console.log( '~ Objects' );
         // CODE WAS TESTED UNTIL HERE !
         debugger;

@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #63 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #64 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -505,11 +505,11 @@
                      *  - in case it's primitive, run syntax checking for primitive types
                      *  - otherwise if cest is not UNKNOWN run syntax checking for objects
                     */
-                    if ( is_primitive && _COMMON.convertTypeToString(user_filter_array) === _ENUM.T2SR.ARRAY )
+                    if ( is_primitive && _COMMON.convertTypeToString( user_filter_array ) === _ENUM.T2SR.ARRAY )
                         return user_filter_array.forEach(
                             function ( user_syntax_arr )
                             {
-                                if ( _COMMON.convertTypeToString(user_syntax_arr) === _ENUM.T2SR.ARRAY || typeof user_syntax_arr !== 'function' )
+                                if ( _COMMON.convertTypeToString( user_syntax_arr ) === _ENUM.T2SR.ARRAY || typeof user_syntax_arr !== 'function' )
                                     c_P_I_1L( user_syntax_arr, sortingContext );
                             }
                         );
@@ -558,7 +558,7 @@
                             user_filter = user_filter_array[ i ];
 
                             // user filter being a UDF or any primitive type different than string is considered as passing all checking
-                            if ( typeof user_filter === 'function' || _COMMON. convertTypeToString(user_filter) !== _ENUM.T2SR.STRING ) continue;
+                            if ( typeof user_filter === 'function' || _COMMON.convertTypeToString( user_filter ) !== _ENUM.T2SR.STRING ) continue;
 
                             // number of filter parameters can be 2, 3 or 4
                             length = user_filter.length;
@@ -2069,7 +2069,7 @@
                 */
                 function is_N_I_1L ( o )
                 {
-                    return !isNaN( o );
+                    return !isNaN( o ) && _COMMON.convertTypeToString(o) !== _ENUM.T2SR.BOOLEAN;
                 }
             },
 
@@ -2218,44 +2218,45 @@
                     var paramsObjName = '\'params\'', error_prefix = '\r\nQuery method called ' + queryName;
 
                     // string representation of the required param of the params object
-                    var t2sr = _COMMON.convertTypeToString(paramsObjRequiredParamName);
+                    var t2sr = _COMMON.convertTypeToString( paramsObjRequiredParamName );
 
 
                     // handle missing params object
                     if ( t2sr === _ENUM.T2SR.STRING && params === undefined ) throw new ReferenceError( error_prefix + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
 
                     // check if this param is required (non-empty string)
-                    else if (t2sr === _ENUM.T2SR.STRING && params !== undefined )
+                    else if ( t2sr === _ENUM.T2SR.STRING && params !== undefined )
                     {
                         // is required param of the params object defined
                         var isNotUndefined = false;
 
                         // convert to array
-                        var req_params = paramsObjRequiredParamName.split(',');
+                        var req_params = paramsObjRequiredParamName.split( ',' );
 
                         // check all "required" params
-                        for(var i = 0; i < req_params.length; i++) {
+                        for ( var i = 0; i < req_params.length; i++ )
+                        {
                             // is defined
-                            isNotUndefined = params[ req_params[i] ] !== undefined;
+                            isNotUndefined = params[ req_params[ i ] ] !== undefined;
 
                             // if so, then break the loop
-                            if(isNotUndefined) break;
+                            if ( isNotUndefined ) break;
                         }
 
                         // if required param or params of the params object is or are undefined
-                        if(!isNotUndefined)
+                        if ( !isNotUndefined )
                             // throw error
-                            throw new TypeError( error_prefix + ' with ' + paramsObjName + ' object provided is missing ' + (req_params.length > 1 ? 'any of the following filters -> ': '') + '\'' + paramsObjRequiredParamName + '\' !\r\n\r\n' );
+                            throw new TypeError( error_prefix + ' with ' + paramsObjName + ' object provided is missing ' + ( req_params.length > 1 ? 'any of the following filters -> ' : '' ) + '\'' + paramsObjRequiredParamName + '\' !\r\n\r\n' );
 
                     }
                     // don't check the params object
-                    else if(t2sr === _ENUM.T2SR.BOOLEAN && paramsObjRequiredParamName === false)
+                    else if ( t2sr === _ENUM.T2SR.BOOLEAN && paramsObjRequiredParamName === false )
                         ;
                     // ensure that query method interface is empty
-                    else if (t2sr === _ENUM.T2SR.BOOLEAN && paramsObjRequiredParamName === true && params !== undefined ) throw new TypeError( '\r\nQuery method called ' + queryName + ' has to be parameterless !\r\n\r\n' );
+                    else if ( t2sr === _ENUM.T2SR.BOOLEAN && paramsObjRequiredParamName === true && params !== undefined ) throw new TypeError( '\r\nQuery method called ' + queryName + ' has to be parameterless !\r\n\r\n' );
 
                     // return params object that is not undefined
-                    return params ? params : Object.create(null);
+                    return params ? params : Object.create( null );
                 }
             },
 
@@ -3592,7 +3593,7 @@
                          * Comparing two values of "strongly" different types is simply illogical !
                          * If at least one value is a digit, compare them as digits by making the second one - being null or undefined - holding default value of the type of the first value.
                         */
-                        const [ nVC, nVP ] = nativeOrDefaultIfNullOrUndefined_I_1L( vC, vP );
+                        const [ nVC, nVP, isBoolean ] = nativeOrDefaultIfNullOrUndefined_I_1L( vC, vP );
 
                         // reference the current sorting mode
                         var sort_mode = _ACTION.hpid.sorting.sort_order;
@@ -3603,12 +3604,12 @@
                             // go the ASC way
                             case _ENUM.ORDER.By.ASC:
                             case _ENUM.ORDER.By.THEN_ASC:
-                                return doBooleanComparison_I_3L( true );
+                                return isBoolean ? doBooleanComparisonOfBooleans_I_3L( true ) : doBooleanComparisonOfOtherTypes_I_3L( true );
 
                             // go the DESC way
                             case _ENUM.ORDER.By.DESC:
                             case _ENUM.ORDER.By.THEN_DESC:
-                                return doBooleanComparison_I_3L( false );
+                                return isBoolean ? doBooleanComparisonOfBooleans_I_3L( false ) : doBooleanComparisonOfOtherTypes_I_3L( false );
 
                             default:
                                 throw new Error( '\r\nUnsupported sorting order [ ' + _COMMON.getCustomValueOfSymbol( sort_mode ) + ' ] !\r\n\r\n' );
@@ -3630,8 +3631,11 @@
                             // if both
                             if ( is_V1 && is_V2 )
                             {
-                                v1 = _COMMON.isNumeric( v1 ) ? _COMMON.toNumeric( v1, true ) : v1;
-                                v2 = _COMMON.isNumeric( v2 ) ? _COMMON.toNumeric( v2, true ) : v2;
+                                if ( _COMMON.isNumeric( v1 ) )
+                                    v1 = _COMMON.toNumeric( v1, true );
+
+                                if ( _COMMON.isNumeric( v2 ) )
+                                    v2 = _COMMON.toNumeric( v2, true );
                             }
                             // otherwise having one of them defined, get default value for the second one
                             else
@@ -3648,10 +3652,28 @@
                                 }
                             }
 
-                            return [ v1, v2 ];
+                            return [ v1, v2, _COMMON.convertTypeToString( v1 ) === _ENUM.T2SR.BOOLEAN ];
                         }
 
-                        function doBooleanComparison_I_3L ( isAsc )
+                        function doBooleanComparisonOfBooleans_I_3L ( isAsc )
+                        {
+                            // perform ASC comparison
+                            if ( isAsc )
+                            {
+                                if ( nVC === true && nVP === false ) return 1;
+                                else if ( nVC === false && nVP === true ) return -1;
+                                else return 0;
+                            }
+                            // perform DESC comparison
+                            else
+                            {
+                                if ( nVC === true && nVP === false ) return -1;
+                                else if ( nVC === false && nVP === true ) return 1;
+                                else return 0;
+                            }
+                        }
+
+                        function doBooleanComparisonOfOtherTypes_I_3L ( isAsc )
                         {
                             // perform ASC comparison
                             if ( isAsc )
@@ -5292,7 +5314,8 @@
                         else
                         {
                             // handle primitive types
-                            if(r_ctx.currentQueryIceMetaObject.is_prim) {
+                            if ( r_ctx.currentQueryIceMetaObject.is_prim )
+                            {
                                 // iterate over whole collection
                                 for ( var i = 0; i < coll.length; i++ )
                                 {
@@ -5321,7 +5344,8 @@
                                 }
                             }
                             // handle objects
-                            else {
+                            else
+                            {
                                 // iterate over whole collection
                                 for ( var i = 0; i < coll.length; i++ )
                                 {
@@ -6691,6 +6715,8 @@
                             sortMetadataObj.sortMetaObject = sortMetaObject;
                             // selectors to be used to sort collection
                             sortMetadataObj.selectors = keyPartSelectorArray;
+                            // pass direction of sorting
+                            sortMetadataObj.isAscOtherwiseDesc = enumValue === _ENUM.ORDER.By.ASC || enumValue === _ENUM.ORDER.By.THEN_ASC;
 
                             // just invoke it
                             _ACTION.hpid.data.sort( udfComparer.bind( sortMetadataObj ) );
@@ -6791,6 +6817,8 @@
                                     sortMetadataObj.sortMetaObject = sortMetaObject;
                                     // selectors to be used to sort collection
                                     sortMetadataObj.selectors = keyPartSelectorArray;
+                                    // pass direction of sorting
+                                    sortMetadataObj.isAscOtherwiseDesc = enumValue === _ENUM.ORDER.By.ASC || enumValue === _ENUM.ORDER.By.THEN_ASC;
 
                                     // just invoke it
                                     sls_item.sort( udfComparer.bind( sortMetadataObj ) );

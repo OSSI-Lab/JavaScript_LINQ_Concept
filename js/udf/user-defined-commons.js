@@ -27,34 +27,57 @@ var my_custom_jlc_common = {
         /**
          * Reference this context, here being the sortMetaObject storing all relevant metadata about type of sorting operation
          * 
-         *  this.sortMetaObject -> sortMetaObject
-         *  this.selectors      -> selectors
+         *  this.sortMetaObject         -> sortMetaObject
+         *  this.selectors              -> selectors
+         *  this.isAscOtherwiseDesc     -> isAscOtherwiseDesc
         */
         var sortMetaObject = this.sortMetaObject;
         var selectors = this.selectors;
+        var isAscOtherwiseDesc = this.isAscOtherwiseDesc;
 
         // compare strings
         if ( typeof kC === 'string' )
         {
-            // nothing extraordinary, just showing the examplary usage !
-            if ( kC > kP ) return 1;
-            else if ( kC < kP ) return -1;
+            // sort in ascending order
+            if(isAscOtherwiseDesc) {
+                if ( kC > kP ) return 1;
+                else if ( kC < kP ) return -1;
+                else return 0;
+            }
+
+            // otherwise sort in descending order
+            if ( kC > kP ) return -1;
+            else if ( kC < kP ) return 1;
             else return 0;
         }
         // compare numbers
         else if ( typeof kC === 'number' )
         {
-            // nothing extraordinary, just showing the examplary usage !
-            if ( kC > kP ) return 1;
-            else if ( kC < kP ) return -1;
+            // sort in ascending order
+            if(isAscOtherwiseDesc) {
+                if ( kC > kP ) return 1;
+                else if ( kC < kP ) return -1;
+                else return 0;
+            }
+
+            // otherwise sort in descending order
+            if ( kC > kP ) return -1;
+            else if ( kC < kP ) return 1;
             else return 0;
         }
         // compare booleans
         else if ( typeof kC === 'boolean' )
         {
-            // nothing extraordinary, just showing the examplary usage !
-            if ( kC > kP ) return 1;
-            else if ( kC < kP ) return -1;
+            // sort in ascending order
+            if(isAscOtherwiseDesc) {
+                if ( kC === true && kP === false ) return 1;
+                else if ( kC === false && kP === true ) return -1;
+                else return 0;
+            }
+
+            // otherwise sort in descending order
+            if ( kC === true && kP === false ) return -1;
+            else if ( kC === false && kP === true ) return 1;
             else return 0;
         }
         // compare booleans
@@ -72,11 +95,21 @@ var my_custom_jlc_common = {
                 kP = kP[ property ];
             }
 
+
             /**
              * Compare both values
             */
-            if ( kC > kP ) return 1;
-            else if ( kC < kP ) return -1;
+
+            // sort in ascending order
+            if(isAscOtherwiseDesc) {
+                if ( kC > kP ) return 1;
+                else if ( kC < kP ) return -1;
+                else return 0;
+            }
+
+            // otherwise sort in descending order
+            if ( kC > kP ) return -1;
+            else if ( kC < kP ) return 1;
             else return 0;
         }
     },

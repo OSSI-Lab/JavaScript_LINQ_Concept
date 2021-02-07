@@ -782,7 +782,7 @@
         var skipWhile_f3 = collection_of_integers.skipWhile(
             {
                 'predicateArray': [
-                    jlc_predicates.udfWherePredicate
+                    jlc_predicates.udfPrimitiveWherePredicate
                 ]
             }
         ).toArray();
@@ -791,7 +791,7 @@
         var skipWhile_p3 = collection_of_integers.skipWhile(
             {
                 'predicateArray': [
-                    jlc_predicates.udfWherePredicate
+                    jlc_predicates.udfPrimitiveWherePredicate
                 ]
             }
         );
@@ -888,7 +888,7 @@
         var takeWhile_f3 = collection_of_integers.takeWhile(
             {
                 'predicateArray': [
-                    jlc_predicates.udfWherePredicate
+                    jlc_predicates.udfPrimitiveWherePredicate
                 ]
             }
         ).toArray();
@@ -897,7 +897,7 @@
         var takeWhile_p3 = collection_of_integers.takeWhile(
             {
                 'predicateArray': [
-                    jlc_predicates.udfWherePredicate
+                    jlc_predicates.udfPrimitiveWherePredicate
                 ]
             }
         );
@@ -922,7 +922,7 @@
         ).toArray();
 
         // final query - produces output
-        var orderBy_f1a = collection_of_integers.orderBy(
+        var orderBy_f1a = collection_of_decimals.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "", true ]
@@ -932,7 +932,7 @@
         ).toArray();
 
         // final query - produces output
-        var orderBy_f1b = collection_of_integers.orderBy(
+        var orderBy_f1b = collection_of_strings.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "", true ]
@@ -942,12 +942,42 @@
         ).toArray();
 
         // final query - produces output
-        var orderBy_f1c = collection_of_integers.orderBy(
+        var orderBy_f1c = collection_of_booleans.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "", true ]
                 ],
                 'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output 
+        var orderBy_f5 = collection_of_booleans.orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_f1cd = collection_of_booleans.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output 
+        var orderBy_f5d = collection_of_booleans.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "", true ]
+                ],
+                'udfComparer': udf_commons.udfEqualityComparer
             }
         ).toArray();
 
@@ -980,6 +1010,37 @@
                 'udfComparer': udf_commons.udfEqualityComparer
             }
         ).toArray();
+
+        // final query - produces output
+        var orderBy_f1d = collection_of_decimals.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_f1e = collection_of_strings.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var orderBy_f1f = collection_of_booleans.orderByDescending(
+            {
+                'keyPartSelectorArray': [
+                    [ "", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+
 
         // final query - produces output
         var thenBy_f1 = collection_of_integers.orderBy(
@@ -1133,46 +1194,6 @@
 
         // final query - produces output 
         var orderBy_f3 = collection_of_strings.orderBy(
-            {
-                'keyPartSelectorArray': [
-                    [ "", true ]
-                ],
-                'udfComparer': null
-            }
-        ).toArray();
-
-        // final query - produces output 
-        var orderBy_f4 = collection_of_booleans.orderBy(
-            {
-                'keyPartSelectorArray': [
-                    [ "", true ]
-                ],
-                'udfComparer': null
-            }
-        ).toArray();
-
-        // final query - produces output 
-        var orderBy_f5 = collection_of_booleans.orderBy(
-            {
-                'keyPartSelectorArray': [
-                    [ "", true ]
-                ],
-                'udfComparer': null
-            }
-        ).toArray();
-
-        // final query - produces output
-        var orderBy_f6 = collection_of_booleans.orderBy(
-            {
-                'keyPartSelectorArray': [
-                    [ "", true ]
-                ],
-                'udfComparer': null
-            }
-        ).toArray();
-
-        // final query - produces output
-        var orderBy_f7 = collection_of_booleans.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "", true ]
