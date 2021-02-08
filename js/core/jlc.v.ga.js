@@ -145,10 +145,24 @@
             UNKNOWN: null
         },
 
+        DATA_TYPES_PROPS_and_METHODS: {
+            KVP: {
+                PROPS: {
+                    KEYS: 'keys',
+                    VALUES: 'values'
+                },
+
+                METHODS: {
+                    CONTAINS_KEY: 'containsKey',
+                    CONTAINS_VALUE: 'containsValue'
+                }
+            }
+        },
+
         MISC: {
             UNDERSCORE: '_',
-            EMPTY: ''
-        }
+            EMPTY: ''fdgfdfdfdsfdsfdsfds
+        }sadsadasdsadasdsadas
     };
 
     // private operators object
@@ -2168,6 +2182,130 @@
                 }
             },
 
+        decorateDataType : /**
+         * Enhance given data type with additional "native" functionalities for of this type
+         *
+         * @param {any} inputCollection Input collection to enhance with additional "native" functionalities.
+         * @param {any} queryName Name of the query that produces certain data type.
+         */
+            function ( inputCollection, queryName )
+            {
+                return decorate_DT_I_1L( inputCollection, queryName );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function decorate_DT_I_1L ( ic, qn )
+                {
+                    // enhance dictionary
+                    if(qn === System.Linq.Context.toDictionary) {
+                        /**
+                         * Add some methods
+                         *  1. containsKey
+                         *  2. containsValue
+                        */
+
+                        // 1.
+                        ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_KEY] = function(key) {
+                            // determine primitivity of the key
+                            var isPrimitive = _COMMON.isPrimitiveType(key);
+
+                            // is primitive
+                            if(isPrimitive) {
+                                for(var i = 0 ; i < this.length; i++) {
+                                    if(this[i].key === key)
+                                        return true;
+                                }
+                            }
+                            // is an object
+                            else {
+                                for(var i = 0 ; i < this.length; i++) {
+                                    if(_COMMON.useDefaultObjectContentComparer(this[i].key, key))
+                                        return true;
+                                }
+                            }
+
+                            // as a last resort return no match
+                            return false;
+                        }
+
+                        // 2.
+                        ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_VALUE] = function(value) {
+                            // determine primitivity of the value
+                            var isPrimitive = _COMMON.isPrimitiveType(value);
+
+                            // is primitive
+                            if(isPrimitive) {
+                                for(var i = 0 ; i < this.length; i++) {
+                                    if(this[i].value === value)
+                                        return true;
+                                }
+                            }
+                            // is an object
+                            else {
+                                for(var i = 0 ; i < this.length; i++) {
+                                    if(_COMMON.useDefaultObjectContentComparer(this[i].value, value))
+                                        return true;
+                                }
+                            }
+
+                            // as a last resort return no match
+                            return false;
+                        }
+
+                        /**
+                         * Add some properties
+                         *  1. keys
+                         *  2. values
+                        */
+                        
+                        // 1.
+                        Object.defineProperty(
+                            ic,
+                            _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.PROPS.KEYS,
+                            {
+                                // only override getter
+                                get: function ()
+                                {
+                                    // define array of keys
+                                    var keys = [];
+
+                                    // extract all keys
+                                    for(let kvp of this)
+                                        keys.push(kvp.key);
+
+                                    // return all keys
+                                    return keys;
+                                }
+                            }
+                        );
+
+                        // 2.
+                        Object.defineProperty(
+                            ic,
+                            _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.PROPS.VALUES,
+                            {
+                                // only override getter
+                                get: function ()
+                                {
+                                    // define array of values
+                                    var values = [];
+
+                                    // extract all values
+                                    for(let kvp of this)
+                                        values.push(kvp.value);
+
+                                    // return all values
+                                    return values;
+                                }
+                            }
+                        );
+                    }
+                }
+            },
+
         isObjectEmpty: /**
          * Test for an empty JavaScript object.
          *
@@ -3235,11 +3373,12 @@
                                 gso.idx = -1;                       // index of grouping object in the group
                                 gso.arr = undefined;                // list of grouped values
 
+                                var item;
                                 // loop over groups' object
                                 for ( var i = 0; i < groups_obj.length; i++ )
                                 {
                                     // access grouping object
-                                    var item = groups_obj[ i ];
+                                    item = groups_obj[ i ];
 
                                     // find the right one with key id
                                     if ( item.key === key_id )
@@ -3295,7 +3434,7 @@
                                     groups_obj[ gso.idx ] = grouping_obj;
                             },
 
-                        getKvpValue:
+                        getKVP:
                             function ( key_id, kvps_obj )
                             {
                                 // create pure empty object
@@ -3305,11 +3444,12 @@
                                 kvp.key = undefined;                  // key of KVP object in the dictionary
                                 kvp.value = undefined;                // KVP's value object
 
+                                var item;
                                 // loop over dictionary object
                                 for ( var i = 0; i < kvps_obj.length; i++ )
                                 {
                                     // access KVP object
-                                    var item = kvps_obj[ i ];
+                                    item = kvps_obj[ i ];
 
                                     // find the right one with key id
                                     if ( item.key === key_id )
@@ -4724,7 +4864,7 @@
 
 
                         // sort the groups by using user-defined equality comparer (if defined) or a default comparator (Array.sort)
-                        groups = sortGroups_I_2L( udfEqualityComparer );
+                        //groups = sortGroups_I_2L( udfEqualityComparer );
 
 
                         // if user defined result value selector
@@ -4794,7 +4934,7 @@
                          *  - dictionary keys has to be unique
                          *  - values are primitives values or objects, not single elements of array 
                         */
-                        if ( isDictionaryContext && gbo.getGrouping( id, groups ).arr )
+                        if ( isDictionaryContext && gbo.getKVP( id, groups ).value )
                             throw new Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
 
                         // create pure empty object
@@ -4861,7 +5001,7 @@
                          *  - dictionary keys have to be unique
                          *  - values are primitives values or objects, not single elements of array
                         */
-                        if ( isDictionaryContext && gbo.getGrouping( id, groups ).arr )
+                        if ( isDictionaryContext && gbo.getKVP( id, groups ).value )
                             throw new Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
 
                         // create pure empty object
@@ -4933,7 +5073,7 @@
                             keys.forEach( function ( key )
                             {
                                 // get KVP object from the dictionary
-                                var kvp = gbo.getKvpValue( key, groups );
+                                var kvp = gbo.getKVP( key, groups );
 
                                 // push kvp to sorted dictionary
                                 sorted_groups.push( kvp );
@@ -12371,9 +12511,13 @@
                 */
 
                 // 1.
-                if ( Array.isArray( result ) )
+                if ( Array.isArray( result ) ) {
                     // copy result 100% "by value"
                     result = _COMMON.deepCopyNCR( result );
+
+                    // decorate with certain additional "native" functionalities for certain data types
+                    _COMMON.decorateDataType(result, property);
+                }
                 // 2.a
                 else if ( _LINQ_CONTEXT._isProxy( result ) )
                 {

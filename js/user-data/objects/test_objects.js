@@ -4266,6 +4266,9 @@
         );
 
 
+        /**
+         * Sorting objects by boolean type field
+        */
         var collection_bool_sort = [
             {
                 id: 1,

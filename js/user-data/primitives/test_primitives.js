@@ -1254,8 +1254,23 @@
         // final query - produces output
         var toArray_f1 = collection_of_integers.toArray();
 
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
 
         // final query - produces output
+        var toDictionary_f0 = [1,3,7,2,9,8,10].toDictionary(
+            {
+                'predicateArray': [
+                    [ "", true ]
+                ],
+                'udfGroupKeySelector': null,
+                'udfEqualityComparer': null,
+                'udfGroupResultValueSelector': null
+            }
+        );
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
         var toDictionary_f1 = collection_of_integers.toDictionary(
             {
                 'predicateArray': [
@@ -1263,10 +1278,10 @@
                 ],
                 'udfGroupKeySelector': null,
                 'udfEqualityComparer': null,
-                'udfGroupResultValueSelector': null,
-
+                'udfGroupResultValueSelector': null
             }
         );
+        */
 
         // final query - produces output
         var toDictionary_f2 = collection_of_integers.toDictionary(
@@ -1288,8 +1303,7 @@
                 ],
                 'udfGroupKeySelector': null,
                 'udfEqualityComparer': null,
-                'udfGroupResultValueSelector': null,
-
+                'udfGroupResultValueSelector': null
             }
         ).orderBy(
             {
@@ -1333,7 +1347,8 @@
             }
         ).toArray();
 
-        // final query - produces output
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting KVP Value by itself requires presence of custom method "toString()" !
         var toDictionary_f1_orderBy_thenBy_f3 = collection_of_integers.toDictionary(
             {
                 'predicateArray': [
@@ -1344,6 +1359,49 @@
                 'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "value.", true ]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "key", true ]
+                ],
+                'udfComparer': null
+            }
+        ).toArray();
+        */
+
+        // final query - produces output
+        var toDictionary_interges_f1 = collection_of_integers.toDictionary(
+            {
+                'predicateArray': [
+                    [ "", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
+            }
+        );
+        
+        /**
+         * When after converting primitives to dictionary requires sorting by 'value.' itself, supply custom method "toString()" !
+        */
+       toDictionary_interges_f1.forEach(function (item, index, source_array) {
+            // supply custom "toString" method that will allow sorting KVP by the 'value.' property itself !
+            item.value.toString = function() {
+                return "# " + item.key;
+            };
+
+            // update item in the array
+            source_array[index] = item;
+       });
+
+        // final query - produces output
+        var toDictionary_interges_order_f1 = toDictionary_interges_f1.orderBy(
             {
                 'keyPartSelectorArray': [
                     [ "value.", true ]
@@ -1387,10 +1445,6 @@
                 'udfComparer': null
             }
         ).toArray();
-
-
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
 
         // final query - produces output
         var defaultIfEmpty_f1 = collection_of_integers.defaultIfEmpty(
