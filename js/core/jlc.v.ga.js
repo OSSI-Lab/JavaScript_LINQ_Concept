@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #64 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #65 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -161,8 +161,8 @@
 
         MISC: {
             UNDERSCORE: '_',
-            EMPTY: ''fdgfdfdfdsfdsfdsfds
-        }sadsadasdsadasdsadas
+            EMPTY: ''
+        }
     };
 
     // private operators object
@@ -2183,21 +2183,24 @@
             },
 
         decorateDataType : /**
-         * Enhance given data type with additional "native" functionalities for of this type
+         * Enhance given data type with additional "native" functionalities of this type
          *
+         * Yes, this is an example of the pattern called Decorator, here in JavaScript !
+         * 
          * @param {any} inputCollection Input collection to enhance with additional "native" functionalities.
          * @param {any} queryName Name of the query that produces certain data type.
+         * @param {any} queryInterface Query method interface.
          */
-            function ( inputCollection, queryName )
+            function ( inputCollection, queryName, queryInterface )
             {
-                return decorate_DT_I_1L( inputCollection, queryName );
+                return decorate_DT_I_1L( inputCollection, queryName, queryInterface );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function decorate_DT_I_1L ( ic, qn )
+                function decorate_DT_I_1L ( ic, qn, qi )
                 {
                     // enhance dictionary
                     if(qn === System.Linq.Context.toDictionary) {
@@ -2209,50 +2212,14 @@
 
                         // 1.
                         ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_KEY] = function(key) {
-                            // determine primitivity of the key
-                            var isPrimitive = _COMMON.isPrimitiveType(key);
-
-                            // is primitive
-                            if(isPrimitive) {
-                                for(var i = 0 ; i < this.length; i++) {
-                                    if(this[i].key === key)
-                                        return true;
-                                }
-                            }
-                            // is an object
-                            else {
-                                for(var i = 0 ; i < this.length; i++) {
-                                    if(_COMMON.useDefaultObjectContentComparer(this[i].key, key))
-                                        return true;
-                                }
-                            }
-
-                            // as a last resort return no match
-                            return false;
+                            // invoke method logic
+                            return defineMethodImplementationForDictionary_I_2L(this, 'key', key);
                         }
 
                         // 2.
                         ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_VALUE] = function(value) {
-                            // determine primitivity of the value
-                            var isPrimitive = _COMMON.isPrimitiveType(value);
-
-                            // is primitive
-                            if(isPrimitive) {
-                                for(var i = 0 ; i < this.length; i++) {
-                                    if(this[i].value === value)
-                                        return true;
-                                }
-                            }
-                            // is an object
-                            else {
-                                for(var i = 0 ; i < this.length; i++) {
-                                    if(_COMMON.useDefaultObjectContentComparer(this[i].value, value))
-                                        return true;
-                                }
-                            }
-
-                            // as a last resort return no match
-                            return false;
+                            // invoke method logic
+                            return defineMethodImplementationForDictionary_I_2L(this, 'value', value);
                         }
 
                         /**
@@ -2272,8 +2239,11 @@
                                     // define array of keys
                                     var keys = [];
 
+                                    // copy "100% by value"
+                                    var this_ = _COMMON.deepCopyYCR(this);
+
                                     // extract all keys
-                                    for(let kvp of this)
+                                    for(let kvp of this_)
                                         keys.push(kvp.key);
 
                                     // return all keys
@@ -2293,8 +2263,11 @@
                                     // define array of values
                                     var values = [];
 
+                                    // copy "100% by value"
+                                    var this_ = _COMMON.deepCopyYCR(this);
+
                                     // extract all values
-                                    for(let kvp of this)
+                                    for(let kvp of this_)
                                         values.push(kvp.value);
 
                                     // return all values
@@ -2302,6 +2275,49 @@
                                 }
                             }
                         );
+                    }
+
+
+
+                    /**
+                     * Local helper functions
+                    */
+                    function defineMethodImplementationForDictionary_I_2L(arr, propName, propValue) {
+                        // determine primitivity of the property value
+                        var isPrimitive = _COMMON.isPrimitiveType(propValue);
+
+                        // udf equality comparer
+                        var udf_eq_cpr = qi['udfEqualityComparer'];
+
+                        // internal equality comparer or udf one
+                        var equalityComparer;
+                        
+                        // determine which one to use
+                        if(typeof udf_eq_cpr === 'function')
+                            equalityComparer = udf_eq_cpr;
+                        else if(isPrimitive)
+                            equalityComparer = ldfEqualityComparer_I_3L;
+                        else if(!isPrimitive)
+                            equalityComparer = _COMMON.useDefaultObjectContentComparer;
+
+                        // do comparison
+                        for(var i = 0 ; i < arr.length; i++) {
+                            if(equalityComparer(arr[i][propName], propValue))
+                                return true;
+                        }
+
+                        // as a last resort return no match
+                        return false;
+
+
+
+                        /**
+                         * Local helper functions
+                        */
+                        function ldfEqualityComparer_I_3L(value1, value2) {
+                            // simply compare two values
+                            return value1 === value2;
+                        }
                     }
                 }
             },
@@ -12516,7 +12532,7 @@
                     result = _COMMON.deepCopyNCR( result );
 
                     // decorate with certain additional "native" functionalities for certain data types
-                    _COMMON.decorateDataType(result, property);
+                    _COMMON.decorateDataType(result, property, arguments[0]);
                 }
                 // 2.a
                 else if ( _LINQ_CONTEXT._isProxy( result ) )

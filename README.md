@@ -26,12 +26,18 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #42 - DPR #65:&nbsp;2021-02-11 &nbsp;&nbsp;12:35 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 1295 !
+        - fixed issues
+          - removing code redundancy
  - TEST #41 - DPR #64:&nbsp;2021-02-07 &nbsp;&nbsp;11:30 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - up to line 1255 !
         - fixed issues
-            - sorting boolean types
+          - sorting boolean types
  - TEST #40 - DPR #63:&nbsp;2021-02-06 &nbsp;&nbsp;12:07 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

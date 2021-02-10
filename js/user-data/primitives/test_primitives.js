@@ -1254,9 +1254,6 @@
         // final query - produces output
         var toArray_f1 = collection_of_integers.toArray();
 
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
         // final query - produces output
         var toDictionary_f0 = [1,3,7,2,9,8,10].toDictionary(
             {
@@ -1268,6 +1265,14 @@
                 'udfGroupResultValueSelector': null
             }
         );
+
+        var all_keys = toDictionary_f0.keys;
+        var all_values = toDictionary_f0.values;
+
+        var hasKeyEq_3 = toDictionary_f0.containsKey(3);
+        var hasValueEq_3 = toDictionary_f0.containsValue(3);
+
+        var hasKeyEq_10 = toDictionary_f0.containsKey(101);
 
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
@@ -1282,6 +1287,9 @@
             }
         );
         */
+       
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
 
         // final query - produces output
         var toDictionary_f2 = collection_of_integers.toDictionary(
