@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #65 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #66 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -2213,13 +2213,13 @@
                         // 1.
                         ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_KEY] = function(key) {
                             // invoke method logic
-                            return defineMethodImplementationForDictionary_I_2L(this, 'key', key);
+                            return defineMethodImplementationForDictionary_I_2L(this, 'key', key, qi);
                         }
 
                         // 2.
                         ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_VALUE] = function(value) {
                             // invoke method logic
-                            return defineMethodImplementationForDictionary_I_2L(this, 'value', value);
+                            return defineMethodImplementationForDictionary_I_2L(this, 'value', value, qi);
                         }
 
                         /**
@@ -2282,12 +2282,12 @@
                     /**
                      * Local helper functions
                     */
-                    function defineMethodImplementationForDictionary_I_2L(arr, propName, propValue) {
+                    function defineMethodImplementationForDictionary_I_2L(arr, propName, propValue, qif) {
                         // determine primitivity of the property value
                         var isPrimitive = _COMMON.isPrimitiveType(propValue);
 
                         // udf equality comparer
-                        var udf_eq_cpr = qi['udfEqualityComparer'];
+                        var udf_eq_cpr = qif['udfEqualityComparer'];
 
                         // internal equality comparer or udf one
                         var equalityComparer;
@@ -2302,7 +2302,7 @@
 
                         // do comparison
                         for(var i = 0 ; i < arr.length; i++) {
-                            if(equalityComparer(arr[i][propName], propValue))
+                            if(equalityComparer(arr[i][propName], propValue, isPrimitive))
                                 return true;
                         }
 

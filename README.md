@@ -26,6 +26,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #43 - DPR #66:&nbsp;2021-02-12 &nbsp;&nbsp;1:16 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 1488 !
+        - fixed issues
+          - invoking user-defined equality comparer
  - TEST #42 - DPR #65:&nbsp;2021-02-11 &nbsp;&nbsp;12:35 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

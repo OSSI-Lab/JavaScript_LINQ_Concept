@@ -40,6 +40,8 @@
 
         var collection_of_booleans = [ true, false, false, true ];
 
+        var unique_collection = [ 1, 3, 7, 2, 9, 8, 10 ];
+
         // ⚠️ for primitives such special field called ofss (object full structure string) is not taken into account !
 
 
@@ -394,7 +396,7 @@
         var concat_p2 = collection_of_integers.concatenate(
             {
                 'collectionOrItem': // object approach
-                14
+                    14
             }
         );
 
@@ -402,7 +404,7 @@
         var append_f1 = collection_of_integers.append(
             {
                 'collectionOrItem': // object approach
-                11
+                    11
             }
         ).toArray();
 
@@ -411,7 +413,7 @@
         var append_f2 = collection_of_integers.append(
             {
                 'collectionOrItem': // array approach -> logically invalid usage !
-                    [11]
+                    [ 11 ]
             }
         ).toArray();
 
@@ -419,7 +421,7 @@
         var append_p1 = collection_of_integers.append(
             {
                 'collectionOrItem': // object approach
-                11
+                    11
             }
         );
 
@@ -427,7 +429,7 @@
         var append_p2 = collection_of_integers.append(
             {
                 'collectionOrItem': // array approach -> logically invalid usage !
-                    [11]
+                    [ 11 ]
             }
         );
 
@@ -435,7 +437,7 @@
         var prepend_f1 = collection_of_integers.prepend(
             {
                 'collectionOrItem': // object approach
-                -1
+                    -1
             }
         ).toArray();
 
@@ -443,7 +445,7 @@
         var prepend_f2 = collection_of_integers.prepend(
             {
                 'collectionOrItem': // array approach -> logically invalid usage !
-                    [-1]
+                    [ -1 ]
             }
         ).toArray();
 
@@ -451,7 +453,7 @@
         var prepend_p1 = collection_of_integers.prepend(
             {
                 'collectionOrItem': // object approach
-                -1
+                    -1
             }
         );
 
@@ -459,7 +461,7 @@
         var prepend_p2 = collection_of_integers.prepend(
             {
                 'collectionOrItem': // array approach -> logically invalid usage !
-                    [-1]
+                    [ -1 ]
             }
         );
 
@@ -467,7 +469,7 @@
         var contains_f1 = collection_of_integers.contains(
             {
                 'collectionOrItem': // only object approach available
-                -1,
+                    -1,
                 'udfEqualityComparer': null
             }
         );
@@ -477,7 +479,7 @@
         var contains_f2 = collection_of_integers.contains(
             {
                 'collectionOrItem': // only object approach available
-                -1,
+                    -1,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         );
@@ -486,7 +488,7 @@
         var contains_f3 = collection_of_integers.contains(
             {
                 'collectionOrItem': // only object approach available
-                7,
+                    7,
                 'udfEqualityComparer': null
             }
         );
@@ -495,7 +497,7 @@
         var contains_f4 = collection_of_integers.contains(
             {
                 'collectionOrItem': // only object approach available
-                7,
+                    7,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         );
@@ -544,7 +546,7 @@
         var except_f1 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': null,
                 'strongSearch': false
             }
@@ -554,7 +556,7 @@
         var except_f2 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': false
             }
@@ -564,7 +566,7 @@
         var except_f3 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': null,
                 'strongSearch': true
             }
@@ -574,7 +576,7 @@
         var except_f4 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': true
             }
@@ -584,7 +586,7 @@
         var except_p1 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': null,
                 'strongSearch': false
             }
@@ -594,7 +596,7 @@
         var except_p2 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': false
             }
@@ -604,7 +606,7 @@
         var except_p3 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': null,
                 'strongSearch': true
             }
@@ -614,7 +616,7 @@
         var except_p4 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                5,
+                    5,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': true
             }
@@ -624,7 +626,7 @@
         var except_f5 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                10,
+                    10,
                 'udfEqualityComparer': null,
                 'strongSearch': false
             }
@@ -634,7 +636,7 @@
         var except_f6 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                10,
+                    10,
                 'udfEqualityComparer': null,
                 'strongSearch': true
             }
@@ -644,7 +646,7 @@
         var except_f7 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                10,
+                    10,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': false
             }
@@ -654,7 +656,7 @@
         var except_f8 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                10,
+                    10,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': true
             }
@@ -664,7 +666,7 @@
         var except_f9 = collection_of_integers.except(
             {
                 'collectionOrItem': // array approach
-                    [5,7],
+                    [ 5, 7 ],
                 'udfEqualityComparer': null,
                 'strongSearch': false
             }
@@ -674,7 +676,7 @@
         var except_f10 = collection_of_integers.except(
             {
                 'collectionOrItem': // array approach
-                    [5,7],
+                    [ 5, 7 ],
                 'udfEqualityComparer': null,
                 'strongSearch': true
             }
@@ -684,7 +686,7 @@
         var except_f11 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                [2,3],
+                    [ 2, 3 ],
                 'udfEqualityComparer': null,
                 'strongSearch': true
             }
@@ -694,7 +696,7 @@
         var except_f12 = collection_of_integers.except(
             {
                 'collectionOrItem': // object approach
-                [2,3],
+                    [ 2, 3 ],
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer,
                 'strongSearch': false
             }
@@ -1255,7 +1257,7 @@
         var toArray_f1 = collection_of_integers.toArray();
 
         // final query - produces output
-        var toDictionary_f0 = [1,3,7,2,9,8,10].toDictionary(
+        var toDictionary_f0 = unique_collection.toDictionary(
             {
                 'predicateArray': [
                     [ "", true ]
@@ -1269,10 +1271,10 @@
         var all_keys = toDictionary_f0.keys;
         var all_values = toDictionary_f0.values;
 
-        var hasKeyEq_3 = toDictionary_f0.containsKey(3);
-        var hasValueEq_3 = toDictionary_f0.containsValue(3);
+        var hasKeyEq_3 = toDictionary_f0.containsKey( 3 );
+        var hasValueEq_3 = toDictionary_f0.containsValue( 3 );
 
-        var hasKeyEq_10 = toDictionary_f0.containsKey(101);
+        var hasKeyEq_10 = toDictionary_f0.containsKey( 101 );
 
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
@@ -1287,11 +1289,9 @@
             }
         );
         */
-       
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
 
-        // final query - produces output
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
         var toDictionary_f2 = collection_of_integers.toDictionary(
             {
                 'predicateArray': [
@@ -1302,8 +1302,58 @@
                 'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         );
+        */
 
         // final query - produces output
+        var toDictionary_f2 = unique_collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
+                'udfEqualityComparer': function ( value1, value2, isPrimitive )
+                {
+                    // one can use the third optional parameter to check whether we're dealing with primitive types or objects
+                    
+                    // primitives
+                    if(isPrimitive)
+                        return value1 === value2;
+                    // objects
+                    else
+                        return udf_commons.udfDefaultPrimitiveContentComparer(value1, value2);
+                },
+                'udfGroupResultValueSelector': function ( groupKey, groupItems, isDictionary )
+                {
+                    var newShape = Object.create( null );
+
+                    newShape.key = groupKey;
+
+                    // create value object
+                    var value = Object.create( null );
+                    value.key = "#" + groupKey;
+                    value.value = groupItems;
+
+                    // assign value object to value property of KVP
+                    newShape.value = value;
+
+
+                    // return new value
+                    return newShape;
+                }
+            }
+        );
+
+        var all_keys = toDictionary_f2.keys;
+        var all_values = toDictionary_f2.values;
+
+        var hasKeyEq_3 = toDictionary_f2.containsKey( 3 );
+        var hasValueEq_3 = toDictionary_f2.containsValue( 3 );
+        var hasValueEq_ForKeyEq3 = toDictionary_f2.containsValue( { key: "#3", value: 3 } );
+
+        var hasKeyEq_10 = toDictionary_f2.containsKey( 101 );
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
         var toDictionary_f1_orderBy_thenBy_f1 = collection_of_integers.toDictionary(
             {
                 'predicateArray': [
@@ -1328,8 +1378,10 @@
                 'udfComparer': null
             }
         ).toArray();
+        */
 
-        // final query - produces output
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
         var toDictionary_f1_orderBy_thenBy_f2 = collection_of_integers.toDictionary(
             {
                 'predicateArray': [
@@ -1354,6 +1406,7 @@
                 'udfComparer': null
             }
         ).toArray();
+        */
 
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting KVP Value by itself requires presence of custom method "toString()" !
@@ -1384,7 +1437,7 @@
         */
 
         // final query - produces output
-        var toDictionary_interges_f1 = collection_of_integers.toDictionary(
+        var toDictionary_interges_f1 = unique_collection.toDictionary(
             {
                 'predicateArray': [
                     [ "", true ]
@@ -1394,19 +1447,21 @@
                 'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
             }
         );
-        
+
         /**
          * When after converting primitives to dictionary requires sorting by 'value.' itself, supply custom method "toString()" !
         */
-       toDictionary_interges_f1.forEach(function (item, index, source_array) {
+        toDictionary_interges_f1.forEach( function ( item, index, source_array )
+        {
             // supply custom "toString" method that will allow sorting KVP by the 'value.' property itself !
-            item.value.toString = function() {
+            item.value.toString = function ()
+            {
                 return "# " + item.key;
             };
 
             // update item in the array
-            source_array[index] = item;
-       });
+            source_array[ index ] = item;
+        } );
 
         // final query - produces output
         var toDictionary_interges_order_f1 = toDictionary_interges_f1.orderBy(
@@ -1424,6 +1479,10 @@
                 'udfComparer': null
             }
         ).toArray();
+
+        
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
 
         // partial query - produces intermediate query state
         var toDictionary_f1_orderBy_p1 = collection_of_integers.toDictionary(
@@ -1623,54 +1682,54 @@
         ).toArray();
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The offset and length values are either outside the range of the array, or the number exceeds the number of items between the index and the end of the source collection_of_integers.
-        
+
         var reverse_f3 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': 4,
                 'count': 300
             }
         ).toArray();
-        
+
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-        
+
         var reverse_f4 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,
                 'count': 3
             }
         ).toArray();
-        
+
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-        
+
         var reverse_f5 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,
                 'count': 0
             }
         ).toArray();
-        
+
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-        
+
         var reverse_f6 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,
                 'count': 300
             }
         ).toArray();
-        
+
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: count
-        
+
         var reverse_f7 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': 4,
                 'count': -1
             }
         ).toArray();
-        
+
 
         // final query - produces output
         var reverse_f8 = collection_of_integers.reverseAllOrSubset(
@@ -1681,14 +1740,14 @@
         ).toArray();
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-        
+
         var reverse_f9 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,
                 'count': -1
             }
         ).toArray();
-        
+
 
         // final query - produces output
         var select_f1 = collection_of_integers.select(
