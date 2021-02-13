@@ -1304,6 +1304,68 @@
         );
         */
 
+        // final query - produces output - EXAMPLE of a SORTED_DICTIONARY
+        var toDictionary_f2_sort = unique_collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
+                'udfEqualityComparer': function ( value1, value2, isPrimitive )
+                {
+                    // one can use the third optional parameter to check whether we're dealing with primitive types or objects
+
+                    /**
+                     * Check the context of key equality comparison or sorting the keys
+                     *  1. this === true -> sorting
+                     *  2. otherwise key equality comparison
+                    */
+                    
+                    // 1.
+                    if(this.valueOf() === true)
+                        return udf_commons.udfEqualityComparer(value2, value1);
+
+                    // 2.
+                    // primitives
+                    if(isPrimitive)
+                        return value1 === value2;
+                    // objects
+                    else
+                        return udf_commons.udfDefaultPrimitiveContentComparer(value1, value2);
+                },
+                'udfGroupResultValueSelector': function ( groupKey, groupItems, isDictionary )
+                {
+                    var newShape = Object.create( null );
+
+                    newShape.key = groupKey;
+
+                    // create value object
+                    var value = Object.create( null );
+                    value.key = "#" + groupKey;
+                    value.value = groupItems;
+
+                    // assign value object to value property of KVP
+                    newShape.value = value;
+
+
+                    // return new value
+                    return newShape;
+                },
+                'doSortGroupKey': true // triggers sorting a dictionary
+            }
+        );
+
+        var all_keys_sort = toDictionary_f2_sort.keys;
+        var all_values_sort = toDictionary_f2_sort.values;
+
+        var hasKeyEq_3_sort = toDictionary_f2_sort.containsKey( 3 );
+        var hasValueEq_3_sort = toDictionary_f2_sort.containsValue( 3 );
+        var hasValueEq_ForKeyEq3_sort = toDictionary_f2_sort.containsValue( { key: "#3", value: 3 } );
+
+        var hasKeyEq_10_sort = toDictionary_f2_sort.containsKey( 101 );
+
+
+
         // final query - produces output
         var toDictionary_f2 = unique_collection.toDictionary(
             {
@@ -1314,6 +1376,10 @@
                 'udfEqualityComparer': function ( value1, value2, isPrimitive )
                 {
                     // one can use the third optional parameter to check whether we're dealing with primitive types or objects
+
+                    /**
+                     * This example only contains key equality comparison
+                    */
                     
                     // primitives
                     if(isPrimitive)
@@ -1339,7 +1405,8 @@
 
                     // return new value
                     return newShape;
-                }
+                },
+                'doSortGroupKey': false // doesn't trigger sorting a dictionary, just preserves the order of the input collection
             }
         );
 
@@ -1351,6 +1418,7 @@
         var hasValueEq_ForKeyEq3 = toDictionary_f2.containsValue( { key: "#3", value: 3 } );
 
         var hasKeyEq_10 = toDictionary_f2.containsKey( 101 );
+
 
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
@@ -1480,12 +1548,8 @@
             }
         ).toArray();
 
-        
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
         // partial query - produces intermediate query state
-        var toDictionary_f1_orderBy_p1 = collection_of_integers.toDictionary(
+        var toDictionary_f1_orderBy_p1 = unique_collection.toDictionary(
             {
                 'predicateArray': [
                     [ "", true ]
@@ -1503,7 +1567,8 @@
             }
         );
 
-        // final query - produces output
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting KVP Value by itself requires presence of custom method "toString()" !
         var toDictionary_f1_orderBy_p1_thenBy_f1 = toDictionary_f1_orderBy_p1.thenBy(
             {
                 'keyPartSelectorArray': [
@@ -1512,6 +1577,7 @@
                 'udfComparer': null
             }
         ).toArray();
+        */
 
         // final query - produces output
         var defaultIfEmpty_f1 = collection_of_integers.defaultIfEmpty(
@@ -1555,7 +1621,7 @@
         );
 
         // final query - produces output
-        var defaultIfEmpty_f5 = collection_of_integers.toDictionary(
+        var defaultIfEmpty_f5 = unique_collection.toDictionary(
             {
                 'predicateArray': [
                     [ "", true ]
@@ -1591,9 +1657,49 @@
                 }
             }
         );
+        
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting KVP Value by itself requires presence of custom method "toString()" !
+        var defaultIfEmpty_f5a = unique_collection.toDictionary(
+            {
+                'predicateArray': [
+                    [ "", true ]
+                ],
+                'udfGroupKeySelector': udf_commons.udfPrimitiveGroupKeySelector,
+                'udfEqualityComparer': udf_commons.udfEqualityComparer,
+                'udfGroupResultValueSelector': udf_commons.udfPrimitiveGroupResultValueSelector
+            }
+        ).where(
+            {
+                'predicateArray': [
+                    [ "key", ">=", 5, true ]
+                ]
+            }
+        ).orderBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "value.", true ]
+                ],
+                'udfComparer': null
+            }
+        ).thenBy(
+            {
+                'keyPartSelectorArray': [
+                    [ "key", true ]
+                ],
+                'udfComparer': null
+            }
+        ).defaultIfEmpty(
+            {
+                'fallbackOnDefault': {
+                    yes: false // return default value deducted on this query flow (cdv) if collection is empty
+                }
+            }
+        );
+        */
 
         // final query - produces output
-        var defaultIfEmpty_f6 = collection_of_integers.groupBy(
+        var defaultIfEmpty_f6 = unique_collection.groupBy(
             {
                 'predicateArray': [
                     [ "", true ]
@@ -1607,7 +1713,7 @@
         ).where(
             {
                 'predicateArray': [
-                    [ "key", ">=", 10000, true ]
+                    [ "key", ">=", 5, true ]
                 ]
             }
         ).orderBy(
@@ -1632,8 +1738,9 @@
             }
         );
 
-        // final query - produces output
-        var defaultIfEmpty_f7 = collection_of_integers.toDictionary(
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting KVP Value by itself requires presence of custom method "toString()" !
+        var defaultIfEmpty_f7 = unique_collection.toDictionary(
             {
                 'predicateArray': [
                     [ "", true ]
@@ -1645,7 +1752,7 @@
         ).where(
             {
                 'predicateArray': [
-                    [ "key", ">=", 10000, true ]
+                    [ "key", ">=", 5, true ]
                 ]
             }
         ).orderBy(
@@ -1669,6 +1776,8 @@
                 }
             }
         );
+        */
+
 
         // final query - produces output
         var reverse_f1 = collection_of_integers.reverseAllOrSubset().toArray();
@@ -1681,48 +1790,52 @@
             }
         ).toArray();
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The offset and length values are either outside the range of the array, or the number exceeds the number of items between the index and the end of the source collection_of_integers.
-
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The offset and length values are either outside the range of the array, or the number exceeds the number of items between the index and the end of the source collection.
         var reverse_f3 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': 4,
                 'count': 300
             }
         ).toArray();
+        */
 
-
+        /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-
         var reverse_f4 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,
                 'count': 3
             }
         ).toArray();
+        */
 
-
+        /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-
         var reverse_f5 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,
                 'count': 0
             }
         ).toArray();
+        */
 
-
+        /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-
         var reverse_f6 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,
                 'count': 300
             }
         ).toArray();
+        */
 
 
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
+        
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: count
-
         var reverse_f7 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': 4,
@@ -1740,7 +1853,6 @@
         ).toArray();
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
-
         var reverse_f9 = collection_of_integers.reverseAllOrSubset(
             {
                 'index': -4,

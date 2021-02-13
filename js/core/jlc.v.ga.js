@@ -13,9 +13,9 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #66 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #67 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
- *                                                                              -> Primitives   ->      Set for TEST    ->      TEST IN PROGRESS    ->      
+ *                                                                              -> Primitives   ->      TESTING         ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
  *              It does mean, that this library is GA candidate in the version called TEST PHASE !
  *              TEST PHASE refers to finished development and started testing of the whole library.
@@ -2083,7 +2083,7 @@
                 */
                 function is_N_I_1L ( o )
                 {
-                    return !isNaN( o ) && _COMMON.convertTypeToString(o) !== _ENUM.T2SR.BOOLEAN;
+                    return !isNaN( o ) && _COMMON.convertTypeToString( o ) !== _ENUM.T2SR.BOOLEAN;
                 }
             },
 
@@ -2182,7 +2182,7 @@
                 }
             },
 
-        decorateDataType : /**
+        decorateDataType: /**
          * Enhance given data type with additional "native" functionalities of this type
          *
          * Yes, this is an example of the pattern called Decorator, here in JavaScript !
@@ -2203,7 +2203,8 @@
                 function decorate_DT_I_1L ( ic, qn, qi )
                 {
                     // enhance dictionary
-                    if(qn === System.Linq.Context.toDictionary) {
+                    if ( qn === System.Linq.Context.toDictionary )
+                    {
                         /**
                          * Add some methods
                          *  1. containsKey
@@ -2211,23 +2212,25 @@
                         */
 
                         // 1.
-                        ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_KEY] = function(key) {
+                        ic[ _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_KEY ] = function ( key )
+                        {
                             // invoke method logic
-                            return defineMethodImplementationForDictionary_I_2L(this, 'key', key, qi);
-                        }
+                            return defineMethodImplementationForDictionary_I_2L( this, 'key', key, qi );
+                        };
 
                         // 2.
-                        ic[_ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_VALUE] = function(value) {
+                        ic[ _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_VALUE ] = function ( value )
+                        {
                             // invoke method logic
-                            return defineMethodImplementationForDictionary_I_2L(this, 'value', value, qi);
-                        }
+                            return defineMethodImplementationForDictionary_I_2L( this, 'value', value, qi );
+                        };
 
                         /**
                          * Add some properties
                          *  1. keys
                          *  2. values
                         */
-                        
+
                         // 1.
                         Object.defineProperty(
                             ic,
@@ -2240,11 +2243,11 @@
                                     var keys = [];
 
                                     // copy "100% by value"
-                                    var this_ = _COMMON.deepCopyYCR(this);
+                                    var this_ = _COMMON.deepCopyYCR( this );
 
                                     // extract all keys
-                                    for(let kvp of this_)
-                                        keys.push(kvp.key);
+                                    for ( let kvp of this_ )
+                                        keys.push( kvp.key );
 
                                     // return all keys
                                     return keys;
@@ -2264,11 +2267,11 @@
                                     var values = [];
 
                                     // copy "100% by value"
-                                    var this_ = _COMMON.deepCopyYCR(this);
+                                    var this_ = _COMMON.deepCopyYCR( this );
 
                                     // extract all values
-                                    for(let kvp of this_)
-                                        values.push(kvp.value);
+                                    for ( let kvp of this_ )
+                                        values.push( kvp.value );
 
                                     // return all values
                                     return values;
@@ -2282,27 +2285,29 @@
                     /**
                      * Local helper functions
                     */
-                    function defineMethodImplementationForDictionary_I_2L(arr, propName, propValue, qif) {
+                    function defineMethodImplementationForDictionary_I_2L ( arr, propName, propValue, qif )
+                    {
                         // determine primitivity of the property value
-                        var isPrimitive = _COMMON.isPrimitiveType(propValue);
+                        var isPrimitive = _COMMON.isPrimitiveType( propValue );
 
                         // udf equality comparer
-                        var udf_eq_cpr = qif['udfEqualityComparer'];
+                        var udf_eq_cpr = qif[ 'udfEqualityComparer' ];
 
                         // internal equality comparer or udf one
                         var equalityComparer;
-                        
+
                         // determine which one to use
-                        if(typeof udf_eq_cpr === 'function')
+                        if ( typeof udf_eq_cpr === 'function' )
                             equalityComparer = udf_eq_cpr;
-                        else if(isPrimitive)
+                        else if ( isPrimitive )
                             equalityComparer = ldfEqualityComparer_I_3L;
-                        else if(!isPrimitive)
+                        else if ( !isPrimitive )
                             equalityComparer = _COMMON.useDefaultObjectContentComparer;
 
                         // do comparison
-                        for(var i = 0 ; i < arr.length; i++) {
-                            if(equalityComparer(arr[i][propName], propValue, isPrimitive))
+                        for ( var i = 0; i < arr.length; i++ )
+                        {
+                            if ( equalityComparer( arr[ i ][ propName ], propValue, isPrimitive ) )
                                 return true;
                         }
 
@@ -2314,7 +2319,8 @@
                         /**
                          * Local helper functions
                         */
-                        function ldfEqualityComparer_I_3L(value1, value2) {
+                        function ldfEqualityComparer_I_3L ( value1, value2 )
+                        {
                             // simply compare two values
                             return value1 === value2;
                         }
@@ -4108,6 +4114,7 @@
          *  - udfGroupResultValueSelector
          *  - terminateFlowAndReturnData
          *  - isDictionaryContext
+         *  - doSortGroupKey
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
@@ -4143,7 +4150,8 @@
                         params.udfGroupElementSelector,
                         params.udfGroupResultValueSelector,
                         params.terminateFlowAndReturnData,
-                        params.isDictionaryContext
+                        params.isDictionaryContext,
+                        params.doSortGroupKey
                     );
 
                     // cache the query result
@@ -4818,16 +4826,16 @@
          * @param {any} terminateFlowAndReturnData
          * @param {any} isDictionaryContext
          */
-            function ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext )
+            function ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext, doSortGroupKey )
             {
-                return execute_GF_I_1L( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext );
+                return execute_GF_I_1L( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext, doSortGroupKey );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function execute_GF_I_1L ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext )
+                function execute_GF_I_1L ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext, doSortGroupKey )
                 {
                     // reference runtime context
                     var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
@@ -4870,17 +4878,21 @@
                         // reference grouping-by util object
                         var gbo = _COMMON.usingGroupingBy();
 
+                        
+                        // check the primitivity
+                        var isPrimitive = _COMMON.isPrimitiveType( o );
 
                         // do grouping of primitives
-                        if ( _COMMON.isPrimitiveType( o ) )
+                        if ( isPrimitive )
                             currentColl.forEach( groupPrimitives_I_2L );
                         // do grouping of objects
                         else
                             currentColl.forEach( groupObjects_I_2L );
 
 
-                        // sort the groups by using user-defined equality comparer (if defined) or a default comparator (Array.sort)
-                        //groups = sortGroups_I_2L( udfEqualityComparer );
+                        // sort the groups by sorting the group key if defined by the user
+                        if ( isDictionaryContext && doSortGroupKey )
+                            groups = sortGroups_I_2L( udfEqualityComparer );
 
 
                         // if user defined result value selector
@@ -5062,6 +5074,41 @@
                     }
 
                     function sortGroups_I_2L ( equalityComparer )
+                    {
+                        // declare array of group keys
+                        var keys = [];
+
+                        // loop over all grouping objects
+                        for ( var i = 0; i < groups.length; i++ )
+                            // store current group key
+                            keys.push( groups[ i ].key );
+
+                        // sort the keys using UDF comparator
+                        if ( udfEqualityComparer ) {
+                            keys.sort( equalityComparer.bind(isPrimitive) );
+                        }
+                        // sort the keys in ascending ASCII character order
+                        else
+                            keys.sort();
+
+                        // declare object holding sorted groups
+                        var sorted_groups = [];
+
+                        // store grouped objects sorted in a proper way
+                        keys.forEach( function ( key )
+                        {
+                            // get KVP object from the dictionary
+                            var kvp = gbo.getKVP( key, groups );
+
+                            // push kvp to sorted dictionary
+                            sorted_groups.push( kvp );
+                        } );
+
+                        // return sorted groups
+                        return sorted_groups;
+                    }
+
+                    function old_sortGroups_I_2L ( equalityComparer )
                     {
                         // declare array of group keys
                         var keys = [];
@@ -7950,6 +7997,15 @@
                             name: 'isDictionaryContext',
 
                             value: false
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 9,
+
+                            name: 'doSortGroupKey',
+
+                            value: false
                         }
                     ]
                 },
@@ -9596,6 +9652,13 @@
                             pos_idx: 6,
 
                             name: 'udfGroupResultValueSelector'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 9,
+
+                            name: 'doSortGroupKey'
                         }
                     ],
                     misc: [
@@ -12527,12 +12590,13 @@
                 */
 
                 // 1.
-                if ( Array.isArray( result ) ) {
+                if ( Array.isArray( result ) )
+                {
                     // copy result 100% "by value"
                     result = _COMMON.deepCopyNCR( result );
 
                     // decorate with certain additional "native" functionalities for certain data types
-                    _COMMON.decorateDataType(result, property, arguments[0]);
+                    _COMMON.decorateDataType( result, property, arguments[ 0 ] );
                 }
                 // 2.a
                 else if ( _LINQ_CONTEXT._isProxy( result ) )

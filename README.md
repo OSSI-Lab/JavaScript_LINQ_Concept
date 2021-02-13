@@ -26,6 +26,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #44 - DPR #67:&nbsp;2021-02-13 &nbsp;&nbsp;1:16 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 1839 !
+        - fixed issues
+          - adding a way of sorting a dictionary that creates the sorted dictionary
  - TEST #43 - DPR #66:&nbsp;2021-02-12 &nbsp;&nbsp;1:16 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
