@@ -1830,11 +1830,7 @@
         ).toArray();
         */
 
-
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
-        
+        /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: count
         var reverse_f7 = collection_of_integers.reverseAllOrSubset(
             {
@@ -1842,7 +1838,7 @@
                 'count': -1
             }
         ).toArray();
-
+        */
 
         // final query - produces output
         var reverse_f8 = collection_of_integers.reverseAllOrSubset(
@@ -1851,7 +1847,8 @@
                 'count': 0
             }
         ).toArray();
-
+        
+        /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
         var reverse_f9 = collection_of_integers.reverseAllOrSubset(
             {
@@ -1859,7 +1856,7 @@
                 'count': -1
             }
         ).toArray();
-
+        */
 
         // final query - produces output
         var select_f1 = collection_of_integers.select(
@@ -1867,47 +1864,10 @@
                 /**
                  * Selecting multiple properties requires providing custom UDF selector.
                  * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
                 */
                 'selectorArray': [
-                    [ "order", true ]
-                ],
-                // define inline UDF selector
-                'udfSelector': null,
-                'udfResultSelector': null, // 'select' does not require UDF results selector !
-                'incorporateIndex': true
-            }
-        ).toArray();
-
-        // final query - produces output
-        var selectMany_f1 = collection_of_integers.selectMany(
-            {
-                /**
-                 * Selecting multiple properties requires providing custom UDF selector.
-                 * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
-                */
-
-                'selectorArray': [
-                    [ "order", true ]
-                ],
-                // define library UDF selector
-                'udfSelector': null,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
-                'incorporateIndex': true
-            }
-        ).toArray();
-
-        // final query - produces output
-        var select_f2 = collection_of_integers.select(
-            {
-                /**
-                 * Selecting multiple properties requires providing custom UDF selector.
-                 * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
-                */
-                'selectorArray': [
-                    [ "order.item.size", true ]
+                    [ "", true ]
                 ],
                 // define inline UDF selector
                 'udfSelector': null,
@@ -1917,28 +1877,154 @@
         ).toArray();
 
         /*
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> 'Selected property [ order.item.size ] is not iterable in the context of "selectMany" !'
-        var selectMany_f2 = collection_of_integers.selectMany(
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> "For 'selectMany' and any primitive type other than string you have to provide custom udf result selector called 'udfResultSelector' !"
+        var selectMany_f1 = collection_of_integers.selectMany(
             {
-                //
                 // Selecting multiple properties requires providing custom UDF selector.
-                // 
-                // Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
-                //
+                // Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
 
                 'selectorArray': [
-                    ["order.item.size", true]
+                    [ "", true ]
                 ],
                 // define library UDF selector
                 'udfSelector': null,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+        */
+        
+        // final query - produces output
+        var selectMany_f1a = collection_of_integers.selectMany(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
+                */
+
+                'selectorArray': [
+                    [ "", true ]
+                ],
+                // define library UDF selector
+                'udfSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveResultSelector, // 'selectMany' allows for optional UDF result selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var select_f2 = collection_of_decimals.select(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+                'selectorArray': [
+                    [ "", true ]
+                ],
+                // define inline UDF selector
+                'udfSelector': null,
+                'udfResultSelector': null, // 'select' does not require UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> "For 'selectMany' and any primitive type other than string you have to provide custom udf result selector called 'udfResultSelector' !"
+        var selectMany_f2 = collection_of_decimals.selectMany(
+            {
+                 // Selecting multiple properties requires providing custom UDF selector.
+                 // Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
+
+                'selectorArray': [
+                    [ "", true ]
+                ],
+                // define library UDF selector
+                'udfSelector': null,
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+        */
+        
+        // final query - produces output
+        var selectMany_f2a = collection_of_decimals.selectMany(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
+                */
+
+                'selectorArray': [
+                    [ "", true ]
+                ],
+                // define library UDF selector
+                'udfSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveResultSelector, // 'selectMany' allows for optional UDF result selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var select_f3 = collection_of_booleans.select(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                */
+                'selectorArray': [
+                    [ "", true ]
+                ],
+                // define inline UDF selector
+                'udfSelector': null,
+                'udfResultSelector': null, // 'select' does not require UDF results selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> "For 'selectMany' and any primitive type other than string you have to provide custom udf result selector called 'udfResultSelector' !"
+        var selectMany_f3 = collection_of_booleans.selectMany(
+            {
+                // Selecting multiple properties requires providing custom UDF selector.
+                // Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
+
+                'selectorArray': [
+                    [ "", true ]
+                ],
+                // define library UDF selector
+                'udfSelector': null,
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
                 'incorporateIndex': true
             }
         ).toArray();
         */
 
         // final query - produces output
-        var select_f3 = collection_of_integers.select(
+        var selectMany_f3a = collection_of_booleans.selectMany(
+            {
+                /**
+                 * Selecting multiple properties requires providing custom UDF selector.
+                 * 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
+                */
+
+                'selectorArray': [
+                    [ "", true ]
+                ],
+                // define library UDF selector
+                'udfSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveResultSelector, // 'selectMany' allows for optional UDF result selector !
+                'incorporateIndex': true
+            }
+        ).toArray();
+
+        // final query - produces output
+        var select_f4 = collection_of_strings.select(
             {
                 /**
                  * Selecting multiple properties requires providing custom UDF selector.
@@ -1946,200 +2032,62 @@
                  * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
                 */
                 'selectorArray': [
-                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
+                    [ "", true ]
                 ],
                 // define inline UDF selector
-                'udfSelector': function ( item, selectors, index )
-                {
-                    /**
-                     * Provide the logic valid for your cases !
-                     * 
-                     * This is only exemplary implementation logic.
-                    */
-
-                    // declare select result object
-                    var result = Object.create( null );
-
-                    /**
-                     * Select all required props
-                    */
-                    result.id = item[ 'id' ];
-                    result.name = item[ 'name' ];
-                    result.img = item[ 'img' ];
-                    result.order = item[ 'order' ];
-
-                    // if original positional index in the collection is required, add it
-                    if ( index !== undefined )
-                        result.collectionPositionalIndex = index;
-
-                    // return select result object
-                    return result;
-                },
+                'udfSelector': null,
                 'udfResultSelector': null, // 'select' does not require UDF results selector !
                 'incorporateIndex': true
             }
         ).toArray();
 
         // final query - produces output
-        var selectMany_f3 = collection_of_integers.selectMany(
+        var selectMany_f4 = collection_of_strings.selectMany(
             {
                 /**
                  * Selecting multiple properties requires providing custom UDF selector.
                  * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
                 */
 
                 'selectorArray': [
-                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
+                    [ "", true ]
                 ],
                 // define library UDF selector
-                'udfSelector': udf_commons.udfSelector,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'udfSelector': null,
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
                 'incorporateIndex': true
-            }
-        ).toArray();
-
-        // partial query - produces intermediate query state
-        var select_p1 = collection_of_integers.select(
-            {
-                /**
-                 * Selecting multiple properties requires providing custom UDF selector.
-                 * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
-                */
-                'selectorArray': [
-                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
-                ],
-                // define inline UDF selector
-                'udfSelector': function ( item, selectors, index )
-                {
-                    /**
-                     * Provide the logic valid for your cases !
-                     * 
-                     * This is only exemplary implementation logic.
-                    */
-
-                    // declare select result object
-                    var result = Object.create( null );
-
-                    /**
-                     * Select all required props
-                    */
-                    result.id = item[ 'id' ];
-                    result.name = item[ 'name' ];
-                    result.img = item[ 'img' ];
-                    result.order = item[ 'order' ];
-
-                    // if original positional index in the collection is required, add it
-                    if ( index !== undefined )
-                        result.collectionPositionalIndex = index;
-
-                    // return select result object
-                    return result;
-                },
-                'udfResultSelector': null, // 'select' does not require UDF results selector !
-                'incorporateIndex': true
-            }
-        );
-
-        // partial query - produces intermediate query state
-        var selectMany_p1 = collection_of_integers.selectMany(
-            {
-                /**
-                 * Selecting multiple properties requires providing custom UDF selector.
-                 * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
-                */
-
-                'selectorArray': [
-                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
-                ],
-                // define library UDF selector
-                'udfSelector': udf_commons.udfSelector,
-                'udfResultSelector': udf_commons.udfResultSelector, // 'selectMany' allows for optional UDF results selector !
-                'incorporateIndex': true
-            }
-        );
-
-        // final query - produces output
-        var select_f4 = collection_of_integers.select(
-            {
-                /**
-                 * Selecting multiple properties requires providing custom UDF selector.
-                 * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
-                */
-                'selectorArray': [
-                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
-                ],
-                // define inline UDF selector
-                'udfSelector': function ( item, selectors, index )
-                {
-                    /**
-                     * Provide the logic valid for your cases !
-                     * 
-                     * This is only exemplary implementation logic.
-                    */
-
-                    // declare select result object
-                    var result = Object.create( null );
-
-                    /**
-                     * Select all required props
-                    */
-                    result.id = item[ 'id' ];
-                    result.name = item[ 'name' ];
-                    result.img = item[ 'img' ];
-                    result.order = item[ 'order' ];
-
-                    // if original positional index in the collection is required, add it
-                    if ( index !== undefined )
-                        result.collectionPositionalIndex = index;
-
-                    // return select result object
-                    return result;
-                },
-                'udfResultSelector': null, // 'select' does not require UDF results selector !
-                'incorporateIndex': false
             }
         ).toArray();
 
         // final query - produces output
-        var selectMany_f4 = collection_of_integers.selectMany(
+        var selectMany_f4a = collection_of_strings.selectMany(
             {
                 /**
                  * Selecting multiple properties requires providing custom UDF selector.
                  * 
-                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null ! 
+                 * Selecting single property invokes library internal LDF selector, leaving custom UDF selector to be null !
                 */
 
                 'selectorArray': [
-                    [ "id", true ], [ "name", true ], [ "img", true ], [ "order", true ]
+                    [ "", true ]
                 ],
                 // define library UDF selector
-                'udfSelector': udf_commons.udfSelector,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
-                'incorporateIndex': false
+                'udfSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveResultSelector, // 'selectMany' allows for optional UDF result selector !
+                'incorporateIndex': true
             }
         ).toArray();
+
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
 
         /**
          * JOINS
         */
-        var innerColl = [
-            {
-                id: 2,
-                name: "Customer 2",
-                age: 37,
-                address: { id: 1, street: "Street 1" }
-            },
-            {
-                id: 10,
-                name: "Customer 10",
-                age: 56,
-                address: { id: 2, street: "Street 2" }
-            }
-        ];
+        var innerColl = [ 2, 10 ];
 
         // final query - produces output
         var join_f1 = collection_of_integers.innerJoin(

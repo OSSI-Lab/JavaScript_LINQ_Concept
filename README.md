@@ -26,6 +26,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #45 - DPR #68:&nbsp;2021-02-14 &nbsp;&nbsp;12:27 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 2090 !
+        - fixed issues
+          - select & selectMany query methods
  - TEST #44 - DPR #67:&nbsp;2021-02-13 &nbsp;&nbsp;1:16 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

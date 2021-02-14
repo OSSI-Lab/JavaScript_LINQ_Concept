@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #67 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #68 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      TESTING         ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -5876,7 +5876,7 @@
                             for ( var i = 0; i < currentColl.length; i++ )
                             {
                                 // process current array item
-                                item = ldfSelector_I_2L( currentColl[ i ], selectors, incorporateIndex ? i : undefined );
+                                item = ldfSelector_I_2L( currentColl[ i ], selectors, incorporateIndex ? i : undefined, false );
 
                                 // just concat this subitem array to the output array
                                 result.push( ...item );
@@ -5889,36 +5889,48 @@
 
                     function ldfSelector_I_2L ( item, selectors, idx, keepTheShape )
                     {
-                        // get the property value from the object in question
-                        var value = _COMMON.getPropertyValueFromObject( selectors[ 0 ], item, false, false );
+                        var value;
+
+                        // check primitivity
+                        var isPrimitive = _COMMON.isPrimitiveType(item);
+
+                        // for primitive type just stick with the input item being of the primitive type
+                        if(isPrimitive)
+                            value = item;
+                        else
+                            // get the property value from the object in question
+                            value = _COMMON.getPropertyValueFromObject( selectors[ 0 ], item, false, false );
 
                         // preserve the shape of the value fetched from the source (select)
-                        if ( keepTheShape )
+                        if ( keepTheShape && !isPrimitive )
                             // return an array of value whatever the value holds
                             return createArrayItem_I_3L( value );
+                        else if(keepTheShape)
+                            return value;
                         // flatten the value fetched from the source whatever the value holds (selectMany)
                         else
                         {
+                            // for 'selectMany' and any primitive type other than string when there is no udf result selector defined, throw error
+                            if(isPrimitive && _COMMON.convertTypeToString(item) !== _ENUM.T2SR.STRING && !udfResultSelector)
+                                throw new Error( '\r\nFor \'selectMany\' and any primitive type other than string you have to provide custom udf result selector called \'udfResultSelector\' !\r\n\r\n' );
+
                             // check the type
                             var is_prim = _COMMON.isPrimitiveType( value );
 
+                            // invoke udf result selector for primitive type that can be any primitive type in the context of collection of primitive types not objects !
+                            if ( is_prim && udfResultSelector )
+                                return udfResultSelector(value, idx);
                             // flatten if is primitive type and the value is iterable
-                            if ( is_prim && value[ "length" ] )
-                            {
+                            else if ( is_prim && value[ "length" ] )
                                 // flatten the value
                                 return flattenValue_I_3L( value );
-                            }
                             // just throw TypeError if is primitive type the value is not iterable
                             else if ( is_prim && !value[ "length" ] )
-                            {
-                                throw new TypeError( '\r\n Selected property [ ' + selectors[ 0 ] + ' ] is not iterable in the context of "selectMany" !\r\n\r\n' );
-                            }
+                                throw new TypeError( '\r\n Selected property [ ' + selectors[ 0 ] + ' ] is not iterable in the context of \'selectMany\' !\r\n\r\n' );
                             // is Array
                             else if ( !is_prim && Array.isArray( value ) )
-                            {
                                 // flatten the value
                                 return flattenValue_I_3L( value );
-                            }
                             // is object
                             else if ( !is_prim && typeof value === 'object' )
                                 // return an array of one object or one something else

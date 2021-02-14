@@ -561,20 +561,50 @@ var my_custom_jlc_common = {
         return result;
     },
 
-    udfPrimitiveResultSelector: function ( inputItem, inputItemProcessedByUdfSelector )
+    udfPrimitiveResultSelector: function ( inputItem, itemIndexOrUndefined )
     {
         /**
+         * Result selector for primitive type has to return a value of string primitive type !
+         * The return value has to any string !
+         *
+         * 
          * Provide the logic valid for your cases !
          * 
          * This is only exemplary implementation logic.
         */
 
-        var finalItem = Object.create( null );
+        var output;
 
-        finalItem.original = inputItem;
-        finalItem.processedOriginal = inputItemProcessedByUdfSelector;
+        // handle string primitive type
+        if(inputItem[ "length" ])
+            output = flattenValue_I_3L(inputItem);
+        // handle other primitive type and convert it to string type
+        else {
+                if(itemIndexOrUndefined || itemIndexOrUndefined === 0)
+                    output = flattenValue_I_3L(inputItem + "#" + itemIndexOrUndefined);
+                else
+                    output = flattenValue_I_3L(inputItem.toString());
+        }
 
-        return finalItem;
+
+        return output;
+
+
+
+        /**
+         * Local helper functions
+        */
+        function flattenValue_I_3L ( value )
+        {
+            // declare an array
+            var output = [];
+
+            // flatten the value
+            for ( let v of value ) output.push( v );
+            
+            // return the array
+            return output;
+        }
     }
 
 };

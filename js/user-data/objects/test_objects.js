@@ -2299,7 +2299,7 @@
                 ],
                 // define library UDF selector
                 'udfSelector': null,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
                 'incorporateIndex': true
             }
         ).toArray();
@@ -2337,7 +2337,7 @@
                 ],
                 // define library UDF selector
                 'udfSelector': null,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
                 'incorporateIndex': true
             }
         ).toArray();
@@ -2400,7 +2400,7 @@
                 ],
                 // define library UDF selector
                 'udfSelector': udf_commons.udfSelector,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
                 'incorporateIndex': true
             }
         ).toArray();
@@ -2462,7 +2462,7 @@
                 ],
                 // define library UDF selector
                 'udfSelector': udf_commons.udfSelector,
-                'udfResultSelector': udf_commons.udfResultSelector, // 'selectMany' allows for optional UDF results selector !
+                'udfResultSelector': udf_commons.udfResultSelector, // 'selectMany' allows for optional UDF result selector !
                 'incorporateIndex': true
             }
         );
@@ -2524,7 +2524,7 @@
                 ],
                 // define library UDF selector
                 'udfSelector': udf_commons.udfSelector,
-                'udfResultSelector': null, // 'selectMany' allows for optional UDF results selector !
+                'udfResultSelector': null, // 'selectMany' allows for optional UDF result selector !
                 'incorporateIndex': false
             }
         ).toArray();
