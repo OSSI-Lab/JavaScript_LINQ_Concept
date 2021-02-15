@@ -1320,18 +1320,18 @@
                      *  1. this === true -> sorting
                      *  2. otherwise key equality comparison
                     */
-                    
+
                     // 1.
-                    if(this.valueOf() === true)
-                        return udf_commons.udfEqualityComparer(value2, value1);
+                    if ( this.valueOf() === true )
+                        return udf_commons.udfEqualityComparer( value2, value1 );
 
                     // 2.
                     // primitives
-                    if(isPrimitive)
+                    if ( isPrimitive )
                         return value1 === value2;
                     // objects
                     else
-                        return udf_commons.udfDefaultPrimitiveContentComparer(value1, value2);
+                        return udf_commons.udfDefaultPrimitiveContentComparer( value1, value2 );
                 },
                 'udfGroupResultValueSelector': function ( groupKey, groupItems, isDictionary )
                 {
@@ -1380,13 +1380,13 @@
                     /**
                      * This example only contains key equality comparison
                     */
-                    
+
                     // primitives
-                    if(isPrimitive)
+                    if ( isPrimitive )
                         return value1 === value2;
                     // objects
                     else
-                        return udf_commons.udfDefaultPrimitiveContentComparer(value1, value2);
+                        return udf_commons.udfDefaultPrimitiveContentComparer( value1, value2 );
                 },
                 'udfGroupResultValueSelector': function ( groupKey, groupItems, isDictionary )
                 {
@@ -1657,7 +1657,7 @@
                 }
             }
         );
-        
+
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting KVP Value by itself requires presence of custom method "toString()" !
         var defaultIfEmpty_f5a = unique_collection.toDictionary(
@@ -1847,7 +1847,7 @@
                 'count': 0
             }
         ).toArray();
-        
+
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> A non-negative number is required. Parameter name: index
         var reverse_f9 = collection_of_integers.reverseAllOrSubset(
@@ -1893,7 +1893,7 @@
             }
         ).toArray();
         */
-        
+
         // final query - produces output
         var selectMany_f1a = collection_of_integers.selectMany(
             {
@@ -1948,7 +1948,7 @@
             }
         ).toArray();
         */
-        
+
         // final query - produces output
         var selectMany_f2a = collection_of_decimals.selectMany(
             {
@@ -2080,25 +2080,31 @@
         ).toArray();
 
 
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
+        /**
+         * At any point you can interact with cache
+         *
+         * - enable/disable it      ->  System.Linq.Context.Cache.enable(true/false)
+         * - clear it               ->  System.Linq.Context.Cache.clear()
+         *
+        */
+        // f.e. turn on the cache
+        System.Linq.Context.Cache.enable( true );
 
         /**
          * JOINS
         */
-        var innerColl = [ 2, 10 ];
+        var innerColl = [ 2, 10, 7 ];
 
         // final query - produces output
         var join_f1 = collection_of_integers.innerJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2115,11 +2121,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2132,11 +2138,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2144,38 +2150,42 @@
             }
         );
 
+
+
+        /**
+         * At any point you can interact with cache
+         *
+         * - enable/disable it      ->  System.Linq.Context.Cache.enable(true/false)
+         * - clear it               ->  System.Linq.Context.Cache.clear()
+         *
+        */
+        // f.e. turn off the cache
+        System.Linq.Context.Cache.enable( false );
+
+
+
         // final query - produces output
-        var join_f2 = collection_of_integers.innerJoin(
+        var join_f2a = collection_of_integers.innerJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem, outerSelectorArray )
                 {
-                    // valid props array
-                    var props = [];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                    */
 
-                    // fetch all valid props from the input collection item
-                    for ( let selector of outerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
+                    // you can do something with inner collection selector
 
-                    // define the output item
-                    var outputItem = Object.create( null );
-
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = outerCollectionItem[ prop ];
-
-                    // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'innerUdfSelector': function ( innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue )
@@ -2185,119 +2195,90 @@
 
                     if ( !innerCollectionItem ) return isJoin;
 
-                    // valid props array
-                    var props = [];
-
-                    // fetch all valid props from the input collection item
-                    for ( let selector of innerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
-
-                    // define the right-side item to check the key
-                    var outputItem = Object.create( null );
-
-                    // create the right-side item
-                    for ( let prop of props )
-                        outputItem[ prop ] = innerCollectionItem[ prop ];
+                    
+                    // you can do something with inner collection selector
 
 
                     /**
                      * Determine "join condition" - exemplary logic !
                     */
 
-                    // create array of keys and array of their values of the passed left-side key
-                    var allKeyPropNames, allKeyPropValues = [];
-                    allKeyPropNames = Object.getOwnPropertyNames( outerCollectionItemKeyValue );
-                    for ( let keyProp of allKeyPropNames )
-                        allKeyPropValues.push( outerCollectionItemKeyValue[ keyProp ] );
-
-
-                    // create array of keys and array of their values of the passed inner collection item
-                    var allInnerPropNames, allInnerPropValues = [];
-                    allInnerPropNames = Object.getOwnPropertyNames( outputItem );
-                    for ( let keyProp of allInnerPropNames )
-                        allInnerPropValues.push( outputItem[ keyProp ] );
-
                     // check the join
-                    isJoin = allKeyPropNames.equals( allInnerPropNames ) && allKeyPropValues.equals( allInnerPropValues );
+                    isJoin = innerCollectionItem === outerCollectionItemKeyValue;
 
 
-                    // return the key lookup bool result
+                    // return the join bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
                 {
-                    // define the output item
-                    var outputItem = Object.create( null );
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
 
-                    // create "the shape"
-                    outputItem.left = outerCollectionMatchingItem;
-                    outputItem.right = innerCollectionMatchingItem;
+                    // examplary logic that calculates the output item !
+                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
 
                     // return the output item
                     return outputItem;
                 },
-                'udfEqualityComparer': udf_commons.udfEqualityComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
+
         // final query - produces output
-        var join_f3 = collection_of_integers.innerJoin(
+        var join_f2b = collection_of_integers.innerJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem )
                 {
-                    // valid props array
-                    var props = [ 'id' ];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                    */
 
-                    // define the output item
-                    var outputItem = Object.create( null );
-
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = outerCollectionItem[ prop ];
-
-                    // return the output item
-                    return outputItem;
+                   return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function ( innerCollectionItem )
+                'innerUdfSelector': function ( innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue )
                 {
-                    // valid props array
-                    var props = [ 'id' ];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                     * In this scenario the third parameter will be exactly the same returned input value !
+                     * 
+                     * Otherwise the third parameter will be some other returned value based on the logic provided !
+                    */
 
-                    // define the output item
-                    var outputItem = Object.create( null );
-
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = innerCollectionItem ? innerCollectionItem[ prop ] : undefined;
-
-                    // return the output item
-                    return outputItem;
+                   return outerCollectionItem;
                 },
                 'udfResultSelector': null,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
-
-
         // final query - produces output
-        var leftJoin_f1 = collection_of_integers.leftJoin(
+        var leftJoin_f2c = collection_of_integers.leftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2306,15 +2287,15 @@
         ).toArray();
 
         // partial query - produces intermediate query state
-        var leftJoin_p1 = collection_of_integers.leftJoin(
+        var leftJoin_p1a = collection_of_integers.leftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2323,7 +2304,7 @@
         );
 
         // final query - produces output
-        var leftJoin_f2 = collection_of_integers.leftJoin(
+        var leftJoin_f2a = collection_of_integers.leftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
@@ -2332,25 +2313,15 @@
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem, outerSelectorArray )
                 {
-                    // valid props array
-                    var props = [];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                    */
 
-                    // fetch all valid props from the input collection item
-                    for ( let selector of outerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
+                    // you can do something with inner collection selector
 
-                    // define the output item
-                    var outputItem = Object.create( null );
-
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = outerCollectionItem[ prop ];
-
-                    // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': [
                     [ "id", true ]
@@ -2363,61 +2334,38 @@
 
                     if ( !innerCollectionItem ) return isJoin;
 
-                    // valid props array
-                    var props = [];
-
-                    // fetch all valid props from the input collection item
-                    for ( let selector of innerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
-
-                    // define the right-side item to check the key
-                    var outputItem = Object.create( null );
-
-                    // create the right-side item
-                    for ( let prop of props )
-                        outputItem[ prop ] = innerCollectionItem[ prop ];
+                    
+                    // you can do something with inner collection selector
 
 
                     /**
                      * Determine "join condition" - exemplary logic !
                     */
 
-                    // create array of keys and array of their values of the passed left-side key
-                    var allKeyPropNames, allKeyPropValues = [];
-                    allKeyPropNames = Object.getOwnPropertyNames( outerCollectionItemKeyValue );
-                    for ( let keyProp of allKeyPropNames )
-                        allKeyPropValues.push( outerCollectionItemKeyValue[ keyProp ] );
-
-
-                    // create array of keys and array of their values of the passed inner collection item
-                    var allInnerPropNames, allInnerPropValues = [];
-                    allInnerPropNames = Object.getOwnPropertyNames( outputItem );
-                    for ( let keyProp of allInnerPropNames )
-                        allInnerPropValues.push( outputItem[ keyProp ] );
-
                     // check the join
-                    isJoin = allKeyPropNames.equals( allInnerPropNames ) && allKeyPropValues.equals( allInnerPropValues );
+                    isJoin = innerCollectionItem === outerCollectionItemKeyValue;
 
 
-                    // return the key lookup bool result
+                    // return the join bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
                 {
-                    // define the output item
-                    var outputItem = Object.create( null );
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
 
-                    // create "the shape"
-                    outputItem.left = outerCollectionMatchingItem;
-                    outputItem.right = innerCollectionMatchingItem;
+                    // examplary logic that calculates the output item !
+                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
 
                     // return the output item
                     return outputItem;
                 },
-                'udfEqualityComparer': udf_commons.udfEqualityComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 

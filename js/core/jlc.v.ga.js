@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #68 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #69 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      TESTING         ->      TEST IN PROGRESS    ->      
  *          What does it mean ?
@@ -4878,7 +4878,7 @@
                         // reference grouping-by util object
                         var gbo = _COMMON.usingGroupingBy();
 
-                        
+
                         // check the primitivity
                         var isPrimitive = _COMMON.isPrimitiveType( o );
 
@@ -5084,8 +5084,9 @@
                             keys.push( groups[ i ].key );
 
                         // sort the keys using UDF comparator
-                        if ( udfEqualityComparer ) {
-                            keys.sort( equalityComparer.bind(isPrimitive) );
+                        if ( udfEqualityComparer )
+                        {
+                            keys.sort( equalityComparer.bind( isPrimitive ) );
                         }
                         // sort the keys in ascending ASCII character order
                         else
@@ -5892,10 +5893,10 @@
                         var value;
 
                         // check primitivity
-                        var isPrimitive = _COMMON.isPrimitiveType(item);
+                        var isPrimitive = _COMMON.isPrimitiveType( item );
 
                         // for primitive type just stick with the input item being of the primitive type
-                        if(isPrimitive)
+                        if ( isPrimitive )
                             value = item;
                         else
                             // get the property value from the object in question
@@ -5905,13 +5906,13 @@
                         if ( keepTheShape && !isPrimitive )
                             // return an array of value whatever the value holds
                             return createArrayItem_I_3L( value );
-                        else if(keepTheShape)
+                        else if ( keepTheShape )
                             return value;
                         // flatten the value fetched from the source whatever the value holds (selectMany)
                         else
                         {
                             // for 'selectMany' and any primitive type other than string when there is no udf result selector defined, throw error
-                            if(isPrimitive && _COMMON.convertTypeToString(item) !== _ENUM.T2SR.STRING && !udfResultSelector)
+                            if ( isPrimitive && _COMMON.convertTypeToString( item ) !== _ENUM.T2SR.STRING && !udfResultSelector )
                                 throw new Error( '\r\nFor \'selectMany\' and any primitive type other than string you have to provide custom udf result selector called \'udfResultSelector\' !\r\n\r\n' );
 
                             // check the type
@@ -5919,7 +5920,7 @@
 
                             // invoke udf result selector for primitive type that can be any primitive type in the context of collection of primitive types not objects !
                             if ( is_prim && udfResultSelector )
-                                return udfResultSelector(value, idx);
+                                return udfResultSelector( value, idx );
                             // flatten if is primitive type and the value is iterable
                             else if ( is_prim && value[ "length" ] )
                                 // flatten the value
@@ -6184,11 +6185,11 @@
                                 // create joined object if UDF Result Selector provided for 'LEFT JOIN' case
                                 if ( udfResultSelector && isCollectionFixed )
                                     // store joined object in the output array
-                                    result.push( udfResultSelector( l_item, r_item ) );
+                                    result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
                                 // create joined object if UDF Result Selector provided for 'INNER JOIN' case
-                                else if ( udfResultSelector && r_item )
+                                else if ( udfResultSelector && ![_ENUM.T2SR.UNDEFINED, _ENUM.T2SR.NULL ].includes(_COMMON.convertTypeToString(r_item)) )
                                     // store joined object in the output array
-                                    result.push( udfResultSelector( l_item, r_item ) );
+                                    result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
                                 // otherwise perfom default object merge operation
                                 else if ( !udfResultSelector )
                                     // store merged object in the output array
@@ -6230,7 +6231,7 @@
                                         r_obj_full = innerColl[ j ];
 
                                         // get the 'right-side' key object
-                                        r_key_obj = rightSideSelectorArrayOrUdf( r_obj_full );
+                                        r_key_obj = rightSideSelectorArrayOrUdf( r_obj_full, l_obj_full, l_key_obj );
 
                                         // if objects match the key
                                         if ( udfEqualityComparer( l_key_obj, r_key_obj ) )
@@ -6246,8 +6247,8 @@
                                         }
                                     }
 
-                                    // check for 'LEFT JOIN' case
-                                    if ( isCollectionFixed && !isJoin )
+                                    // check for 'LEFT JOIN' case in the context of objects only
+                                    if ( isCollectionFixed && !isJoin && !_COMMON.isPrimitiveType(l_obj_full) )
                                         // execute LEFT JOIN
                                         performLeftJoinOperation_I_4L( l_obj_full );
                                 }
@@ -6284,8 +6285,8 @@
                                         }
                                     }
 
-                                    // check for 'LEFT JOIN' case
-                                    if ( isCollectionFixed && !isJoin )
+                                    // check for 'LEFT JOIN' case in the context of objects only
+                                    if ( isCollectionFixed && !isJoin && !_COMMON.isPrimitiveType(l_obj_full) )
                                         // execute LEFT JOIN
                                         performLeftJoinOperation_I_4L( l_obj_full );
                                 }
@@ -6310,14 +6311,27 @@
                                 // arrays of key values from both objects
                                 var left_key_value_arr = [], right_key_value_arr = [];
 
-                                // loop over 'left-side' and 'right-side' keys
-                                for ( var k = 0; k < left_key_arr.length; k++ )
+                                // handle primitive types
+                                if ( _COMMON.isPrimitiveType( left_obj ) && _COMMON.isPrimitiveType( right_obj ) )
                                 {
                                     // get key value from 'left-side' object
-                                    left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][ 0 ], left_obj, false, false ) );
+                                    left_key_value_arr.push( left_obj );
 
                                     // get key value from 'right-side' object
-                                    right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][ 0 ], right_obj, false, false ) );
+                                    right_key_value_arr.push( right_obj );
+                                }
+                                // handle objects
+                                else
+                                {
+                                    // loop over 'left-side' and 'right-side' keys
+                                    for ( var k = 0; k < left_key_arr.length; k++ )
+                                    {
+                                        // get key value from 'left-side' object
+                                        left_key_value_arr.push( _COMMON.getPropertyValueFromObject( left_key_arr[ k ][ 0 ], left_obj, false, false ) );
+
+                                        // get key value from 'right-side' object
+                                        right_key_value_arr.push( _COMMON.getPropertyValueFromObject( right_key_arr[ k ][ 0 ], right_obj, false, false ) );
+                                    }
                                 }
 
                                 /**
@@ -6334,38 +6348,58 @@
 
                             function performJoinOperation_I_4L ( l_o, r_o )
                             {
-                                // create join object
-                                var joinedObj = Object.create( null );
-                                joinedObj.left = Object.create( null );
-                                joinedObj.right = Object.create( null );
+                                // if user provided udf result selector, invoke it on input values
+                                if(udfResultSelector)
+                                    // store user joined value
+                                    result.push(udfResultSelector(l_o, r_o, createJoinContext_I_3L()));
+                                // otherwise act accordingly based on object vs. primitive type
+                                else {
+                                    // handle primitive types, i.e. store in the final output array the "join condition value", which is any of the two
+                                    if(_COMMON.isPrimitiveType(l_o) && _COMMON.isPrimitiveType(r_o))
+                                        // otherwise store into the resulting array one of the two the same primitive values
+                                        result.push(l_o);
+                                    // otherwise handle both objects internally
+                                    else {
+                                        // create join object
+                                        var joinedObj = Object.create( null );
+                                        joinedObj.left = Object.create( null );
+                                        joinedObj.right = Object.create( null );
 
-                                // concat left object and right object, aka join them together
-                                Object.assign( joinedObj.left, l_o );
-                                Object.assign( joinedObj.right, r_o );
+                                        // concat left object and right object, aka join them together
+                                        Object.assign( joinedObj.left, l_o );
+                                        Object.assign( joinedObj.right, r_o );
 
-                                // store joined object in the final output array
-                                result.push( joinedObj );
+                                        // store joined object in the final output array
+                                        result.push( joinedObj );
+                                    }
+                                }
                             }
 
                             function performLeftJoinOperation_I_4L ( l_o )
                             {
-                                // create join object
-                                var leftJoinObj = Object.create( null );
-                                leftJoinObj.left = Object.create( null );
-                                leftJoinObj.right = Object.create( null );
+                                // if user provided udf result selector, invoke it on input values that both are objects
+                                if(udfResultSelector)
+                                   result.push(udfResultSelector(l_o, Object.create(null), createJoinContext_I_3L() ));
+                                // otherwise handle both objects internally
+                                else {
+                                    // create join object
+                                    var leftJoinObj = Object.create( null );
+                                    leftJoinObj.left = Object.create( null );
+                                    leftJoinObj.right = Object.create( null );
 
-                                // get the object keys
-                                var keys = Object.getOwnPropertyNames( l_o );
+                                    // get the object keys
+                                    var keys = Object.getOwnPropertyNames( l_o );
 
-                                // assign default values
-                                r_key_obj = assignDefaultValues_I_3L( l_o, keys, keys );
+                                    // assign default values
+                                    r_key_obj = assignDefaultValues_I_3L( l_o, keys, keys );
 
-                                // concat left object and right object, aka join them together
-                                Object.assign( leftJoinObj.left, l_o );
-                                Object.assign( leftJoinObj.right, r_key_obj );
+                                    // concat left object and right object, aka join them together
+                                    Object.assign( leftJoinObj.left, l_o );
+                                    Object.assign( leftJoinObj.right, r_key_obj );
 
-                                // store joined object in the final output array
-                                result.push( leftJoinObj );
+                                    // store joined object in the final output array
+                                    result.push( leftJoinObj );
+                                }
                             }
                         }
 
@@ -6391,6 +6425,25 @@
 
                             // return output object
                             return outputItem;
+                        }
+
+                        function createJoinContext_I_3L() {
+                            /**
+                             * Set the join tyoe
+                            */
+
+                            // create join context object
+                            var joinContext = Object.create(null);
+
+                            // is inner join
+                            joinContext.isInnerJoin = enumValue === _ENUM.JOIN;
+                            
+                            // is left join
+                            joinContext.isLeftJoin = enumValue === _ENUM.LEFT_JOIN;
+
+
+                            // return join context object
+                            return joinContext;
                         }
 
                         function groupResultSet_I_3L ( item )

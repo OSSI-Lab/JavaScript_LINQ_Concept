@@ -565,7 +565,7 @@ var my_custom_jlc_common = {
     {
         /**
          * Result selector for primitive type has to return a value of string primitive type !
-         * The return value has to any string !
+         * The return value has to be any string (has to be iterable) !
          *
          * 
          * Provide the logic valid for your cases !
@@ -575,15 +575,20 @@ var my_custom_jlc_common = {
 
         var output;
 
-        // handle string primitive type
-        if(inputItem[ "length" ])
-            output = flattenValue_I_3L(inputItem);
-        // handle other primitive type and convert it to string type
+        if(itemIndexOrUndefined || itemIndexOrUndefined === 0) {
+            // handle string primitive type
+            if(inputItem[ "length" ])
+                output = flattenValue_I_3L(inputItem + "#" + itemIndexOrUndefined);
+            // handle other primitive type and convert it to string type
+            else
+                output = flattenValue_I_3L(inputItem.toString() + "#" + itemIndexOrUndefined);
+        }
         else {
-                if(itemIndexOrUndefined || itemIndexOrUndefined === 0)
-                    output = flattenValue_I_3L(inputItem + "#" + itemIndexOrUndefined);
-                else
-                    output = flattenValue_I_3L(inputItem.toString());
+            if(inputItem[ "length" ])
+                output = flattenValue_I_3L(inputItem);
+            // handle other primitive type and convert it to string type
+            else
+                output = flattenValue_I_3L(inputItem.toString());
         }
 
 

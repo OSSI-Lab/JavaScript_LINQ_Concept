@@ -2685,8 +2685,16 @@
                     // return the key lookup bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
                 {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
                     // define the output item
                     var outputItem = Object.create( null );
 
@@ -2863,8 +2871,16 @@
                     // return the key lookup bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
                 {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
                     // define the output item
                     var outputItem = Object.create( null );
 
@@ -3041,8 +3057,16 @@
                     // return the key lookup bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
                 {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
                     // define the output item
                     var outputItem = Object.create( null );
 
@@ -3309,8 +3333,16 @@
                     // return the key lookup bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
                 {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
                     // define the output item
                     var outputItem = Object.create( null );
 
