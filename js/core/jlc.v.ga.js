@@ -6018,7 +6018,8 @@
                     {
                         switch ( enumValue )
                         {
-                            case _ENUM.JOIN:
+                            case _ENUM.JOIN:sd'vd.v
+                            'dsd'vds'vd.v'd.v'fv.'f.v
                                 // join two sequences (collections) based on keys present in both sequences
                                 currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L( false );
                                 break;
