@@ -2195,7 +2195,7 @@
 
                     if ( !innerCollectionItem ) return isJoin;
 
-                    
+
                     // you can do something with inner collection selector
 
 
@@ -2230,9 +2230,6 @@
             }
         ).toArray();
 
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
         // final query - produces output
         var join_f2b = collection_of_integers.innerJoin(
             {
@@ -2247,7 +2244,7 @@
                      * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
                     */
 
-                   return outerCollectionItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
@@ -2262,15 +2259,65 @@
                      * Otherwise the third parameter will be some other returned value based on the logic provided !
                     */
 
-                   return outerCollectionItem;
+                    if ( outerCollectionItem === outerCollectionItemKeyValue && innerCollectionItem === outerCollectionItemKeyValue ) return outerCollectionItemKeyValue;
+                    else if ( outerCollectionItem !== outerCollectionItemKeyValue && innerCollectionItem !== outerCollectionItem ) return innerCollectionItem;
+
+                    return innerCollectionItem;
                 },
                 'udfResultSelector': null,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
+
+        /**
+         * LEFT JOINS
+         * 
+         *  In case of primitive types 'leftJoin' && 'innerJoin' query methods will work exactly the same !
+         *  It means, that for primitive types 'leftJoin' && 'innerJoin' will work as 'innerJoin's !
+         *  For primitive types you need to only use 'innerJoin' query methods !
+         * 
+         *  Creating 'left join' results for primitive types for defined array-type syntax only wouldn't make much sense !
+         * 
+         *  However, 'left join' results for primitive types for defined udf-type syntax only in some scenarios can make some sense !
+         * 
+         *  The third case, 'left join' results for primitive types for defined array-type & udf-type syntaxes conforms to the implementation logic !!!
+        */
+
+        /**
+         * At any point you can interact with cache
+         *
+         * - enable/disable it      ->  System.Linq.Context.Cache.enable(true/false)
+         * - clear it               ->  System.Linq.Context.Cache.clear()
+         *
+        */
+        // f.e. turn on the cache
+        System.Linq.Context.Cache.enable( true );
+
+
         // final query - produces output
-        var leftJoin_f2c = collection_of_integers.leftJoin(
+        var leftJoin_f1 = collection_of_integers.leftJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "", true ]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    [ "", true ]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': null,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output - THIS QUERY USES CACHE ->
+        /*
+            Query called 'join_f1' uses the same filters, hence this query 'join_f1_cache' only fetches data from cache,
+            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        */
+        var leftJoin_f1_cache = collection_of_integers.leftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
@@ -2287,7 +2334,7 @@
         ).toArray();
 
         // partial query - produces intermediate query state
-        var leftJoin_p1a = collection_of_integers.leftJoin(
+        var leftJoin_p1 = collection_of_integers.leftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
@@ -2303,12 +2350,26 @@
             }
         );
 
+
+
+        /**
+         * At any point you can interact with cache
+         *
+         * - enable/disable it      ->  System.Linq.Context.Cache.enable(true/false)
+         * - clear it               ->  System.Linq.Context.Cache.clear()
+         *
+        */
+        // f.e. turn off the cache
+        System.Linq.Context.Cache.enable( false );
+
+
+
         // final query - produces output
         var leftJoin_f2a = collection_of_integers.leftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem, outerSelectorArray )
@@ -2324,7 +2385,7 @@
                     return outerCollectionItem;
                 },
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'innerUdfSelector': function ( innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue )
@@ -2334,7 +2395,7 @@
 
                     if ( !innerCollectionItem ) return isJoin;
 
-                    
+
                     // you can do something with inner collection selector
 
 
@@ -2370,48 +2431,47 @@
         ).toArray();
 
         // final query - produces output
-        var leftJoin_f3 = collection_of_integers.leftJoin(
+        var leftJoin_f2b = collection_of_integers.leftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem )
                 {
-                    // valid props array
-                    var props = [ 'id' ];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                    */
 
-                    // define the output item
-                    var outputItem = Object.create( null );
-
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = outerCollectionItem[ prop ];
-
-                    // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function ( innerCollectionItem )
+                'innerUdfSelector': function ( innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue )
                 {
-                    // valid props array
-                    var props = [ 'id' ];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                     * In this scenario the third parameter will be exactly the same returned input value !
+                     * 
+                     * Otherwise the third parameter will be some other returned value based on the logic provided !
+                    */
 
-                    // define the output item
-                    var outputItem = Object.create( null );
+                    if ( outerCollectionItem === outerCollectionItemKeyValue && innerCollectionItem === outerCollectionItemKeyValue ) return outerCollectionItemKeyValue;
+                    else if ( outerCollectionItem !== outerCollectionItemKeyValue && innerCollectionItem !== outerCollectionItem ) return innerCollectionItem;
 
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = innerCollectionItem ? innerCollectionItem[ prop ] : undefined;
-
-                    // return the output item
-                    return outputItem;
+                    return innerCollectionItem;
                 },
                 'udfResultSelector': null,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
 
 
         // final query - produces output

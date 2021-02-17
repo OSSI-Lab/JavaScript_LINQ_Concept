@@ -26,6 +26,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #47 - DPR #70:&nbsp;2021-02-17 &nbsp;&nbsp;3:15 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 2478 !
+        - fixed issues
+          - innerJoin & leftJoin
  - TEST #46 - DPR #69:&nbsp;2021-02-15 &nbsp;&nbsp;11:30 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
