@@ -13,19 +13,9 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #70 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #71 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      TESTING         ->      TEST IN PROGRESS    ->      
- *          What does it mean ?
- *              It does mean, that this library is GA candidate in the version called TEST PHASE !
- *              TEST PHASE refers to finished development and started testing of the whole library.
- *              The last phase is the RELEASE PHASE marked by RELEASE keyword.
- *
- *              In plain English, I have just finished development of this library and have started testing it !
- *              When all will be working as expected, I will release the so-called GA version !
- *              Any errors found during testing will be depicted by moving from [GA/TEST] -> TEST phase to [GA/TEST] -> DEV phase !
- *              
- *              Easy to grasp ?
  * 
  * 
  * 
@@ -528,7 +518,7 @@
 
                                 if (
                                     ![ _ENUM.T2SR.UNDEFINED, _ENUM.T2SR.NULL ].includes( t2sr ) // if syntax is not null
-                                        &&
+                                    &&
                                     ( t2sr === _ENUM.T2SR.ARRAY || typeof user_syntax_arr !== 'function' )
                                 )
                                     c_P_I_1L( user_syntax_arr, sortingContext );
@@ -3438,9 +3428,9 @@
 
                                 /**
                                  * Declare resultsView function
-                                 *  - declare non-public component called '_privateList'
+                                 *  - declare non-public component called '_pl'
                                 */
-                                var _privateList = _COMMON.deepCopyNCR( gso.arr );
+                                var _pl = _COMMON.deepCopyYCR( gso.arr );
                                 Object.defineProperty(
                                     grouping_obj,
                                     _ENUM.RESULTS_VIEW.ENUMERATOR,
@@ -3448,7 +3438,7 @@
                                         // only override getter
                                         get: function ()
                                         {
-                                            return _privateList;
+                                            return _pl;
                                         },
 
                                         // make it visible for loop operations
@@ -3461,6 +3451,65 @@
                                     groups_obj.push( grouping_obj );
                                 else
                                     groups_obj[ gso.idx ] = grouping_obj;
+                            },
+
+                        initializeGroupingEntry:
+                            function(_this, key) {
+                                // create pure empty object
+                                var grouping_obj = Object.create( null );
+
+                                // define grouping object
+                                grouping_obj.key = key;
+
+                                /**
+                                 * Declare resultsView function
+                                 *  - declare non-public component called '_pl'
+                                */
+                                var _pl = [];
+                                Object.defineProperty(
+                                    grouping_obj,
+                                    _ENUM.RESULTS_VIEW.ENUMERATOR,
+                                    {
+                                        // only override getter
+                                        get: function ()
+                                        {
+                                            return _pl;
+                                        },
+
+                                        // make it visible for loop operations
+                                        enumerable: true
+                                    }
+                                );
+                            },
+
+                        updateGroupingEntry:
+                            function (_this, key, value, valueGroup )
+                            {
+                                // get grouping seeker object from the group
+                                var gso = _this.getGrouping( key, valueGroup );
+    
+                                // reference the list of elements if any
+                                if ( gso.arr )
+                                {
+                                    // add object to this grouping object
+                                    gso.arr.push( value );
+    
+                                    // update grouping object
+                                    _this.setGrouping( key, gso, valueGroup );
+                                }
+                                // otherwise create a new grouping object
+                                else
+                                {
+                                    // create pure empty object
+                                    var eo = Object.create( null );
+    
+                                    // define a dictionary-like object
+                                    eo.idx = -1;
+                                    eo.arr = [ value ];
+    
+                                    // add object to this grouping object
+                                    _this.setGrouping( key, eo, valueGroup );
+                                }
                             },
 
                         getKVP:
@@ -6106,7 +6155,7 @@
                                 if ( doGrouping )
                                     predicateArray = outerSelectorArray;
                             }
-                            // user provided only 'left-side' && 'right-side' key extractors to perform JOIN operation
+                            // user provided only 'left-side' && 'right-side' UDF key extractors to perform JOIN operation
                             else if ( !outerSelectorArray && outerUdfSelector && !innerSelectorArray && innerUdfSelector )
                             {
                                 executeOperation_LDF_I_3L( outerUdfSelector, innerUdfSelector );
@@ -6153,60 +6202,123 @@
                         */
                         function executeOperation_UDF_I_3L ( leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray )
                         {
-                            var l_item, lskv;
-                            // loop over 'left-side' collection to join it to the 'right-side' one
-                            for ( var i = 0; i < currentColl.length; i++ )
+                            // outer collection item; outer collection item's key value; inner collection item; is match
+                            var l_item, lskv, r_item, isJoin;
+
+                            // if user failed to provide UDF result selector
+                            if ( !udfResultSelector )
+                                throw new Error( '\r\nWhen performing family of \'join\' operations you need to provide UDF result selector called \'udfResultSelector\' !\r\n\r\n' );
+
+                            /**
+                             * Deal with primitive types in the context of 'groupJoin' & 'groupLeftJoin'.
+                             * 
+                             * All grouping of primitive types is handled by the following case.
+                            */
+                            if ( doGrouping && currentColl.length && _COMMON.isPrimitiveType( currentColl[ 0 ] ) )
                             {
-                                // get current item from 'left-side' collection
-                                l_item = currentColl[ i ];
+                                // reference grouping-by util object
+                                var gbo = _COMMON.usingGroupingBy();
 
-                                // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
-                                lskv = leftSideUdfSelector( l_item, leftSideSelectorArray );
-
-                                var r_item, isJoin;
-                                // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
-                                for ( var j = 0; j < innerColl.length; j++ )
+                                // loop over 'left-side' collection to join it to the 'right-side' one
+                                for ( var i = 0; i < currentColl.length; i++ )
                                 {
-                                    // get current item from 'right-side' collection
-                                    r_item = innerColl[ j ];
+                                    // get current item from 'left-side' collection
+                                    l_item = currentColl[ i ];
 
-                                    // perform 'right-side' key lookup
-                                    isJoin = rightSideUdfSelector( r_item, rightSideSelectorArray, lskv );
+                                    // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
+                                    lskv = leftSideUdfSelector( l_item, leftSideSelectorArray );
 
-                                    // if 'right-side' key lookup found, go to create result object
-                                    if ( isJoin ) break;
-                                    // otherwise mark that 'left-side' item has no match in the 'right-side' collection
-                                    else r_item = undefined;
+                                    // initialize KeyBagPair for this outer collection item, aka the key
+                                    gbo.initializeGroupingEntry(gbo, lskv);
+
+                                    // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
+                                    for ( var j = 0; j < innerColl.length; j++ )
+                                    {
+                                        // get current item from 'right-side' collection
+                                        r_item = innerColl[ j ];
+
+                                        // perform 'right-side' key lookup
+                                        isJoin = rightSideUdfSelector( r_item, rightSideSelectorArray, lskv );
+
+                                        // if 'right-side' key lookup found, go to create result object
+                                        if ( isJoin )
+                                            // create KeyBagPair kind of object
+                                            gbo.updateGroupingEntry( gbo, lskv, r_item, result );
+                                    }
+
+                                    // KeyBagPair item
+                                    var kbp;
+                                    // when proper structures are created internally, invoke provided udf to allow user further interact with the grouping object
+                                    for(var k = 0; k < result.length; k++) {
+                                        // access current KeyBagPair object
+                                        kbp = result[k];
+
+                                        // store joined object in the output array
+                                        result[k] = udfResultSelector( kbp.key, kbp.resultsView, createJoinContext_I_3L() );
+                                    }
                                 }
 
-                                // check for 'LEFT JOIN' case in the context of objects only
-                                if ( isCollectionFixed && !r_item )
+                                // mark that grouping of primitive types took place, hence the grouping in parent function of this one is not required
+                                doGrouping = false;
+                            }
+                            /**
+                             * Deal with primitive types and object ones in the context of 'innerJoin' & 'leftJoin'.
+                             * 
+                             * All joining of primitive types and object ones is handled by the following case.
+                             * But all grouping of object types is handled by the parent of this function itself.
+                            */
+                            else {
+                                // loop over 'left-side' collection to join it to the 'right-side' one
+                                for ( var i = 0; i < currentColl.length; i++ )
                                 {
-                                    if(_COMMON.isPrimitiveType( l_item )) {
-                                        // get default value for the type of given primitive value
-                                        r_item = _COMMON.getDefaultValueOf(l_item);
-                                    }
-                                    else {
-                                        // get object keys
-                                        var keys = Object.getOwnPropertyNames( l_item );
+                                    // get current item from 'left-side' collection
+                                    l_item = currentColl[ i ];
 
-                                        // discover default values for the 'right-side' collection object given current 'left-side' collection object
-                                        r_item = assignDefaultValues_I_3L( l_item, keys, keys );
+                                    // determine 'left-side' key value (lskv) being primitive value, array, object, etc.
+                                    lskv = leftSideUdfSelector( l_item, leftSideSelectorArray );
+
+                                    // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
+                                    for ( var j = 0; j < innerColl.length; j++ )
+                                    {
+                                        // get current item from 'right-side' collection
+                                        r_item = innerColl[ j ];
+
+                                        // perform 'right-side' key lookup
+                                        isJoin = rightSideUdfSelector( r_item, rightSideSelectorArray, lskv );
+
+                                        // if 'right-side' key lookup found, go to create result object
+                                        if ( isJoin ) break;
+                                        // otherwise mark that 'left-side' item has no match in the 'right-side' collection
+                                        else r_item = undefined;
                                     }
+
+                                    // check for 'LEFT JOIN' case in the context of objects only
+                                    if ( isCollectionFixed && !r_item )
+                                    {
+                                        if ( _COMMON.isPrimitiveType( l_item ) )
+                                        {
+                                            // get default value for the type of given primitive value
+                                            r_item = _COMMON.getDefaultValueOf( l_item );
+                                        }
+                                        else
+                                        {
+                                            // get object keys
+                                            var keys = Object.getOwnPropertyNames( l_item );
+
+                                            // discover default values for the 'right-side' collection object given current 'left-side' collection object
+                                            r_item = assignDefaultValues_I_3L( l_item, keys, keys );
+                                        }
+                                    }
+
+                                    // create joined object if UDF Result Selector provided for 'LEFT JOIN' case
+                                    if ( isCollectionFixed )
+                                        // store joined object in the output array
+                                        result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
+                                    // create joined object if UDF Result Selector provided for 'INNER JOIN' case
+                                    else if ( udfResultSelector && ![ _ENUM.T2SR.UNDEFINED, _ENUM.T2SR.NULL ].includes( _COMMON.convertTypeToString( r_item ) ) )
+                                        // store joined object in the output array
+                                        result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
                                 }
-
-                                // create joined object if UDF Result Selector provided for 'LEFT JOIN' case
-                                if ( udfResultSelector && isCollectionFixed )
-                                    // store joined object in the output array
-                                    result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
-                                // create joined object if UDF Result Selector provided for 'INNER JOIN' case
-                                else if ( udfResultSelector && ![ _ENUM.T2SR.UNDEFINED, _ENUM.T2SR.NULL ].includes( _COMMON.convertTypeToString( r_item ) ) )
-                                    // store joined object in the output array
-                                    result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
-                                // otherwise perfom default object merge operation
-                                else if ( !udfResultSelector )
-                                    // store merged object in the output array
-                                    result.push( { ...l_item, ...r_item } );
                             }
                         }
 
@@ -6215,97 +6327,183 @@
                             // outer collection key object, inner collection key object, are both key objects value-equal
                             var l_key_obj, r_key_obj, isJoin;
 
-                            // deal with function key extractors
-                            if ( typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function' )
+                            // if user failed to provide UDF result selector
+                            if ( !udfResultSelector )
+                                throw new Error( '\r\nWhen performing family of \'join\' operations you need to provide UDF result selector called \'udfResultSelector\' !\r\n\r\n' );
+
+                            /**
+                             * Deal with primitive types in the context of 'groupJoin' & 'groupLeftJoin'.
+                             * 
+                             * All grouping of primitive types is handled by the following case.
+                            */
+                            if ( doGrouping && currentColl.length && _COMMON.isPrimitiveType( currentColl[ 0 ] ) )
                             {
-                                // if user failed to provide equality UDF
-                                if ( !udfEqualityComparer )
-                                    throw new Error( '\r\nWhen performing JOIN operation using left-side && right-side array extractors only, you need to provide equality UDF !\r\n\r\n' );
+                                // reference grouping-by util object
+                                var gbo = _COMMON.usingGroupingBy();
 
-                                // outer collection current item, inner collection current item
-                                var l_obj_full, r_obj_full;
-
-                                // loop over 'left-side' collection
-                                for ( var i = 0; i < currentColl.length; i++ )
+                                // deal with function key extractors
+                                if ( typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function' )
                                 {
-                                    // access current outer collection item
-                                    l_obj_full = currentColl[ i ];
+                                    // if user failed to provide equality UDF
+                                    if ( !udfEqualityComparer )
+                                        throw new Error( '\r\nWhen performing JOIN operation using left-side && right-side array extractors only, you need to provide equality UDF !\r\n\r\n' );
 
-                                    // get the 'left-side' key object
-                                    l_key_obj = leftSideSelectorArrayOrUdf( l_obj_full );
+                                    // outer collection current item, inner collection current item
+                                    var l_obj_full, r_obj_full;
 
-                                    // unmark joined object
-                                    isJoin = false;
-
-                                    // loop over 'right-side' collection
-                                    for ( var j = 0; j < innerColl.length; j++ )
+                                    // loop over 'left-side' collection
+                                    for ( var i = 0; i < currentColl.length; i++ )
                                     {
                                         // access current outer collection item
-                                        r_obj_full = innerColl[ j ];
+                                        l_obj_full = currentColl[ i ];
 
-                                        // get the 'right-side' key object
-                                        r_key_obj = rightSideSelectorArrayOrUdf( r_obj_full, l_obj_full, l_key_obj );
+                                        // get the 'left-side' key object
+                                        l_key_obj = leftSideSelectorArrayOrUdf( l_obj_full );
 
-                                        // if objects match the key
-                                        if ( udfEqualityComparer( l_key_obj, r_key_obj ) )
+                                        // loop over 'right-side' collection
+                                        for ( var j = 0; j < innerColl.length; j++ )
                                         {
-                                            // execute JOIN
-                                            performJoinOperation_I_4L( l_obj_full, r_obj_full );
+                                            // access current outer collection item
+                                            r_obj_full = innerColl[ j ];
 
-                                            // mark joined object
-                                            isJoin = true;
+                                            // get the 'right-side' key object
+                                            r_key_obj = rightSideSelectorArrayOrUdf( r_obj_full, l_obj_full, l_key_obj );
 
-                                            // break the 'right-side' collection loop
-                                            break;
+                                            // if objects match the key
+                                            if ( udfEqualityComparer( l_key_obj, r_key_obj ) )
+                                                // create KeyBagPair kind of object
+                                                gbo.updateGroupingEntry( gbo, l_key_obj, r_key_obj, result );
                                         }
                                     }
-
-                                    // check for 'LEFT JOIN' case in the context of objects only
-                                    if ( isCollectionFixed && !isJoin && !_COMMON.isPrimitiveType( l_obj_full ) )
-                                        // execute LEFT JOIN
-                                        performLeftJoinOperation_I_4L( l_obj_full );
                                 }
-                            }
-                            // deal with array key extractors
-                            else if ( Array.isArray( leftSideSelectorArrayOrUdf ) && Array.isArray( rightSideSelectorArrayOrUdf ) )
-                            {
-                                // loop over 'left-side' collection
-                                for ( var i = 0; i < currentColl.length; i++ )
+                                // deal with array key extractors
+                                else if ( Array.isArray( leftSideSelectorArrayOrUdf ) && Array.isArray( rightSideSelectorArrayOrUdf ) )
                                 {
-                                    // access current outer collection item
-                                    l_obj_full = currentColl[ i ];
-
-                                    // unmark joined object
-                                    isJoin = false;
-
-                                    // loop over 'right-side' collection
-                                    for ( var j = 0; j < innerColl.length; j++ )
+                                    // loop over 'left-side' collection
+                                    for ( var i = 0; i < currentColl.length; i++ )
                                     {
                                         // access current outer collection item
-                                        r_obj_full = innerColl[ j ];
+                                        l_obj_full = currentColl[ i ];
 
-                                        // if objects match the key
-                                        if ( ldfEqualityComparer_I_4L( l_obj_full, r_obj_full, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
+                                        // loop over 'right-side' collection
+                                        for ( var j = 0; j < innerColl.length; j++ )
                                         {
-                                            // execute JOIN
-                                            performJoinOperation_I_4L( l_obj_full, r_obj_full );
+                                            // access current outer collection item
+                                            r_obj_full = innerColl[ j ];
 
-                                            // mark joined object
-                                            isJoin = true;
-
-                                            // break the 'right-side' collection loop
-                                            break;
+                                            // if objects match the key
+                                            if ( ldfEqualityComparer_I_4L( l_obj_full, r_obj_full, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
+                                                // create KeyBagPair kind of object
+                                                gbo.updateGroupingEntry( gbo, l_obj_full, r_obj_full, result );
                                         }
                                     }
-
-                                    // check for 'LEFT JOIN' case in the context of objects only
-                                    if ( isCollectionFixed && !isJoin && !_COMMON.isPrimitiveType( l_obj_full ) )
-                                        // execute LEFT JOIN
-                                        performLeftJoinOperation_I_4L( l_obj_full );
                                 }
+                                else
+                                    throw new Error( '\r\nWhen performing JOIN operation using either left-side && right-side array extractors only or left-side && right-side function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
+
+                                // mark that grouping of primitive types took place, hence the grouping in parent function of this one is not required
+                                doGrouping = false;
                             }
+                            /**
+                             * Deal with primitive types and object ones in the context of 'innerJoin' & 'leftJoin'.
+                             * 
+                             * All joining of primitive types and object ones is handled by the following case.
+                             * But all grouping of object types is handled by the parent of this function itself.
+                            */
                             else
-                                throw new Error( '\r\nWhen performing JOIN operation using either left-side && right-side array extractors only or left-side && right-side function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
+                            {
+                                // deal with function key extractors
+                                if ( typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function' )
+                                {
+                                    // if user failed to provide equality UDF
+                                    if ( !udfEqualityComparer )
+                                        throw new Error( '\r\nWhen performing JOIN operation using left-side && right-side array extractors only, you need to provide equality UDF !\r\n\r\n' );
+
+                                    // outer collection current item, inner collection current item
+                                    var l_obj_full, r_obj_full;
+
+                                    // loop over 'left-side' collection
+                                    for ( var i = 0; i < currentColl.length; i++ )
+                                    {
+                                        // access current outer collection item
+                                        l_obj_full = currentColl[ i ];
+
+                                        // get the 'left-side' key object
+                                        l_key_obj = leftSideSelectorArrayOrUdf( l_obj_full );
+
+                                        // unmark joined object
+                                        isJoin = false;
+
+                                        // loop over 'right-side' collection
+                                        for ( var j = 0; j < innerColl.length; j++ )
+                                        {
+                                            // access current outer collection item
+                                            r_obj_full = innerColl[ j ];
+
+                                            // get the 'right-side' key object
+                                            r_key_obj = rightSideSelectorArrayOrUdf( r_obj_full, l_obj_full, l_key_obj );
+
+                                            // if objects match the key
+                                            if ( udfEqualityComparer( l_key_obj, r_key_obj ) )
+                                            {
+                                                // execute JOIN
+                                                performJoinOperation_I_4L( l_obj_full, r_obj_full );
+
+                                                // mark joined object
+                                                isJoin = true;
+
+                                                // break the 'right-side' collection loop
+                                                break;
+                                            }
+                                        }
+
+                                        // check for 'LEFT JOIN' case in the context of objects only
+                                        if ( isCollectionFixed && !isJoin && !_COMMON.isPrimitiveType( l_obj_full ) )
+                                            // execute LEFT JOIN
+                                            performLeftJoinOperation_I_4L( l_obj_full );
+                                    }
+                                }
+                                // deal with array key extractors
+                                else if ( Array.isArray( leftSideSelectorArrayOrUdf ) && Array.isArray( rightSideSelectorArrayOrUdf ) )
+                                {
+                                    // loop over 'left-side' collection
+                                    for ( var i = 0; i < currentColl.length; i++ )
+                                    {
+                                        // access current outer collection item
+                                        l_obj_full = currentColl[ i ];
+
+                                        // unmark joined object
+                                        isJoin = false;
+
+                                        // loop over 'right-side' collection
+                                        for ( var j = 0; j < innerColl.length; j++ )
+                                        {
+                                            // access current outer collection item
+                                            r_obj_full = innerColl[ j ];
+
+                                            // if objects match the key
+                                            if ( ldfEqualityComparer_I_4L( l_obj_full, r_obj_full, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
+                                            {
+                                                // execute JOIN
+                                                performJoinOperation_I_4L( l_obj_full, r_obj_full );
+
+                                                // mark joined object
+                                                isJoin = true;
+
+                                                // break the 'right-side' collection loop
+                                                break;
+                                            }
+                                        }
+
+                                        // check for 'LEFT JOIN' case in the context of objects only
+                                        if ( isCollectionFixed && !isJoin && !_COMMON.isPrimitiveType( l_obj_full ) )
+                                            // execute LEFT JOIN
+                                            performLeftJoinOperation_I_4L( l_obj_full );
+                                    }
+                                }
+                                else
+                                    throw new Error( '\r\nWhen performing JOIN operation using either left-side && right-side array extractors only or left-side && right-side function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
+                            }
 
 
 
@@ -6476,31 +6674,8 @@
                             // get the group id, aka the key used in JOIN or LEFT JOIN
                             var id = _COMMON.fetchObjectKeyValue( item.left || item.right, key_array );
 
-                            // create pure empty object
-                            var eo = Object.create( null );
-
-                            // get grouping seeker object from the group
-                            var gso = gbo.getGrouping( id, groups );
-
-                            // reference the list of elements if any
-                            if ( gso.arr )
-                            {
-                                // add object to this grouping object
-                                gso.arr.push( item );
-
-                                // update grouping object
-                                gbo.setGrouping( id, gso, groups );
-                            }
-                            // otherwise create a new grouping object
-                            else
-                            {
-                                // define a dictionary-like object
-                                eo.idx = -1;
-                                eo.arr = [ item ];
-
-                                // add object to this grouping object
-                                gbo.setGrouping( id, eo, groups );
-                            }
+                            // create KeyBagPair kind of object
+                            gbo.updateGroupingEntry( gbo, id, item, groups );
                         }
                     }
                 }

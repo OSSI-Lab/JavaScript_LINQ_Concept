@@ -2107,7 +2107,22 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // examplary logic that calculates the output item !
+                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2128,7 +2143,22 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // examplary logic that calculates the output item !
+                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2145,7 +2175,22 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // examplary logic that calculates the output item !
+                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         );
@@ -2264,7 +2309,22 @@
 
                     return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // examplary logic that calculates the output item !
+                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
@@ -2479,11 +2539,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2496,11 +2556,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2513,33 +2573,23 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem, outerSelectorArray )
                 {
-                    // valid props array
-                    var props = [];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                    */
 
-                    // fetch all valid props from the input collection item
-                    for ( let selector of outerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
+                    // you can do something with inner collection selector
 
-                    // define the output item
-                    var outputItem = Object.create( null );
-
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = outerCollectionItem[ prop ];
-
-                    // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'innerUdfSelector': function ( innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue )
@@ -2549,61 +2599,42 @@
 
                     if ( !innerCollectionItem ) return isJoin;
 
-                    // valid props array
-                    var props = [];
 
-                    // fetch all valid props from the input collection item
-                    for ( let selector of innerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
-
-                    // define the right-side item to check the key
-                    var outputItem = Object.create( null );
-
-                    // create the right-side item
-                    for ( let prop of props )
-                        outputItem[ prop ] = innerCollectionItem[ prop ];
+                    // you can do something with inner collection selector
 
 
                     /**
                      * Determine "join condition" - exemplary logic !
                     */
 
-                    // create array of keys and array of their values of the passed left-side key
-                    var allKeyPropNames, allKeyPropValues = [];
-                    allKeyPropNames = Object.getOwnPropertyNames( outerCollectionItemKeyValue );
-                    for ( let keyProp of allKeyPropNames )
-                        allKeyPropValues.push( outerCollectionItemKeyValue[ keyProp ] );
-
-
-                    // create array of keys and array of their values of the passed inner collection item
-                    var allInnerPropNames, allInnerPropValues = [];
-                    allInnerPropNames = Object.getOwnPropertyNames( outputItem );
-                    for ( let keyProp of allInnerPropNames )
-                        allInnerPropValues.push( outputItem[ keyProp ] );
-
                     // check the join
-                    isJoin = allKeyPropNames.equals( allInnerPropNames ) && allKeyPropValues.equals( allInnerPropValues );
+                    isJoin = innerCollectionItem === outerCollectionItemKeyValue;
 
 
-                    // return the key lookup bool result
+                    // return the join bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionKey, innerCollectionResultsViewData, joinContextObject )
                 {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
                     // define the output item
                     var outputItem = Object.create( null );
 
                     // create "the shape"
-                    outputItem.left = outerCollectionMatchingItem;
-                    outputItem.right = innerCollectionMatchingItem;
+                    outputItem.key = outerCollectionKey;
+                    outputItem.bagData = innerCollectionResultsViewData;
 
                     // return the output item
                     return outputItem;
                 },
-                'udfEqualityComparer': udf_commons.udfEqualityComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
@@ -2747,11 +2778,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2764,11 +2795,11 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'outerUdfSelector': null,
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'innerUdfSelector': null,
                 'udfResultSelector': null,
@@ -2781,7 +2812,7 @@
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem, outerSelectorArray )
@@ -2807,7 +2838,7 @@
                     return outputItem;
                 },
                 'innerSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'innerUdfSelector': function ( innerCollectionItem, innerSelectorArray, /** lskv */ outerCollectionItemKeyValue )
@@ -2859,25 +2890,33 @@
                     // return the key lookup bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem )
+                'udfResultSelector': function ( outerCollectionKey, innerCollectionResultsViewData, joinContextObject )
                 {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
                     // define the output item
                     var outputItem = Object.create( null );
 
                     // create "the shape"
-                    outputItem.left = outerCollectionMatchingItem;
-                    outputItem.right = innerCollectionMatchingItem;
+                    outputItem.key = outerCollectionKey;
+                    outputItem.bagData = innerCollectionResultsViewData;
 
                     // return the output item
                     return outputItem;
                 },
-                'udfEqualityComparer': udf_commons.udfEqualityComparer
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The context of GROUP_LEFT_JOIN requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The context of GROUP_JOIN requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !
         /*
-        var groupLeftJoin_f3 = collection_of_integers.groupLeftJoin(
+        var groupJoin_f3 = collection_of_integers.groupJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
@@ -2897,6 +2936,96 @@
                     return outputItem;
                 },
                 'innerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
+        /*
+        var groupJoin_f4 = collection_of_integers.groupJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': [
+                    [ "id", true ]
+                ],
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'innerUdfSelector': function (innerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
+
+                    // return the output item
+                    return outputItem;
+                },
+                'udfResultSelector': null,
+                'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
+            }
+        ).toArray();
+        */
+
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
+        /*
+        var groupJoin_f5 = collection_of_integers.groupJoin(
+            {
+                'innerColl': innerColl,
+                'outerSelectorArray': null,
+                // exemplary logic showing the use case, not the best performance approach
+                'outerUdfSelector': function (outerCollectionItem) {
+                    // valid props array
+                    var props = ['id'];
+
+                    // define the output item
+                    var outputItem = Object.create(null);
+
+                    // create "the shape"
+                    for(let prop of props)
+                        outputItem[prop] = outerCollectionItem[prop];
+
+                    // return the output item
+                    return outputItem;
+                },
+                'innerSelectorArray': [
+                    [ "id", true ]
+                ],
                 // exemplary logic showing the use case, not the best performance approach
                 'innerUdfSelector': function (innerCollectionItem) {
                     // valid props array

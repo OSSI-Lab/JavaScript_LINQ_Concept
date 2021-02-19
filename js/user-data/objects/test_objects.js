@@ -2559,7 +2559,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2580,7 +2598,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2597,7 +2633,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         );
@@ -2747,7 +2801,25 @@
                     // return the output item
                     return outputItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
             }
         ).toArray();
@@ -2766,7 +2838,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2783,7 +2873,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         );
@@ -2933,7 +3041,25 @@
                     // return the output item
                     return outputItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': udf_commons.udfDefaultObjectContentComparer
             }
         ).toArray();
@@ -2952,7 +3078,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2969,7 +3113,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         );
@@ -3228,7 +3390,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -3245,7 +3425,25 @@
                     [ "id", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function (outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject) {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // define the output item
+                    var outputItem = Object.create( null );
+
+                    // create "the shape"
+                    outputItem.input1 = outerCollectionMatchingItem;
+                    outputItem.input2 = innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         );
