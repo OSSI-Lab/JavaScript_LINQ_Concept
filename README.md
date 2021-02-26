@@ -26,6 +26,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Primitives
+ - TEST #49 - DPR #72:&nbsp;2021-02-26 &nbsp;&nbsp;11:25 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 3099 !
+        - fixed issues
+          - innerJoin, leftJoin, groupJoin & groupLeftJoin -> tested out !
  - TEST #48 - DPR #71:&nbsp;2021-02-20 &nbsp;&nbsp;12:40 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
@@ -102,12 +108,18 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
         - started...
 #
 ## Objects
+ - TEST #49 - DPR #72:&nbsp;2021-02-26 &nbsp;&nbsp;11:25 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - done -> 100% (This is already RC, just RC, simply RC ) !
+        - fixed issues
+          - innerJoin, leftJoin, groupJoin & groupLeftJoin -> tested out !
  - TEST #48 - DPR #71:&nbsp;2021-02-20 &nbsp;&nbsp;12:40 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - done -> 100% (This is already RC, just RC, simply RC ) !
         - fixed issues
-          - added required udfResultSelector for innerJoin, leftJoin, groupJoin & groupLeftJoin, but not tested !
+          - innerJoin, leftJoin, groupJoin & groupLeftJoin -> tested out !
  - TEST #41 - DPR #64:&nbsp;2021-02-07 &nbsp;&nbsp;11:30 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

@@ -2113,6 +2113,8 @@
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
@@ -2149,6 +2151,8 @@
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
@@ -2181,6 +2185,8 @@
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
@@ -2261,12 +2267,20 @@
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
 
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
+
                     // examplary logic that calculates the output item !
-                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.outer = outerCollectionMatchingItem;
+                    outputItem.inner = innerCollectionMatchingItem;
+                    outputItem.multiplicationResult = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.divisionResult = outerCollectionMatchingItem / innerCollectionMatchingItem;
 
                     // return the output item
                     return outputItem;
@@ -2315,6 +2329,8 @@
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
@@ -2341,7 +2357,7 @@
          * 
          *  However, 'left join' results for primitive types for defined udf-type syntax only in some scenarios can make some sense !
          * 
-         *  The third case, 'left join' results for primitive types for defined array-type & udf-type syntaxes conforms to the implementation logic !!!
+         *  The third case, 'left join' results for primitive types for defined array-type & udf-type syntaxes conform to the implementation logic !!!
         */
 
         /**
@@ -2367,7 +2383,30 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
+
+                    // examplary logic that calculates the output item !
+                    outputItem.outer = outerCollectionMatchingItem;
+                    outputItem.inner = innerCollectionMatchingItem;
+                    outputItem.multiplicationResult = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.divisionResult = outerCollectionMatchingItem / innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2388,7 +2427,30 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
+
+                    // examplary logic that calculates the output item !
+                    outputItem.outer = outerCollectionMatchingItem;
+                    outputItem.inner = innerCollectionMatchingItem;
+                    outputItem.multiplicationResult = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.divisionResult = outerCollectionMatchingItem / innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2405,7 +2467,30 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
+
+                    // examplary logic that calculates the output item !
+                    outputItem.outer = outerCollectionMatchingItem;
+                    outputItem.inner = innerCollectionMatchingItem;
+                    outputItem.multiplicationResult = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.divisionResult = outerCollectionMatchingItem / innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': null
             }
         );
@@ -2476,12 +2561,20 @@
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
 
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
+
                     // examplary logic that calculates the output item !
-                    var outputItem = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.outer = outerCollectionMatchingItem;
+                    outputItem.inner = innerCollectionMatchingItem;
+                    outputItem.multiplicationResult = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.divisionResult = outerCollectionMatchingItem / innerCollectionMatchingItem;
 
                     // return the output item
                     return outputItem;
@@ -2524,15 +2617,38 @@
 
                     return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItem, joinContextObject )
+                {
+                    /**
+                     * joinContextObject consists of:
+                     *  - isInnerJoin -> true/false
+                     *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
+                     * 
+                     * Only one of these two values can be set to true and vice-versa
+                    */
+
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
+
+                    // examplary logic that calculates the output item !
+                    outputItem.outer = outerCollectionMatchingItem;
+                    outputItem.inner = innerCollectionMatchingItem;
+                    outputItem.multiplicationResult = outerCollectionMatchingItem * innerCollectionMatchingItem;
+                    outputItem.divisionResult = outerCollectionMatchingItem / innerCollectionMatchingItem;
+
+                    // return the output item
+                    return outputItem;
+                },
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
 
 
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
+        /**
+         * GROUP JOINS
+        */
 
         // final query - produces output
         var groupJoin_f1 = collection_of_integers.groupJoin(
@@ -2546,7 +2662,24 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var groupJoin_f1a = innerColl.groupJoin(
+            {
+                'innerColl': collection_of_integers,
+                'outerSelectorArray': [
+                    [ "", true ]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    [ "", true ]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2563,7 +2696,7 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': null
             }
         );
@@ -2614,22 +2747,47 @@
                     // return the join bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionKey, innerCollectionResultsViewData, joinContextObject )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItems, joinContextObject )
                 {
                     /**
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
 
-                    // define the output item
-                    var outputItem = Object.create( null );
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
 
-                    // create "the shape"
-                    outputItem.key = outerCollectionKey;
-                    outputItem.bagData = innerCollectionResultsViewData;
+                    /**
+                     * Examplary logic that creates the output item !
+                    */
+                    // create the outer value
+                    outputItem.outer = outerCollectionMatchingItem;
+                    // create the container for all inners that were joined to this outer value
+                    outputItem.innerGrouping = Object.create(null);
+                    // create the container's key
+                    outputItem.innerGrouping.key = outerCollectionMatchingItem;
+
+                    // create the container's dynamically fetched array of all inner values
+                    var _pl = innerCollectionMatchingItems;
+                    Object.defineProperty(
+                        outputItem.innerGrouping,
+                        'resultsView',
+                        {
+                            // only override getter
+                            get: function ()
+                            {
+                                return _pl;
+                            },
+
+                            // make it visible for loop operations
+                            enumerable: true
+                        }
+                    );
 
                     // return the output item
                     return outputItem;
@@ -2638,52 +2796,31 @@
             }
         ).toArray();
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The context of GROUP_JOIN requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !
-        /*
-        var groupJoin_f3 = collection_of_integers.groupJoin(
+        // final query - produces output
+        var groupJoin_f2a = collection_of_integers.groupJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function (outerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = outerCollectionItem[prop];
-
                     // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
-
+                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
                     // return the output item
-                    return outputItem;
+                    return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
-        */
+        
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
         /*
-        var groupJoin_f4 = collection_of_integers.groupJoin(
+        var groupJoin_f2b = collection_of_integers.groupJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
@@ -2691,87 +2828,50 @@
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function (outerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = outerCollectionItem[prop];
-
                     // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
-
+                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
                     // return the output item
-                    return outputItem;
+                    return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
         /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
         var groupJoin_f5 = collection_of_integers.groupJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function (outerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = outerCollectionItem[prop];
-
                     // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': [
                     [ "id", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
-
+                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
                     // return the output item
-                    return outputItem;
+                    return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */
 
 
+        /**
+         * GROUP LEFT JOINS
+        */
 
         // final query - produces output
         var groupLeftJoin_f1 = collection_of_integers.groupLeftJoin(
@@ -2785,7 +2885,24 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
+                'udfEqualityComparer': null
+            }
+        ).toArray();
+
+        // final query - produces output
+        var groupLeftJoin_f1a = innerColl.groupLeftJoin(
+            {
+                'innerColl': collection_of_integers,
+                'outerSelectorArray': [
+                    [ "", true ]
+                ],
+                'outerUdfSelector': null,
+                'innerSelectorArray': [
+                    [ "", true ]
+                ],
+                'innerUdfSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': null
             }
         ).toArray();
@@ -2802,7 +2919,7 @@
                     [ "", true ]
                 ],
                 'innerUdfSelector': null,
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': null
             }
         );
@@ -2817,25 +2934,15 @@
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function ( outerCollectionItem, outerSelectorArray )
                 {
-                    // valid props array
-                    var props = [];
+                    /**
+                     * Define some logic to determine whether current outer collection item is qualified to pass down the 'join logic'
+                     * 
+                     * This example just returns the input value, which will be further passed to the innerUdfSelector as a second parameter !
+                    */
 
-                    // fetch all valid props from the input collection item
-                    for ( let selector of outerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
+                    // you can do something with inner collection selector
 
-                    // define the output item
-                    var outputItem = Object.create( null );
-
-                    // create "the shape"
-                    for ( let prop of props )
-                        outputItem[ prop ] = outerCollectionItem[ prop ];
-
-                    // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': [
                     [ "", true ]
@@ -2848,64 +2955,62 @@
 
                     if ( !innerCollectionItem ) return isJoin;
 
-                    // valid props array
-                    var props = [];
 
-                    // fetch all valid props from the input collection item
-                    for ( let selector of innerSelectorArray )
-                    {
-                        if ( selector[ 1 ] === true )
-                            props.push( selector[ 0 ] );
-                    }
-
-                    // define the right-side item to check the key
-                    var outputItem = Object.create( null );
-
-                    // create the right-side item
-                    for ( let prop of props )
-                        outputItem[ prop ] = innerCollectionItem[ prop ];
+                    // you can do something with inner collection selector
 
 
                     /**
                      * Determine "join condition" - exemplary logic !
                     */
 
-                    // create array of keys and array of their values of the passed left-side key
-                    var allKeyPropNames, allKeyPropValues = [];
-                    allKeyPropNames = Object.getOwnPropertyNames( outerCollectionItemKeyValue );
-                    for ( let keyProp of allKeyPropNames )
-                        allKeyPropValues.push( outerCollectionItemKeyValue[ keyProp ] );
-
-
-                    // create array of keys and array of their values of the passed inner collection item
-                    var allInnerPropNames, allInnerPropValues = [];
-                    allInnerPropNames = Object.getOwnPropertyNames( outputItem );
-                    for ( let keyProp of allInnerPropNames )
-                        allInnerPropValues.push( outputItem[ keyProp ] );
-
                     // check the join
-                    isJoin = allKeyPropNames.equals( allInnerPropNames ) && allKeyPropValues.equals( allInnerPropValues );
+                    isJoin = innerCollectionItem === outerCollectionItemKeyValue;
 
 
-                    // return the key lookup bool result
+                    // return the join bool result
                     return isJoin;
                 },
-                'udfResultSelector': function ( outerCollectionKey, innerCollectionResultsViewData, joinContextObject )
+                'udfResultSelector': function ( outerCollectionMatchingItem, innerCollectionMatchingItems, joinContextObject )
                 {
                     /**
                      * joinContextObject consists of:
                      *  - isInnerJoin -> true/false
                      *  - isLeftJoin -> true/false
+                     *  - isGroupJoin -> true/false
+                     *  - isGroupLeftJoin -> true/false
                      * 
                      * Only one of these two values can be set to true and vice-versa
                     */
 
-                    // define the output item
-                    var outputItem = Object.create( null );
+                    // you can convert primitive value to object one for some reason
+                    var outputItem = Object.create(null);
 
-                    // create "the shape"
-                    outputItem.key = outerCollectionKey;
-                    outputItem.bagData = innerCollectionResultsViewData;
+                    /**
+                     * Examplary logic that creates the output item !
+                    */
+                    // create the outer value
+                    outputItem.outer = outerCollectionMatchingItem;
+                    // create the container for all inners that were joined to this outer value
+                    outputItem.innerGrouping = Object.create(null);
+                    // create the container's key
+                    outputItem.innerGrouping.key = outerCollectionMatchingItem;
+
+                    // create the container's dynamically fetched array of all inner values
+                    var _pl = innerCollectionMatchingItems;
+                    Object.defineProperty(
+                        outputItem.innerGrouping,
+                        'resultsView',
+                        {
+                            // only override getter
+                            get: function ()
+                            {
+                                return _pl;
+                            },
+
+                            // make it visible for loop operations
+                            enumerable: true
+                        }
+                    );
 
                     // return the output item
                     return outputItem;
@@ -2914,52 +3019,31 @@
             }
         ).toArray();
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The context of GROUP_JOIN requires providing valid "outerSelectorArray" and "innerSelectorArray" array key extractors !
-        /*
-        var groupJoin_f3 = collection_of_integers.groupJoin(
+        // final query - produces output
+        var groupLeftJoin_f2a = collection_of_integers.groupLeftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function (outerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = outerCollectionItem[prop];
-
                     // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
-
+                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
                     // return the output item
-                    return outputItem;
+                    return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
-        */
+        
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
         /*
-        var groupJoin_f4 = collection_of_integers.groupJoin(
+        var groupLeftJoin_f2b = collection_of_integers.groupLeftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': [
@@ -2967,86 +3051,49 @@
                 ],
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function (outerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = outerCollectionItem[prop];
-
                     // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
-
+                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
                     // return the output item
-                    return outputItem;
+                    return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
         /*
-        var groupJoin_f5 = collection_of_integers.groupJoin(
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
+        var groupLeftJoin_f5 = collection_of_integers.groupLeftJoin(
             {
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
                 'outerUdfSelector': function (outerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = outerCollectionItem[prop];
-
                     // return the output item
-                    return outputItem;
+                    return outerCollectionItem;
                 },
                 'innerSelectorArray': [
                     [ "id", true ]
                 ],
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem) {
-                    // valid props array
-                    var props = ['id'];
-
-                    // define the output item
-                    var outputItem = Object.create(null);
-
-                    // create "the shape"
-                    for(let prop of props)
-                        outputItem[prop] = innerCollectionItem ? innerCollectionItem[prop] : undefined;
-
+                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
                     // return the output item
-                    return outputItem;
+                    return innerCollectionItem;
                 },
-                'udfResultSelector': null,
+                'udfResultSelector': udf_commons.udfPrimitiveGroupJoinResultSelector,
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
         */
 
+
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
 
         // final query - produces output
         var elementAt_f1 = collection_of_integers.elementAt(

@@ -610,7 +610,57 @@ var my_custom_jlc_common = {
             // return the array
             return output;
         }
-    }
+    },
+
+    /**
+     * This result selector is being used by the majority of groupJoin & groupLeftJoin 'primitive types' examples.
+     * Some groupJoin & groupLeftJoin examples are using exactly the same version but in-place defined !
+    */
+    udfPrimitiveGroupJoinResultSelector: function ( outerCollectionMatchingItem, innerCollectionMatchingItems, joinContextObject )
+    {
+        /**
+         * joinContextObject consists of:
+         *  - isInnerJoin -> true/false
+         *  - isLeftJoin -> true/false
+         *  - isGroupJoin -> true/false
+         *  - isGroupLeftJoin -> true/false
+         * 
+         * Only one of these two values can be set to true and vice-versa
+        */
+
+        // you can convert primitive value to object one for some reason
+        var outputItem = Object.create(null);
+
+        /**
+         * Examplary logic that creates the output item !
+        */
+        // create the outer value
+        outputItem.outer = outerCollectionMatchingItem;
+        // create the container for all inners that were joined to this outer value
+        outputItem.innerGrouping = Object.create(null);
+        // create the container's key
+        outputItem.innerGrouping.key = outerCollectionMatchingItem;
+
+        // create the container's dynamically fetched array of all inner values
+        var _pl = innerCollectionMatchingItems;
+        Object.defineProperty(
+            outputItem.innerGrouping,
+            'resultsView',
+            {
+                // only override getter
+                get: function ()
+                {
+                    return _pl;
+                },
+
+                // make it visible for loop operations
+                enumerable: true
+            }
+        );
+
+        // return the output item
+        return outputItem;
+    },
 
 };
 

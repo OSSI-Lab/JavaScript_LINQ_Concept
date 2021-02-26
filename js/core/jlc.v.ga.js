@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #71 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #72 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives   ->      TESTING         ->      TEST IN PROGRESS    ->      
  * 
@@ -2420,18 +2420,19 @@
         getDefaultValueOf: /**
          * Determine default value of inputItem.
          *
-         * @param {any} inputItem
+         * @param {any} inputItem Value to determine default value of
+         * @param {any} getDetails Get "some precision", i.e. if Number then with decimal point, if Object then with its native prototype.
          */
-            function ( inputItem )
+            function ( inputItem, getDetails )
             {
-                return get_DV_I_1L( inputItem );
+                return get_DV_I_1L( inputItem, getDetails );
 
 
 
                 /**
                  * Local helper functions
                 */
-                function get_DV_I_1L ( value )
+                function get_DV_I_1L ( value, with_d )
                 {
                     // determine the type of value
                     var type = getType_I_2L( value );
@@ -2442,14 +2443,14 @@
                     // handle simple types (primitives and plain function/object)
                     switch ( type )
                     {
-                        case 'boolean': return false;
-                        case 'function': return function () { };
                         case 'null': return null;
-                        case 'number': return 0;
-                        case 'object': return Object.create( null );
+                        case 'undefined': return void 0;
+                        case 'boolean': return false;
+                        case 'number': return with_d ? 0.0 : 0;
                         case 'string': return "";
                         case 'symbol': return Symbol();
-                        case 'undefined': return void 0;
+                        case 'object': return with_d ? Object.create(Object.prototype) : Object.create( null );
+                        case 'function': return function () { };
                     }
 
                     try
@@ -3383,7 +3384,7 @@
                             },
 
                         getGrouping:
-                            function ( key_id, groups_obj )
+                            function ( key_id, groups_obj, index )
                             {
                                 // create pure empty object
                                 var gso = Object.create( null );
@@ -3400,7 +3401,7 @@
                                     item = groups_obj[ i ];
 
                                     // find the right one with key id
-                                    if ( item.key === key_id )
+                                    if ( item.key === key_id && (index || index === 0) && index === i)
                                     {
                                         // store index of grouping object in the group
                                         gso.idx = i;
@@ -3454,7 +3455,7 @@
                             },
 
                         initializeGroupingEntry:
-                            function(_this, key) {
+                            function(_this, key, valueGroup) {
                                 // create pure empty object
                                 var grouping_obj = Object.create( null );
 
@@ -3480,19 +3481,26 @@
                                         enumerable: true
                                     }
                                 );
+
+                                // update valueGroup object
+                                valueGroup.push(grouping_obj);
+
+                                // return grouping entry
+                                return grouping_obj;
                             },
 
                         updateGroupingEntry:
-                            function (_this, key, value, valueGroup )
+                            function (_this, key, index, groupingEntry, valueGroup )
                             {
                                 // get grouping seeker object from the group
-                                var gso = _this.getGrouping( key, valueGroup );
+                                var gso = _this.getGrouping( key, valueGroup, index );
     
                                 // reference the list of elements if any
                                 if ( gso.arr )
                                 {
                                     // add object to this grouping object
-                                    gso.arr.push( value );
+                                    gso.arr = groupingEntry.resultsView;
+                                    //gso.arr.push( value );
     
                                     // update grouping object
                                     _this.setGrouping( key, gso, valueGroup );
@@ -3505,7 +3513,8 @@
     
                                     // define a dictionary-like object
                                     eo.idx = -1;
-                                    eo.arr = [ value ];
+                                    eo.arr = groupingEntry.resultsView;
+                                    //eo.arr = [ value ];
     
                                     // add object to this grouping object
                                     _this.setGrouping( key, eo, valueGroup );
@@ -6202,8 +6211,8 @@
                         */
                         function executeOperation_UDF_I_3L ( leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray )
                         {
-                            // outer collection item; outer collection item's key value; inner collection item; is match
-                            var l_item, lskv, r_item, isJoin;
+                            // outer collection item; outer collection item's key value; inner collection item; is match; grouping object entry
+                            var l_item, lskv, r_item, isJoin, groupingEntry;
 
                             // if user failed to provide UDF result selector
                             if ( !udfResultSelector )
@@ -6229,7 +6238,7 @@
                                     lskv = leftSideUdfSelector( l_item, leftSideSelectorArray );
 
                                     // initialize KeyBagPair for this outer collection item, aka the key
-                                    gbo.initializeGroupingEntry(gbo, lskv);
+                                    groupingEntry = gbo.initializeGroupingEntry(gbo, lskv, result);
 
                                     // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
                                     for ( var j = 0; j < innerColl.length; j++ )
@@ -6243,20 +6252,15 @@
                                         // if 'right-side' key lookup found, go to create result object
                                         if ( isJoin )
                                             // create KeyBagPair kind of object
-                                            gbo.updateGroupingEntry( gbo, lskv, r_item, result );
+                                            groupingEntry.resultsView.push(r_item);
                                     }
 
-                                    // KeyBagPair item
-                                    var kbp;
-                                    // when proper structures are created internally, invoke provided udf to allow user further interact with the grouping object
-                                    for(var k = 0; k < result.length; k++) {
-                                        // access current KeyBagPair object
-                                        kbp = result[k];
-
-                                        // store joined object in the output array
-                                        result[k] = udfResultSelector( kbp.key, kbp.resultsView, createJoinContext_I_3L() );
-                                    }
+                                    // update grouping object entry in the grouping object
+                                    gbo.updateGroupingEntry(gbo, lskv, i, groupingEntry, result );
                                 }
+
+                                // create KeyBagPair result set
+                                createKeyBagPairResultSet_I_3L(udfResultSelector);
 
                                 // mark that grouping of primitive types took place, hence the grouping in parent function of this one is not required
                                 doGrouping = false;
@@ -6341,6 +6345,9 @@
                                 // reference grouping-by util object
                                 var gbo = _COMMON.usingGroupingBy();
 
+                                // grouping object entry
+                                var groupingEntry;
+
                                 // deal with function key extractors
                                 if ( typeof leftSideSelectorArrayOrUdf === 'function' && typeof rightSideSelectorArrayOrUdf === 'function' )
                                 {
@@ -6360,6 +6367,9 @@
                                         // get the 'left-side' key object
                                         l_key_obj = leftSideSelectorArrayOrUdf( l_obj_full );
 
+                                        // initialize KeyBagPair for this outer collection item, aka the key
+                                        groupingEntry = gbo.initializeGroupingEntry(gbo, l_key_obj, result);
+
                                         // loop over 'right-side' collection
                                         for ( var j = 0; j < innerColl.length; j++ )
                                         {
@@ -6372,8 +6382,11 @@
                                             // if objects match the key
                                             if ( udfEqualityComparer( l_key_obj, r_key_obj ) )
                                                 // create KeyBagPair kind of object
-                                                gbo.updateGroupingEntry( gbo, l_key_obj, r_key_obj, result );
+                                                groupingEntry.resultsView.push(r_key_obj);
                                         }
+
+                                        // update grouping object entry in the grouping object
+                                        gbo.updateGroupingEntry(gbo, l_key_obj, i, groupingEntry, result );
                                     }
                                 }
                                 // deal with array key extractors
@@ -6385,6 +6398,9 @@
                                         // access current outer collection item
                                         l_obj_full = currentColl[ i ];
 
+                                        // initialize KeyBagPair for this outer collection item, aka the key
+                                        groupingEntry =  gbo.initializeGroupingEntry(gbo, l_obj_full, result);
+
                                         // loop over 'right-side' collection
                                         for ( var j = 0; j < innerColl.length; j++ )
                                         {
@@ -6394,12 +6410,18 @@
                                             // if objects match the key
                                             if ( ldfEqualityComparer_I_4L( l_obj_full, r_obj_full, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
                                                 // create KeyBagPair kind of object
-                                                gbo.updateGroupingEntry( gbo, l_obj_full, r_obj_full, result );
+                                                groupingEntry.resultsView.push(r_obj_full);
                                         }
+
+                                        // update grouping object entry in the grouping object
+                                        gbo.updateGroupingEntry(gbo, l_obj_full, i, groupingEntry, result );
                                     }
                                 }
                                 else
                                     throw new Error( '\r\nWhen performing JOIN operation using either left-side && right-side array extractors only or left-side && right-side function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
+
+                                // create KeyBagPair result set
+                                createKeyBagPairResultSet_I_3L(udfResultSelector);
 
                                 // mark that grouping of primitive types took place, hence the grouping in parent function of this one is not required
                                 doGrouping = false;
@@ -6656,9 +6678,27 @@
                             // is left join
                             joinContext.isLeftJoin = enumValue === _ENUM.LEFT_JOIN;
 
+                            // is group inner join
+                            joinContext.isGroupJoin = enumValue === _ENUM.GROUP_JOIN;
+
+                            // is group left join
+                            joinContext.isGroupLeftJoin = enumValue === _ENUM.GROUP_LEFT_JOIN;
 
                             // return join context object
                             return joinContext;
+                        }
+
+                        function createKeyBagPairResultSet_I_3L(udf_rs) {
+                            // KeyBagPair item
+                            var kbp;
+                            // when proper structures are created internally, invoke provided udf to allow user further interact with the grouping object
+                            for(var k = 0; k < result.length; k++) {
+                                // access current KeyBagPair object
+                                kbp = result[k];
+
+                                // store joined object in the output array by invoking udf result selector
+                                result[k] = udf_rs( kbp.key, kbp.resultsView, createJoinContext_I_3L() );
+                            }
                         }
 
                         function groupResultSet_I_3L ( item )
@@ -6671,11 +6711,22 @@
                                 // otherwise define an empty array
                                 key_array = [];
 
+
+                            /**
+                             * Learn the object structure
+                             * 
+                             * Given the invocation context, you can expect that structure conforms to some "agreed on" rules !
+                             * When joining two items, you can expect that there is logically "left part" and "right part" that takes place during the join operation.
+                            */
+
+                            // expect two properties in this object that user has defined in some respective udf !
+                            var objPropNames = Object.getOwnPropertyNames(item);
+
                             // get the group id, aka the key used in JOIN or LEFT JOIN
-                            var id = _COMMON.fetchObjectKeyValue( item.left || item.right, key_array );
+                            var id = _COMMON.fetchObjectKeyValue( item[objPropNames[0]] || item[objPropNames[1]], key_array );
 
                             // create KeyBagPair kind of object
-                            gbo.updateGroupingEntry( gbo, id, item, groups );
+                            gbo.updateGroupingEntry( gbo, id, undefined, item, groups );
                         }
                     }
                 }
