@@ -25,8 +25,8 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Status:&nbsp;Release Candidate&nbsp;[ RELEASE out of DEV/TEST/RELEASE ] :heavy_check_mark:
 ## Streamlined:&nbsp;YES
 #
-## Object & Primitives
- - TEST #50 - DPR #73:&nbsp;2021-03-05 &nbsp;&nbsp;12:07 AM Local Time&nbsp;:heavy_check_mark:
+## Objects & Primitives
+ - TEST #50 - DPR #73:&nbsp;2021-03-05 &nbsp;&nbsp;2:29 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - up to line 146 in test_common.js file !
