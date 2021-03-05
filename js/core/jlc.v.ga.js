@@ -15,11 +15,11 @@
  * Status:
  *      ⚠️ DPR #73 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
  *                                                                              -> Objects          ->      RC Version      ->      TEST COMPLETED      ->      100%
- *                                                                              -> Primitives       ->      RC Version      ->      TEST IN PROGRESS    ->      100%
+ *                                                                              -> Primitives       ->      RC Version      ->      TEST COMPLETED      ->      100%
  *
  *                                                                              ...
  * 
- *                                                                              -> "Common things"  ->      TESTING         ->      TEST IN PROGRESS    ->      ...
+ *                                                                              -> "Common things"  ->      TESTING         ->      TEST IN PROGRESS    ->       99%
  * 
  * 
  * 
@@ -2676,6 +2676,31 @@
                 }
             },
 
+        getCollectionItemDefaultValue: /**
+         * Determine and return collection item default value.
+         *
+         * @param {any} cdv Collection item computed default value
+         */
+            function ( cdv )
+            {
+                return get_CIDV_I_1L( cdv );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function get_CIDV_I_1L ( cdv )
+                {
+                    // if default value is an object go in line with C# and return the default of C#'s object, which is null that translates to undefined in JavaScript
+                    if ( _COMMON.convertTypeToString( cdv ) === _ENUM.T2SR.OBJECT )
+                        return undefined;
+                    // otherwise return the computed default value
+                    else
+                        return cdv;
+                }
+            },
+
         determinePropertyType: /**
          * Determine the type of the property used to filter a collection during maths-based query methods.
          *
@@ -3601,7 +3626,8 @@
                                 var gso = _this.getGrouping( key, valueGroup, index, isContextOfGroupJoinOrGroupLeftJoin, isPrimitiveType );
 
                                 // update grouping object in the context of primitive types
-                                if(isPrimitiveType) {
+                                if ( isPrimitiveType )
+                                {
                                     // reference the list of elements if any
                                     if ( gso.arr )
                                     {
@@ -3626,12 +3652,13 @@
                                     }
                                 }
                                 // update grouping object in the context of object types
-                                else {
+                                else
+                                {
                                     // reference the list of elements if any
                                     if ( gso.arr )
                                     {
                                         // add object to this grouping object
-                                        gso.arr.push(groupingEntry);
+                                        gso.arr.push( groupingEntry );
 
                                         // update grouping object
                                         _this.setGrouping( key, gso, valueGroup );
@@ -3644,7 +3671,7 @@
 
                                         // define a dictionary-like object
                                         eo.idx = -1;
-                                        eo.arr = [groupingEntry];
+                                        eo.arr = [ groupingEntry ];
 
                                         // add object to this grouping object
                                         _this.setGrouping( key, eo, valueGroup );
@@ -5495,14 +5522,7 @@
                                     else if ( ( index < 0 || index >= currentColl.length ) && count )
                                     {
                                         // fetch the default value of the collection input type
-                                        var default_value = r_ctx.cdv;
-
-                                        // if default value is an object go in line with C# and return the default of C#'s object, which is null that translates to undefined in JavaScript
-                                        if ( _COMMON.convertTypeToString( default_value ) === _ENUM.T2SR.OBJECT )
-                                            currentColl = undefined;
-                                        // otherwise return the computed default value
-                                        else
-                                            currentColl = default_value;
+                                        currentColl = _COMMON.getCollectionItemDefaultValue( r_ctx.cdv );
 
                                         // this flag tells to discard returned result and go for hpid's data
                                         _ACTION.hpid.done = true;
@@ -6927,7 +6947,8 @@
                         {
                             // validate item
                             if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( mmavt.t2sr.type === _ENUM.T2SR.STRING || mmavt.t2sr.type === _ENUM.T2SR.OBJECT || mmavt.t2sr.type === _ENUM.T2SR.UNDEFINED ) )
-                                return undefined;
+                                // fetch the default value of the collection input type
+                                return _COMMON.getCollectionItemDefaultValue( undefined );
                             else if ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX )
                                 throw new Error( '\r\nThe sequence has no elements.\r\n\r\n' );
                             else if ( ( enumValue === _ENUM.AVG ) && ( mmavt.t2sr.type === _ENUM.T2SR.STRING || mmavt.t2sr.type === _ENUM.T2SR.BOOLEAN || mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
@@ -7131,8 +7152,8 @@
                             // get default value of collection input type
                             else if ( enumValue === _ENUM.DEFAULT )
                             {
-                                // return default value passed by the user
-                                _ACTION.hpid.data.push( r_ctx.cdv );
+                                // fetch the default value of the collection input type
+                                _ACTION.hpid.data.push( _COMMON.getCollectionItemDefaultValue( r_ctx.cdv ) );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -7145,8 +7166,8 @@
                                     // return default value passed by the user
                                     _ACTION.hpid.data = _COMMON.getDefaultValueOf( r_ctx.currentQueryIceMetaObject.item );
                                 else
-                                    // return default value passed by the user
-                                    _ACTION.hpid.data = r_ctx.cdv;
+                                    // fetch the default value of the collection input type
+                                    _ACTION.hpid.data = _COMMON.getCollectionItemDefaultValue( r_ctx.cdv );
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -7154,7 +7175,7 @@
                             }
                             // just return the default of var
                             else if ( fallbackOnDefault )
-                                return undefined;
+                                return _COMMON.getCollectionItemDefaultValue( undefined );
                             // throw valid error
                             else
                             {
@@ -12931,7 +12952,7 @@
                             try
                             {
                                 // allow only singleton-like invocation
-                                if(_LINQ_CONTEXT._isSingleton) return;
+                                if ( _LINQ_CONTEXT._isSingleton ) return;
 
                                 // set singleton-like invocation
                                 _LINQ_CONTEXT._isSingleton = true;
@@ -12962,7 +12983,7 @@
 
 
                                 // return contextually current collection state - copy result 100% "by value"
-                                return _COMMON.decorateDataType(_ACTION.hpid.data);
+                                return _COMMON.decorateDataType( _ACTION.hpid.data );
                             }
                             catch ( err )
                             {

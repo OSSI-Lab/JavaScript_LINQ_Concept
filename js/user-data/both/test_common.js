@@ -135,15 +135,44 @@ window.testCommonStuff = window.testCommonStuff || function ()
         }
     );
 
-
-    // CODE WAS TESTED UNTIL HERE !
-    debugger;
-
-
-
+    // final query - produces output
+    var firstOrDefault_f1 = collection_of_integers.where(
+        {
+            'predicateArray': [
+                [ "", ">=", 1000, true ]
+            ]
+        }
+    ).firstOrDefault();
 
     // final query - produces output
-    var firstOrDefault_f1 = [].firstOrDefault(
+    var firstOrDefault_f2 = collection_of_decimals.where(
+        {
+            'predicateArray': [
+                [ "", ">=", 1000.0, true ]
+            ]
+        }
+    ).firstOrDefault();
+
+    // final query - produces output
+    var firstOrDefault_f3 = [ false, false ].where(
+        {
+            'predicateArray': [
+                [ "", "==", true ]
+            ]
+        }
+    ).firstOrDefault();
+
+    // final query - produces output
+    var firstOrDefault_f4 = collection_of_strings.where(
+        {
+            'predicateArray': [
+                [ "", "==", "Ha ha ha !" ]
+            ]
+        }
+    ).firstOrDefault();
+
+    // final query - produces output
+    var firstOrDefault_f5 = [].firstOrDefault(
         {
             'predicateArray': [
                 [ "", ">", 7 ]
@@ -184,9 +213,14 @@ window.testCommonStuff = window.testCommonStuff || function ()
     // final query - produces output [ find the maximum value in a generic sequence ]
     var max_f1 = [].max();
 
-    // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Query method called 'average' has to have "params" object provided !
-    var average_f1 = [].average();
+    // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Provide data for built-in selector 'property': [ 'some property goes here', true ], or custom 'udfValueSelector'.
+    //var average_f1 = [].average();
 
+
+
+    // The following code was not tested yet !
+
+    /*
     // final query - produces output [ find item with the smallest value of property called 'id' ] - THIS METHOD THROWS EXPECTED ERROR ! -> The sequence has no elements.
     var min_f2 = [].min(
         {
@@ -211,14 +245,15 @@ window.testCommonStuff = window.testCommonStuff || function ()
             'udfValueSelector': null
         }
     );
+    */
 
 
 
     // final query - produces output
     var any_f1 = [].any();
 
-    // final query - produces output
-    var all_f1 = [].all();
+    // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Query method called 'all' has to have 'params' object provided !
+    //var all_f1 = [].all();
 
     // final query - produces output
     var any_f2 = [].any(
