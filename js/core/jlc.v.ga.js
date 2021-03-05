@@ -13,9 +13,13 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #72 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
- *                                                                              -> Objects      ->      RC Version      ->      TEST COMPLETED      ->      100%
- *                                                                              -> Primitives   ->      TESTING         ->      TEST IN PROGRESS    ->      
+ *      ⚠️ DPR #73 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *                                                                              -> Objects          ->      RC Version      ->      TEST COMPLETED      ->      100%
+ *                                                                              -> Primitives       ->      RC Version      ->      TEST IN PROGRESS    ->      100%
+ *
+ *                                                                              ...
+ * 
+ *                                                                              -> "Common things"  ->      TESTING         ->      TEST IN PROGRESS    ->      ...
  * 
  * 
  * 
@@ -235,6 +239,17 @@
                     }
             },
 
+            '<!>': {
+                call: /**
+                 * @param {any} v1
+                 * @param {any} v2
+                 */
+                    function ( v1, v2 )
+                    {
+                        return v1 != v2;
+                    }
+            },
+
             '()': {
                 call: /**
                  * @param {any} v1
@@ -265,10 +280,11 @@
             function ( propOrVal, propOperator, propValue )
             {
                 /**
-                 * Check the validity of a prop - object's prop or a primitive type - (logical "NOT NULL"), i.e. "", undefined, null
+                 * Check the validity of a prop - object's prop or a primitive type - (logical "NOT NULL"), i.e. undefined or null
                  * Boolean values like false, 0 (that evaluates to false) in this case are considered correct values !
+                 * String value equal to "" is considered a valid one !
                 */
-                var valid = propOrVal || propOrVal === 0 || propOrVal === false;
+                var valid = ![ _ENUM.T2SR.NULL, _ENUM.T2SR.UNDEFINED ].includes( _COMMON.convertTypeToString( propOrVal ) );
 
                 // execute the operator provided that the found prop "IS NOT NULL"
                 if ( valid )
@@ -2062,8 +2078,28 @@
 
     // private common object
     var _COMMON = {
+        isFloatingPoint: /**
+         * Detects if a number is a floating point one.
+         *
+         * @param {any} o
+         */
+            function ( o )
+            {
+                return is_FP_I_1L( o );
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function is_FP_I_1L ( o )
+                {
+                    return o % 1 !== 0;
+                }
+            },
+
         isNumeric: /**
-         * Detect if a variable (including a string) is a number.
+         * Detects if a variable (including a string) is a number.
          *
          * Source: https://stackoverflow.com/questions/175739/built-in-way-in-javascript-to-check-if-a-string-is-a-valid-number
          *
@@ -2107,7 +2143,7 @@
 
                     // check if user wants to check for floating point number
                     if ( isFloatingPoint )
-                        isfp = o % 1 !== 0;
+                        isfp = _COMMON.isFloatingPoint( o );
 
 
                     // return "float"
@@ -2202,6 +2238,10 @@
                     // enhance dictionary
                     if ( qn === System.Linq.Context.toDictionary )
                     {
+                        // copy result 100% "by value"
+                        var ic_clone = _COMMON.deepCopyNCR( ic );
+
+
                         /**
                          * Add some methods
                          *  1. containsKey
@@ -2209,14 +2249,14 @@
                         */
 
                         // 1.
-                        ic[ _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_KEY ] = function ( key )
+                        ic_clone[ _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_KEY ] = function ( key )
                         {
                             // invoke method logic
                             return defineMethodImplementationForDictionary_I_2L( this, 'key', key, qi );
                         };
 
                         // 2.
-                        ic[ _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_VALUE ] = function ( value )
+                        ic_clone[ _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.METHODS.CONTAINS_VALUE ] = function ( value )
                         {
                             // invoke method logic
                             return defineMethodImplementationForDictionary_I_2L( this, 'value', value, qi );
@@ -2230,7 +2270,7 @@
 
                         // 1.
                         Object.defineProperty(
-                            ic,
+                            ic_clone,
                             _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.PROPS.KEYS,
                             {
                                 // only override getter
@@ -2254,7 +2294,7 @@
 
                         // 2.
                         Object.defineProperty(
-                            ic,
+                            ic_clone,
                             _ENUM.DATA_TYPES_PROPS_and_METHODS.KVP.PROPS.VALUES,
                             {
                                 // only override getter
@@ -2275,7 +2315,14 @@
                                 }
                             }
                         );
+
+                        // return decorated type instance
+                        return ic_clone;
                     }
+                    // for ordinary structures apply circular references prevention
+                    else
+                        // copy result 100% "by value"
+                        return _COMMON.deepCopyNCR( ic );
 
 
 
@@ -2302,9 +2349,23 @@
                             equalityComparer = _COMMON.useDefaultObjectContentComparer;
 
                         // do comparison
+                        var arr_i;
                         for ( var i = 0; i < arr.length; i++ )
                         {
-                            if ( equalityComparer( arr[ i ][ propName ], propValue, isPrimitive ) )
+                            // access current array item
+                            arr_i = arr[ i ][ propName ];
+
+                            /**
+                             * Check if value passed by the user is of the same type as the current internal collection item ?
+                             *  1.  If not, just skip this item !
+                             *  2.  Otherwise do comparison
+                            */
+
+                            // 1.
+                            if ( isPrimitive !== _COMMON.isPrimitiveType( arr_i ) ) continue;
+
+                            // 2.
+                            if ( equalityComparer( arr_i, propValue, isPrimitive ) )
                                 return true;
                         }
 
@@ -2446,10 +2507,10 @@
                         case 'null': return null;
                         case 'undefined': return void 0;
                         case 'boolean': return false;
-                        case 'number': return with_d ? 0.0 : 0;
+                        case 'number': return with_d ? 0.0 : _COMMON.isFloatingPoint( value ) ? 0.0 : 0;
                         case 'string': return "";
                         case 'symbol': return Symbol();
-                        case 'object': return with_d ? Object.create(Object.prototype) : Object.create( null );
+                        case 'object': return with_d ? Object.create( Object.prototype ) : Object.create( null );
                         case 'function': return function () { };
                     }
 
@@ -2657,7 +2718,7 @@
 
 
                     // reference core method args and get filtering property; value of filtering property; is special property
-                    var property, propertyValue, isp = false;
+                    var property, propertyValue, isPropertyValueInitialized = false, isp = false;
 
                     /**
                      * Loop this-query-flow collection and find the first existing property, based on which we can determine its type !
@@ -2691,6 +2752,9 @@
                             // if property doesn't exist or has non-defined value
                             if ( propertyValue === undefined || propertyValue === null ) continue;
 
+                            // if exists property (if we arrive here) and has some value, then mark that value was initialized
+                            isPropertyValueInitialized = true;
+
                             // if exists property (if we arrive here) and has value, break further search
                             break;
                         }
@@ -2703,8 +2767,15 @@
                     api.runtimeContext.minMaxAverageValueTypeObject.selector = property;
                     api.runtimeContext.minMaxAverageValueTypeObject.t2sr = Object.create( null );
                     api.runtimeContext.minMaxAverageValueTypeObject.t2sr.isp = isp;
-                    api.runtimeContext.minMaxAverageValueTypeObject.t2sr.type = isp ? _COMMON.determineSpecialPropertyType( property ) : _COMMON.convertTypeToString( propertyValue );
-                    api.runtimeContext.minMaxAverageValueTypeObject.hadCollectionAtLeastTwoItems = currentColl.length > 1;
+                    api.runtimeContext.minMaxAverageValueTypeObject.t2sr.type = isp ?
+                        _COMMON.determineSpecialPropertyType( property ) : isPropertyValueInitialized ?
+                            _COMMON.convertTypeToString( propertyValue ) : currentColl.length ?
+                                _COMMON.convertTypeToString( currentColl[ 0 ] ) : _ENUM.T2SR.UNDEFINED;
+
+                    api.runtimeContext.minMaxAverageValueTypeObject.currentCollection = Object.create( null );
+                    api.runtimeContext.minMaxAverageValueTypeObject.currentCollection.hadAtLeastTwoItems = currentColl.length > 1;
+                    api.runtimeContext.minMaxAverageValueTypeObject.currentCollection.hadExactlyOneItem = currentColl.length === 1;
+
                     api.runtimeContext.minMaxAverageValueTypeObject.throwByObjectStringError = !api.runtimeContext.minMaxAverageValueTypeObject.selector && currentColl.length > 1;
 
 
@@ -2947,7 +3018,10 @@
             {
                 // do not try to clone primitives or functions
                 if ( Object( obj ) !== obj || obj instanceof Function ) return obj;
+
                 if ( hash.has( obj ) ) return hash.get( obj ); // cyclic reference
+
+
                 try
                 { // try to run constructor (without arguments, as we don't know them)
                     var result = new obj.constructor();
@@ -2955,13 +3029,16 @@
                 { // constructor failed, create object without running the constructor
                     result = Object.create( Object.getPrototypeOf( obj ) );
                 }
+
                 // optional: support for some standard constructors (extend as desired)
                 if ( obj instanceof Map )
                     Array.from( obj, ( [ key, val ] ) => result.set( _COMMON.deepCopyYCR( key, hash ), _COMMON.deepCopyYCR( val, hash ) ) );
                 else if ( obj instanceof Set )
                     Array.from( obj, ( key ) => result.add( _COMMON.deepCopyYCR( key, hash ) ) );
+
                 // register in hash
                 hash.set( obj, result );
+
                 // clone and assign enumerable own properties recursively
                 return Object.assign( result, ...Object.keys( obj ).map(
                     key => ( { [ key ]: _COMMON.deepCopyYCR( obj[ key ], hash ) } ) ) );
@@ -3384,7 +3461,7 @@
                             },
 
                         getGrouping:
-                            function ( key_id, groups_obj, index )
+                            function ( key_id, groups_obj, index, is_join_ctx, is_prim )
                             {
                                 // create pure empty object
                                 var gso = Object.create( null );
@@ -3394,23 +3471,50 @@
                                 gso.arr = undefined;                // list of grouped values
 
                                 var item;
-                                // loop over groups' object
-                                for ( var i = 0; i < groups_obj.length; i++ )
+                                // handle context of joining (groupJoin or groupLeftJoin) of primitive types
+                                if ( is_join_ctx && is_prim )
                                 {
-                                    // access grouping object
-                                    item = groups_obj[ i ];
-
-                                    // find the right one with key id
-                                    if ( item.key === key_id && (index || index === 0) && index === i)
+                                    // loop over groups' object
+                                    for ( var i = 0; i < groups_obj.length; i++ )
                                     {
-                                        // store index of grouping object in the group
-                                        gso.idx = i;
+                                        // access grouping object
+                                        item = groups_obj[ i ];
 
-                                        // reference the list of grouped values and yield them on demand (right here right now)
-                                        gso.arr = item.resultsView;
+                                        // find the right one with key id
+                                        if ( item.key === key_id && ( index || index === 0 ) && index === i )
+                                        {
+                                            // store index of grouping object in the group
+                                            gso.idx = i;
 
-                                        // discard further search
-                                        break;
+                                            // reference the list of grouped values and yield them on demand (right here right now)
+                                            gso.arr = item.resultsView;
+
+                                            // discard further search
+                                            break;
+                                        }
+                                    }
+                                }
+                                // handle context of grouping (groupBy) as well as joining (groupJoin or groupLeftJoin) of object types
+                                else
+                                {
+                                    // loop over groups' object
+                                    for ( var i = 0; i < groups_obj.length; i++ )
+                                    {
+                                        // access grouping object
+                                        item = groups_obj[ i ];
+
+                                        // find the right one with key id
+                                        if ( item.key === key_id )
+                                        {
+                                            // store index of grouping object in the group
+                                            gso.idx = i;
+
+                                            // reference the list of grouped values and yield them on demand (right here right now)
+                                            gso.arr = item.resultsView;
+
+                                            // discard further search
+                                            break;
+                                        }
                                     }
                                 }
 
@@ -3455,7 +3559,8 @@
                             },
 
                         initializeGroupingEntry:
-                            function(_this, key, valueGroup) {
+                            function ( _this, key, valueGroup )
+                            {
                                 // create pure empty object
                                 var grouping_obj = Object.create( null );
 
@@ -3483,41 +3588,67 @@
                                 );
 
                                 // update valueGroup object
-                                valueGroup.push(grouping_obj);
+                                valueGroup.push( grouping_obj );
 
                                 // return grouping entry
                                 return grouping_obj;
                             },
 
                         updateGroupingEntry:
-                            function (_this, key, index, groupingEntry, valueGroup )
+                            function ( _this, key, index, groupingEntry, valueGroup, isContextOfGroupJoinOrGroupLeftJoin, isPrimitiveType )
                             {
                                 // get grouping seeker object from the group
-                                var gso = _this.getGrouping( key, valueGroup, index );
-    
-                                // reference the list of elements if any
-                                if ( gso.arr )
-                                {
-                                    // add object to this grouping object
-                                    gso.arr = groupingEntry.resultsView;
-                                    //gso.arr.push( value );
-    
-                                    // update grouping object
-                                    _this.setGrouping( key, gso, valueGroup );
+                                var gso = _this.getGrouping( key, valueGroup, index, isContextOfGroupJoinOrGroupLeftJoin, isPrimitiveType );
+
+                                // update grouping object in the context of primitive types
+                                if(isPrimitiveType) {
+                                    // reference the list of elements if any
+                                    if ( gso.arr )
+                                    {
+                                        // add object to this grouping object
+                                        gso.arr = groupingEntry.resultsView;
+
+                                        // update grouping object
+                                        _this.setGrouping( key, gso, valueGroup );
+                                    }
+                                    // otherwise create a new grouping object
+                                    else
+                                    {
+                                        // create pure empty object
+                                        var eo = Object.create( null );
+
+                                        // define a dictionary-like object
+                                        eo.idx = -1;
+                                        eo.arr = groupingEntry.resultsView;
+
+                                        // add object to this grouping object
+                                        _this.setGrouping( key, eo, valueGroup );
+                                    }
                                 }
-                                // otherwise create a new grouping object
-                                else
-                                {
-                                    // create pure empty object
-                                    var eo = Object.create( null );
-    
-                                    // define a dictionary-like object
-                                    eo.idx = -1;
-                                    eo.arr = groupingEntry.resultsView;
-                                    //eo.arr = [ value ];
-    
-                                    // add object to this grouping object
-                                    _this.setGrouping( key, eo, valueGroup );
+                                // update grouping object in the context of object types
+                                else {
+                                    // reference the list of elements if any
+                                    if ( gso.arr )
+                                    {
+                                        // add object to this grouping object
+                                        gso.arr.push(groupingEntry);
+
+                                        // update grouping object
+                                        _this.setGrouping( key, gso, valueGroup );
+                                    }
+                                    // otherwise create a new grouping object
+                                    else
+                                    {
+                                        // create pure empty object
+                                        var eo = Object.create( null );
+
+                                        // define a dictionary-like object
+                                        eo.idx = -1;
+                                        eo.arr = [groupingEntry];
+
+                                        // add object to this grouping object
+                                        _this.setGrouping( key, eo, valueGroup );
+                                    }
                                 }
                             },
 
@@ -5173,61 +5304,6 @@
                         // return sorted groups
                         return sorted_groups;
                     }
-
-                    function old_sortGroups_I_2L ( equalityComparer )
-                    {
-                        // declare array of group keys
-                        var keys = [];
-
-                        // loop over all grouping objects
-                        for ( var i = 0; i < groups.length; i++ )
-                            // store current group key
-                            keys.push( groups[ i ].key );
-
-                        // sort the keys using UDF comparator
-                        if ( udfEqualityComparer )
-                            keys.sort( equalityComparer );
-                        // sort the keys in ascending ASCII character order
-                        else
-                            keys.sort();
-
-                        // declare object holding sorted groups
-                        var sorted_groups = [];
-
-                        // handle dictionary
-                        if ( isDictionaryContext )
-                        {
-
-                            // store grouped objects sorted in a proper way
-                            keys.forEach( function ( key )
-                            {
-                                // get KVP object from the dictionary
-                                var kvp = gbo.getKVP( key, groups );
-
-                                // push kvp to sorted dictionary
-                                sorted_groups.push( kvp );
-                            } );
-                        }
-                        // handle grouping object
-                        else
-                        {
-                            // store grouped objects sorted in a proper way
-                            keys.forEach( function ( key )
-                            {
-                                // get grouping seeker object from the group
-                                var gso = gbo.getGrouping( key, groups );
-
-                                // reset gso's index
-                                gso.idx = -1;
-
-                                // update grouping object
-                                gbo.setGrouping( key, gso, sorted_groups );
-                            } );
-                        }
-
-                        // return sorted groups
-                        return sorted_groups;
-                    }
                 }
             },
 
@@ -6178,7 +6254,7 @@
 
                             /**
                              * Here we arrive with created JOIN result !
-                             * Hence right here we can apply grouping type of operation in the context of aforementioned created result set. 
+                             * Hence right here we can apply grouping type of operation in the context of aforementioned created result set.
                             */
 
                             // if grouping required (GROUP JOIN || GROUP LEFT JOIN)
@@ -6191,7 +6267,7 @@
                                 var gbo = _COMMON.usingGroupingBy();
 
                                 // loop over whole result set and apply grouping
-                                result.forEach( groupResultSet_I_3L );
+                                result.forEach( groupObjectResultSet_I_3L );
 
                                 // return grouped joined object
                                 return groups;
@@ -6238,7 +6314,7 @@
                                     lskv = leftSideUdfSelector( l_item, leftSideSelectorArray );
 
                                     // initialize KeyBagPair for this outer collection item, aka the key
-                                    groupingEntry = gbo.initializeGroupingEntry(gbo, lskv, result);
+                                    groupingEntry = gbo.initializeGroupingEntry( gbo, lskv, result );
 
                                     // find the matching object in the 'right-side' collection - loop over 'right-side' collection to perform lookup
                                     for ( var j = 0; j < innerColl.length; j++ )
@@ -6252,15 +6328,15 @@
                                         // if 'right-side' key lookup found, go to create result object
                                         if ( isJoin )
                                             // create KeyBagPair kind of object
-                                            groupingEntry.resultsView.push(r_item);
+                                            groupingEntry.resultsView.push( r_item );
                                     }
 
                                     // update grouping object entry in the grouping object
-                                    gbo.updateGroupingEntry(gbo, lskv, i, groupingEntry, result );
+                                    gbo.updateGroupingEntry( gbo, lskv, i, groupingEntry, result, [ _ENUM.GROUP_JOIN, _ENUM.GROUP_LEFT_JOIN ].includes( enumValue ), true );
                                 }
 
                                 // create KeyBagPair result set
-                                createKeyBagPairResultSet_I_3L(udfResultSelector);
+                                createKeyBagPairResultSet_I_3L( udfResultSelector );
 
                                 // mark that grouping of primitive types took place, hence the grouping in parent function of this one is not required
                                 doGrouping = false;
@@ -6271,7 +6347,8 @@
                              * All joining of primitive types and object ones is handled by the following case.
                              * But all grouping of object types is handled by the parent of this function itself.
                             */
-                            else {
+                            else
+                            {
                                 // loop over 'left-side' collection to join it to the 'right-side' one
                                 for ( var i = 0; i < currentColl.length; i++ )
                                 {
@@ -6368,7 +6445,7 @@
                                         l_key_obj = leftSideSelectorArrayOrUdf( l_obj_full );
 
                                         // initialize KeyBagPair for this outer collection item, aka the key
-                                        groupingEntry = gbo.initializeGroupingEntry(gbo, l_key_obj, result);
+                                        groupingEntry = gbo.initializeGroupingEntry( gbo, l_key_obj, result );
 
                                         // loop over 'right-side' collection
                                         for ( var j = 0; j < innerColl.length; j++ )
@@ -6382,11 +6459,11 @@
                                             // if objects match the key
                                             if ( udfEqualityComparer( l_key_obj, r_key_obj ) )
                                                 // create KeyBagPair kind of object
-                                                groupingEntry.resultsView.push(r_key_obj);
+                                                groupingEntry.resultsView.push( r_key_obj );
                                         }
 
                                         // update grouping object entry in the grouping object
-                                        gbo.updateGroupingEntry(gbo, l_key_obj, i, groupingEntry, result );
+                                        gbo.updateGroupingEntry( gbo, l_key_obj, i, groupingEntry, result, [ _ENUM.GROUP_JOIN, _ENUM.GROUP_LEFT_JOIN ].includes( enumValue ), true );
                                     }
                                 }
                                 // deal with array key extractors
@@ -6399,7 +6476,7 @@
                                         l_obj_full = currentColl[ i ];
 
                                         // initialize KeyBagPair for this outer collection item, aka the key
-                                        groupingEntry =  gbo.initializeGroupingEntry(gbo, l_obj_full, result);
+                                        groupingEntry = gbo.initializeGroupingEntry( gbo, l_obj_full, result );
 
                                         // loop over 'right-side' collection
                                         for ( var j = 0; j < innerColl.length; j++ )
@@ -6410,18 +6487,18 @@
                                             // if objects match the key
                                             if ( ldfEqualityComparer_I_4L( l_obj_full, r_obj_full, leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf ) )
                                                 // create KeyBagPair kind of object
-                                                groupingEntry.resultsView.push(r_obj_full);
+                                                groupingEntry.resultsView.push( r_obj_full );
                                         }
 
                                         // update grouping object entry in the grouping object
-                                        gbo.updateGroupingEntry(gbo, l_obj_full, i, groupingEntry, result );
+                                        gbo.updateGroupingEntry( gbo, l_obj_full, i, groupingEntry, result, [ _ENUM.GROUP_JOIN, _ENUM.GROUP_LEFT_JOIN ].includes( enumValue ), true );
                                     }
                                 }
                                 else
                                     throw new Error( '\r\nWhen performing JOIN operation using either left-side && right-side array extractors only or left-side && right-side function extractors only, you need to provide both of them being of the same type !\r\n\r\n' );
 
                                 // create KeyBagPair result set
-                                createKeyBagPairResultSet_I_3L(udfResultSelector);
+                                createKeyBagPairResultSet_I_3L( udfResultSelector );
 
                                 // mark that grouping of primitive types took place, hence the grouping in parent function of this one is not required
                                 doGrouping = false;
@@ -6688,20 +6765,22 @@
                             return joinContext;
                         }
 
-                        function createKeyBagPairResultSet_I_3L(udf_rs) {
+                        function createKeyBagPairResultSet_I_3L ( udf_rs )
+                        {
                             // KeyBagPair item
                             var kbp;
                             // when proper structures are created internally, invoke provided udf to allow user further interact with the grouping object
-                            for(var k = 0; k < result.length; k++) {
+                            for ( var k = 0; k < result.length; k++ )
+                            {
                                 // access current KeyBagPair object
-                                kbp = result[k];
+                                kbp = result[ k ];
 
                                 // store joined object in the output array by invoking udf result selector
-                                result[k] = udf_rs( kbp.key, kbp.resultsView, createJoinContext_I_3L() );
+                                result[ k ] = udf_rs( kbp.key, kbp.resultsView, createJoinContext_I_3L() );
                             }
                         }
 
-                        function groupResultSet_I_3L ( item )
+                        function groupObjectResultSet_I_3L ( item )
                         {
                             // create the key if key selector array defined
                             var key_array;
@@ -6720,13 +6799,13 @@
                             */
 
                             // expect two properties in this object that user has defined in some respective udf !
-                            var objPropNames = Object.getOwnPropertyNames(item);
+                            var objPropNames = Object.getOwnPropertyNames( item );
 
                             // get the group id, aka the key used in JOIN or LEFT JOIN
-                            var id = _COMMON.fetchObjectKeyValue( item[objPropNames[0]] || item[objPropNames[1]], key_array );
+                            var id = _COMMON.fetchObjectKeyValue( item[ objPropNames[ 0 ] ] || item[ objPropNames[ 1 ] ], key_array );
 
                             // create KeyBagPair kind of object
-                            gbo.updateGroupingEntry( gbo, id, undefined, item, groups );
+                            gbo.updateGroupingEntry( gbo, id, undefined, item, groups, [ _ENUM.GROUP_JOIN, _ENUM.GROUP_LEFT_JOIN ].includes( enumValue ), false );
                         }
                     }
                 }
@@ -6759,24 +6838,30 @@
                     // cache mmavt meta object
                     var mmavt = r_ctx.minMaxAverageValueTypeObject;
 
-                    // determine whether to use a UDF value selector...
-                    if ( udfValueSelector && mmavt.selector )
+                    // check for primitive type in the collection
+                    var isPrimitiveType = ( mmavt.currentCollection.hadExactlyOneItem || mmavt.currentCollection.hadAtLeastTwoItems ) && r_ctx.currentQueryIceMetaObject.is_prim;
+
+
+
+                    // determine whether to use a UDF value selector... (for objects or for primitives)
+                    if ( udfValueSelector )
                     {
                         // apply UDF value selector
-                        filterCollectionByUdfValueSelector_I_2L();
+                        filterCollectionByUdfValueSelector_I_2L( isPrimitiveType, mmavt.selector );
 
-                        // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
-                        _PHYSICAL_FILTER.executeOrderFilter( jlc, null, null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
+                        // invoke 1st level sorting
+                        invokeComparator_I_2L( null, null );
                     }
-                    // ... or a internal comparator
-                    else if ( mmavt.selector && mmavt.hadCollectionAtLeastTwoItems )
-                        // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
-                        _PHYSICAL_FILTER.executeOrderFilter( jlc, [ propertyNameOrPath, true ], null, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
-                    // ... or just init HPID storage
-                    else if ( mmavt.selector && !mmavt.hadCollectionAtLeastTwoItems )
+                    // ... or a internal comparator (for objects or for primitives)
+                    else if ( ( mmavt.selector || isPrimitiveType ) && mmavt.currentCollection.hadAtLeastTwoItems )
+                        // invoke 1st level sorting
+                        invokeComparator_I_2L( [ isPrimitiveType ? "" : propertyNameOrPath, true ], null );
+                    // ... or just init HPID storage (for objects or for primitives)
+                    else if ( ( mmavt.selector || isPrimitiveType ) && !mmavt.currentCollection.hadAtLeastTwoItems && mmavt.currentCollection.hadExactlyOneItem )
                         justInitHpid_I_2L();
-                    // non-empty collection with empty params requires custom toString method implementation
-                    else if ( !mmavt.selector && mmavt.throwByObjectStringError )
+                    // non-empty collection with empty params requires custom toString method implementation... (for objects)
+                    else if ( !mmavt.selector && mmavt.throwByObjectStringError && !isPrimitiveType )
+                        // throw error
                         throw new Error( '\r\nNon-empty collection requires each item to implement custom toString method !\r\n\r\n' );
 
 
@@ -6788,33 +6873,51 @@
                     /**
                      * Local helper functions
                     */
-                    function filterCollectionByUdfValueSelector_I_2L ()
+                    function filterCollectionByUdfValueSelector_I_2L ( isPrimType, selector )
                     {
-                        // get contextually current collection within history array
-                        _DATA.fetchFlowData( r_ctx.collectionIndex, true );
-
+                        // init hpid storage
+                        justInitHpid_I_2L();
 
                         // cache HPID data
-                        var hpid_cache = [ ..._ACTION.hpid.data ];
+                        var hpid_cache = justReturnHpidCache_I_2L();
 
-                        // for each item extract value defined by the selector
-                        hpid_cache.forEach( function ( item, index, arr )
+                        // for each item - if it's an object - extract value defined by the selector
+                        if ( !isPrimType )
                         {
-                            arr[ index ] = _COMMON.getPropertyValueFromObject( mmavt.selector, item, false, false );
-                        } );
+                            hpid_cache.forEach( function ( item, index, arr )
+                            {
+                                arr[ index ] = _COMMON.getPropertyValueFromObject( selector, item, false, false );
+                            } );
+                        }
 
-                        // for each item apply UDF value selector
+                        // for each item - object or primitive - apply UDF value selector
                         hpid_cache.forEach( udfValueSelector );
 
-
                         // update HPID
-                        _ACTION.hpid.data = hpid_cache;
+                        justUpdateHpid_I_2L( hpid_cache );
                     }
 
                     function justInitHpid_I_2L ()
                     {
                         // get contextually current collection within history array
                         _DATA.fetchFlowData( r_ctx.collectionIndex, true );
+                    }
+                    function justReturnHpidCache_I_2L ()
+                    {
+                        // cache HPID data
+                        return [ ..._ACTION.hpid.data ];
+                    }
+
+                    function justUpdateHpid_I_2L ( data )
+                    {
+                        // update HPID
+                        _ACTION.hpid.data = data;
+                    }
+
+                    function invokeComparator_I_2L ( selector_arr, comparer )
+                    {
+                        // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
+                        _PHYSICAL_FILTER.executeOrderFilter( jlc, selector_arr, comparer, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
                     }
 
                     function getResult_I_2L ()
@@ -6831,6 +6934,8 @@
                                 throw new Error( '\r\nThere is no implicit conversion from type ' + mmavt.t2sr.type + ' to type ' + _ENUM.T2SR.NUMBER + '\r\n\r\n' );
                             else if ( ( enumValue === _ENUM.AVG ) && ( mmavt.t2sr.type === _ENUM.T2SR.NUMBER ) )
                                 throw new Error( '\r\nThe sequence has no elements.\r\n\r\n' );
+                            else if ( ( enumValue === _ENUM.AVG ) && ( mmavt.t2sr.type === _ENUM.T2SR.UNDEFINED ) && !mmavt.selector && !udfValueSelector )
+                                throw new Error( '\r\nProvide data for built-in selector \'property\': [ \'some property goes here\', true ], or custom \'udfValueSelector\'.\r\n\r\n' );
                         }
                         // check the edge case (one item in collection)
                         else if ( _ACTION.hpid.data.length === 1 )
@@ -6880,10 +6985,10 @@
                             if ( mmavt.t2sr.isp && ( mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
                                 return pvoo;
                             // return this value (primitive value)
-                            else if ( _COMMON.isPrimitiveType( pvoo ) && _COMMON.isPrimitiveType_T2SR( mmavt.t2sr.type ) )
+                            else if ( _COMMON.isPrimitiveType_T2SR( mmavt.t2sr.type ) && _COMMON.isPrimitiveType( pvoo ) )
                                 return pvoo;
                             // return this value (item's property value)
-                            else if ( !_COMMON.isPrimitiveType( pvoo ) && _COMMON.isPrimitiveType_T2SR( mmavt.t2sr.type ) )
+                            else if ( _COMMON.isPrimitiveType_T2SR( mmavt.t2sr.type ) && !_COMMON.isPrimitiveType( pvoo ) )
                                 return _COMMON.getPropertyValueFromObject( mmavt.selector, pvoo, false, false );
                         }
                     }
@@ -7005,6 +7110,7 @@
                         // if the sequence contains no elements
                         else
                         {
+
                             // return an empty array
                             if ( ( enumValue === _ENUM.ALL ) && fallbackOnDefault )
                             {
@@ -7027,6 +7133,20 @@
                             {
                                 // return default value passed by the user
                                 _ACTION.hpid.data.push( r_ctx.cdv );
+
+                                // this flag tells to discard returned result and go for hpid's data
+                                _ACTION.hpid.done = true;
+                                return;
+                            }
+                            // get default value of collection input type
+                            else if ( enumValue === _ENUM.FIRST || enumValue === _ENUM.LAST || enumValue === _ENUM.SINGLE )
+                            {
+                                if ( r_ctx.currentQueryIceMetaObject.is_prim )
+                                    // return default value passed by the user
+                                    _ACTION.hpid.data = _COMMON.getDefaultValueOf( r_ctx.currentQueryIceMetaObject.item );
+                                else
+                                    // return default value passed by the user
+                                    _ACTION.hpid.data = r_ctx.cdv;
 
                                 // this flag tells to discard returned result and go for hpid's data
                                 _ACTION.hpid.done = true;
@@ -12810,6 +12930,13 @@
 
                             try
                             {
+                                // allow only singleton-like invocation
+                                if(_LINQ_CONTEXT._isSingleton) return;
+
+                                // set singleton-like invocation
+                                _LINQ_CONTEXT._isSingleton = true;
+
+
                                 // backup current proxy GET trap
                                 currentGetTrapType = _LINQ_CONTEXT._arrayProxyHandler.get;
 
@@ -12834,8 +12961,8 @@
 
 
 
-                                // return contextually current collection state
-                                return _ACTION.hpid.data;
+                                // return contextually current collection state - copy result 100% "by value"
+                                return _COMMON.decorateDataType(_ACTION.hpid.data);
                             }
                             catch ( err )
                             {
@@ -12872,6 +12999,10 @@
                                 if ( currentGetTrapType )
                                     // restore backup proxy GET trap as the current one
                                     _LINQ_CONTEXT._arrayProxyHandler.get = currentGetTrapType;
+
+
+                                // reset singleton-like invocation
+                                _LINQ_CONTEXT._isSingleton = false;
                             }
                         }
                     }
@@ -12899,13 +13030,8 @@
 
                 // 1.
                 if ( Array.isArray( result ) )
-                {
-                    // copy result 100% "by value"
-                    result = _COMMON.deepCopyNCR( result );
-
                     // decorate with certain additional "native" functionalities for certain data types
-                    _COMMON.decorateDataType( result, property, arguments[ 0 ] );
-                }
+                    result = _COMMON.decorateDataType( result, property, arguments[ 0 ] );
                 // 2.a
                 else if ( _LINQ_CONTEXT._isProxy( result ) )
                 {
@@ -12958,7 +13084,9 @@
         _isProxy: function ( obj )
         {
             return obj instanceof _LINQ_CONTEXT._proxiedType;
-        }
+        },
+
+        _isSingleton: false
     };
 
 

@@ -4715,6 +4715,16 @@
 
 
         /**
+         * At any point you can interact with cache
+         *
+         * - enable/disable it      ->  System.Linq.Context.Cache.enable(true/false)
+         * - clear it               ->  System.Linq.Context.Cache.clear()
+         *
+        */
+        // f.e. turn off the cache
+        System.Linq.Context.Cache.enable( false );
+
+        /**
          * Sorting objects by boolean type field
         */
         var collection_bool_sort = [

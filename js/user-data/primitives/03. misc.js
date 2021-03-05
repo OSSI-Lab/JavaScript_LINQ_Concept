@@ -259,7 +259,7 @@
                                                         'predicateArray' :	[
                                                                                 ["", "<", 7]
                                                                             ]
-                                                    }                                            
+                                                    }
                                                   )
                                         .toArray();
 

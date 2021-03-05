@@ -96,6 +96,7 @@ var my_custom_jlc_common = {
             }
 
 
+
             /**
              * Compare both values
             */
@@ -421,10 +422,42 @@ var my_custom_jlc_common = {
          * The required value to return is true/false
         */
 
-        var haveTheSameContent = udf_commons.udfEqualityComparer( obj1, obj2 ) === 0;
+        var haveTheSameContent = false;
 
+        // check the first value and cache it 
+        var obj1_isPrim = isPrimitiveType_I_1L(obj1);
 
+        // if both values are of different type
+        if(obj1_isPrim !== isPrimitiveType_I_1L(obj2)) haveTheSameContent = false;
+        // otherwise
+        else {
+            // for primitive types
+            if(obj1_isPrim)
+                haveTheSameContent = udf_commons.udfEqualityComparer( obj1, obj2 ) === 0;
+            // for object types
+            else
+                haveTheSameContent = udf_commons.udfDefaultObjectContentComparer( obj1, obj2 );
+        }
+
+        // return the match result
         return haveTheSameContent;
+
+
+
+        /**
+         * Local helper functions
+        */
+        function isPrimitiveType_I_1L(o) {
+            // array of string representation of types
+            var type_string_repr_arr = [
+                '[object String]',
+                '[object Number]',
+                '[object Boolean]'
+            ];
+
+            // check
+            return type_string_repr_arr.includes( Object.prototype.toString.call( o ) );
+        }
     },
 
     udfPrimitiveGroupKeySelector: function ( coll_item )

@@ -22,8 +22,18 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;Objects RC&nbsp;[ RELEASE out of DEV/TEST/RELEASE ] :heavy_check_mark:
+## Status:&nbsp;Release Candidate&nbsp;[ RELEASE out of DEV/TEST/RELEASE ] :heavy_check_mark:
 ## Streamlined:&nbsp;YES
+#
+## Object & Primitives
+ - TEST #50 - DPR #73:&nbsp;2021-03-05 &nbsp;&nbsp;12:07 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - up to line 146 in test_common.js file !
+        - fixed issues
+          - n/a
+        - pending issues
+          - default values for *-OrDefault, defaultIfEmpty
 #
 ## Primitives
  - TEST #49 - DPR #72:&nbsp;2021-02-26 &nbsp;&nbsp;11:25 AM Local Time&nbsp;:heavy_check_mark:

@@ -2274,7 +2274,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     // examplary logic that calculates the output item !
                     outputItem.outer = outerCollectionMatchingItem;
@@ -2396,7 +2396,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     // examplary logic that calculates the output item !
                     outputItem.outer = outerCollectionMatchingItem;
@@ -2440,7 +2440,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     // examplary logic that calculates the output item !
                     outputItem.outer = outerCollectionMatchingItem;
@@ -2480,7 +2480,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     // examplary logic that calculates the output item !
                     outputItem.outer = outerCollectionMatchingItem;
@@ -2568,7 +2568,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     // examplary logic that calculates the output item !
                     outputItem.outer = outerCollectionMatchingItem;
@@ -2630,7 +2630,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     // examplary logic that calculates the output item !
                     outputItem.outer = outerCollectionMatchingItem;
@@ -2760,7 +2760,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     /**
                      * Examplary logic that creates the output item !
@@ -2768,7 +2768,7 @@
                     // create the outer value
                     outputItem.outer = outerCollectionMatchingItem;
                     // create the container for all inners that were joined to this outer value
-                    outputItem.innerGrouping = Object.create(null);
+                    outputItem.innerGrouping = Object.create( null );
                     // create the container's key
                     outputItem.innerGrouping.key = outerCollectionMatchingItem;
 
@@ -2802,13 +2802,15 @@
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'outerUdfSelector': function (outerCollectionItem) {
+                'outerUdfSelector': function ( outerCollectionItem )
+                {
                     // return the output item
                     return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
+                'innerUdfSelector': function ( innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue )
+                {
                     // return the output item
                     return innerCollectionItem;
                 },
@@ -2816,7 +2818,7 @@
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
-        
+
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
         /*
@@ -2983,7 +2985,7 @@
                     */
 
                     // you can convert primitive value to object one for some reason
-                    var outputItem = Object.create(null);
+                    var outputItem = Object.create( null );
 
                     /**
                      * Examplary logic that creates the output item !
@@ -2991,7 +2993,7 @@
                     // create the outer value
                     outputItem.outer = outerCollectionMatchingItem;
                     // create the container for all inners that were joined to this outer value
-                    outputItem.innerGrouping = Object.create(null);
+                    outputItem.innerGrouping = Object.create( null );
                     // create the container's key
                     outputItem.innerGrouping.key = outerCollectionMatchingItem;
 
@@ -3025,13 +3027,15 @@
                 'innerColl': innerColl,
                 'outerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'outerUdfSelector': function (outerCollectionItem) {
+                'outerUdfSelector': function ( outerCollectionItem )
+                {
                     // return the output item
                     return outerCollectionItem;
                 },
                 'innerSelectorArray': null,
                 // exemplary logic showing the use case, not the best performance approach
-                'innerUdfSelector': function (innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue) {
+                'innerUdfSelector': function ( innerCollectionItem, outerCollectionItem, outerCollectionItemKeyValue )
+                {
                     // return the output item
                     return innerCollectionItem;
                 },
@@ -3039,7 +3043,7 @@
                 'udfEqualityComparer': udf_commons.udfDefaultPrimitiveContentComparer
             }
         ).toArray();
-        
+
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Invalid logical configuration (query method interface definition) for GROUP_JOIN. Define both types of selectors for both collections or any-but-the-same type of selectors for both collections !
         /*
@@ -3091,10 +3095,6 @@
         ).toArray();
         */
 
-
-        // CODE WAS TESTED UNTIL HERE !
-        debugger;
-
         // final query - produces output
         var elementAt_f1 = collection_of_integers.elementAt(
             {
@@ -3102,17 +3102,15 @@
             }
         );
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The index was out of range. Must be non-negative and less than the size of the collection_of_integers. Parameter name: index
         /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The index was out of range. Must be non-negative and less than the size of the collection_of_integers. Parameter name: index
         var elementAt_f2 = collection_of_integers.elementAt(
             {
                 'index': 100
             }
         );
-        */
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> The index was out of range. Must be non-negative and less than the size of the collection_of_integers. Parameter name: index
-        /*
         var elementAt_f3 = collection_of_integers.elementAt(
             {
                 'index': -2
@@ -3141,12 +3139,20 @@
             }
         );
 
+        // final query - produces output
+        var elementAtOrDefault_f4 = [].elementAtOrDefault(
+            {
+                'index': -2
+            }
+        );
+
+
 
         // final query - produces output
         var first_f1 = collection_of_integers.first(
             {
                 'predicateArray': [
-                    [ "id", ">", 7 ]
+                    [ "", ">", 7 ]
                 ]
             }
         );
@@ -3155,40 +3161,38 @@
         var firstOrDefault_f1 = collection_of_integers.firstOrDefault(
             {
                 'predicateArray': [
-                    [ "id", ">", 7 ]
+                    [ "", ">", 7 ]
                 ]
             }
         );
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
         /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains no matching element.
         var first_f2 = collection_of_integers.first(
             {
                 'predicateArray': [
                     [ "id", ">=", 2, true ],
-                    [ "order.item.size", ">", 10 ]
-                ]
-            }
-        );
-        */
-
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
-        /*
-        var firstOrDefault_f2 = collection_of_integers.firstOrDefault(
-            {
-                'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "order.item.size", ">", 10 ]
+                    [ "", ">", 10 ]
                 ]
             }
         );
         */
 
         // final query - produces output
+        var firstOrDefault_f2 = collection_of_integers.firstOrDefault(
+            {
+                'predicateArray': [
+                    [ "", ">=", 2, true ],
+                    [ "", ">", 10 ]
+                ]
+            }
+        );
+
+        // final query - produces output
         var last_f1 = collection_of_integers.last(
             {
                 'predicateArray': [
-                    [ "id", ">", 7 ]
+                    [ "", ">", 7 ]
                 ]
             }
         );
@@ -3197,41 +3201,39 @@
         var lastOrDefault_f1 = collection_of_integers.lastOrDefault(
             {
                 'predicateArray': [
-                    [ "id", ">", 7 ]
+                    [ "", ">", 7 ]
                 ]
             }
         );
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
         /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains no matching element !
         var last_f2 = collection_of_integers.last(
             {
                 'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "order.item.size", ">", 10 ]
+                    [ "", ">=", 2, true ],
+                    [ "", ">", 10 ]
                 ]
             }
         );
         */
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
-        /*
+        // final query - produces output
         var lastOrDefault_f2 = collection_of_integers.lastOrDefault(
             {
                 'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "order.item.size", ">", 10 ]
+                    [ "", ">=", 2, true ],
+                    [ "", ">", 10 ]
                 ]
             }
         );
-        */
 
 
         // final query - produces output
         var single_f1 = collection_of_integers.single(
             {
                 'predicateArray': [
-                    [ "id", "==", 5 ]
+                    [ "", "==", 5 ]
                 ]
             }
         );
@@ -3240,41 +3242,39 @@
         var singleOrDefault_f1 = collection_of_integers.singleOrDefault(
             {
                 'predicateArray': [
-                    [ "id", ">", 13 ]
+                    [ "", ">", 13 ]
                 ]
             }
         );
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
         /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
         var single_f2 = collection_of_integers.single(
             {
                 'predicateArray': [
-                    [ "order.item.size", ">", 6 ]
+                    [ "", ">", 6 ]
                 ]
             }
         );
-        */
 
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.item.size ] !
-        /*
+        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
         var singleOrDefault_f2 = collection_of_integers.singleOrDefault(
             {
                 'predicateArray': [
-                    [ "order.item.size", ">", 6 ]
+                    [ "", ">", 6 ]
                 ]
             }
         );
-        */
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
-        //var single_f3 = collection_of_integers.single();
-
+        var single_f3 = collection_of_integers.single();
+       
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains more than one element !
-        //var singleOrDefault_f3 = collection_of_integers.singleOrDefault();
+        var singleOrDefault_f3 = collection_of_integers.singleOrDefault();
 
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Sequence contains no elements !
-        //var single_f4 = [].single();
+        var single_f4 = [].single();
+        */
 
         // final query - produces output
         var singleOrDefault_f4 = [].singleOrDefault();
@@ -3299,8 +3299,8 @@
         var any_f1 = collection_of_integers.any(
             {
                 'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "id", "<", 10, true ]
+                    [ "", ">=", 2, true ],
+                    [ "", "<", 10, true ]
                 ]
             }
         );
@@ -3309,8 +3309,8 @@
         var all_f1 = collection_of_integers.all(
             {
                 'predicateArray': [
-                    [ "id", ">=", 2, true ],
-                    [ "id", "<", 10, true ]
+                    [ "", ">=", 2, true ],
+                    [ "", "<", 10, true ]
                 ]
             }
         );
@@ -3319,32 +3319,19 @@
         var any_f2 = collection_of_decimals.any(
             {
                 'predicateArray': [
-                    [ "order.xyz.abc", ">", 10 ]
+                    [ "", ">", 10 ]
                 ]
             }
         );
 
-        /*
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.xyz.abc ] !
+        // final query - produces output
         var all_f2 = collection_of_decimals.all(
             {
                 'predicateArray': [
-                    [ "order.xyz.abc", "<", 10 ]
+                    [ "", "<", 10 ]
                 ]
             }
         );
-        */
-
-        /*
-        // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Object reference not set to an instance of an object [ order.xyz.abc ] !
-        var all_f3 = collection_nullProps_where_take_skip_all_any_2.all(
-            {
-                'predicateArray': [
-                    [ "order.xyz.abc", "<", 10 ]
-                ]
-            }
-        );
-        */
 
         // final query - produces output
         var any_f3 = collection_of_integers.any();
@@ -3360,37 +3347,81 @@
         //var all_f3 = collection_of_integers.all();
 
 
+
+        /**
+         * Math examples - empty collection !
+         * 
+         */
+
         // final query - produces output [ find the minimum value in a generic sequence ]
-        var min_empty = [].min();
+        var emptyColl_min0 = [].min();
 
         // final query - produces output [ find the maximum value in a generic sequence ]
-        var max_empty = [].max();
+        var emptyColl_max0 = [].max();
 
-        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Query method called 'average' has to have "params" object provided !
-        //var average_empty = [].average();
+        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Provide data for built-in selector 'property': [ 'some property goes here', true ], or custom 'udfValueSelector'
+        //var emptyColl_average0 = [].average();
 
-        // final query - produces output [ find the minimum value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Non-empty collection requires each item to implement custom toString method !
-        //var min_full = collection_of_integers.min();
 
-        // final query - produces output [ find the maximum value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Non-empty collection requires each item to implement custom toString method !
-        //var max_full = collection_of_integers.max();
 
-        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Query method called 'average' has to have "params" object provided !
-        //var average_full = collection_of_integers.average();
-
-        // final query - produces output [ find item with the smallest value of property called 'id' ]
-        var min_f1 = collection_of_integers.min(
+        // final query - produces output [ find the minimum value in a generic sequence ]
+        var emptyColl_min1 = [].min(
             {
-                'property': [ 'id', true ],
                 'udfValueSelector': null
             }
         );
 
-        // final query - produces output [ find item with the smallest value of property called 'id' ]
-        var min_f1_fi = collection_of_integers.min(
+        // final query - produces output [ find the maximum value in a generic sequence ]
+        var emptyColl_max1 = [].max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        /*
+        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> Provide data for built-in selector 'property': [ 'some property goes here', true ], or custom 'udfValueSelector'
+        var emptyColl_average1 = [].average(
+            {
+                'udfValueSelector': null
+            }
+        );
+        */
+
+
+        /**
+         * Math examples - non-empty collection !
+         * 
+         * Integers
+         */
+
+        // final query - produces output [ find the minimum value in a generic sequence ]
+        var fullColl_int_min = collection_of_integers.min();
+
+        // final query - produces output [ find the maximum value in a generic sequence ]
+        var fullColl_int_max = collection_of_integers.max();
+
+        // final query - produces output [ find the average value in a generic sequence ]
+        var fullColl_int_average = collection_of_integers.average();
+
+
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_int_min2 = collection_of_integers.min(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_int_min2_cache = collection_of_integers.min(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_int_min3_using_user_cache_config = collection_of_integers.min(
             // query method interface for this query !
             {
-                'property': [ 'id', true ],
                 'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
                 {
                     /**
@@ -3426,7 +3457,7 @@
                         useCache: true,
 
                         // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
-                        token: 'udfValueSelector_qwerty'
+                        token: 'udfValueSelector_fullColl_int_min3_using_user_cache_config'
                     },
 
                     // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
@@ -3434,201 +3465,738 @@
             }
         );
 
-        // final query - produces output - THIS QUERY USES CACHE ->
+        // final query - produces output [ find item with the biggest value ]
+        var fullColl_int_max2 = collection_of_integers.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_int_max2_cache = collection_of_integers.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the biggest value ]
+        var fullColl_int_max3_using_user_cache_config = collection_of_integers.max(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the maximum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_int_max3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
+        // final query - produces output [ find item with the average value ]
+        var fullColl_int_average2 = collection_of_integers.average(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_int_average2_cache = collection_of_integers.average(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the average value ]
+        var fullColl_int_average3_using_user_cache_config = collection_of_integers.average(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the average value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_int_average3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
+
+        /**
+         * Math examples - non-empty collection !
+         * 
+         * Decimals
+         */
+
+        // final query - produces output [ find the minimum value in a generic sequence ]
+        var fullColl_decimal_min = collection_of_decimals.min();
+
+        // final query - produces output [ find the maximum value in a generic sequence ]
+        var fullColl_decimal_max = collection_of_decimals.max();
+
+        // final query - produces output [ find the average value in a generic sequence ]
+        var fullColl_decimal_average = collection_of_decimals.average();
+
+
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_decimal_min2 = collection_of_decimals.min(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_decimal_min2_cache = collection_of_decimals.min(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_decimal_min3_using_user_cache_config = collection_of_decimals.min(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the miniumum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_decimal_min3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
+        // final query - produces output [ find item with the maximum value ]
+        var fullColl_decimal_max2 = collection_of_decimals.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_decimal_max2_cache = collection_of_decimals.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the maximum value ]
+        var fullColl_decimal_max3_using_user_cache_config = collection_of_decimals.max(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the maximum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_decimal_max3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
+        // final query - produces output [ find item with the average value ]
+        var fullColl_decimal_average2 = collection_of_decimals.average(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_decimal_average2_cache = collection_of_decimals.average(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the average value ]
+        var fullColl_decimal_average3_using_user_cache_config = collection_of_decimals.average(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the average value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_decimal_average3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
+
+        /**
+         * Math examples - non-empty collection !
+         * 
+         * Strings
+         */
+
+        // final query - produces output [ find the minimum value in a generic sequence ]
+        var fullColl_string_min = collection_of_strings.min();
+
+        // final query - produces output [ find the maximum value in a generic sequence ]
+        var fullColl_string_max = collection_of_strings.max();
+
+        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object String] to type [object Number]
+        //var fullColl_string_average = collection_of_strings.average();
+
+
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_string_min2 = collection_of_strings.min(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_string_min2_cache = collection_of_strings.min(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_string_min3_using_user_cache_config = collection_of_strings.min(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the miniumum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_string_min3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
+        // final query - produces output [ find item with the maximum value ]
+        var fullColl_string_max2 = collection_of_strings.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_string_max2_cache = collection_of_strings.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the maximum value ]
+        var fullColl_string_max3_using_user_cache_config = collection_of_strings.max(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the maximum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_string_max3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
         /*
-            Query called 'min_f1' uses the same filters, hence this query 'min_f1_cache' only fetches data from cache,
-            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
+        // final query - produces output [ find item with the average value ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object String] to type [object Number]
+        var fullColl_string_average2 = collection_of_strings.average(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the average value ] - THIS QUERY USES CACHE - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object String] to type [object Number]
+        var fullColl_string_average2_cache = collection_of_strings.average(
+            {
+                'udfValueSelector': null
+            }
+        );
         */
-        var min_f1_cache = collection_of_integers.min(
+
+        // final query - produces output [ find item with the average value ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object String] to type [object Number]
+        // var fullColl_string_average3_using_user_cache_config = collection_of_strings.average(
+        //     // query method interface for this query !
+        //     {
+        //         'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+        //         {
+        //             /**
+        //              * Exemplary logic showing the use case
+        //              * 
+        //              * The goal of this value selector function is to further narrow down what we want to find as the average value !
+        //              * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+        //             */
+
+        //             // apply your own logic here !
+
+
+        //             // ...
+
+
+        //             // this is mandatory logic ! ⚠️
+        //             collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+        //         }
+        //     },
+        //     // cache configuration for this query ! ⚠️ (OPTIONAL)
+        //     {
+        //         // use this cache config or not
+        //         use: true,
+
+        //         // array of cache objects for any query method interface's UDFs available for this query
+        //         udfCacheConfig: [
+        //             // cache config for UDF called 'udfValueSelector'
+        //             {
+        //                 // name of the UDF (the same as in the aforementioned query method interface)
+        //                 name: 'udfValueSelector',
+
+        //                 // use this cache config or not
+        //                 useCache: true,
+
+        //                 // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+        //                 token: 'udfValueSelector_fullColl_string_average3_using_user_cache_config'
+        //             },
+
+        //             // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+        //         ]
+        //     }
+        // );
+
+
+        /**
+         * Math examples - non-empty collection !
+         * 
+         * Booleans
+         */
+
+        // final query - produces output [ find the minimum value in a generic sequence ]
+        var fullColl_boolean_min = collection_of_booleans.min();
+
+        // final query - produces output [ find the maximum value in a generic sequence ]
+        var fullColl_boolean_max = collection_of_booleans.max();
+
+        // final query - produces output [ find the average value in a generic sequence ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object Boolean] to type [object Number]
+        //var fullColl_boolean_average = collection_of_booleans.average();
+
+
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_boolean_min2 = collection_of_booleans.min(
             {
-                'property': [ 'id', true ],
                 'udfValueSelector': null
             }
         );
 
-        // final query - produces output [ find item with the smallest value of the object itself ]
-        var min_f1a = collection_of_strings.min(
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_boolean_min2_cache = collection_of_booleans.min(
             {
-                'property': [ 'object!', true ],
                 'udfValueSelector': null
             }
         );
 
-        // // final query - produces output [ find item with the smallest value of the object itself ] - THIS QUERY USES CACHE ->
+        // final query - produces output [ find item with the smallest value ]
+        var fullColl_boolean_min3_using_user_cache_config = collection_of_booleans.min(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the miniumum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_boolean_min3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+
+        // final query - produces output [ find item with the maximum value ]
+        var fullColl_boolean_max2 = collection_of_booleans.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output - THIS QUERY USES CACHE
+        var fullColl_boolean_max2_cache = collection_of_booleans.max(
+            {
+                'udfValueSelector': null
+            }
+        );
+
+        // final query - produces output [ find item with the maximum value ]
+        var fullColl_boolean_max3_using_user_cache_config = collection_of_booleans.max(
+            // query method interface for this query !
+            {
+                'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+                {
+                    /**
+                     * Exemplary logic showing the use case
+                     * 
+                     * The goal of this value selector function is to further narrow down what we want to find as the maximum value !
+                     * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+                    */
+
+                    // apply your own logic here !
+
+
+                    // ...
+
+
+                    // this is mandatory logic ! ⚠️
+                    collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+                }
+            },
+            // cache configuration for this query ! ⚠️ (OPTIONAL)
+            {
+                // use this cache config or not
+                use: true,
+
+                // array of cache objects for any query method interface's UDFs available for this query
+                udfCacheConfig: [
+                    // cache config for UDF called 'udfValueSelector'
+                    {
+                        // name of the UDF (the same as in the aforementioned query method interface)
+                        name: 'udfValueSelector',
+
+                        // use this cache config or not
+                        useCache: true,
+
+                        // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+                        token: 'udfValueSelector_fullColl_boolean_max3_using_user_cache_config'
+                    },
+
+                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                ]
+            }
+        );
+    
         /*
-            Query called 'min_f1a' uses the same filters, hence this query 'min_f1a_cache' only fetches data from cache,
-            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
-        */
-        var min_f1a_cache = collection_of_strings.min(
+        // final query - produces output [ find item with the average value ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object Boolean] to type [object Number]
+        var fullColl_boolean_average2 = collection_of_booleans.average(
             {
-                'property': [ 'object!', true ],
                 'udfValueSelector': null
             }
         );
 
-        // final query - produces output [ find item with the smallest value of the object itself ] - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
-        /*
-        var min_f1b = collection_of_integers.min(
+        // final query - produces output [ find item with the average value ] - THIS QUERY USES CACHE - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object Boolean] to type [object Number]
+        var fullColl_boolean_average2_cache = collection_of_booleans.average(
             {
-                'property': [ 'object!', true ],
                 'udfValueSelector': null
             }
         );
         */
 
-        // final query - produces output [ find item with the biggest value of property called 'id' ]
-        var max_f1 = collection_of_integers.max(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
+        // // final query - produces output [ find item with the average value ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object Boolean] to type [object Number]
+        // var fullColl_boolean_average3_using_user_cache_config = collection_of_booleans.average(
+        //     // query method interface for this query !
+        //     {
+        //         'udfValueSelector': function ( collectionItemPropertyInQuestion, collectionItemIndex, collectionInQuestion )
+        //         {
+        //             /**
+        //              * Exemplary logic showing the use case
+        //              * 
+        //              * The goal of this value selector function is to further narrow down what we want to find as the average value !
+        //              * Parameter of the function called 'collectionItemPropertyInQuestion' contains property value mentioned in the parameter called 'property': [ 'id', true ] of the query method interface !
+        //             */
 
-        // final query - produces output - THIS QUERY USES CACHE ->
-        /*
-            Query called 'max_f1' uses the same filters, hence this query 'max_f1_cache' only fetches data from cache,
-            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
-        */
-        var max_f1_cache = collection_of_integers.max(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
+        //             // apply your own logic here !
 
-        // final query - produces output [ find item with the biggest value of the object itself ] - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
-        /*
-        var max_f1a = collection_of_integers.max(
-            {
-                'property': [ 'object!', true ],
-                'udfValueSelector': null
-            }
-        );
-        */
 
-        // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
-        var average_f1 = collection_of_integers.average(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
+        //             // ...
 
-        // final query - produces output - THIS QUERY USES CACHE ->
-        /*
-            Query called 'average_f1' uses the same filters, hence this query 'average_f1_cache' only fetches data from cache,
-            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
-        */
-        var average_f1_cache = collection_of_integers.average(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
 
-        /*
-        // final query - produces output [ find item that lives in the middle between smallest one and biggest one ] - THIS METHOD THROWS EXPECTED ERROR ! -> Sorting PLAIN or KVP's VALUE by itself requires presence of custom method "toString()" !
-        var average_f1a = collection_of_integers.average(
-            {
-                'property': [ 'object!', true ],
-                'udfValueSelector': null
-            }
-        );
-        */
+        //             // this is mandatory logic ! ⚠️
+        //             collectionInQuestion[ collectionItemIndex ] = collectionItemPropertyInQuestion;
+        //         }
+        //     },
+        //     // cache configuration for this query ! ⚠️ (OPTIONAL)
+        //     {
+        //         // use this cache config or not
+        //         use: true,
 
-        /*
-        // final query - produces output [ find item with the smallest value of property called 'id' ] - THIS METHOD THROWS EXPECTED ERROR ! -> The sequence has no elements.
-        var min_f2 = [].min(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
-        */
-        // final query - produces output [ find item with the smallest value of the object itself ]
-        var min_f2a = [].min(
-            {
-                'property': [ 'object!', true ],
-                'udfValueSelector': null
-            }
-        );
+        //         // array of cache objects for any query method interface's UDFs available for this query
+        //         udfCacheConfig: [
+        //             // cache config for UDF called 'udfValueSelector'
+        //             {
+        //                 // name of the UDF (the same as in the aforementioned query method interface)
+        //                 name: 'udfValueSelector',
 
-        // final query - produces output - THIS QUERY USES CACHE ->
-        /*
-            Query called 'min_f2a' uses the same filters, hence this query 'min_f2a_f1_cache' only fetches data from cache,
-            running away from all the expensive operations of the POL, i.e. Physical Operations Layer.
-        */
-        var min_f2a_f1_cache = [].min(
-            {
-                'property': [ 'object!', true ],
-                'udfValueSelector': null
-            }
-        );
+        //                 // use this cache config or not
+        //                 useCache: true,
 
-        /*
-        // final query - produces output [ find item with the biggest value of property called 'id' ] - THIS METHOD THROWS EXPECTED ERROR ! -> The sequence has no elements.
-        var max_f2 = [].max(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
-        */
+        //                 // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
+        //                 token: 'udfValueSelector_fullColl_boolean_average3_using_user_cache_config'
+        //             },
 
-        // final query - produces output [ find item with the biggest value of the object itself ]
-        var max_f2a = [].max(
-            {
-                'property': [ 'object!', true ],
-                'udfValueSelector': null
-            }
-        );
+        //             // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+        //         ]
+        //     }
+        // );
 
-        // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
-        var average_f2 = [].average(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
 
-        /*
-        // final query - produces output [ find item with the average value of the object itself ] - THIS METHOD THROWS EXPECTED ERROR ! -> There is no implicit conversion from type [object Object] to type [object Number]
-        var average_f2a = [].average(
-            {
-                'property': [ 'object!', true ],
-                'udfValueSelector': null
-            }
-        );
-        */
 
-        // final query - produces output [ find item with the smallest value of property called 'id' ]
-        var min_f3 = [ { id: 1, name: 'Name 1' } ].min(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
 
-        // final query - produces output [ find item with the biggest value of property called 'id' ]
-        var max_f3 = [ { id: 1, name: 'Name 1' } ].max(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
-
-        // final query - produces output [ find item with the value of property called 'id' that lives in the middle between smallest one and biggest one ]
-        var average_f3 = [ { id: 1, name: 'Name 1' } ].average(
-            {
-                'property': [ 'id', true ],
-                'udfValueSelector': null
-            }
-        );
 
         /**
          * Misc cases:
-         * 
-         *  where_f3 -> example of query method definition caching
          * 
          * orderBy_p3_take_p1 -> break the sorting context (orderBy_p3 <-> orderBy_p3_take_p1) by supplying non-sorting method
          * 
@@ -3640,47 +4208,12 @@
          * 
         */
 
-        // final query - produces output [example of query method definition caching]
-        var where_f3 = collection_of_strings.where(
-            {
-                'predicateArray': [
-                    [ "id", ">=", 2, true ]
-                ]
-            }
-        ).where(
-            {
-                'predicateArray': [
-                    [ "id", ">=", 4, true ]
-                ]
-            }
-        ).toArray();
-
-        // partial query - produces intermediate query state [example of query method definition caching - part 1]
-        var where_p3_2 = collection_of_strings.where(
-            {
-                'predicateArray': [
-                    [ "id", ">=", 2, true ]
-                ]
-            }
-        );
-        // partial query - produces intermediate query state [example of query method definition caching - part 2]
-        var where_p3_2A = where_p3_2.where(
-            {
-                'predicateArray': [
-                    [ "id", ">=", 4, true ]
-                ]
-            }
-        );
-
-        // final query - produces output
-        var where_p3_2A_f = where_p3_2A.toArray();
-
 
         // partial query - produces intermediate query state
         var orderBy_p3 = collection_of_integers.orderBy(
             {
                 'keyPartSelectorArray': [
-                    [ "price", true ]
+                    [ "", true ]
                 ],
                 'udfComparer': null
             }
@@ -3700,7 +4233,7 @@
         // var orderBy_p3_take_p1_thenBy_p1 = orderBy_p3_take_p1.thenBy(
         //     {
         //         'keyPartSelectorArray': [
-        //             [ "id", true ]
+        //             [ "", true ]
         //         ],
         //         'udfComparer': null
         //     }
@@ -3714,7 +4247,7 @@
         var orderBy_p3_thenBy_p1 = orderBy_p3.thenBy(
             {
                 'keyPartSelectorArray': [
-                    [ "id", true ]
+                    [ "", true ]
                 ],
                 'udfComparer': null
             }
@@ -3732,7 +4265,7 @@
         // var orderBy_take_thenBy_toArray_f1 = collection_of_integers.orderBy(
         //     {
         //         'keyPartSelectorArray': [
-        //             [ "id", true ]
+        //             [ "", true ]
         //         ],
         //         'udfComparer': null
         //     }
@@ -3743,7 +4276,7 @@
         // ).thenBy(
         //     {
         //         'keyPartSelectorArray': [
-        //             [ "name", true ]
+        //             [ "", true ]
         //         ],
         //         'udfComparer': null
         //     }
@@ -3759,7 +4292,7 @@
         var thenBy_p3 = collection_of_integers.thenBy(
             {
                 'keyPartSelectorArray': [
-                    [ "price", true ]
+                    [ "", true ]
                 ],
                 'udfComparer': null
             }
@@ -3771,9 +4304,7 @@
         var groupBy_withCache_p1 = collection_of_integers.groupBy(
             {
                 'predicateArray': [
-                    [ "id", true ],
-                    [ " - ", false ],
-                    [ "tags", true ]
+                    [ "", true ]
                 ],
                 'udfGroupKeySelector': null,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
@@ -3808,7 +4339,7 @@
                         useCache: true,
 
                         // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
-                        token: 'udfEqualityComparer_groupBy_withCache_p1'
+                        token: 'udfEqualityComparer_groupBy_withCache_p1_primitive'
                     },
                     // cache config for UDF called 'udfGroupKeyProjector'
                     {
@@ -3828,9 +4359,7 @@
         var groupBy_orderBy_withCache_p2 = collection_of_integers.groupBy(
             {
                 'predicateArray': [
-                    [ "id", true ],
-                    [ " - ", false ],
-                    [ "tags", true ]
+                    [ "", true ]
                 ],
                 'udfGroupKeySelector': null,
                 'udfEqualityComparer': udf_commons.udfEqualityComparer,
@@ -3865,7 +4394,7 @@
                         useCache: true,
 
                         // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
-                        token: 'udfEqualityComparer_groupBy_withCache_p1'
+                        token: 'udfEqualityComparer_groupBy_withCache_p1_primitive'
                     },
                     // cache config for UDF called 'udfGroupKeyProjector'
                     {
@@ -3906,7 +4435,7 @@
                         useCache: true,
 
                         // token of this UDF to be used in computing the cache key for this query (SHOULD BE UNIQUE IF REQUIRED, OR THE SAME AS IN DIFFERENT UDFs ACROSS WHOLE RANGE OF QUERIES)
-                        token: 'groupBy_orderBy_withCache_p2'
+                        token: 'groupBy_orderBy_withCache_p2_primitive'
                     }
                 ]
             }
@@ -3928,7 +4457,7 @@
         var where_s1_p = collection_of_integers.where(
             {
                 'predicateArray': [
-                    [ "id", ">=", 2, true ]
+                    [ "", ">=", 2, true ]
                 ]
             }
         );
@@ -3937,9 +4466,7 @@
         var groupBy_s1_p = where_s1_p.groupBy(
             {
                 'predicateArray': [
-                    [ "id", true ],
-                    [ " - ", false ],
-                    [ "tags", true ]
+                    [ "", true ]
                 ],
                 'udfGroupKeySelector': null,
                 'udfEqualityComparer': null,
@@ -3953,9 +4480,7 @@
         var orderBy_s1_p = where_s1_p.groupBy(
             {
                 'predicateArray': [
-                    [ "id", true ],
-                    [ " - ", false ],
-                    [ "tags", true ]
+                    [ "", true ]
                 ],
                 'udfGroupKeySelector': null,
                 'udfEqualityComparer': null,
@@ -3991,7 +4516,8 @@
             }
         );
 
-
         console.log( '~ Primitives' );
+        // CODE WAS TESTED UNTIL HERE !
+        debugger;
     };
 } )();
