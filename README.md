@@ -26,6 +26,14 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Streamlined:&nbsp;YES
 #
 ## Objects & Primitives
+ - TEST #51 - DPR #74:&nbsp;2021-03-06 &nbsp;&nbsp;12:17 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - testing the whole interface
+        - done !
+        - fixed issues
+          - n/a
+        - pending issues
+          - none
  - TEST #50 - DPR #73:&nbsp;2021-03-05 &nbsp;&nbsp;12:48 PM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface

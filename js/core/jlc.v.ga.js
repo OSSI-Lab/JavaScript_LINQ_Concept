@@ -13,13 +13,13 @@
  * 
  * 
  * Status:
- *      ⚠️ DPR #73 -> 3-Tier Architecture [GA/TEST] -> DEV / DEV|TEST|RELEASE
+ *      ⚠️ DPR #74 | [GA/RELEASE] | RC
  *                                                                              -> Objects          ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives       ->      RC Version      ->      TEST COMPLETED      ->      100%
  *
  *                                                                              ...
  * 
- *                                                                              -> "Common things"  ->      TESTING         ->      TEST IN PROGRESS    ->       99%
+ *                                                                              -> "Common things"  ->      RC Version      ->      TEST COMPLETED      ->      100%
  * 
  * 
  * 
@@ -2482,7 +2482,7 @@
          * Determine default value of inputItem.
          *
          * @param {any} inputItem Value to determine default value of
-         * @param {any} getDetails Get "some precision", i.e. if Number then with decimal point, if Object then with its native prototype.
+         * @param {any} getDetails Get "some precision", i.e. if Number then with decimal point, if Object then with its native prototype, if String then with double quotes
          */
             function ( inputItem, getDetails )
             {
@@ -2508,7 +2508,7 @@
                         case 'undefined': return void 0;
                         case 'boolean': return false;
                         case 'number': return with_d ? 0.0 : _COMMON.isFloatingPoint( value ) ? 0.0 : 0;
-                        case 'string': return "";
+                        case 'string': return with_d ? "" : '';
                         case 'symbol': return Symbol();
                         case 'object': return with_d ? Object.create( Object.prototype ) : Object.create( null );
                         case 'function': return function () { };
@@ -2677,7 +2677,7 @@
             },
 
         getCollectionItemDefaultValue: /**
-         * Determine and return collection item default value.
+         * Determine and return collection default value.
          *
          * @param {any} cdv Collection item computed default value
          */
