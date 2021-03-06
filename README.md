@@ -24,9 +24,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;Release Candidate&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
+## Generally Available:&nbsp;2021-03-08&nbsp;Local Time&nbsp;:heavy_check_mark:
 #
 ## Objects & Primitives
- - TEST #51 - DPR #74:&nbsp;2021-03-06 &nbsp;&nbsp;12:24 AM Local Time&nbsp;:heavy_check_mark:
+ - TEST #51 - DPR #74:&nbsp;2021-03-06 &nbsp;&nbsp;12:29 AM Local Time&nbsp;:heavy_check_mark:
     - FIXED:
       - testing the whole interface
         - done !
