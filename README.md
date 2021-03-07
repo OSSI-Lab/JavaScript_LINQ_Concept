@@ -28,6 +28,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 #
 ## RC
  - RC Point Release #1 :&nbsp;2021-03-06 &nbsp;&nbsp;12:40 AM Local Time&nbsp;:heavy_check_mark:
+    - Clean Code phase !
 #
 ## Objects & Primitives
  - TEST #51 - DPR #74:&nbsp;2021-03-06 &nbsp;&nbsp;12:29 AM Local Time&nbsp;:heavy_check_mark:
