@@ -28,7 +28,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
   - optionally plus another day and another day etc. until the last code character will looked through by me !
 #
 ## RC
- - RC Point Release #1 :&nbsp;2021-03-08 &nbsp;&nbsp;4:31 PM Local Time&nbsp;:information:
+ - RC Point Release #1 :&nbsp;2021-03-08 &nbsp;&nbsp;4:40 PM Local Time&nbsp;:information_source:
     - Clean Code phase (what has been done already) !
       - _ENUM, _OPERATOR, _EXTENSION
 #
