@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ RCPR #1 | [GA/RELEASE] | RC
+ *      ⚠️ RCPR #2 | [GA/RELEASE] | RC
  *                                                                              -> Objects          ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives       ->      RC Version      ->      TEST COMPLETED      ->      100%
  *
@@ -33,11 +33,10 @@
 
 ( function ()
 {
-    // private enum object
+    // private object of enums
     var _ENUM = {
         FIRST: Symbol( 'first' ),
         LAST: Symbol( 'last' ),
-
         SINGLE: Symbol( 'single' ),
         ELEMENT_AT: Symbol( 'element_at' ),
 
@@ -125,10 +124,10 @@
         },
 
         RUNTIME: {
-            CI: Symbol( 'collectionIndex' ), // collection index that marks that collection was internally indexed
-            CT: Symbol( 'collectionToken' ), // token associated with current collection, aka root token
-            RTC: 'runtimeContext', // context of all actions defined for this proxied JLC instance
-            QCMICO: 'currentQueryChainMethodImplCacheObject' // query chain method implementation cache object
+            CI: Symbol( 'collectionIndex' ),                    // collection index that marks that collection was internally indexed
+            CT: Symbol( 'collectionToken' ),                    // token associated with current collection that was internally indexed
+            RTC: 'runtimeContext',                              // context of all actions defined for this proxied JLC instance
+            QCMICO: 'currentQueryChainMethodImplCacheObject'    // cache object of query chain method implementation
         },
 
         PLACEHOLDERS: {
@@ -159,7 +158,7 @@
         }
     };
 
-    // private operators object
+    // private object of operators
     var _OPERATOR = {
         get: {
             '>': {
@@ -258,17 +257,6 @@
                     {
                         return v1 ? true : false;
                     }
-            },
-
-            '(!)': {
-                call: /**
-                 * @param {any} v1
-                 * @param {any} v2
-                 */
-                    function ( v1, v2 )
-                    {
-                        return v1 === v2;
-                    }
             }
         },
 
@@ -304,7 +292,7 @@
             }
     };
 
-    // private extension object
+    // private object of extensions
     var _EXTENSION = {
         array_equals: /**
          * To compare arrays of primitive values, loop through them and compare every value.
@@ -324,7 +312,7 @@
                     if ( !array )
                         return false;
 
-                    // compare lengths - can save a lot of time 
+                    // compare lengths - can save a lot of time
                     if ( this.length != array.length )
                         return false;
 
@@ -338,10 +326,8 @@
                                 return false;
                         }
                         else if ( this[ i ] != array[ i ] )
-                        {
                             // warning - two different object instances will never be equal: {x:20} != {x:20}
                             return false;
-                        }
                     }
 
                     return true;
@@ -353,15 +339,14 @@
 
 
 
-    // private constraints object
+    // private object of constraints
     var _CONSTRAINT = {
-        add:/**
-             * Add constraint func or constraint func array for given context, f.e. 'where', 'groupBy', 'take', etc.
-             *
-             * @param {any} jlc_query_name Query method context, f.e. 'where', 'groupBy' etc.
-             * @param {any} actionConstr
-            */
-            // @ts-ignore
+        add: /**
+         * Add constraint func or constraint func array for given context, f.e. 'where', 'groupBy', 'take', etc.
+         *
+         * @param {any} jlc_query_name Query method context, f.e. 'where', 'groupBy' etc.
+         * @param {any} actionConstr A piece of code that runs before the action itself to assess the validity of action object.
+         */
             function ( jlc_query_name, actionConstr )
             {
                 return a_I_1L( jlc_query_name, actionConstr );
@@ -378,12 +363,11 @@
                 }
             },
 
-        createQueryFlowConstraints:/**
-            * Create instance object of all constraints.
-            *
-            * @param {string} lmn Query method name, f.e. 'where', 'groupBy' etc.
-            */
-            // @ts-ignore
+        createQueryFlowConstraints: /**
+         * Create instance object of all constraints.
+         *
+         * @param {string} lmn Query method name, f.e. 'where', 'groupBy' etc.
+         */
             function ( lmn )
             {
                 return create_QFC_I_1L( lmn );
@@ -403,16 +387,17 @@
                 }
             },
 
-        createActionConstraint:/**
-             * Create action constraint, aka requirement for this query method to be eligible to run.
-             *
-             * @param {any} jlc_query_name Query method context, f.e. 'where', 'groupBy' etc.
-             * @param {Array} required_contexts All invocation contexts that had to take place prior to this invocation context !
-             * @param {any} upqf_syntax User-provided query filter syntax
-             */
+        createActionConstraint: /**
+         * Create action constraint, aka requirement-to-pass for this query method to be eligible to run.
+         *
+         * @param {any} jlc_query_name Query method context, f.e. 'where', 'groupBy' etc.
+         * @param {Array} required_contexts All invocation contexts that had to take place prior to this invocation context !
+         * @param {any} upqf_syntax User-provided query filter syntax
+         */
             function ( jlc_query_name, required_contexts, upqf_syntax )
             {
                 return create_AC_I_1L( jlc_query_name, required_contexts, upqf_syntax );
+
 
 
                 /**
@@ -420,7 +405,7 @@
                 */
                 function create_AC_I_1L ( jqn, required_ctxs, upqf_syntax )
                 {
-                    // create action constraint object
+                    // create action constraint
                     var ac = Object.create( null );
 
                     // assign name to action constraint
@@ -447,14 +432,13 @@
                 }
             },
 
-        updateContextConstraints:/**
-             * Update constraints - func or constraint func array - for given context, f.e. 'where', 'groupBy', 'take', etc.
-             *
-             * @param {any} jlc_query_name Query method context, f.e. 'where', 'groupBy' etc.
-             * @param {any} actionConstr
-             * @param {any} constr_func_arr
-            */
-            // @ts-ignore
+        updateContextConstraints: /**
+         * Update constraints - func or constraint func array - for given context, f.e. 'where', 'groupBy', 'take', etc.
+         *
+         * @param {any} jlc_query_name Query method context, f.e. 'where', 'groupBy' etc.
+         * @param {any} actionConstr
+         * @param {any} constr_func_arr
+         */
             function ( jlc_query_name, constr_func_arr )
             {
                 return u_CC_I_1L( jlc_query_name, constr_func_arr );
@@ -471,14 +455,10 @@
 
                     // store action constraint functions
                     if ( typeof c_func_arr === 'function' )
-                    {
                         ctx_ref.acf.push( c_func_arr );
-                    }
                     // store action constraint function array
                     else if ( Array.isArray( c_func_arr ) )
-                    {
                         Array.prototype.push.apply( ctx_ref.acf, c_func_arr );
-                    }
                 }
             },
 
@@ -490,9 +470,11 @@
         _qfcc: Object.create( null )
     };
 
-    // private syntax object
+    // private object of syntax checking
     var _SYNTAX = {
         check: /**
+         * Check the interface of the query method filter itself.
+         *
          * @param {any} user_filter_array
          * @param {boolean} is_query_flow_cit_primitive
          * @param {any} sortingContext
@@ -512,19 +494,20 @@
                 function c_I_1L ( user_filter_array, is_primitive, sortingContext, actionConstr, thisAction, context )
                 {
                     /**
-                     * If user omitted filters for some query methods, do not run the check.
-                     * I consider providing more agile solution here, like f.e. checking whether one particular query method allows for empty filters or not, etc.
-                     * Right now, it's a simple true/false check !
+                     * If user omitted filter for this query method, do not run the check.
+                     * I consider providing some enhancements here in the next version of this library.
                     */
                     if ( !user_filter_array || typeof user_filter_array === 'function' ) return;
 
                     /**
-                     * Otherwise check for primitive type context or object context
+                     * Otherwise check for primitive type context or object type context
                      * 
                      * Get this information from JLC instance context
-                     *  - in case it's primitive, run syntax checking for primitive types
-                     *  - otherwise if cest is not UNKNOWN run syntax checking for objects
+                     *  1. in case it's primitive, run syntax checking for primitive types
+                     *  2. in case it's object run syntax checking for objects
                     */
+                    
+                    // 1.
                     if ( is_primitive && _COMMON.convertTypeToString( user_filter_array ) === _ENUM.T2SR.ARRAY )
                         return user_filter_array.forEach(
                             function ( user_syntax_arr )
@@ -540,24 +523,26 @@
                                     c_P_I_1L( user_syntax_arr, sortingContext );
                             }
                         );
+                    // 2.
                     else
                     {
+                        // objects in the sorting context
                         if ( sortingContext )
                         {
                             /**
-                             * Only in sorting context you can access shared first-level sorting context.
+                             * Only in sorting context you can access shared first-level sorting context object.
                              * 
                              * Metadata is returned only for type KVP.
                              * 
                              * While in sorting context, 'user_filter_array' is a single array, not array of arrays !
                              * This is due to design of JavaScript LINQ query methods in the context of sorting !
                             */
-
                             var metadataKVP = c_O_I_2L( user_filter_array, sortingContext );
 
                             // set sorting metadata in the running context
                             thisAction.sortingMetadataContext.setMetadata.call( thisAction.sortingMetadataContext, metadataKVP, actionConstr );
                         }
+                        // objects in the non-sorting context
                         else
                             return user_filter_array.forEach(
                                 function ( user_syntax_arr )
@@ -573,7 +558,6 @@
                     /**
                      * Local helper functions 
                     */
-                    // @ts-ignore
                     function c_P_I_1L ( user_filter_array, sortingContext )
                     {
                         var length, user_filter;
@@ -584,13 +568,13 @@
                             // access current user filter
                             user_filter = user_filter_array[ i ];
 
-                            // user filter being a UDF or any primitive type different than string is considered as passing all checking
+                            // user filter being a UDF or any primitive type different than string is considered as being bypassed all checking
                             if ( typeof user_filter === 'function' || _COMMON.convertTypeToString( user_filter ) !== _ENUM.T2SR.STRING ) continue;
 
-                            // number of filter parameters can be 2, 3 or 4
+                            // number of filter parameters
                             length = user_filter.length;
 
-                            // throw error about invalid number of predicate values
+                            // throw error about invalid number of predicate values (can be 2, 3 or 4)
                             if ( length !== 2 && length !== 3 && length !== 4 )
                                 throw new SyntaxError( '\r\nDealing with primitive types requires providing only 2, 3, or 4 values all starting with empty string - "" !\r\n\r\n' );
 
@@ -602,14 +586,14 @@
                              *       - orderByDescending
                              *       - thenBy
                              *       - thenByDescending
-                             * 
-                             *  the filter syntax called 'predicateArray' is just an empty string with second parameter set to true -> ["", true] 
+                             *  the filter syntax called 'predicateArray' is just an empty string with second parameter set to true -> ["", true] || ['', true]
                             */
                             if ( length === 2 && ( user_filter[ 0 ].trim() !== "" || user_filter[ 1 ] !== true ) )
                                 throw new SyntaxError( '\r\nDealing with primitive types in the context of THESE OPERATIONS {groupBy, toDictionary, orderBy, orderByDescending, thenBy, thenByDescending} \r\nrequires providing only empty string predicate with second parameter set to true ! \r\n\r\nExamplary usage -> ["", true]\r\n\r\n' );
 
+
                             /**
-                             * Other operations require from 3 to 4 parameters to be present 
+                             * Other operations require from 3 to 4 parameters to be present
                             */
 
                             // handling 3 filter parameters with special case where 3rd parameter is equal to 0 (which logically in JavaScript evaluates to false)
@@ -633,8 +617,10 @@
 
                     function c_O_I_2L ( user_filter_array, sortingContext )
                     {
+                        // array of user only-valid-columns
                         var user_ovc;
 
+                        // running in sorting context
                         if ( sortingContext )
                         {
                             // get user syntax metadata (valid column name(s) or valid column path(s) for inner object(s))
@@ -644,6 +630,7 @@
 
                             user_filter_array = u_filter_array;
                         }
+                        // running in non-sorting context
                         else
                             // get user syntax metadata (valid column name(s) or valid column path(s) for inner object(s))
                             user_ovc = _ACTION.hpid.columnSet.extractOVC( user_filter_array, false );
@@ -651,7 +638,7 @@
 
 
                         /**
-                         * To do the appropriate syntax checking in the right way, follow these two steps:
+                         * To do the syntax checking in the right way, follow this step:
                          * 
                          *      1.  analyze the very next query flow at the "action creation" layer !
                          *          a. update type of collection element structure (cest) of the very next query in the flow
@@ -671,7 +658,7 @@
                             // this metadata is required only in the sorting context and only when sorting PLAIN collection by its objects themselves
                             var metadata;
 
-                            // if this is sorting context
+                            // in sorting context
                             if ( sortingContext )
                             {
                                 // create metadata object
@@ -708,13 +695,13 @@
                             // if there is no 'object!' filter, we are dealing with PLAIN
                             check_PLAIN_I_2L( _ENUM.CEST.PLAIN, _ENUM.CEST.PLAIN );
 
-                            // if this is sorting context, return required PLAIN sorting metadata
+                            // in sorting context, return required PLAIN sorting metadata
                             if ( sortingContext )
                                 return metadata;
                         }
                         else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
                         {
-                            // the only valid column is key 
+                            // the only valid column is key
                             var valid = _ACTION.hpid.columnSet.all_columns.length === 1 && _ACTION.hpid.columnSet.all_columns[ 0 ] === 'key';
 
                             // if it's not valid
@@ -727,7 +714,7 @@
                             // this metadata is required only in the sorting context and only when sorting KVP
                             var metadata;
 
-                            // if this is sorting context
+                            // in sorting context
                             if ( sortingContext )
                             {
                                 // create metadata object
@@ -745,16 +732,12 @@
 
                             // user provide 'key' filter with 2+ more parameters in the context of sorting
                             if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'key' && [ System.Linq.Context.orderBy, System.Linq.Context.orderByDescending, System.Linq.Context.thenBy, System.Linq.Context.thenByDescending ].includes( context ) )
-                            {
                                 // throw error about invalid syntax when dealing with KVP objects and using "key" predicate
                                 throw new SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "key" requires the following syntax ["key", true] !\r\n\r\n' );
-                            }
                             // user provide 'value.' filter with 2+ more parameters
                             else if ( user_filter_array.length === 1 && user_filter_array[ 0 ].length !== 2 && user_filter_array[ 0 ].length > 2 && user_filter_array[ 0 ][ 0 ].trim() === 'value.' )
-                            {
                                 // throw error about invalid syntax when dealing with KVP objects and using "value." predicate, which means comparing whole objects
                                 throw new SyntaxError( '\r\nDealing with objects of type [' + _COMMON.getCustomValueOfSymbol( _ENUM.CEST.KVP ) + '] using "value." requires the following syntax ["value.", true] !\r\n\r\n' );
-                            }
                             /**
                              * If neither 'key' nor 'value.', user must have provided many filters - in the context of KVP it basically means f.e. such valid filters :
                              *  -> [value.name, true]
@@ -768,7 +751,7 @@
                             else if ( user_filter_array.length > 1 )
                             {
                                 var predicateArray;
-                                // loop over all filters and check for 'key' or 'value.' filters, so it doesn't make sense
+                                // loop over all filters and check for 'key' or 'value.' filter, so it doesn't make sense
                                 for ( var i = 0; i < user_filter_array.length; i++ )
                                 {
                                     // access current filter
@@ -782,10 +765,10 @@
                                         );
                                 }
 
-                                // if this is sorting context and we have arrived in this place
+                                // in sorting context if we have arrived in this place
                                 if ( sortingContext )
                                     /**
-                                     * Store in metadata that we're basically dealing with PLAIN objects in the context of KVP. 
+                                     * Store in metadata that we're basically dealing with PLAIN objects in the context of KVP
                                      *  => sort KVP by 'value.PLAIN' - second check
                                     */
                                     metadata.byValuePLAIN = true;
@@ -794,7 +777,7 @@
                                 check_PLAIN_I_2L( _ENUM.CEST.KVP, _ENUM.CEST.PLAIN );
                             }
 
-                            // if this is sorting context, return required KVP sorting metadata
+                            // in sorting context, return required KVP sorting metadata
                             if ( sortingContext )
                             {
                                 // sort KVP by 'value.PLAIN' - check for primitive type of value object itself (value.)
@@ -802,7 +785,6 @@
                                 {
                                     // if so, mark that sorting by 'value.PLAIN' for primitive types simply doesn't exist
                                     metadata.byValuePLAIN = false;
-
 
                                     // add extra property to tell that 'value.' object is a primitive type
                                     metadata.isValueDotPrimitive = true;
@@ -813,8 +795,7 @@
                             }
                         }
                         else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.UNKNOWN )
-                            // @ts-ignore
-                            ; // with collection input type set to UNKNOWN do nothing as the collection is empty
+                            ; // with collection input type set to UNKNOWN do nothing
                         else
                             // throw error about unsupported collection input type !
                             throw new Error( '\r\nThis sorting input type (sit) called "' + _COMMON.getCustomValueOfSymbol( _ACTION.hpid.columnSet.currentQueryIcest ) + '" is not supported !\r\n\r\n' );
@@ -885,10 +866,12 @@
             },
 
         addCustom: /**
-         * @param {any} name
-         * @param {any} key
-         * @param {any} value
-         * @param {any} param_args
+         * Provide your own syntax checking definition.
+         *
+         * @param {any} name Name of the function to access
+         * @param {any} key Type of the key, i.e. 'predicateArray', 'collectionItem', 'count', etc.
+         * @param {any} value Type of the value, i.e. primitive value || UDF (user-defined function)
+         * @param {any} param_args Additional parameters to pass to UDF
          */
             function ( name, key, value, param_args )
             {
@@ -899,16 +882,9 @@
                 /**
                  * Local helper functions
                 */
-                // @ts-ignore
                 function a_C_I_1L ( name, key, value, param_args )
                 {
-                    /**
-                     * name : name of the function to access
-                     * key : 'predicateArray', 'collectionItem', 'count', etc.
-                     * value : primitive value || UDF (user-defined function)
-                     * param_args : additional parameters to pass to UDF
-                    */
-
+                    // add your own syntax checking definition
                     defineCustomCheckMethod_I_1L( name, key, value, param_args );
 
 
@@ -938,6 +914,8 @@
             },
 
         checkCustom: /**
+         * Invoke your own syntax checking definition.
+         *
          * @param {any} method_name Name of the function to access
          */
             function ( method_name )
@@ -949,7 +927,6 @@
                 /**
                  * Local helper functions
                 */
-                // @ts-ignore
                 function a_C_I_1L ( method_name )
                 {
                     // invoke UDF
@@ -960,17 +937,17 @@
 
 
 
-    // private action object
+    // private object of actions
     var _ACTION = {
-        // create 'current' query-wide HPID, i.e. holder of physical intermediate data
+        // holder of physical intermediate data of the current query flow
         hpid: {
             // is data holder activated
             isSwitchedOn: false,
 
-            // array for storing physical intermediate data
+            // internal physical intermediate data storage
             data: [],
 
-            // this object allows for syntax checking during data flow operations
+            // metadata of the current flow query to allow for syntax checking during data flow operations
             columnSet: {
                 // current query input collection element structure type (currentQueryIcest)
                 currentQueryIcest: undefined,
@@ -979,27 +956,29 @@
                 all_columns: [],
 
                 init: /**
-                 * @param {{ value: any; }} obj
+                 * Discover the object structure.
+                 * 
+                 * @param {any} obj
                  */
                     function ( obj )
                     {
-                        // collection input column set
+                        // collection input column set - all columns available for usage in sorting operations
                         var propNames;
 
                         if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.PLAIN )
                         {
-                            // get all object property names at all levels
+                            // get object's all property names at all levels
                             propNames = _COMMON.fetchObjectStructureKeys( obj );
 
                             // prepend object!
                             propNames.unshift( 'object!' );
                         }
                         else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
-                            // prepend key
+                            // store key
                             propNames = [ 'key' ];
                         else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
                         {
-                            // get value all object property names at all levels
+                            // get object's all property names at all levels
                             propNames = _COMMON.fetchObjectStructureKeys( obj.value );
 
                             // prepend value.
@@ -1013,17 +992,19 @@
                         else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.UNKNOWN )
                             propNames = [];
 
-                        // store it for sorting purposes - all columns available for usage in sorting operations
+                        // store collection input column set for sorting purposes
                         _ACTION.hpid.columnSet.all_columns = propNames;
                     },
 
                 extractOVC: /**
+                 * From the user column set extract only 'real' property names.
+                 *
                  * @param {any[]} userColumnSet User column set
                  * @param {boolean} ensure_1D_array Force user column set (an array) to be in the shape of one dimensional array ?
                  */
                     function ( userColumnSet, ensure_1D_array )
                     {
-                        // define output object, i.e. array of only valid column names extracted from user column set
+                        // define output object, i.e. array of only valid column names extracted the from user column set
                         var ovc = [];
 
                         // in sorting context we require single array, hence make it such one
@@ -1038,7 +1019,7 @@
 
                             // only extract real - i.e. physical - column names by examining the last value (true/false)
                             if ( ccm[ ccm.length - 1 ] )
-                                // store real column name, aka object property name
+                                // store object property name, aka real column name
                                 ovc.push( ccm[ 0 ] );
                         }
 
@@ -1062,11 +1043,9 @@
                                 // access current item
                                 item = input_arr[ i ];
 
-                                // if item type is an array
+                                // if item type is an array, process it recursively
                                 if ( _COMMON.convertTypeToString( item ) === _ENUM.T2SR.ARRAY )
-                                {
                                     ensureOneDimensionalArray_I_1L( item, output_arr );
-                                }
                                 // otherwise add this whole input array
                                 else
                                 {
@@ -1081,6 +1060,8 @@
                     },
 
                 updateOVC_and_CheckIfUnique: /**
+                 * Update user column set and check the uniqueness.
+                 *
                  * @param {any} ovc
                  */
                     function ( ovc )
@@ -1089,7 +1070,7 @@
                         var unique = true;
 
                         /**
-                         * Along the way try to prove that this current sort set input is not unique one 
+                         * Along the way try to prove that this current sort set input is not unique one.
                         */
 
                         // add current sorting columns to already-used sorting columns
@@ -1103,7 +1084,7 @@
                         var phrase_source_arr;
                         // only updated sort set input with current ovc if there are any data to sort
                         if ( hpid_cache.length )
-                            // reference updated sort set input, that allows for building the right phrase
+                            // reference updated sort set input that allows for building the right phrase
                             phrase_source_arr = _ACTION.hpid.sorting.sort_columns;
 
 
@@ -1127,7 +1108,7 @@
                                 // define a sorting phrase
                                 var phrase = gbo.buildPhrase( c_o, phrase_source_arr );
 
-                                // when current object phrase is built, check phrase's uniqness
+                                // when current object phrase is built, check phrase uniqueness
                                 var value_arr = phrase_groupper[ phrase ] || [];
 
                                 // store some value as small as possible - ''.length * 2 => 0 * 2 = 0 !
@@ -1149,23 +1130,19 @@
                         }
                         // check the sorting phrase uniqueness based on GROUPING - by default grouping objects have to have unique keys !
                         else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
-                            // @ts-ignore
                             ;
                         // check the sorting phrase uniqueness based on KVP
                         else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
                         {
                             // if you use the key - "key", "value." - by default, kvp objects must return unique values !
                             if ( phrase_source_arr.length === 1 && ( phrase_source_arr[ 0 ].trim() === 'key' || phrase_source_arr[ 0 ].trim() === 'value.' ) )
-                                // @ts-ignore
                                 ;
-                            // if you use the key - "key", "value." - among other, by default kvp objects must return unique values !                                    
+                            // if you use the key - "key", "value." - among other, by default kvp objects must return unique values !
                             else if (
                                 phrase_source_arr.length !== 1 && phrase_source_arr.length > 1 &&
                                 ( phrase_source_arr.indexOf( 'key' ) > -1 || phrase_source_arr.indexOf( 'value.' ) > -1 )
                             )
-                                // @ts-ignore
                                 ;
-
                             // otherwise check the sorting phrase uniqueness solely based on value object of type PLAIN
                             else
                             {
@@ -1186,7 +1163,7 @@
                                     // define a sorting phrase
                                     var phrase = gbo.buildPhrase( c_o.value, value_plain_columns );
 
-                                    // when current object phrase is built, check phrase's uniqness
+                                    // when current object phrase is built, check phrase uniqueness
                                     var value_arr = phrase_groupper[ phrase ] || [];
 
                                     // store some value as small as possible - ''.length * 2 => 0 * 2 = 0 !
@@ -1231,22 +1208,22 @@
                         // did 1st level sorting take place, i.e. can you use 2nd level sorting
                         _present: false,
 
-                        check:/**
-                         * Determine whether 1st level sorting took place
-                        */
+                        check: /**
+                         * Determine whether 1st level sorting took place.
+                         */
                             function ()
                             {
                                 /**
                                  * Here you can access 'this' object which points to action constraint object and all-required contextual metadata available during the flow !
                                  * 
-                                 * Contextual 'this' object is available during action constraint checking only
+                                 * Contextual 'this' object is available during action constraint checking only.
                                 */
 
                                 if ( !this._present )
                                     throw new Error( '\r\nYou can only invoke 2nd level sorting (thenBy, thenByDescending), when 1st level sorting (orderBy, orderByDescending) took place !\r\nAdditionally 2nd level sorting must the very next operation taking place just after 1st level sorting was applied.\r\n\r\n' );
                             },
 
-                        set:/**
+                        set: /**
                          * @param {boolean} flag
                          * @param {any} caco
                          */
@@ -1257,7 +1234,7 @@
                                 /**
                                  * Here you can access 'caco' object which points to current action constraint object and all-required contextual metadata available during the flow !
                                  * 
-                                 * Contextual 'this' object is available during action constraint execution only !
+                                 * Contextual 'this' object is available during action constraint execution only.
                                 */
                                 if ( caco.isWritable )
                                     // when executing writable action constraint, mark that this action constraint is applied by disabling it
@@ -1277,26 +1254,26 @@
                         // sorting metadata for type KVP
                         _metadataKVP: undefined,
 
-                        getMetadata:/**
-                             * Get sorting metadata object for the current executing action
-                             * and all available contextual data from the query flow.
-                             * Applies for type KVP only !
-                            */
+                        getMetadata: /**
+                         * Get sorting metadata object for the current executing action
+                         * and all available contextual data from the query flow.
+                         * Applies for type KVP only !
+                         */
                             function ()
                             {
                                 /**
                                  * Here you can access 'this' object which points to action constraint object and all-required contextual metadata available during the flow !
                                  * 
-                                 * Contextual 'this' object is available during action constraint checking only
+                                 * Contextual 'this' object is available during action constraint checking only.
                                 */
 
                                 return this._metadataKVP;
                             },
 
-                        setMetadata:/**
-                             * @param {any} metadata
-                             * @param {any} caco
-                             */
+                        setMetadata: /**
+                         * @param {any} metadata
+                         * @param {any} caco
+                         */
                             function ( metadata, caco )
                             {
                                 this._metadataKVP = metadata;
@@ -1304,7 +1281,7 @@
                                 /**
                                  * Here you can access 'caco' object which points to current action constraint object and all-required contextual metadata available during the flow !
                                  * 
-                                 * Contextual 'this' object is available during action constraint execution only !
+                                 * Contextual 'this' object is available during action constraint execution only.
                                 */
                                 if ( caco.isWritable )
                                     // when executing writable action constraint, mark that this action constraint is applied by disabling it
@@ -1328,7 +1305,7 @@
 
                         check: /**
                          * Force second-level sorting to take place
-                        */
+                         */
                             function ()
                             {
                                 return this._force;
@@ -1339,7 +1316,7 @@
                          *
                          * @param {boolean} flag
                          * @param {any} caco
-                        */
+                         */
                             function ( flag, caco )
                             {
                                 this._force = flag;
@@ -1350,9 +1327,10 @@
                     return sl_ctx;
                 },
 
-                // reset all so-far used sorting
                 /**
-                * @param {any} sharedSecondLevelSortingContext Shared sorting context of the 2nd level
+                 * Reset all so-far used sorting.
+                 * 
+                 * @param {any} sharedSecondLevelSortingContext Shared sorting context of the 2nd level
                 */
                 clear: function ( sharedSecondLevelSortingContext )
                 {
@@ -1372,8 +1350,8 @@
             },
 
             /**
-             * Handle special case that returns the so-far filtered off array.
-             * The following parameter called 'done' when set to 'true' tells to discard returned result and go for the so-far filtered off array as the final result 
+             * Handle special case that returns so-far filtered off array of the current query flow.
+             * The following parameter called 'done' when set to 'true' is to tell to discard returned result and go for so-far filtered off array as the final result.
             */
             done: false,
 
@@ -1393,9 +1371,9 @@
 
         hpidCommons: {
             updateColumnSetCestAndCols: /**
-            * Updates collection metadata required by the current query flow.
-            * It detects current collection element structure type (cest) and updates column set of the contextually current collection.
-            */
+             * Updates collection metadata required by the current query flow.
+             * It detects current collection element structure type (cest) and updates column set of the contextually current collection.
+             */
                 function ( length_gte_2, firstItem, ofss )
                 {
                     /**
@@ -1420,8 +1398,8 @@
 
 
             updateColumnSetColsOnlyWithInternalOfss: /**
-            * Updates collection metadata required by the current query flow by updating column set of the contextually current collection.
-            */
+             * Updates collection metadata required by the current query flow by updating column set of the contextually current collection.
+             */
                 function ( ofss )
                 {
                     // separator of props
@@ -1431,7 +1409,7 @@
                     if ( !ofss )
                         ofss = '';
 
-                    // add coma if missing
+                    // add comma if missing
                     if ( !ofss.includes( sep ) )
                         ofss = ofss + ',';
 
@@ -1449,7 +1427,7 @@
                         // prepend object!
                         propNames.unshift( 'object!' );
                     else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.GROUPING )
-                        // prepend key
+                        // store key
                         propNames = [ 'key' ];
                     else if ( _ACTION.hpid.columnSet.currentQueryIcest === _ENUM.CEST.KVP )
                     {
@@ -1486,7 +1464,7 @@
                     */
                     function d_CEST_I_1L ( collectionItem, doCurrentSort, doNextSort )
                     {
-                        // if collection does not require sorting
+                        // if collection doesn't require sorting
                         if ( !doCurrentSort && !doNextSort )
                             return _ENUM.CEST.UNKNOWN;
                         // if it's primitive type
@@ -1516,11 +1494,11 @@
                     }
                 },
 
-            simulateNextQueryIcest:/**
-            * Detect type of collection element structure (cest) of the very next query in the flow.
-            *
-            * @param {any} runtimeContext Action context, aka runtime context of JLC current instance
-            */
+            simulateNextQueryIcest: /**
+             * Detect type of collection element structure (cest) of the very next query in the flow.
+             *
+             * @param {any} runtimeContext Action context, aka runtime context of JLC current instance
+             */
                 function ( runtimeContext )
                 {
                     return s_NQI_I_1L( runtimeContext );
@@ -1646,7 +1624,7 @@
 
                                 function updateHCSForKvp_I_4L ()
                                 {
-                                    // get all props to learn the type of the object that is the raw input collection
+                                    // get all props to learn the type of the object that constitutes the raw input collection
                                     var typeProps = Object.getOwnPropertyNames( runtime_ctx.currentQueryIceMetaObject.item );
 
                                     // all contextually valid property names
@@ -1654,7 +1632,7 @@
 
                                     // if dictionary
                                     if ( typeProps.length === 2 && ( typeProps[ 0 ] === 'key' && typeProps[ 1 ] === 'value' || typeProps[ 0 ] === 'value' && typeProps[ 1 ] === 'key' ) )
-                                        // get value all object property names at all levels
+                                        // get object's all property names at all levels
                                         propNames = _COMMON.fetchObjectStructureKeys( runtime_ctx.currentQueryIceMetaObject.item.value );
                                     // if grouping object
                                     else if ( typeProps.length === 2 && ( typeProps[ 0 ] === 'key' && typeProps[ 1 ] === 'resultsView' || typeProps[ 0 ] === 'resultsView' && typeProps[ 1 ] === 'key' ) )
@@ -1662,7 +1640,7 @@
                                         propNames = [ 'key' ];
                                     // otherwise plain object
                                     else
-                                        // get all object property names at all levels
+                                        // get object's all property names at all levels
                                         propNames = _COMMON.fetchObjectStructureKeys( runtime_ctx.currentQueryIceMetaObject.item );
 
                                     // update current hpid column set
@@ -1674,10 +1652,10 @@
                 },
 
             clearCache: /**
-            * Clear the internal JLC cache.
-            * 
-            * @param {{any: any}} sharedSecondLevelSortingContext
-            */
+             * Clear the internal JLC cache.
+             * 
+             * @param {object} sharedSecondLevelSortingContext
+             */
                 function ( sharedSecondLevelSortingContext )
                 {
                     return clear_C_I_1L( sharedSecondLevelSortingContext );
@@ -1703,21 +1681,21 @@
 
         funcCommons: {
             create: /**
-            * Create action that represents filtering logic for given JLC method.
-            */
+             * Create action that represents filtering logic for given JLC method.
+             */
                 function ( jlc_instance_ctx, jlc_instance_qmi, jlc_query_cache_config, core_method_bound, jlc_query_name, jlc_query_filters, jlc_query_constraint_def, to_execute )
                 {
                     // create an action
                     var action = createAction_I_1L( jlc_query_name, jlc_instance_ctx, core_method_bound );
 
-                    // create an action context 
+                    // create an action context
                     var action_context = createActionContext_I_1L( jlc_query_name, jlc_instance_ctx, jlc_query_filters, action, jlc_query_cache_config );
 
                     // create an action constraint
                     var action_constraint = createActionConstraint_I_1L( jlc_instance_ctx, jlc_query_constraint_def, action_context );
 
                     /**
-                     * Before proceeding with action chain execution or action chaining, run constraint checking for action chain up the road !
+                     * Before proceeding with action chain execution or action chaining, run constraint checking for action chain, up the road !
                      * Run constraint checking from this action up the root action itself !
                      * 
                      * Constraint concept is designed to be independent of the above tandem, i.e. action & action-context and their relationship !
@@ -1926,7 +1904,7 @@
                                 // get all constraint functions, aka constraint actions
                                 var c_funcs = actionConstr.acf;
 
-                                // loop over all - 1 regular constraint functions
+                                // loop over all but the last one regular constraint functions
                                 for ( var i = 0; i < c_funcs.length - 1; i++ )
                                     /**
                                         * Execute each constraint function
@@ -1942,7 +1920,7 @@
                                     // apply syntax check constraint
                                     c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( this.predicate_array, this.isPrimitive, actionConstr.isSortContext, actionConstr, this.currentQueryActionObject, this.name );
                                 else
-                                    // apply regular constraint function
+                                    // apply regular constraint
                                     c_funcs[ c_funcs.length - 1 ].bind( actionConstr )( actionConstr.data[ c_funcs.length - 1 ] );
                             };
                         }
@@ -1956,6 +1934,7 @@
                     {
                         // create query meta object
                         var currentQuery = Object.create( null );
+
                         // store current query name
                         currentQuery.name = jqn;
                         // store current query filters
@@ -1979,8 +1958,8 @@
                         function prepare_ACRR_I_2L ( action_ctx, action_constr )
                         {
                             /**
-                             * Join the previous (parent - one level up the action constraint chain) action constraint with this action constraint.
-                             * Set parent constraint of this current constraint ! 
+                             * Join the previous (parent, i.e. one level up the action constraint chain) action constraint with this action constraint.
+                             * Set parent constraint of this current constraint !
                             */
                             action_ctx.parentActionConstraintObject = action_constr;
 
@@ -2007,8 +1986,8 @@
                 },
 
             executeChain: /**
-            * Execute all actions in the chain.
-            */
+             * Execute all actions in the chain.
+             */
                 function ( actionContext )
                 {
                     return execute_C_I_1L( actionContext );
@@ -2045,7 +2024,7 @@
                             _ACTION.hpid.columnSet.currentQueryIcest = action_ctx.currentQueryIceMetaObject.realFlowInitialIcest;
 
 
-                            // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to so
+                            // invoke this root action and go recursively all the way up to action that ends the action chain; returns data if it has to do
                             if ( parentAction.returnsData )
                                 return parentAction.execute( queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, action_ctx.currentQueryIceMetaObject.itemStructureChangeObject );
                             else
@@ -2076,7 +2055,7 @@
 
 
 
-    // private common object
+    // private object of shared methods
     var _COMMON = {
         isFloatingPoint: /**
          * Detects if a number is a floating point one.
@@ -2121,7 +2100,7 @@
             },
 
         toNumeric: /**
-         * Convert a variable (including a string) to a number with or without decimal point.
+         * Converts a variable (including a string) to a number with or without decimal point.
          *
          * Source: https://stackoverflow.com/questions/2304052/check-if-a-number-has-a-decimal-place-is-a-whole-number
          *
@@ -2156,7 +2135,7 @@
             },
 
         isPrimitiveType: /**
-         * Detect type of passed item.
+         * Detects type of passed item.
          *
          * @param {any} o
          */
@@ -2176,7 +2155,7 @@
             },
 
         isPrimitiveType_T2SR: /**
-         * Detect type of passed item.
+         * Detects type of passed item.
          *
          * @param {any} o
          */
@@ -2216,7 +2195,7 @@
             },
 
         decorateDataType: /**
-         * Enhance given data type with additional "native" functionalities of this type
+         * Enhance given data type with additional "native" functionalities of this type.
          *
          * Yes, this is an example of the pattern called Decorator, here in JavaScript !
          * 
@@ -2261,6 +2240,7 @@
                             // invoke method logic
                             return defineMethodImplementationForDictionary_I_2L( this, 'value', value, qi );
                         };
+
 
                         /**
                          * Add some properties
@@ -2319,7 +2299,7 @@
                         // return decorated type instance
                         return ic_clone;
                     }
-                    // for ordinary structures apply circular references prevention
+                    // for ordinary structures just clone it
                     else
                         // copy result 100% "by value"
                         return _COMMON.deepCopyNCR( ic );
@@ -2356,7 +2336,7 @@
                             arr_i = arr[ i ][ propName ];
 
                             /**
-                             * Check if value passed by the user is of the same type as the current internal collection item ?
+                             * Check if value passed by the user is of the same type as the current internal collection item.
                              *  1.  If not, just skip this item !
                              *  2.  Otherwise do comparison
                             */
@@ -2387,7 +2367,7 @@
             },
 
         isObjectEmpty: /**
-         * Test for an empty JavaScript object.
+         * Detects whether passed item is an empty JavaScript object.
          *
          * Source: https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
          * 
@@ -2415,7 +2395,7 @@
             },
 
         validateParamsObjectOfQueryInterface: /**
-         * Parse query interface's params object while creating the query method.
+         * Validate query interface's params object while creating the query method.
          *
          * @param {any} params Main object used to create query method definition.
          * @param {any} queryName Name of the query method to create.
@@ -2440,8 +2420,8 @@
 
 
                     // handle missing params object
-                    if ( t2sr === _ENUM.T2SR.STRING && params === undefined ) throw new ReferenceError( error_prefix + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
-
+                    if ( t2sr === _ENUM.T2SR.STRING && params === undefined )
+                        throw new ReferenceError( error_prefix + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
                     // check if this param is required (non-empty string)
                     else if ( t2sr === _ENUM.T2SR.STRING && params !== undefined )
                     {
@@ -2479,9 +2459,9 @@
             },
 
         getDefaultValueOf: /**
-         * Determine default value of inputItem.
+         * Determine default value of passed item.
          *
-         * @param {any} inputItem Value to determine default value of
+         * @param {any} inputItem Value to determine default value of.
          * @param {any} getDetails Get "some precision", i.e. if Number then with decimal point, if Object then with its native prototype, if String then with double quotes
          */
             function ( inputItem, getDetails )
@@ -2549,7 +2529,7 @@
                         // detect constructor name
                         var name = typeof ctor === 'function' && ctor.name;
 
-                        // return string representation of the type of this value 
+                        // return string representation of the type of this value
                         return typeof name === 'string' && name.length > 0 ? name.toLowerCase() : 'object';
                     }
                 }
@@ -2574,15 +2554,16 @@
                     // cache current query interceptor
                     var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
 
-                    // enable transparent object property access
+                    // enable object property transparent access
                     _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
 
 
                     /**
-                     * Check the chain of invoked so-far methods, and based on that examine what type of item in the source collection you would deal with,
-                     * if any data would have been available, when query flow had arrived in 'defaultIfEmpty' method.
+                     * Check the chain of invoked so-far methods and based on that examine what type of item in the source collection you would deal with,
+                     * if data would have been available, when query flow had arrived in current query method.
                     */
+
                     // reference api object
                     var api = param_arr[ 0 ];
 
@@ -2632,7 +2613,7 @@
                     if ( possible_type === _ENUM.CEST.KVP || possible_type === _ENUM.CEST.GROUPING )
                         // define collection default value
                         api.runtimeContext.cdv = undefined;
-                    // it must be 'PLAIN' or 'PRIMITIVE'
+                    // otherwise it must be 'PLAIN' or 'PRIMITIVE'
                     else
                     {
                         // get the type string representation
@@ -2659,10 +2640,10 @@
                     */
                     function getQueryMethodNames_I_2L ()
                     {
-                        // get all valid query names from the current flow
+                        // all valid query names from the current flow
                         var queryNames = [];
 
-                        // fetch all query methods of current flow (qmcf)
+                        // fetch all valid query names from the current flow (qmcf)
                         var qmcf = api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ];
 
                         // loop over api and store only query method names
@@ -2670,7 +2651,7 @@
                             if ( typeof qmcf[ key ] === 'function' && _LINQ_CONTEXT._all.includes( key ) )
                                 queryNames.push( key );
 
-                        // return all valid query method names
+                        // return all valid query names from the current flow
                         return queryNames;
                     }
                 }
@@ -2679,7 +2660,7 @@
         getCollectionItemDefaultValue: /**
          * Determine and return collection default value.
          *
-         * @param {any} cdv Collection item computed default value
+         * @param {any} cdv Collection item computed default value.
          */
             function ( cdv )
             {
@@ -2720,15 +2701,11 @@
                     // cache current query interceptor
                     var current_GET_interceptor = _LINQ_CONTEXT._arrayProxyHandler.get;
 
-                    // enable transparent object property access
+                    // enable object property transparent access
                     _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
 
 
-                    /**
-                     * cmpo stands for core method params object, which for some query methods' acp is optional.
-                     * It gives access to all params and their values of the jcm method !
-                    */
                     // reference JLC proxied instance
                     var api = param_arr[ 0 ];
 
@@ -2742,6 +2719,7 @@
                     var selectorObj = param_arr[ param_arr.length - 1 ][ selectorName ];
 
 
+
                     // reference core method args and get filtering property; value of filtering property; is special property
                     var property, propertyValue, isPropertyValueInitialized = false, isp = false;
 
@@ -2750,6 +2728,7 @@
                      * It is assumed that some object may miss such property.
                     */
                     var currentColl = _DATA.fetchFlowData( api[ _ENUM.RUNTIME.RTC ].collectionIndex, false );
+
 
 
                     // if selector is defined
@@ -2811,9 +2790,9 @@
             },
 
         isSpecialProperty: /**
-         * Check for special property that is used primarily during sorting collection by objects themselves.
+         * Check for special property that is used primarily during collection sorting by its objects themselves.
          *
-         * @param {any} propName
+         * @param {any} propName Property name to check its speciality.
          */
             function ( propName )
             {
@@ -2833,7 +2812,7 @@
         determineSpecialPropertyType: /**
          * Determine the type of the special property used to filter a collection during maths-based query methods.
          *
-         * @param {any} propName
+         * @param {any} propName Special property name to check its type.
          */
             function ( specialPropName )
             {
@@ -2858,7 +2837,7 @@
         getCustomValueOfSymbol: /**
          * Convert Symbol value to string representation.
          *
-         * @param {any} inputItem
+         * @param {any} inputItem Some instance of the Symbol type.
          */
             function ( inputItem )
             {
@@ -2878,9 +2857,9 @@
         getPropertyValueFromObject: /**
          * Fetch value from object.
          *
-         * @param {any} propName Property of object or property path from object.
+         * @param {any} propName Property of object or property path of object.
          * @param {any} obj Object to fetch property or property path from.
-         * @param {any} isValidationContext Fetch property from object in the validation context mode or not.
+         * @param {any} isValidationContext Do fetch property from object in the validation context ?
          * @param {any} is_T2SR_Required Is T2SR required (custom toString presence).
          */
             function ( propName, obj, isValidationContext, is_T2SR_Required )
@@ -2926,7 +2905,7 @@
                     {
                         var isp = _COMMON.isSpecialProperty( propName );
                         /**
-                         * Check for special property that is used primarily during sorting collection by objects themselves.
+                         * Check for special property that is used primarily during collection sorting by its objects themselves.
                          * Validate against sorting context and return custom string representation of the object in question.
                         */
                         return isp ? validateAgainstSortingContext_I_2L( obj, isp, checkT2SR ) : validateAgainstSortingContext_I_2L( obj[ propName ], validate, checkT2SR );
@@ -2939,7 +2918,7 @@
                     */
                     function validateAgainstSortingContext_I_2L ( o, validate, checkToString )
                     {
-                        // if it's an object
+                        // if it's an object type
                         if ( ( _COMMON.convertTypeToString( o ) === _ENUM.T2SR.OBJECT ) && validate && checkToString )
                         {
                             /**
@@ -2954,7 +2933,7 @@
                             // return custom string representation of the object
                             return o.toString();
                         }
-                        // otherwise, return this property value
+                        // otherwise return this property value
                         else
                             return o;
                     }
@@ -2978,13 +2957,13 @@
                 */
                 function seek_PoTEIR_I_1L ( obj, pn, length, letThrowError )
                 {
-                    // create array of prop's path
+                    // create array from property path
                     var path_arr = pn.split( '.' );
 
                     // define property value holder (pvh); was pvh initialized (pvh_init)
                     var pvh, pvh_init;
 
-                    // loop over array of prop's path to seek the destination property and/or return its value
+                    // loop over array-from-property-path to seek the destination property and/or return its value
                     for ( var i = 0; i < length; i++ )
                     {
                         // pvh was initialized, but some property in the path evaluated to null or undefined
@@ -3023,7 +3002,7 @@
                     */
                     function validatePvh_I_2L ( v )
                     {
-                        // convert value to its string type representation
+                        // convert value to its type string representation
                         var t2sr = _COMMON.convertTypeToString( v );
 
                         // assert the validity
@@ -3033,7 +3012,7 @@
             },
 
         deepCopyYCR: /**
-         * Clone object without reference with circular references.
+         * Clone object without reference that has circular references.
          *
          * Source: https://stackoverflow.com/questions/40291987/javascript-deep-clone-object-with-circular-references
          * 
@@ -3048,10 +3027,13 @@
 
 
                 try
-                { // try to run constructor (without arguments, as we don't know them)
+                { 
+                    // try to run constructor (without arguments, as we don't know them)
                     var result = new obj.constructor();
-                } catch ( e )
-                { // constructor failed, create object without running the constructor
+                }
+                catch ( e )
+                {
+                    // constructor failed, create object without running the constructor
                     result = Object.create( Object.getPrototypeOf( obj ) );
                 }
 
@@ -3064,13 +3046,14 @@
                 // register in hash
                 hash.set( obj, result );
 
+
                 // clone and assign enumerable own properties recursively
                 return Object.assign( result, ...Object.keys( obj ).map(
                     key => ( { [ key ]: _COMMON.deepCopyYCR( obj[ key ], hash ) } ) ) );
             },
 
         deepCopyNCR: /**
-         * Clone object without reference without circular references.
+         * Clone object without reference that has not circular references.
          *
          * Source: https://github.com/zellwk/javascript/blob/master/mix/mix.js
          * 
@@ -3078,17 +3061,23 @@
          */
             function ( obj )
             {
+                // output result
                 var result;
 
+                // output is an array
                 if ( objectTypeToString_I_1L( obj ) === _ENUM.T2SR.ARRAY )
                     result = [];
+                // output is an object
                 else if ( objectTypeToString_I_1L( obj ) === _ENUM.T2SR.OBJECT )
                     result = {};
+                // otherwise return the passed item
                 else
                     return obj;
 
+                // do cloning
                 deepCNCR_I_1L( result, obj );
 
+                // return the result
                 return result;
 
 
@@ -3168,11 +3157,13 @@
                                 return obj;
                             }
 
-                            // other types of objects
+
+                            /**
+                             * Other types of objects
+                            */
+
                             if ( objectTypeToString_I_1L( value ) === _ENUM.T2SR.DATE )
-                            {
                                 return new Date( value.getTime() );
-                            }
 
                             if ( objectTypeToString_I_1L( value ) === _ENUM.T2SR.MAP )
                             {
@@ -3207,6 +3198,7 @@
 
                 function objectTypeToString_I_1L ( value )
                 {
+                    // convert passed value to its type string representation
                     return _COMMON.convertTypeToString( value );
                 }
             },
@@ -3214,7 +3206,7 @@
         fetchObjectStructureKeys: /**
          * Fetch all keys at all levels of passed object.
          *
-         * @param {any} obj
+         * @param {any} obj Object to fetch all keys from.
          */
             function ( obj )
             {
@@ -3328,27 +3320,23 @@
                     for ( var i = 0; i < key_prop_arr.length; i++ )
                     {
                         // reference the key part
-                        // @ts-ignore
                         keyPart = key_prop_arr[ i ];
 
                         // is it main object itself ?
                         if ( _COMMON.isSpecialProperty( keyPart.value ) && _COMMON.determineSpecialPropertyType( keyPart.value ) === _ENUM.T2SR.OBJECT )
-                            //  key is a object itself !
+                            //  key is an object itself !
                             key = item;
 
                         // is it complex (nested-level primitive one or a nested-level object) ?
-                        // @ts-ignore
                         else if ( keyPart.isValidProperty && keyPart.isComplex )
                         {
                             // if key is already initialized
                             if ( key )
-                                // get the property value from passed-in object
-                                // @ts-ignore
+                                // get the property value from passed object
                                 key += _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value, true, true );
                             else
                             {
-                                // get the property value from passed-in object
-                                // @ts-ignore
+                                // get the property value from passed object
                                 var rkv = _LOGICAL_FILTER.applyPropertyValueFilter( item, keyPart.value, true, true );
 
                                 // convert object to type string representation
@@ -3373,17 +3361,14 @@
                             }
                         }
                         // is it simple (current-level primitive one or a current-level object) ?
-                        // @ts-ignore
                         else if ( keyPart.isValidProperty )
                         {
                             // if key is already initialized
                             if ( key )
-                                // @ts-ignore
                                 key += item[ keyPart.value ];
                             else
                             {
                                 // get the key value
-                                // @ts-ignore
                                 var rkv = item[ keyPart.value ];
 
                                 // if a key part is an object, not object string representation
@@ -3402,7 +3387,6 @@
                         }
                         // otherwise apply some part that is not a property of an object
                         else
-                            // @ts-ignore
                             key += keyPart.value;
                     }
 
@@ -3414,7 +3398,7 @@
         createCompoundKey: /**
          * Create object being a key based on passed key-building-parts.
          *
-         * @param {any} keySelectorArray
+         * @param {any} keySelectorArray Key building parts.
          */
             function ( keySelectorArray )
             {
@@ -3427,7 +3411,7 @@
                 */
                 function create_CK_I_1L ( keySelectorArray )
                 {
-                    // define array holding grouping or sorting logic key
+                    // define grouping or sorting logic key
                     var key = [];
 
                     // loop over all key selectors
@@ -3439,20 +3423,20 @@
                         // get the component value
                         var c_v = ksc[ 0 ];
 
-                        // is this a real property of the object
+                        // is this a real property of the object ?
                         var is = ksc[ 1 ];
 
                         // store object representing part of the key
                         key.push( { value: c_v, isValidProperty: is, isComplex: c_v.indexOf( '.' ) > 0 } );
                     }
 
-                    // return array holding grouping or sorting logic key
+                    // return grouping or sorting logic key
                     return key;
                 }
             },
 
         usingGroupingBy: /**
-         * Get object providing grouping utilities for any collection of data. 
+         * Get object providing grouping utilities for any collection of data.
          */
             function ()
             {
@@ -3511,7 +3495,7 @@
                                             // store index of grouping object in the group
                                             gso.idx = i;
 
-                                            // reference the list of grouped values and yield them on demand (right here right now)
+                                            // reference the list of grouped values and yield them on demand
                                             gso.arr = item.resultsView;
 
                                             // discard further search
@@ -3534,7 +3518,7 @@
                                             // store index of grouping object in the group
                                             gso.idx = i;
 
-                                            // reference the list of grouped values and yield them on demand (right here right now)
+                                            // reference the list of grouped values and yield them on demand
                                             gso.arr = item.resultsView;
 
                                             // discard further search
@@ -3576,9 +3560,10 @@
                                     }
                                 );
 
-                                // store grouping object at the right position
+                                // add new grouping object
                                 if ( gso.idx === -1 )
                                     groups_obj.push( grouping_obj );
+                                // update grouping object at the right position
                                 else
                                     groups_obj[ gso.idx ] = grouping_obj;
                             },
@@ -3589,7 +3574,7 @@
                                 // create pure empty object
                                 var grouping_obj = Object.create( null );
 
-                                // define grouping object
+                                // define grouping entry
                                 grouping_obj.key = key;
 
                                 /**
@@ -3763,7 +3748,7 @@
                         GROUPING_Comparator:
                             function ( itemCurrent, itemPrevious )
                             {
-                                // invoke basic boolean comparison 
+                                // invoke basic boolean comparison
                                 return Boolean_Comparator_I_2L( itemCurrent.key, itemPrevious.key );
                             },
 
@@ -3771,7 +3756,7 @@
                             function ( itemCurrent, itemPrevious )
                             {
                                 /**
-                                 * Check what exactly we sort in KVP context by examining sortMetadata object
+                                 * Check what exactly we sort in KVP context, by examining sortMetadata object
                                  * 
                                  *      - sortMetadata.byKey
                                  *      - sortMetadata.byValue
@@ -3780,16 +3765,12 @@
 
                                 // by 'key'
                                 if ( sortMetadata.byKey )
-                                {
-                                    // invoke basic boolean comparison 
+                                    // invoke basic boolean comparison
                                     return Boolean_Comparator_I_2L( itemCurrent.key, itemPrevious.key );
-                                }
                                 // by 'value' object itself when 'value' is the primitive type
                                 else if ( sortMetadata.byValue && sortMetadata.isValueDotPrimitive )
-                                {
                                     // invoke basic boolean comparison
                                     return Boolean_Comparator_I_2L( itemCurrent.value, itemPrevious.value );
-                                }
                                 // by 'value' object itself when 'value' is the object not the primitive type
                                 else if ( sortMetadata.byValue && !sortMetadata.isValueDotPrimitive )
                                 {
@@ -3813,10 +3794,8 @@
                                 }
                                 // by 'value' object itself
                                 else if ( sortMetadata.byValuePLAIN )
-                                {
                                     // invoke PLAIN comparator private function
                                     return PLAIN_Comparator_I_2L( itemCurrent, itemPrevious, _ENUM.CEST.KVP );
-                                }
                             },
 
                         PRIMITIVE_Comparator:
@@ -3831,7 +3810,7 @@
                     /**
                      * Determine what type of comparator to get
                      *  - automatically based on cest (collection element structure type)
-                     *  - by force using requested comparator name 
+                     *  - by force using requested comparator name
                     */
 
                     if ( by_force && forced_comparator_name )
@@ -3867,7 +3846,7 @@
                         // create two sorting phrases to compare against each other, 'itemCurrentValue' vs 'itemPreviousValue' respectively
                         createSortPhrases_I_3L( cest );
 
-                        // invoke basic boolean comparison 
+                        // invoke basic boolean comparison
                         return Boolean_Comparator_I_2L( itemCurrentValue, itemPreviousValue );
 
 
@@ -3930,7 +3909,7 @@
                                 // reference a sorting column
                                 sortCol = sortCols[ i ];
 
-                                // is it complex KVP
+                                // is it complex KVP ?
                                 if ( cestCtx === _ENUM.CEST.KVP && sortCol.indexOf( '.' ) > 0 )
                                 {
                                     // subtract the type marker
@@ -3940,7 +3919,7 @@
                                     itemCurrentValue += _LOGICAL_FILTER.applyPropertyValueFilter( oC, sortCol, true, false );
                                     itemPreviousValue += _LOGICAL_FILTER.applyPropertyValueFilter( oP, sortCol, true, false );
                                 }
-                                // is it complex PLAIN
+                                // is it complex PLAIN ?
                                 else if ( sortCol.indexOf( '.' ) > 0 )
                                 {
                                     // get the property value from both, the current and the previous object
@@ -3970,7 +3949,7 @@
                     {
                         /**
                          * vC means itemCurrentValue
-                         * vP means itemPreviousValue 
+                         * vP means itemPreviousValue
                         */
 
                         /**
@@ -4084,8 +4063,8 @@
         useDefaultObjectContentComparer: /**
          * Compare two objects to determine whether they have the same content (property name - property value).
          * 
-         * @param {any} obj1
-         * @param {any} obj2
+         * @param {any} obj1 First object to compare.
+         * @param {any} obj2 Second object to compare.
          */
             function ( obj1, obj2 )
             {
@@ -4098,7 +4077,7 @@
                 */
                 function use_DOCC_C_I_1L ( obj1, obj2 )
                 {
-                    // are two objects equal
+                    // are two objects equal ?
                     var match_found = false;
 
 
@@ -4117,7 +4096,7 @@
                     var propNames_1 = Object.getOwnPropertyNames( obj1 || Object.create( null ) );
                     var propNames_2 = Object.getOwnPropertyNames( obj2 || Object.create( null ) );
 
-                    // if the number of props are different
+                    // if the number of props is not equal
                     if ( propNames_1.length !== propNames_2.length ) return match_found;
 
                     // sort property names natively
@@ -4170,7 +4149,7 @@
         trimSpaces: /**
          * Removes unnecessary spaces around array items.
          *
-         * @param {any} input_array An input array
+         * @param {any} input_array An input array.
          */
             function ( input_array )
             {
@@ -4183,6 +4162,7 @@
                 */
                 function tS_I_1L ( arr )
                 {
+                    // for each item trim empty spaces around it
                     arr.forEach( function ( item, index, source_arr )
                     {
                         source_arr[ index ] = item.trim();
@@ -4193,8 +4173,8 @@
         updateIceMetaObjectOfRuntimeContext: /**
          * Update metadata object of an input collection element of the current query or future queries down the query chain.
          *
-         * @param {any} inputCollection
-         * @param {any} runtimeContext
+         * @param {any} inputCollection Input collection.
+         * @param {any} runtimeContext Runtime context of the current query flow.
          */
             function ( runtimeContext, inputCollection )
             {
@@ -4235,7 +4215,7 @@
             }
     };
 
-    // private core object
+    // private object of core methods
     var _CORE = {
         join_mtds: /**
          * @param {Object} params
@@ -4264,7 +4244,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4309,7 +4289,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4356,7 +4336,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4404,7 +4384,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4450,7 +4430,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4493,7 +4473,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4536,7 +4516,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4578,7 +4558,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4621,7 +4601,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4662,7 +4642,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4709,7 +4689,7 @@
                 if ( !isCacheHit )
                 {
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
                     runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
@@ -4734,13 +4714,15 @@
 
 
 
-    // private logical filters object
+    // private object of logical filters
     var _LOGICAL_FILTER = {
         applyLogicalBoolFilter: /**
-         * @param {any} currentObject
-         * @param {any} predicateArray
-         * @param {any} elementIndex
-         * @param {bool} throwErrorWhenNullOrUndefined
+         * It returns success or failure when running predicates against passed object.
+         *
+         * @param {any} currentObject Object to apply filter to.
+         * @param {any} predicateArray Array of predicates.
+         * @param {any} elementIndex Index of the object to apply filter to.
+         * @param {bool} throwErrorWhenNullOrUndefined Should error be thrown when any predicate applied to input object evaluates to null or undefined ?
          */
             function ( currentObject, predicateArray, elementIndex, throwErrorWhenNullOrUndefined )
             {
@@ -4790,7 +4772,7 @@
                         // filtering property name
                         var propName = predicate[ 0 ];
 
-                        // is filtering property value with decimals
+                        // is filtering property value with decimals ?
                         var withDecimals = ( predicate.length === 4 ) && predicate[ 3 ];
 
                         // filtering property value
@@ -4857,9 +4839,11 @@
             },
 
         applyLogicalWhereFilter: /**
-         * @param {any} currentColl
-         * @param {any} predicateArray
-         * @param {any} enumValue
+         * It filters off passed collection and returns only items that passed predicates.
+         *
+         * @param {any} currentColl Input collection to apply filter to.
+         * @param {any} predicateArray Array of predicates.
+         * @param {any} enumValue Enum flag that differentiate between the following query methods like where, take & while.
          */
             function ( currentColl, predicateArray, enumValue )
             {
@@ -4900,10 +4884,10 @@
             },
 
         applyPropertyValueFilter: /**
-         * @param {any} currentObject
-         * @param {any} propertyName
-         * @param {any} returnValue
-         * @param {bool} throwErrorWhenNullOrUndefined
+         * @param {any} currentObject Object to apply filter to.
+         * @param {any} propertyName Name of the property of the input object.
+         * @param {any} returnValue Should this property value be returned or not ?
+         * @param {bool} throwErrorWhenNullOrUndefined Should error be thrown when any predicate applied to input object evaluates to null or undefined ?
          */
             function ( currentObject, propertyName, returnValue, throwErrorWhenNullOrUndefined )
             {
@@ -4916,7 +4900,7 @@
                 */
                 function apply_PVF_I_1L ( obj, pn, rv, letThrowError )
                 {
-                    // create array of prop's path
+                    // create array of property path
                     var path_arr = pn.split( '.' );
 
                     // loop iteration count
@@ -4928,7 +4912,7 @@
             }
     };
 
-    // private physical filters object
+    // private object of physical filters
     var _PHYSICAL_FILTER = {
         executeWhereFilter: /**
          * @param {any} jlc
@@ -7611,7 +7595,7 @@
 
 
 
-    // private data object holding all data flows of all collections passed to JLC
+    // private object of collections passed to JLC
     var _DATA = {
         // index that tracks contextually current collection within history array 
         index: -1,
@@ -7735,7 +7719,7 @@
             }
     };
 
-    // private data object holding all queries' filtered data
+    // private object of query results' cache
     var _CACHE = {
         // enable or disable using cache
         _useCache: false,
@@ -8007,7 +7991,7 @@
 
 
 
-    // private proxy trap dispatcher
+    // private object of proxy trap dispatcher
     var _PROXY_TRAP_DISPATCHER = {
         get: {
             /**
@@ -8033,7 +8017,7 @@
         }
     };
 
-    // private proxy trap object
+    // private object of proxy trap
     var _PROXY_TRAP = {
         // common internal types of traps to provide seamless query flow
         traps: {
@@ -8233,7 +8217,7 @@
         }
     };
 
-    // private Linq context object
+    // private object of Linq context
     var _LINQ_CONTEXT = {
         /**
          * ⚠️
@@ -13112,7 +13096,7 @@
 
 
 
-    // private setup object that does required initialization
+    // private object of JLC initialization
     var _SETUP = {
         ___init___:
             function ( useCache )
@@ -13430,6 +13414,6 @@
 
 
     /* THIS IS ENTRY POINT TO THE JLC 1.0 */
-    _SETUP.___init___( true /** set whether enable using caching all queries' results */ );
+    _SETUP.___init___( true /** set whether enable caching results of queries */ );
 }
 )();
