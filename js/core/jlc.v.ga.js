@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ RCPR #2 | [GA/RELEASE] | RC
+ *      ⚠️ RCPR #3 | [GA/RELEASE] | RC
  *                                                                              -> Objects          ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives       ->      RC Version      ->      TEST COMPLETED      ->      100%
  *
@@ -4843,7 +4843,7 @@
          *
          * @param {any} currentColl Input collection to apply filter to.
          * @param {any} predicateArray Array of predicates.
-         * @param {any} enumValue Enum flag that differentiate between the following query methods like where, take & while.
+         * @param {any} enumValue Enum flag that differentiate between the following query methods like where, take & skip.
          */
             function ( currentColl, predicateArray, enumValue )
             {
@@ -4915,9 +4915,9 @@
     // private object of physical filters
     var _PHYSICAL_FILTER = {
         executeWhereFilter: /**
-         * @param {any} jlc
-         * @param {any} predicateArray
-         * @param {any} skipOrTakeEnum
+         * @param {any} jlc Runtime context.
+         * @param {any} predicateArray Array of predicates.
+         * @param {any} skipOrTakeEnum Enum flag that differentiate between the following query methods, i.e. take & skip.
          */
             function ( jlc, predicateArray, skipOrTakeEnum )
             {
@@ -4934,12 +4934,12 @@
                     var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
 
 
-                    // get contextually current collection within history array
+                    // get contextually current collection from collection history array
                     var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -4994,7 +4994,7 @@
                                 c_i_c.push( c_o );
                             // if object didn't pass the filter
                             else
-                                // and break further taking 
+                                // and break further taking
                                 break;
                         }
                     }
@@ -5023,15 +5023,15 @@
             },
 
         executeGroupByFilter: /**
-         * @param {any} jlc
-         * @param {any} predicateArray
-         * @param {any} udfGroupKeySelector
-         * @param {any} udfEqualityComparer
-         * @param {any} udfGroupKeyProjector
-         * @param {any} udfGroupElementSelector
-         * @param {any} udfGroupResultValueSelector
-         * @param {any} terminateFlowAndReturnData
-         * @param {any} isDictionaryContext
+         * @param {any} jlc Runtime context.
+         * @param {any} predicateArray Array of predicates.
+         * @param {any} udfGroupKeySelector Equivalent of C#'s user-defined group key selector of GroupBy method.
+         * @param {any} udfEqualityComparer Equivalent of C#'s user-defined 'equality comparer' of GroupBy method.
+         * @param {any} udfGroupKeyProjector Equivalent of C#'s user-defined group key projector of GroupBy method.
+         * @param {any} udfGroupElementSelector Equivalent of C#'s user-defined group element selector of GroupBy method.
+         * @param {any} udfGroupResultValueSelector Equivalent of C#'s user-defined group result value selector of GroupBy method.
+         * @param {any} terminateFlowAndReturnData Boolean flag that tells whether query flow should be terminated and data returned to the calling client.
+         * @param {any} isDictionaryContext Boolean flag that tells whether we operate in the dictionary context or not.
          */
             function ( jlc, predicateArray, udfGroupKeySelector, udfEqualityComparer, udfGroupKeyProjector, udfGroupElementSelector, udfGroupResultValueSelector, terminateFlowAndReturnData, isDictionaryContext, doSortGroupKey )
             {
@@ -5051,12 +5051,12 @@
                     // check if grouping key is present
                     if ( predicateArray || udfGroupKeySelector )
                     {
-                        // get contextually current collection within history array
+                        // get contextually current collection from collection history array
                         var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
                         /**
-                         * Update collection item structure metadata object of ice metadata object of the current runtime context
+                         * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                         */
                         if (
                             r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -5066,7 +5066,7 @@
 
 
 
-                        // declare groups object being an array !
+                        // declare groups' object being an array !
                         var groups = [];
 
 
@@ -5082,7 +5082,7 @@
                         // reference first object in the collection and determine the type ASAP
                         var o = currentColl[ 0 ];
 
-                        // reference grouping-by util object
+                        // reference 'grouping-by' utility object
                         var gbo = _COMMON.usingGroupingBy();
 
 
@@ -5097,7 +5097,7 @@
                             currentColl.forEach( groupObjects_I_2L );
 
 
-                        // sort the groups by sorting the group key if defined by the user
+                        // sort the groups' object by sorting the groups' object keys if defined by the user
                         if ( isDictionaryContext && doSortGroupKey )
                             groups = sortGroups_I_2L( udfEqualityComparer );
 
@@ -5108,7 +5108,7 @@
                             // result value array
                             var rva = [];
 
-                            // iterate over all groups and transform each group into result value defined by the user
+                            // iterate over all groups' object and transform each group into result value defined by the user
                             for ( let group of groups )
                             {
                                 // handle dictionary context
@@ -5155,19 +5155,19 @@
                             id = item;
 
 
-                        // project group id if required
+                        // create group id if required
                         if ( udfGroupKeyProjector )
                             id = ( udfGroupKeyProjector.bind( r_ctx, id ) )();
 
-                        // project group element if required
+                        // create group element if required
                         if ( udfGroupElementSelector )
                             item = ( udfGroupElementSelector.bind( r_ctx, item ) )();
 
 
                         /**
                          * Distinguish between dictionary and grouped objects
-                         *  - dictionary keys has to be unique
-                         *  - values are primitives values or objects, not single elements of array 
+                         *  - dictionary keys have to be unique
+                         *  - values are primitive values or objects, not single elements of array
                         */
                         if ( isDictionaryContext && gbo.getKVP( id, groups ).value )
                             throw new Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
@@ -5222,11 +5222,11 @@
                         // get the group id
                         var id = _COMMON.fetchObjectKeyValue( item, key_array );
 
-                        // project group id if required
+                        // create group id if required
                         if ( udfGroupKeyProjector )
                             id = ( udfGroupKeyProjector.bind( r_ctx, id ) )();
 
-                        // project group element if required
+                        // create group element if required
                         if ( udfGroupElementSelector )
                             item = ( udfGroupElementSelector.bind( r_ctx, item ) )();
 
@@ -5234,7 +5234,7 @@
                         /**
                          * Distinguish between dictionary and grouped objects
                          *  - dictionary keys have to be unique
-                         *  - values are primitives values or objects, not single elements of array
+                         *  - values are primitive values or objects, not single elements of array
                         */
                         if ( isDictionaryContext && gbo.getKVP( id, groups ).value )
                             throw new Error( '\r\nItem with the same key was already added to this dictionary object !\r\n\r\n' );
@@ -5292,9 +5292,7 @@
 
                         // sort the keys using UDF comparator
                         if ( udfEqualityComparer )
-                        {
                             keys.sort( equalityComparer.bind( isPrimitive ) );
-                        }
                         // sort the keys in ascending ASCII character order
                         else
                             keys.sort();
@@ -5319,11 +5317,11 @@
             },
 
         executeRangeFilter: /**
-         * @param {any} jlc
-         * @param {any} predicateArray
-         * @param {any} index
-         * @param {any} count
-         * @param {any} enumValue
+         * @param {any} jlc Runtime context.
+         * @param {any} predicateArray Array of predicates.
+         * @param {any} index Index of item in the array.
+         * @param {any} count Number of items to process.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of range filter.
          */
             function ( jlc, predicateArray, index, count, enumValue )
             {
@@ -5362,7 +5360,7 @@
                     */
                     function getResult_I_2L ( withPredicates )
                     {
-                        // get contextually current collection within history array
+                        // get contextually current collection from collection history array
                         var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
@@ -5436,10 +5434,10 @@
                                     break;
 
                                 case _ENUM.SKIP:
-                                    // process skip only (no predicates, just count), because skipWhile was handled by executing the "WHERE" filter in the parent method
+                                    // process only 'skip' method  (no predicates, just count), because 'skipWhile' method was handled by executing the "WHERE" filter in the parent method
                                     if ( !withPredicates )
                                     {
-                                        // for null or undefined count just throw an error
+                                        // for null or undefined parameter 'count' just throw an error
                                         if ( !count && count !== 0 )
                                             throw new Error( '\r\nSupply required parameter called \'count\' !\r\n\r\n' );
 
@@ -5451,7 +5449,6 @@
                                         }
                                         // skip the whole sequence
                                         else if ( count >= currentColl.length )
-                                            // @ts-ignore
                                             ;
                                         // skip nothing, which means taking whole sequence
                                         else if ( count <= 0 )
@@ -5464,17 +5461,17 @@
                                     break;
 
                                 case _ENUM.TAKE:
-                                    // process take only (no predicates, just count), because takeWhile was handled by executing the "WHERE" filter in the parent method
+                                    // process method 'take' only (no predicates, just count), because method 'takeWhile' was handled by executing the "WHERE" filter in the parent method
                                     if ( !withPredicates )
                                     {
-                                        // for null or undefined count just throw an error
+                                        // for null or undefined parameter 'count' just throw an error
                                         if ( !count && count !== 0 )
                                             throw new Error( '\r\nSupply required parameter called \'count\' !\r\n\r\n' );
 
-                                        // determine the valid range of sequence to extract
+                                        // for more items to return than in the collection, just take the whole collection
                                         if ( count >= currentColl.length )
                                             r_seq = currentColl;
-
+                                        // determine the valid range of sequence to extract
                                         else if ( count > 0 && count < currentColl.length )
                                         {
                                             for ( i = 0; i < count; i++ )
@@ -5482,7 +5479,6 @@
                                         }
                                         // take nothing which means no any processing required
                                         else if ( count <= 0 )
-                                            // @ts-ignore
                                             ;
 
                                         // replace original sequence with the new sequence
@@ -5496,13 +5492,13 @@
                                      * In case of 'elementAt' & 'elementAtOrDefault' methods:
                                      *  - there is no 'predicateArray' param
                                      *  - param called 'count' actually contains value of param called 'fallbackOnDefault'
-                                     * 
+                                     *
                                     */
 
-                                    // handle out of range exception in the method called 'elementAt'
+                                    // handle range exception in the method called 'elementAt'
                                     if ( ( index < 0 || index >= currentColl.length ) && !count )
                                         throw new Error( '\r\nThe index was out of range.\r\nMust be non-negative and less than the size of the collection.\r\nParameter name: \'index\' !\r\n\r\n' );
-                                    // handle out of range exception in the method called 'elementAtOrDefault'
+                                    // handle range exception in the method called 'elementAtOrDefault'
                                     else if ( ( index < 0 || index >= currentColl.length ) && count )
                                     {
                                         // fetch the default value of the collection input type
@@ -5538,11 +5534,11 @@
             },
 
         executeSetFilter: /**
-         * @param {any} jlc
-         * @param {any} collectionOrItem
-         * @param {any} udfEqualityComparer
-         * @param {any} strongSearch
-         * @param {any} enumValue
+         * @param {any} jlc Runtime context.
+         * @param {any} collectionOrItem Input collection or input object.
+         * @param {any} udfEqualityComparer Equivalent of C#'s user-defined 'equality comparer' of all methods that operate in the context of set filter.
+         * @param {any} strongSearch Boolean flag that tells whether carry out deep search or not.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of set filter.
          */
             function ( jlc, collectionOrItem, udfEqualityComparer, strongSearch, enumValue )
             {
@@ -5559,12 +5555,12 @@
                     var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
 
 
-                    // get contextually current collection within history array
+                    // get contextually current collection from collection history array
                     var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -5635,7 +5631,7 @@
                             // iterate over whole collection
                             for ( var i = 0; i < coll.length; i++ )
                             {
-                                // declare whether match was found (match)
+                                // define match object
                                 match = Object.create( null );
 
                                 // determine the match success
@@ -5668,7 +5664,7 @@
                                 // iterate over whole collection
                                 for ( var i = 0; i < coll.length; i++ )
                                 {
-                                    // declare whether match was found (match)
+                                    // define match object
                                     match = Object.create( null );
 
                                     // determine the match success
@@ -5698,7 +5694,7 @@
                                 // iterate over whole collection
                                 for ( var i = 0; i < coll.length; i++ )
                                 {
-                                    // declare whether match was found (match)
+                                    // define match object
                                     match = Object.create( null );
 
                                     // determine the match success
@@ -5736,7 +5732,7 @@
                             // declare distinct collection holder
                             var distinct_coll = [];
 
-                            // push the first item from a source collection 
+                            // push the first item from a source collection
                             distinct_coll.push( coll[ 0 ] );
 
                             // declare current item (ci) and match object array (match_arr)
@@ -5799,7 +5795,7 @@
                                 {
                                     match_arr.forEach( function ( match )
                                     {
-                                        // add such item index to the indexes array
+                                        // add such item index to the indices array
                                         indexes.push( match.index );
                                     } );
                                 }
@@ -5829,11 +5825,11 @@
             },
 
         executeSelectFilter: /**
-         * @param {any} jlc
-         * @param {any} selectorArray
-         * @param {any} enumValue
-         * @param {any} udfSelector
-         * @param {any} incorporateIndex
+         * @param {any} jlc Runtime context.
+         * @param {any} selectorArray Array of selectors.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of select filter.
+         * @param {any} udfSelector Equivalent of C#'s user-defined selector of Select & SelectMany query methods.
+         * @param {any} incorporateIndex Boolean flag that tells whether add item index to processing or not.
          */
             function ( jlc, selectorArray, enumValue, udfSelector, udfResultSelector, incorporateIndex )
             {
@@ -5850,12 +5846,12 @@
                     var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
 
 
-                    // get contextually current collection within history array
+                    // get contextually current collection from collection history array
                     var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -5871,13 +5867,13 @@
                         switch ( enumValue )
                         {
                             case _ENUM.SELECT:
-                                // determine whether source collection contains particular item
+                                // extract some properties from the source collection
                                 currentColl = processSelect_I_2L( currentColl, selectorArray, udfSelector, incorporateIndex );
 
                                 break;
 
                             case _ENUM.SELECT_MANY:
-                                // compute distinct collection
+                                // extract some properties from the source collection
                                 currentColl = processSelectMany_I_2L( currentColl, selectorArray, udfSelector, udfResultSelector, incorporateIndex );
 
                                 break;
@@ -5907,7 +5903,7 @@
                          *  - selectorArray.length === 1  ->  go for LDF (library-defined function)
                         */
 
-                        // object props to be extracted
+                        // object properties to be extracted
                         var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray, false );
 
                         // apply UDF
@@ -5960,7 +5956,7 @@
                          *  - selectorArray.length === 1  ->  go for LDF (library-defined function)
                         */
 
-                        // object props to be extracted
+                        // object properties to be extracted
                         var selectors = _ACTION.hpid.columnSet.extractOVC( selectorArray, false );
 
                         // apply UDF
@@ -5970,7 +5966,7 @@
                             if ( !udfSelector )
                                 throw new Error( '\r\nSelecting multiple properties from an object requires providing custom result selector called \'udfSelector\' !\r\n\r\n' );
 
-                            // current array item processed by UDF selector; input item from a input collection; array holding processed input items
+                            // current array item processed by UDF selector; input item from an input collection; array holding processed input items
                             var item, ci, interimArr;
 
                             // iterate over whole collection
@@ -5988,7 +5984,7 @@
 
                                 /**
                                  * If udfResultSelector is NOT NULL :
-                                 *  a) then just iterate over all array and apply UDF Result Selector to each item
+                                 *  a) then just iterate over all array and apply UDF result selector to each item
                                  *  b) otherwise just iterate over all array and flatten it
                                 */
 
@@ -5998,7 +5994,7 @@
                                     // iterate over all array
                                     for ( var j = 0; j < interimArr.length; j++ )
                                     {
-                                        // apply UDF Result Selector to each item
+                                        // apply UDF result selector to each item
                                         item = udfResultSelector( ci, interimArr[ j ] );
 
                                         // store transformed item in the array
@@ -6007,10 +6003,8 @@
                                 }
                                 // b)
                                 else
-                                {
                                     // just concat this interim array to the output array
                                     result.push( ...interimArr );
-                                }
                             }
                         }
                         // apply LDF
@@ -6056,21 +6050,21 @@
                         // flatten the value fetched from the source whatever the value holds (selectMany)
                         else
                         {
-                            // for 'selectMany' and any primitive type other than string when there is no udf result selector defined, throw error
+                            // for 'selectMany' and any primitive type other than string when there is no UDF result selector defined, throw the error
                             if ( isPrimitive && _COMMON.convertTypeToString( item ) !== _ENUM.T2SR.STRING && !udfResultSelector )
-                                throw new Error( '\r\nFor \'selectMany\' and any primitive type other than string you have to provide custom udf result selector called \'udfResultSelector\' !\r\n\r\n' );
+                                throw new Error( '\r\nFor \'selectMany\' and any primitive type other than string you have to provide custom UDF result selector called \'udfResultSelector\' !\r\n\r\n' );
 
-                            // check the type
+                            // check the type primitivity
                             var is_prim = _COMMON.isPrimitiveType( value );
 
-                            // invoke udf result selector for primitive type that can be any primitive type in the context of collection of primitive types not objects !
+                            // invoke UDF result selector for primitive type that can be any primitive type in the context of collection of primitive types but not objects !
                             if ( is_prim && udfResultSelector )
                                 return udfResultSelector( value, idx );
                             // flatten if is primitive type and the value is iterable
                             else if ( is_prim && value[ "length" ] )
                                 // flatten the value
                                 return flattenValue_I_3L( value );
-                            // just throw TypeError if is primitive type the value is not iterable
+                            // just throw TypeError if is primitive type and the value is not iterable
                             else if ( is_prim && !value[ "length" ] )
                                 throw new TypeError( '\r\n Selected property [ ' + selectors[ 0 ] + ' ] is not iterable in the context of \'selectMany\' !\r\n\r\n' );
                             // is Array
@@ -6114,15 +6108,15 @@
             },
 
         executeJoinFilter: /**
-         * @param {any} jlc
-         * @param {any} innerColl
-         * @param {any} outerSelectorArray
-         * @param {any} outerUdfSelector
-         * @param {any} innerSelectorArray
-         * @param {any} innerUdfSelector
-         * @param {any} enumValue
-         * @param {any} udfResultSelector
-         * @param {any} udfEqualityComparer
+         * @param {any} jlc Runtime context.
+         * @param {any} innerColl Inner collection to be joined to.
+         * @param {any} outerSelectorArray Array of selectors to define key of the each item of the outer collection to join to.
+         * @param {any} outerUdfSelector User-defined selector to define key of the each item of the outer collection to join to.
+         * @param {any} innerSelectorArray Array of selectors to define key of the each item of the inner collection to be joined to.
+         * @param {any} innerUdfSelector User-defined selector to define key of the each item of the inner collection to be joined to.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of set filter.
+         * @param {any} udfResultSelector Equivalent of C#'s user-defined 'result selector' of all methods that operate in the context of join filter.
+         * @param {any} udfEqualityComparer Equivalent of C#'s user-defined 'equality comparer' of all methods that operate in the context of join filter.
          */
             function ( jlc, innerColl, outerSelectorArray, outerUdfSelector, innerSelectorArray, innerUdfSelector, enumValue, udfResultSelector, udfEqualityComparer )
             {
@@ -6144,11 +6138,11 @@
                     var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
 
 
-                    // get contextually current collection within history array
+                    // get contextually current collection from collection history array
                     var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -6169,7 +6163,7 @@
                                 break;
 
                             case _ENUM.LEFT_JOIN:
-                                // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
+                                // 'left join' two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence
                                 currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L( true );
                                 break;
 
@@ -6179,7 +6173,7 @@
                                 break;
 
                             case _ENUM.GROUP_LEFT_JOIN:
-                                // left join two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence, and subsequently group result by the key
+                                // 'left join' two sequences (collections) based on key present in an outer (preserved) sequence and/or key present in an inner sequence, and subsequently group result by the key
                                 currentColl = handleJoinOrLeftJoinOrGroupJoinOperation_I_2L( true, true );
                                 break;
 
@@ -6264,10 +6258,10 @@
                             // if grouping required (GROUP JOIN || GROUP LEFT JOIN)
                             if ( doGrouping )
                             {
-                                // declare groups object being an array !
+                                // declare groups' object being an array !
                                 var groups = [];
 
-                                // reference grouping-by util object
+                                // reference 'grouping-by' utility object
                                 var gbo = _COMMON.usingGroupingBy();
 
                                 // loop over whole result set and apply grouping
@@ -6291,7 +6285,7 @@
                         */
                         function executeOperation_UDF_I_3L ( leftSideUdfSelector, leftSideSelectorArray, rightSideUdfSelector, rightSideSelectorArray )
                         {
-                            // outer collection item; outer collection item's key value; inner collection item; is match; grouping object entry
+                            // outer collection item; outer collection item's key value; inner collection item; is match; entry of grouping object
                             var l_item, lskv, r_item, isJoin, groupingEntry;
 
                             // if user failed to provide UDF result selector
@@ -6305,7 +6299,7 @@
                             */
                             if ( doGrouping && currentColl.length && _COMMON.isPrimitiveType( currentColl[ 0 ] ) )
                             {
-                                // reference grouping-by util object
+                                // reference 'grouping-by' utility object
                                 var gbo = _COMMON.usingGroupingBy();
 
                                 // loop over 'left-side' collection to join it to the 'right-side' one
@@ -6380,11 +6374,10 @@
                                     // check for 'LEFT JOIN' case in the context of objects only
                                     if ( isCollectionFixed && !r_item )
                                     {
+                                        // if 'left-side' item is a primitive type
                                         if ( _COMMON.isPrimitiveType( l_item ) )
-                                        {
                                             // get default value for the type of given primitive value
                                             r_item = _COMMON.getDefaultValueOf( l_item );
-                                        }
                                         else
                                         {
                                             // get object keys
@@ -6395,11 +6388,11 @@
                                         }
                                     }
 
-                                    // create joined object if UDF Result Selector provided for 'LEFT JOIN' case
+                                    // create joined object if UDF result selector provided for 'LEFT JOIN' case
                                     if ( isCollectionFixed )
                                         // store joined object in the output array
                                         result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
-                                    // create joined object if UDF Result Selector provided for 'INNER JOIN' case
+                                    // create joined object if UDF result selector provided for 'INNER JOIN' case
                                     else if ( udfResultSelector && ![ _ENUM.T2SR.UNDEFINED, _ENUM.T2SR.NULL ].includes( _COMMON.convertTypeToString( r_item ) ) )
                                         // store joined object in the output array
                                         result.push( udfResultSelector( l_item, r_item, createJoinContext_I_3L() ) );
@@ -6409,7 +6402,7 @@
 
                         function executeOperation_LDF_I_3L ( leftSideSelectorArrayOrUdf, rightSideSelectorArrayOrUdf )
                         {
-                            // outer collection key object, inner collection key object, are both key objects value-equal
+                            // outer collection key object; inner collection key object; are both key objects value-equal ?
                             var l_key_obj, r_key_obj, isJoin;
 
                             // if user failed to provide UDF result selector
@@ -6423,10 +6416,10 @@
                             */
                             if ( doGrouping && currentColl.length && _COMMON.isPrimitiveType( currentColl[ 0 ] ) )
                             {
-                                // reference grouping-by util object
+                                // reference 'grouping-by' utility object
                                 var gbo = _COMMON.usingGroupingBy();
 
-                                // grouping object entry
+                                // entry of grouping object
                                 var groupingEntry;
 
                                 // deal with function key extractors
@@ -6662,7 +6655,7 @@
 
                             function performJoinOperation_I_4L ( l_o, r_o )
                             {
-                                // if user provided udf result selector, invoke it on input values
+                                // if user provided UDF result selector, invoke it on input values
                                 if ( udfResultSelector )
                                     // store user joined value
                                     result.push( udfResultSelector( l_o, r_o, createJoinContext_I_3L() ) );
@@ -6693,7 +6686,7 @@
 
                             function performLeftJoinOperation_I_4L ( l_o )
                             {
-                                // if user provided udf result selector, invoke it on input values that both are objects
+                                // if user provided UDF result selector, invoke it on input values that both are objects
                                 if ( udfResultSelector )
                                     result.push( udfResultSelector( l_o, Object.create( null ), createJoinContext_I_3L() ) );
                                 // otherwise handle both objects internally
@@ -6722,7 +6715,7 @@
 
                         function assignDefaultValues_I_3L ( sourceItem, sourceItemPropArray, outputItemPropArray )
                         {
-                            // check if props match in corresponding objects
+                            // check if properties match in corresponding objects
                             if ( sourceItemPropArray.length !== outputItemPropArray.length )
                                 throw new Error( '\r\nInvalid number of keys in either left-side or right-side array !\r\n\r\n' );
 
@@ -6730,13 +6723,13 @@
                             var outputItem = Object.create( null );
 
                             var default_value;
-                            // loop over object props to discover defaults
+                            // loop over object properties to discover defaults
                             for ( var i = 0; i < sourceItemPropArray.length; i++ )
                             {
-                                // determine default value for current object prop
+                                // determine default value for current object property
                                 default_value = _COMMON.getDefaultValueOf( sourceItem[ sourceItemPropArray[ i ] ] );
 
-                                // store this value in output object under "the proper" prop taken from the output object array of props
+                                // store this value in output object under "the proper" property taken from the output object array of properties
                                 outputItem[ outputItemPropArray[ i ] ] = default_value;
                             }
 
@@ -6753,16 +6746,16 @@
                             // create join context object
                             var joinContext = Object.create( null );
 
-                            // is inner join
+                            // is 'inner join'
                             joinContext.isInnerJoin = enumValue === _ENUM.JOIN;
 
-                            // is left join
+                            // is 'left join'
                             joinContext.isLeftJoin = enumValue === _ENUM.LEFT_JOIN;
 
-                            // is group inner join
+                            // is 'group inner join'
                             joinContext.isGroupJoin = enumValue === _ENUM.GROUP_JOIN;
 
-                            // is group left join
+                            // is 'group left join'
                             joinContext.isGroupLeftJoin = enumValue === _ENUM.GROUP_LEFT_JOIN;
 
                             // return join context object
@@ -6779,7 +6772,7 @@
                                 // access current KeyBagPair object
                                 kbp = result[ k ];
 
-                                // store joined object in the output array by invoking udf result selector
+                                // store joined object in the output array by invoking UDF result selector
                                 result[ k ] = udf_rs( kbp.key, kbp.resultsView, createJoinContext_I_3L() );
                             }
                         }
@@ -6816,12 +6809,12 @@
             },
 
         executeMathFilter: /**
-         * @param {any} jlc
-         * @param {any} propertyNameOrPath
-         * @param {any} enumValue
-         * @param {any} sortMetaObject
-         * @param {any} sharedSecondLevelSortingContext
-         * @param {any} roundEnumValue
+         * @param {any} jlc Runtime context.
+         * @param {any} propertyNameOrPath Part of the object or the primitive value itself.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of math filter.
+         * @param {any} sortMetaObject Metadata object holding some ordering meta information required for usage with ordering query methods.
+         * @param {any} sharedSecondLevelSortingContext Shared 2nd level sorting context object required for usage with ordering query methods.
+         * @param {any} roundEnumValue Enum flag that tells which rounding algorithm to apply to math filter.
          */
             function ( jlc, propertyNameOrPath, udfValueSelector, enumValue, sortMetaObject, sharedSecondLevelSortingContext, roundEnumValue )
             {
@@ -6856,14 +6849,14 @@
                         // invoke 1st level sorting
                         invokeComparator_I_2L( null, null );
                     }
-                    // ... or a internal comparator (for objects or for primitives)
+                    // ... or an internal comparator (for objects or for primitives)
                     else if ( ( mmavt.selector || isPrimitiveType ) && mmavt.currentCollection.hadAtLeastTwoItems )
                         // invoke 1st level sorting
                         invokeComparator_I_2L( [ isPrimitiveType ? "" : propertyNameOrPath, true ], null );
                     // ... or just init HPID storage (for objects or for primitives)
                     else if ( ( mmavt.selector || isPrimitiveType ) && !mmavt.currentCollection.hadAtLeastTwoItems && mmavt.currentCollection.hadExactlyOneItem )
                         justInitHpid_I_2L();
-                    // non-empty collection with empty params requires custom toString method implementation... (for objects)
+                    // non-empty collection with empty params' object requires custom toString method implementation... (for objects)
                     else if ( !mmavt.selector && mmavt.throwByObjectStringError && !isPrimitiveType )
                         // throw error
                         throw new Error( '\r\nNon-empty collection requires each item to implement custom toString method !\r\n\r\n' );
@@ -6903,9 +6896,10 @@
 
                     function justInitHpid_I_2L ()
                     {
-                        // get contextually current collection within history array
+                        // get contextually current collection from collection history array
                         _DATA.fetchFlowData( r_ctx.collectionIndex, true );
                     }
+
                     function justReturnHpidCache_I_2L ()
                     {
                         // cache HPID data
@@ -6920,7 +6914,7 @@
 
                     function invokeComparator_I_2L ( selector_arr, comparer )
                     {
-                        // invoke internally 1st level sorting to optimize computing min, max, or average item in the collection
+                        // invoke internally 1st level sorting to optimize computing either min, max, or average item in the collection
                         _PHYSICAL_FILTER.executeOrderFilter( jlc, selector_arr, comparer, _ENUM.ORDER.By.ASC, sortMetaObject, sharedSecondLevelSortingContext );
                     }
 
@@ -6933,6 +6927,11 @@
                             if ( ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX ) && ( mmavt.t2sr.type === _ENUM.T2SR.STRING || mmavt.t2sr.type === _ENUM.T2SR.OBJECT || mmavt.t2sr.type === _ENUM.T2SR.UNDEFINED ) )
                                 // fetch the default value of the collection input type
                                 return _COMMON.getCollectionItemDefaultValue( undefined );
+                            
+                            /**
+                             * Throw various errors !
+                            */
+
                             else if ( enumValue === _ENUM.MIN || enumValue === _ENUM.MAX )
                                 throw new Error( '\r\nThe sequence has no elements.\r\n\r\n' );
                             else if ( ( enumValue === _ENUM.AVG ) && ( mmavt.t2sr.type === _ENUM.T2SR.STRING || mmavt.t2sr.type === _ENUM.T2SR.BOOLEAN || mmavt.t2sr.type === _ENUM.T2SR.OBJECT ) )
@@ -6942,7 +6941,7 @@
                             else if ( ( enumValue === _ENUM.AVG ) && ( mmavt.t2sr.type === _ENUM.T2SR.UNDEFINED ) && !mmavt.selector && !udfValueSelector )
                                 throw new Error( '\r\nProvide data for built-in selector \'property\': [ \'some property goes here\', true ], or custom \'udfValueSelector\'.\r\n\r\n' );
                         }
-                        // check the edge case (one item in collection)
+                        // check the edge case (one item in the collection)
                         else if ( _ACTION.hpid.data.length === 1 )
                             // fetch item or item's property
                             return fetchItemOrItemProp_I_3L( 0 );
@@ -6960,6 +6959,7 @@
                             // compute 'avg' value
                             else if ( enumValue === _ENUM.AVG )
                             {
+                                // for computing average value
                                 if ( mmavt.t2sr.type === _ENUM.T2SR.NUMBER )
                                 {
                                     // precisely 'min avg'
@@ -7001,10 +7001,10 @@
             },
 
         executeOneItemFilter: /**
-         * @param {any} jlc
-         * @param {any} predicateArray
-         * @param {any} fallbackOnDefault
-         * @param {any} enumValue
+         * @param {any} jlc Runtime context.
+         * @param {any} predicateArray Array of predicates.
+         * @param {any} fallbackOnDefault Boolean flag that tells whether fall back on default value or not.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of selecting-one-item value filter.
          */
             function ( jlc, predicateArray, fallbackOnDefault, enumValue )
             {
@@ -7026,7 +7026,6 @@
                     if ( predicateArray )
                     {
                         // execute the "WHERE" filter
-                        // @ts-ignore
                         _PHYSICAL_FILTER.executeWhereFilter( jlc, predicateArray );
 
                         // check the result
@@ -7046,7 +7045,7 @@
                     */
                     function getResult_I_2L ( withPredicates )
                     {
-                        // get contextually current collection within history array
+                        // get contextually current collection from collection history array
                         var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
@@ -7180,12 +7179,12 @@
             },
 
         executeOrderFilter: /**
-         * @param {any} jlc
-         * @param {any} keyPartSelectorArray
-         * @param {any} udfComparer
-         * @param {any} enumValue
-         * @param {any} sortMetaObject
-         * @param {any} sharedSecondLevelSortingContext
+         * @param {any} jlc Runtime context.
+         * @param {any} keyPartSelectorArray Array of key selectors.
+         * @param {any} udfComparer Equivalent of C#'s user-defined comparer of OrderBy, OrderByDescending, ThenBy, ThenByDescending methods.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of sorting filter.
+         * @param {any} sortMetaObject Metadata object holding some ordering meta information required for usage with ordering query methods.
+         * @param {any} sharedSecondLevelSortingContext Shared 2nd level sorting context object required for usage with ordering query methods.
          */
             function ( jlc, keyPartSelectorArray, udfComparer, enumValue, sortMetaObject, sharedSecondLevelSortingContext )
             {
@@ -7233,12 +7232,12 @@
 
 
 
-                        // get contextually current collection within history array
+                        // get contextually current collection from collection history array
                         _DATA.fetchFlowData( r_ctx.collectionIndex, true );
 
 
                         /**
-                         * Update collection item structure metadata object of ice metadata object of the current runtime context
+                         * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                         */
                         if (
                             r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -7272,7 +7271,7 @@
                             // discard subsequent sorting operations
                             _ACTION.hpid.sorting.stop = true;
                         }
-                        // otherwise examine object type of sort input to evaluate sorting necessity during next sort operation 
+                        // otherwise examine object type of sort input to evaluate sorting necessity during next sort operation
                         else
                         {
                             // detect and store current sort input type of collection - sorting required, hence determine cest (collection element structure type)
@@ -7305,10 +7304,9 @@
                              * Run common stuff for first-level and second-level sorting.
                             */
                             // check if current sort set defines 'unique value', aka 'the key' that will discard subsequent sorting operations
-                            // @ts-ignore
                             var is_unique = _ACTION.hpid.columnSet.updateOVC_and_CheckIfUnique( ovc );
 
-                            // if unique value 
+                            // if unique value
                             if ( is_unique )
                                 // discard subsequent sorting operations
                                 _ACTION.hpid.sorting.stop = true;
@@ -7370,7 +7368,6 @@
                              * 
                              *      3. invoke actual sorting by invoking the default comparator
                             */
-                            // @ts-ignore
                             _ACTION.hpid.data.sort( _COMMON.useDefaultComparer( sortMetaObject, undefined, undefined, sharedSecondLevelSortingContext ) );
                     }
 
@@ -7379,14 +7376,15 @@
                         // create data cache for second-level sorting purposes by applying defensive copy
                         var data_cache = [ ..._ACTION.hpid.data ];
 
-                        // reference so-far used sorting columns as the grouping columns
+                        // reference so-far-used sorting columns as the grouping columns
                         var grouping_cols = _ACTION.hpid.sorting.sort_columns;
 
-                        // reference grouping-by util object
+                        // reference 'grouping-by' utility object
                         var gbo = _COMMON.usingGroupingBy();
 
-                        // declare groups object being an array !
+                        // declare groups' object being an array !
                         var groups = [];
+                        
                         // grouping id, aka 'key'
                         var id;
                         // loop over data and do the grouping
@@ -7465,7 +7463,7 @@
                                     sls_item.sort( _COMMON.useDefaultComparer( undefined, true, 'PLAIN_Comparator', sharedSecondLevelSortingContext ) );
                             }
 
-                            // add sorted data using second-level sorting method to the output array
+                            // add sorted data to the output array
                             Array.prototype.push.apply( sls_arr, sls_item );
                         }
 
@@ -7479,9 +7477,9 @@
             },
 
         executeMergeFilter: /**
-         * @param {any} jlc
-         * @param {any} collectionOrItem
-         * @param {any} enumValue
+         * @param {any} jlc Runtime context.
+         * @param {any} collectionOrItem Input collection or input object.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of merge filter.
          */
             function ( jlc, collectionOrItem, enumValue )
             {
@@ -7498,12 +7496,12 @@
                     var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
 
 
-                    // get contextually current collection within history array
+                    // get contextually current collection from collection history array
                     var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
                     /**
-                     * Update collection item structure metadata object of ice metadata object of the current runtime context
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                     */
                     if (
                         r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -7513,6 +7511,7 @@
 
 
 
+                    // declare new current flow data collection
                     var new_dirty_data;
 
                     if ( enumValue === _ENUM.APPEND )
@@ -7525,17 +7524,16 @@
                     }
                     else if ( enumValue === _ENUM.PREPEND )
                     {
-                        // declare new current flow data collection
+                        // define new current flow data collection
                         new_dirty_data = [ collectionOrItem ];
 
                         // merge new current flow data collection with old current flow data collection
                         currentColl = new_dirty_data.concat( currentColl );
                     }
                     else if ( enumValue === _ENUM.CONCAT )
-                    {
                         // merge new data collection with current flow data collection
                         currentColl = currentColl.concat( collectionOrItem );
-                    }
+
 
                     // update HPID object to enable further data flow
                     _ACTION.hpid.data = currentColl;
@@ -7544,9 +7542,9 @@
             },
 
         executeAllAnyFilter: /**
-         * @param {any} jlc
-         * @param {any} predicateArray
-         * @param {any} enumValue
+         * @param {any} jlc Runtime context.
+         * @param {any} predicateArray Array of predicates.
+         * @param {any} enumValue Enum flag that differentiate between the all query methods operating in the context of all-any filter.
          */
             function ( jlc, predicateArray, enumValue )
             {
@@ -7563,7 +7561,7 @@
                     var r_ctx = jlc[ _ENUM.RUNTIME.RTC ];
 
 
-                    // get contextually current collection within history array
+                    // get contextually current collection from collection history array
                     var currentColl = _DATA.fetchFlowData( r_ctx.collectionIndex, false );
 
 
@@ -7572,7 +7570,7 @@
                     if ( predicateArray )
                     {
                         /**
-                         * Update collection item structure metadata object of ice metadata object of the current runtime context
+                         * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
                         */
                         if (
                             r_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange &&
@@ -7597,38 +7595,38 @@
 
     // private object of collections passed to JLC
     var _DATA = {
-        // index that tracks contextually current collection within history array 
+        // index of the input collection
         index: -1,
 
-        // root token array holding root tokens of each collection
-        root_token_array: [],
+        // collection token array holding all tokens that were associated with every single data collection stored internally
+        collection_token_array: [],
 
         // collection history array
         collection_array: [],
 
         exists: /**
-         * Check if contextually current collection is stored internally for data flows.
+         * Check if contextually current collection is stored internally and being ready for data flows.
          * 
-         * @param {any} collectionToken
+         * @param {any} collectionToken Token associated with data collection in question.
          */
             function ( collectionToken )
             {
-                // index of this collection if already stored
+                // index of data collection identified by its token
                 var index = -1;
 
                 // check for collection presence
-                for ( var i = 0; i < this.root_token_array.length; i++ )
+                for ( var i = 0; i < this.collection_token_array.length; i++ )
                 {
-                    // get existing root token
-                    var rto = this.root_token_array[ i ];
+                    // get existing collection token
+                    var cto = this.collection_token_array[ i ];
 
-                    // compare it to the root token in question
-                    if ( rto.collectionToken === collectionToken )
+                    // compare it to the collection token in question
+                    if ( cto.collectionToken === collectionToken )
                     {
-                        // if matched, then fetch the associated index
-                        index = rto.collection_index;
+                        // if matched, then fetch the associated index...
+                        index = cto.collection_index;
 
-                        // and break the loop
+                        // ...and break the loop
                         break;
                     }
                 }
@@ -7650,14 +7648,14 @@
             },
 
         store: /**
-         * Store collection.
+         * Store collection in the internal structures.
          *
-         * @param {any} collection
+         * @param {any} collection Collection that to be stored internally.
          */
             function ( collection )
             {
                 // store contextually unique token of this collection
-                this.root_token_array.push(
+                this.collection_token_array.push(
                     {
                         collectionToken: collection.dirty_data[ _ENUM.RUNTIME.CT ],
 
@@ -7665,14 +7663,15 @@
                     }
                 );
 
-                // store collection
+                // store the collection data
                 this.collection_array.push( collection );
             },
 
         fetchFlowData: /**
          * Fetch data array of contextually current collection from history array.
          *
-         * @param {number} index
+         * @param {number} index Index associated with data collection in question.
+         * @param {boolean} justInitHpid Boolean flag that tells whether data-collection-in-question needs to be initialized only, i.e. fetched into current action flow's HPID.
          */
             function ( index, justInitHpid )
             {
@@ -7688,6 +7687,7 @@
                 // when initialized HPID, do nothing
                 else if ( justInitHpid && _ACTION.hpid.isSwitchedOn )
                     ;
+                // otherwise fetch and return to the client required data
                 else
                 {
                     // if HPID is initialized
@@ -7712,7 +7712,7 @@
                         // collection index within history array
                         index: index,
 
-                        // collection itself
+                        // collection data from history array
                         collection: _DATA.collection_array[ index ].dirty_data
                     };
                 }
@@ -7721,13 +7721,13 @@
 
     // private object of query results' cache
     var _CACHE = {
-        // enable or disable using cache
+        // enable or disable the usage of cache
         _useCache: false,
 
-        // cache current query result or not
+        // enable or disable the caching of the current query result
         _useCurrentQueryCache: false,
 
-        // computed key of current query in question used to search the cache
+        // computed key of current query in question, that is used to search the cache
         _key: undefined,
 
         // internal query result cache
@@ -7735,18 +7735,18 @@
 
         cacheCommons: {
             tryToLoad: /**
-            * Computes query key required by the current query flow to search the cache for cached query result.
-            */
+             * Computes query key required by the current query flow to search the cache for cached query result.
+             */
                 function ( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, collectionIndex )
                 {
-                    // compute cache key for current query in the flow
+                    // compute cache key for current query of the data flow
                     computeKey_I_1L( params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, collectionIndex );
 
-                    // is current query cache enabled
+                    // is the caching of the current query result enabled ?
                     if ( _CACHE._useCurrentQueryCache )
-                        // try to load cached result
+                        // try to load cached query result into HPID
                         return load_I_1L();
-                    // otherwise apply full operation workflow
+                    // otherwise, if the caching of the current query result is disabled, from the parent context apply subsequently full operation workflow
                     else
                         return false;
 
@@ -7755,7 +7755,6 @@
                     /**
                      * Local helper functions
                     */
-                    // Computes query key required by the current query flow to search the cache for cached query result.
                     function computeKey_I_1L ( params, jqn, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, coll_idx )
                     {
                         // initialize the current query cache key
@@ -7771,7 +7770,7 @@
                         // loop over query chain cache internal objects
                         for ( var i = 0; i < queryChainCacheObjectInternal.length; i++ )
                         {
-                            // get query cache object internal
+                            // get query cache object internal from the query chain
                             qcoi = queryChainCacheObjectInternal[ i ];
 
                             // create cache key until it's allowed
@@ -7791,7 +7790,7 @@
 
                             // compute key - part 2
                             for ( let filter_arr of qcoi.filters )
-                                _CACHE._key += convertFilterArrToKeyString_I_2L( filter_arr );
+                                _CACHE._key += convertFilterArrayToKeyString_I_2L( filter_arr );
 
                             // run whole query chain cache internal objects until current query
                             if ( ( qcoi.name === jqn ) && stopProcessingInternalCacheObject_I_2L( params, qcoi.filters ) ) break;
@@ -7807,7 +7806,7 @@
                         // loop over query chain cache user-defined objects
                         for ( var j = 0, userDefinedCacheObjects = queryChainCacheObjectUserDefined || []; j < userDefinedCacheObjects.length; j++ )
                         {
-                            // get query cache object internal
+                            // get query cache object user-defined
                             qcoud = userDefinedCacheObjects[ j ];
 
                             // create cache key until it's allowed
@@ -7836,8 +7835,9 @@
                         */
                         function stopProcessingInternalCacheObject_I_2L ( params, f_arr )
                         {
-                            // is current query the boundary one
+                            // is current query the boundary one ?
                             var stop = false;
+
 
                             // create array of boundary filter candidates (bfc)
                             var bfc_arr = [];
@@ -7853,22 +7853,23 @@
                                     bfc_arr.push( afc_arr_item );
                             } );
 
-                            // if query method doesn't contain filters, exit the function
+                            // if query method doesn't contain any relevant filters, exit the function
                             if ( bfc_arr.length === 0 && f_arr.length === 0 ) return stop;
 
-                            // if filter array is defined
+                            // if any relevant filters are defined
                             if ( f_arr )
                             {
                                 var f_arr_item;
+                                // loop over all filter items
                                 for ( var i = 0; i < f_arr.length; i++ )
                                 {
-                                    // access current item from the filter array
+                                    // access current filter item from the filter array
                                     f_arr_item = f_arr[ i ];
 
-                                    // if current filter is an array
+                                    // if current filter item is an array
                                     if ( Array.isArray( f_arr_item ) )
                                     {
-                                        // loop over all array filters of internal cache object
+                                        // loop over all current filter's filters of user-defined cache object
                                         for ( var j = 0; j < bfc_arr.length; j++ )
                                         {
                                             // if there is a match
@@ -7878,6 +7879,7 @@
                                                 // found boundary filter
                                                 stop = true;
 
+                                                // break the further search
                                                 break;
                                             }
                                         }
@@ -7887,11 +7889,13 @@
                                     }
                                 }
                             }
+
+
                             // return whether current query is the boundary one
                             return stop;
                         }
 
-                        function convertFilterArrToKeyString_I_2L ( f_arr )
+                        function convertFilterArrayToKeyString_I_2L ( f_arr )
                         {
                             // key string based on filter array
                             var f_arr_key = '';
@@ -7902,27 +7906,26 @@
                                 // for each item
                                 for ( let v of f_arr )
                                 {
-                                    // convert array to string if it's an array
+                                    // convert array to string if it's an array...
                                     if ( Array.isArray( v ) )
                                         f_arr_key += v.join( _ENUM.MISC.UNDERSCORE ) + _ENUM.MISC.UNDERSCORE;
-                                    // concatenate item
+                                    // ...otherwise add item to the key
                                     else
                                         f_arr_key += v + _ENUM.MISC.UNDERSCORE;
                                 }
                             }
 
-                            // return filter array key string
+                            // return key string
                             return f_arr_key;
                         }
                     }
 
-                    // Loads up cached query result into HPID.
                     function load_I_1L ()
                     {
                         // try to get data from cache for given key
                         var cachedResult = getCachedData_I_2L();
 
-                        // is cache hit
+                        // if there is a cache hit
                         if ( cachedResult.isHit )
                         {
                             // update HPID
@@ -7957,7 +7960,7 @@
                                 // there is cached data
                                 qcro.isHit = true;
 
-                                // cached data
+                                // fetch cached data
                                 qcro.data = _COMMON.deepCopyYCR( _CACHE._qrc[ _CACHE._key ] );
                             }
 
@@ -7968,21 +7971,21 @@
                 },
 
             store: /**
-            * Stores query result into cache.
-            * You can provide optional explicit value, being it returned value from the physical filter, or even your own custom value !
-            */
+             * Stores query result into cache.
+             * You can provide optional explicit value, being it returned value from the physical filter, or even your own custom value !
+             */
                 function ( storeUserValue, explicitValue )
                 {
-                    // is JLC cache enabled && is current query cache enabled
+                    // are JLC's library-wide cache & current query cache both enabled ?
                     if ( _CACHE._useCurrentQueryCache )
                     {
                         // cache the current query result
                         _CACHE._qrc[ _CACHE._key ] = storeUserValue ? _COMMON.deepCopyYCR( explicitValue ) : _COMMON.deepCopyYCR( _ACTION.hpid.data );
 
-                        // reset the key used for current query
+                        // reset the computed cache key used for current query
                         _CACHE._key = undefined;
 
-                        // reset current query result availability of cache usage
+                        // reset current query result cache usage availability flag
                         _CACHE._useCurrentQueryCache = false;
                     }
                 }
@@ -7994,26 +7997,26 @@
     // private object of proxy trap dispatcher
     var _PROXY_TRAP_DISPATCHER = {
         get: {
-            /**
+            DISPATCH: /**
              * @param {object} api JLC instance.
              * @param {any} property Name of the query method in question.
              * @param {any} receiver The object that should be used as this.
-            */
-            DISPATCH: function ( api, property, receiver )
-            {
-                // is it an array of data (is it an input collection)
-                if ( _COMMON.isObjectEmpty( api ) && Array.isArray( receiver ) )
-                    // mark that next query has to store its source into internal storage
-                    return _PROXY_TRAP.traps.get.RAW_SOURCE( api, property, receiver );
-                // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
-                else if ( api && _LINQ_CONTEXT._isProxy( receiver ) )
-                    // mark that next query has to invoke api-based method
-                    return _PROXY_TRAP.traps.get.PROXY_SOURCE( api, property, receiver );
-                // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
-                else if ( !( receiver instanceof Array ) )
-                    // mark that next query has to store its source into internal storage
-                    return _PROXY_TRAP.traps.get.PROXY_SOURCE( api, property, receiver );
-            }
+             */
+                function ( api, property, receiver )
+                {
+                    // is it an array of data (is it an input collection)
+                    if ( _COMMON.isObjectEmpty( api ) && Array.isArray( receiver ) )
+                        // mark that next query has to store its source into internal storage
+                        return _PROXY_TRAP.traps.get.RAW_SOURCE( api, property, receiver );
+                    // is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
+                    else if ( api && _LINQ_CONTEXT._isProxy( receiver ) )
+                        // mark that next query has to invoke api-based method
+                        return _PROXY_TRAP.traps.get.PROXY_SOURCE( api, property, receiver );
+                    // is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
+                    else if ( !( receiver instanceof Array ) )
+                        // mark that next query has to store its source into internal storage
+                        return _PROXY_TRAP.traps.get.PROXY_SOURCE( api, property, receiver );
+                }
         }
     };
 
@@ -13179,7 +13182,7 @@
                             _DATA.collection_array.length = 0;
 
                             // remove all collections' tokens
-                            _DATA.root_token_array.length = 0;
+                            _DATA.collection_token_array.length = 0;
 
                             // reset collections' index
                             _DATA.index = -1;
