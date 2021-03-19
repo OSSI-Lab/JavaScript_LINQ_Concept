@@ -31,7 +31,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
  - RC Point Release #3 :&nbsp;2021-03-19 &nbsp;&nbsp;3:45 PM Local Time&nbsp;:information_source:
     - Clean Code phase (what has been done already) !
       - _ENUM, _OPERATOR, _EXTENSION, _CONSTRAINT, _SYNTAX, _ACTION, _COMMON, _CORE, _LOGICAL_FILTER, _PHYSICAL_FILTER, _DATA, _CACHE, _PROXY_TRAP_DISPATCHER
- - RC Point Release #2 :&nbsp;2021-03-17 &nbsp;&nbsp;3:33 PM Local Time&nbsp;:information_source:
+ - RC Point Release #1 & #2 :&nbsp;2021-03-17 &nbsp;&nbsp;3:33 PM Local Time&nbsp;:information_source:
     - Clean Code phase (what has been done already) !
       - _ENUM, _OPERATOR, _EXTENSION, _CONSTRAINT, _SYNTAX, _ACTION, _COMMON, _CORE, _LOGICAL_FILTER
 #
