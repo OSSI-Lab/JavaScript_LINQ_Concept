@@ -8027,127 +8027,127 @@
             get: {
                 EMPTY: function () { },
 
-                /**
+                DEFAULT: /**
                  * @param {object} api JLC instance.
                  * @param {any} property Name of the query method in question.
                  * @param {any} receiver The object that should be used as this.
-                */
-                DEFAULT: function ( api, property, receiver )
-                {
-                    // just get property value from api object
-                    return api[ property ];
-                },
+                 */
+                    function ( api, property, receiver )
+                    {
+                        // just get property value from api object
+                        return api[ property ];
+                    },
 
-                /**
+                RAW_SOURCE: /**
                  * @param {object} api JLC instance.
                  * @param {any} property Name of the query method in question.
                  * @param {any} receiver The object that should be used as this.
-                */
-                RAW_SOURCE: function ( api, property, receiver )
-                {
-                    // enable transparent object property access
-                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
-
-                    // store data internally for this new proxy instance of new query flow
-                    api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ), !System.Linq.QueryResult[ property ] );
-
-                    // check for cached dynamically generated query method
-                    if ( ( _ENUM.RUNTIME.QCMICO in api[ _ENUM.RUNTIME.RTC ] ) && ( property in api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] ) )
+                 */
+                    function ( api, property, receiver )
                     {
-                        // restore current trap
-                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+                        // enable object property transparent access
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
-                        // you just have to return a proxy function
-                        return function ()
+                        // store data internally for this new proxy instance of new query flow
+                        api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.RAW_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ), !System.Linq.QueryResult[ property ] );
+
+                        // check if dynamically generated query method is present in the cache
+                        if ( ( _ENUM.RUNTIME.QCMICO in api[ _ENUM.RUNTIME.RTC ] ) && ( property in api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] ) )
                         {
-                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                        };
-                    }
+                            // restore current trap
+                            _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+
+                            // return a proxy function
+                            return function ()
+                            {
+                                return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                            };
+                        }
 
 
 
-                    // get query method definition object
-                    var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
+                        // get query method definition object
+                        var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
 
-                    // if there is such method, proceed with further logic
-                    if ( m_def_obj )
-                    {
-                        // add current query method name to query method names' cache
-                        _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
-
-                        // add action constraints to this LINQ method
-                        _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
-
-                        // store in api instance LINQ query method that is generated from query method definition
-                        _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
-
-                        // restore current trap
-                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
-
-                        // you just have to return a proxy function
-                        return function ()
+                        // if there is such method, proceed with further logic
+                        if ( m_def_obj )
                         {
-                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                        };
-                    }
-                },
+                            // add current query method name to query method names' cache
+                            _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
 
-                /**
+                            // add action constraints to this LINQ method
+                            _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
+
+                            // store LINQ query method that is generated from query method definition in api instance
+                            _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
+
+                            // restore current trap
+                            _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.RAW_SOURCE;
+
+                            // return a proxy function
+                            return function ()
+                            {
+                                return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                            };
+                        }
+                    },
+
+                PROXY_SOURCE: /**
                  * @param {object} api JLC instance.
                  * @param {any} property Name of the query method in question.
                  * @param {any} receiver The object that should be used as this.
-                */
-                PROXY_SOURCE: function ( api, property, receiver )
-                {
-                    // enable transparent object property access
-                    _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
-
-                    // empty object stands for new proxy instance of new query flow
-                    if ( _COMMON.isObjectEmpty( api ) )
-                        // hence get conceptually latest (current) collection cached metadata
-                        api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ), !System.Linq.QueryResult[ property ] );
-
-
-                    // check for cached dynamically generated query method
-                    if ( ( _ENUM.RUNTIME.QCMICO in api[ _ENUM.RUNTIME.RTC ] ) && ( property in api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] ) )
+                 */
+                    function ( api, property, receiver )
                     {
-                        // restore current trap
-                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+                        // enable object property transparent access
+                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
-                        // you just have to return a proxy function
-                        return function ()
+                        // because empty object stands for new proxy instance of new query flow
+                        if ( _COMMON.isObjectEmpty( api ) )
+                            // define new JLC instance object
+                            api = _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext( _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT, receiver, Object.create( null ), Object.create( null ), !System.Linq.QueryResult[ property ] );
+
+
+                        // check if dynamically generated query method is present in the cache
+                        if ( ( _ENUM.RUNTIME.QCMICO in api[ _ENUM.RUNTIME.RTC ] ) && ( property in api[ _ENUM.RUNTIME.RTC ][ _ENUM.RUNTIME.QCMICO ] ) )
                         {
-                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                        };
-                    }
+                            // restore current trap
+                            _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+
+                            // return a proxy function
+                            return function ()
+                            {
+                                return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                            };
+                        }
 
 
 
-                    // get query method definition object
-                    var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
+                        // get query method definition object
+                        var m_def_obj = _LINQ_CONTEXT.udlm[ property ];
 
-                    // if there is such method, proceed with further logic
-                    if ( m_def_obj )
-                    {
-                        // add current query method name to query method names' cache
-                        _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
-
-                        // add action constraints to this LINQ method
-                        _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
-
-                        // store in api instance LINQ query method that is generated from query method definition
-                        _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
-
-                        // restore current trap
-                        _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
-
-                        // you just have to return a proxy function
-                        return function ()
+                        // if there is such method, proceed with further logic
+                        if ( m_def_obj )
                         {
-                            return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
-                        };
-                    }
-                },
+                            // add current query method name to query method names' cache
+                            _LINQ_CONTEXT._proxyTrapsCommon.queryStoreName( property );
+
+                            // add action constraints to this LINQ method
+                            _LINQ_CONTEXT._proxyTrapsCommon.queryAddActionConstraints( m_def_obj );
+
+                            // store LINQ query method that is generated from query method definition in api instance
+                            _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateImplementation( m_def_obj, api );
+
+                            // restore current trap
+                            _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.PROXY_SOURCE;
+
+                            // return a proxy function
+                            return function ()
+                            {
+                                return _LINQ_CONTEXT._proxyTrapsCommon.queryGetProxyFuncThenInvoke( api, property, receiver, arguments );
+                            };
+                        }
+                    },
 
                 PROTOTYPE: function ( key )
                 {
@@ -8160,13 +8160,13 @@
         // common internal query method check constraints
         udlm: {
             _handleFirstLevelSorting: /**
-            * Invokes 1st level sorting set operations when a 1nd level sorting query method. i.e. orderBy or orderByDescending runs.
-            *
-            * @param {any} constr_params
-            */
+              * Invokes additional logic for 1st level sorting query method called orderBy or orderByDescending.
+              *
+              * @param {any} constr_params Parameters' object of the current action.
+              */
                 function ( constr_params )
                 {
-                    // 'this' refers to the current action constraint object
+                    // 'this' refers to the constraint object of the current action object
                     var self = this;
 
                     // reference first-level sorting context object (flsco)
@@ -8174,19 +8174,16 @@
 
                     // apply required constraint logic
                     flsco.set( constr_params, self );
-
-
-                    // you need to somehow get access to all constraint chain in order to do some updates up the chain
                 },
 
             _handleSecondLevelSorting: /**
-            * Invokes 2st level sorting check operations when a 2nd level sorting query method. i.e. thenBy or thenByDescending runs.
-            *
-            * @param {any} constr_params
-            */
+              * Invokes additional logic for 2nd level sorting query method called thenBy or thenByDescending.
+              *
+              * @param {any} constr_params Parameters' object of the current action.
+              */
                 function ( constr_params )
                 {
-                    // 'this' refers to the current action constraint object
+                    // 'this' refers to the constraint object of the current action object
                     var self = this;
 
                     // reference first-level sorting context object (flsco)
@@ -8194,19 +8191,16 @@
 
                     // apply required constraint logic
                     flsco.check();
-
-                    // you need to somehow get access to all constraint chain in order to do some updates up the chain
                 },
 
             _handleResetFirstLevelSorting: /**
-            * Reset 1st level sorting when the very next query method running after orderBy or orderByDescending
-            * is not a 2nd level sorting query method. i.e. thenBy or thenByDescending
-            * 
-            * @param {any} constr_params
-            */
+              * Reset 1st level sorting when the very next query method running after orderBy or orderByDescending is not a 2nd level sorting query method. i.e. thenBy or thenByDescending.
+              *
+              * @param {any} constr_params Parameters' object of the current action.
+              */
                 function ( constr_params )
                 {
-                    // 'this' refers to the current action constraint object
+                    // 'this' refers to the constraint object of the current action object
                     var self = this;
 
                     // reference first-level sorting context object (flsco)
@@ -8214,8 +8208,6 @@
 
                     // apply required constraint logic
                     flsco.set( constr_params, self );
-
-                    // you need to somehow get access to all constraint chain in order to do some updates up the chain
                 }
         }
     };
@@ -13019,7 +13011,7 @@
 
             queryGetProxyFuncThenInvoke: function ( api, property, receiver, arguments )
             {
-                // enable transparent object property access
+                // enable object property transparent access
                 _LINQ_CONTEXT._arrayProxyHandler.get = _PROXY_TRAP.traps.get.DEFAULT;
 
 
