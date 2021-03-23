@@ -24,10 +24,12 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;Release Candidate&nbsp;:heavy_check_mark:
 ## Streamlined:&nbsp;YES
-## Generally Available:&nbsp;2021-03-20&nbsp;Local Time&nbsp;:zap:&nbsp;:bell:&nbsp;:heavy_check_mark:
-  - optionally plus another day and another day etc. until the last code character will looked through by me !
+## Generally Available:&nbsp;2021-03-24&nbsp;Local Time&nbsp;:zap:&nbsp;:heavy_check_mark:
 #
 ## RC
+ - RC Point Release #4 :&nbsp;2021-03-23 &nbsp;&nbsp;12:03 PM Local Time&nbsp;:information_source:
+    - Clean Code phase (what has been done already) !
+      - done !
  - RC Point Release #3 :&nbsp;2021-03-19 &nbsp;&nbsp;4:27 PM Local Time&nbsp;:information_source:
     - Clean Code phase (what has been done already) !
       - _ENUM, _OPERATOR, _EXTENSION, _CONSTRAINT, _SYNTAX, _ACTION, _COMMON, _CORE, _LOGICAL_FILTER, _PHYSICAL_FILTER, _DATA, _CACHE, _PROXY_TRAP_DISPATCHER, _PROXY_TRAP

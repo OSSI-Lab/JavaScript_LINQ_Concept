@@ -13,7 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ RCPR #3 | [GA/RELEASE] | RC
+ *      ⚠️ RCPR #4 | [GA/RELEASE] | RC
  *                                                                              -> Objects          ->      RC Version      ->      TEST COMPLETED      ->      100%
  *                                                                              -> Primitives       ->      RC Version      ->      TEST COMPLETED      ->      100%
  *
@@ -2419,7 +2419,7 @@
                     var t2sr = _COMMON.convertTypeToString( paramsObjRequiredParamName );
 
 
-                    // handle missing params object
+                    // validate input parameter of internal constraint checking phase
                     if ( t2sr === _ENUM.T2SR.STRING && params === undefined )
                         throw new ReferenceError( error_prefix + ' has to have ' + paramsObjName + ' object provided !\r\n\r\n' );
                     // check if this param is required (non-empty string)
@@ -8232,33 +8232,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'where\'', paramsObjRequiredParamName = 'predicateArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -8270,7 +8270,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8279,9 +8279,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.restriction_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -8295,16 +8295,16 @@
                     misc: []
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -8314,33 +8314,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'groupBy\'', paramsObjRequiredParamName = 'predicateArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -8352,7 +8352,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8361,9 +8361,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.group_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -8438,14 +8438,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the type of value of property of the source collection if query flow will arrive in this method
                         _COMMON.determinePropertyType
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -8469,10 +8469,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -8482,39 +8482,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'concatenate\'', paramsObjRequiredParamName = 'collectionOrItem';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8523,9 +8523,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.merge_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -8547,16 +8547,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -8566,39 +8566,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'append\'', paramsObjRequiredParamName = 'collectionOrItem';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8607,9 +8607,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.merge_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -8631,16 +8631,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -8650,39 +8650,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'prepend\'', paramsObjRequiredParamName = 'collectionOrItem';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8691,9 +8691,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.merge_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -8715,16 +8715,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -8734,33 +8734,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'contains\'', paramsObjRequiredParamName = 'collectionOrItem';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'collectionOrItem',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -8772,7 +8772,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8781,9 +8781,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.set_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -8821,16 +8821,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -8840,39 +8840,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'distinct\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8881,9 +8881,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.set_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -8924,16 +8924,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -8943,33 +8943,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'except\'', paramsObjRequiredParamName = 'collectionOrItem';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'collectionOrItem',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -8981,7 +8981,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -8990,9 +8990,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.set_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9028,16 +9028,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -9047,39 +9047,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'skip\'', paramsObjRequiredParamName = 'count';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -9088,9 +9088,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9130,16 +9130,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -9149,33 +9149,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'skipWhile\'', paramsObjRequiredParamName = 'predicateArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -9187,7 +9187,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -9196,9 +9196,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9238,16 +9238,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -9257,39 +9257,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'take\'', paramsObjRequiredParamName = 'count';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -9298,9 +9298,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9340,16 +9340,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -9359,33 +9359,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'takeWhile\'', paramsObjRequiredParamName = 'predicateArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -9397,7 +9397,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -9406,9 +9406,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9448,16 +9448,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -9467,33 +9467,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'orderBy\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'keyPartSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context
                         _PROXY_TRAP.udlm._handleFirstLevelSorting,
@@ -9505,7 +9505,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         true
                     ],
@@ -9514,9 +9514,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.order_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9545,14 +9545,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the type of value of property of the source collection if query flow will arrive in this method
                         _COMMON.determinePropertyType
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -9576,10 +9576,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: true,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: true
             },
 
@@ -9589,33 +9589,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'orderByDescending\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'keyPartSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context
                         _PROXY_TRAP.udlm._handleFirstLevelSorting,
@@ -9627,7 +9627,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         true
                     ],
@@ -9636,9 +9636,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.order_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9667,14 +9667,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the type of value of property of the source collection if query flow will arrive in this method
                         _COMMON.determinePropertyType
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -9698,10 +9698,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: true,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: true
             },
 
@@ -9711,33 +9711,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'thenBy\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'keyPartSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 2st level sorting context
                         _PROXY_TRAP.udlm._handleSecondLevelSorting,
@@ -9749,7 +9749,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [],
 
                     // all invocation contexts that had to take place prior to this invocation context
@@ -9759,9 +9759,9 @@
                     ]
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.order_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9790,16 +9790,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: true
             },
 
@@ -9809,33 +9809,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'thenByDescending\'', paramsObjRequiredParamName = 'keyPartSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'keyPartSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 2st level sorting context
                         _PROXY_TRAP.udlm._handleSecondLevelSorting,
@@ -9847,7 +9847,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [],
 
                     // all invocation contexts that had to take place prior to this invocation context
@@ -9857,9 +9857,9 @@
                     ]
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.order_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -9888,16 +9888,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: true
             },
 
@@ -9907,39 +9907,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'toArray\'', paramsObjRequiredParamName = true;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -9948,9 +9948,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [],
                     misc: [
@@ -9983,16 +9983,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10002,33 +10002,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'toDictionary\'', paramsObjRequiredParamName = 'predicateArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -10040,7 +10040,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10049,9 +10049,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.group_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10128,16 +10128,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10147,39 +10147,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'defaultIfEmpty\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10188,9 +10188,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10221,14 +10221,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp)
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the default value in the source collection if query flow will arrive in this method
                         _COMMON.guessCollectionDefaultValue
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -10252,10 +10252,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10265,39 +10265,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'reverseAllOrSubset\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10306,9 +10306,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10346,16 +10346,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10365,33 +10365,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'select\'', paramsObjRequiredParamName = 'selectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'selectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -10403,7 +10403,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10412,9 +10412,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.projection_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10457,16 +10457,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10476,33 +10476,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'selectMany\'', paramsObjRequiredParamName = 'selectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'selectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -10514,7 +10514,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10523,9 +10523,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.projection_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10568,16 +10568,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10587,33 +10587,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'innerJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'outerSelectorArray, innerSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -10625,7 +10625,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10634,9 +10634,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.join_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10700,16 +10700,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10719,33 +10719,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'leftJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'outerSelectorArray, innerSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -10757,7 +10757,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10766,9 +10766,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.join_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10832,16 +10832,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10851,33 +10851,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'groupJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'outerSelectorArray, innerSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -10889,7 +10889,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -10898,9 +10898,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.join_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -10964,16 +10964,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -10983,33 +10983,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: false,
 
-                    // does produce final result which is a collection
-                    returns_collection: true,
+                    // does produce final result which is a collection ?
+                    returns_collection: true
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'groupLeftJoin\'', paramsObjRequiredParamName = 'outerSelectorArray, innerSelectorArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'outerSelectorArray, innerSelectorArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11021,7 +11021,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11030,9 +11030,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.join_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11096,16 +11096,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11115,39 +11115,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'elementAt\'', paramsObjRequiredParamName = 'index';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11156,9 +11156,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11198,16 +11198,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11217,39 +11217,39 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'elementAtOrDefault\'', paramsObjRequiredParamName = 'index';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: false,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: undefined,
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11258,9 +11258,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.range_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11300,14 +11300,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp)
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the default value in the source collection if query flow will arrive in this method
                         _COMMON.guessCollectionDefaultValue
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -11331,10 +11331,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11344,33 +11344,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'first\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11382,7 +11382,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11391,9 +11391,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11424,16 +11424,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11443,33 +11443,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'firstOrDefault\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11481,7 +11481,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11490,9 +11490,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11523,16 +11523,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11542,33 +11542,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'last\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11580,7 +11580,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11589,9 +11589,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11622,16 +11622,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11641,33 +11641,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'lastOrDefault\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11679,7 +11679,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11688,9 +11688,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11721,16 +11721,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11740,33 +11740,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'single\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11778,7 +11778,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11787,9 +11787,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11820,16 +11820,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11839,33 +11839,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'singleOrDefault\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11877,7 +11877,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11886,9 +11886,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.paging_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -11919,16 +11919,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -11938,33 +11938,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'min\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'property',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -11976,7 +11976,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -11985,9 +11985,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.aggregate_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -12016,14 +12016,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the type of value of property of the source collection if query flow will arrive in this method
                         _COMMON.determinePropertyType
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -12047,10 +12047,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: true
             },
 
@@ -12060,33 +12060,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'max\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'property',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -12098,7 +12098,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -12107,9 +12107,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.aggregate_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -12138,14 +12138,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the type of value of property of the source collection if query flow will arrive in this method
                         _COMMON.determinePropertyType
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -12169,10 +12169,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: true
             },
 
@@ -12182,33 +12182,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'average\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'property',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -12220,7 +12220,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -12229,9 +12229,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.aggregate_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -12269,14 +12269,14 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: {
                     // functions to execute
                     cpf: [
                         // to determine the type of value of property of the source collection if query flow will arrive in this method
                         _COMMON.determinePropertyType
                     ],
-                    // metadata describing fetching the right params
+                    // input data for functions to be executed
                     cpfdm: [
                         [
                             function ()
@@ -12300,10 +12300,10 @@
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: true
             },
 
@@ -12313,33 +12313,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'any\'', paramsObjRequiredParamName = false;
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -12351,7 +12351,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -12360,9 +12360,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.quantifying_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -12384,16 +12384,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             },
 
@@ -12403,33 +12403,33 @@
 
                 // method returns data
                 mrd: {
-                    // does return data
+                    // does return data ?
                     yes: true,
 
-                    // does produce final result which is a collection
-                    returns_collection: false,
+                    // does produce final result which is a collection ?
+                    returns_collection: false
                 },
 
-                // predefined internal constraint checking
+                // predefined internal constraint validation - validation of input parameter called 'params'
                 internal_rcc: [
                     function ( params )
                     {
-                        // declare missing params object entries
+                        // what parameters are required for this query method ?
                         var queryName = '\'all\'', paramsObjRequiredParamName = 'predicateArray';
 
-                        // handle missing params object
+                        // validate input parameter of internal constraint checking phase
                         return _COMMON.validateParamsObjectOfQueryInterface( params, queryName, paramsObjRequiredParamName );
                     }
                 ],
 
-                // requires syntax checking
+                // does require syntax checking ?
                 rsc: true,
-                // user-provided query filter syntax
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
                 rsc_syntax: 'predicateArray',
 
-                // requires constraint checking
+                // predefined internal constraint validation - mutation of constraint action state
                 rcc: {
-                    // constraint functions
+                    // functions to execute
                     cf: [
                         // to handle 1st level sorting context reset
                         _PROXY_TRAP.udlm._handleResetFirstLevelSorting,
@@ -12441,7 +12441,7 @@
                         _SYNTAX.check
                     ],
 
-                    // constraint functions data
+                    // input data for functions to be executed
                     cfd: [
                         false
                     ],
@@ -12450,9 +12450,9 @@
                     required_ctxs: []
                 },
 
-                // core JLC method behind the API (jcm)
+                // JLC core method behind the API (jcm)
                 jcm: _CORE.quantifying_mtds,
-                // metadata of core JLC method parameters
+                // input parameters of JLC core method
                 jcm_this_excluded_params: {
                     params: [
                         {
@@ -12474,16 +12474,16 @@
                     ]
                 },
 
-                // action custom prerequisites (acp) - predefined if required, otherwise null
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
                 acp: null,
 
                 // action context object (aco)
                 aco: null,
 
-                // is writable - can you update state during query flow
+                // can you update state during query flow ?
                 writable: false,
 
-                // method runs in the sorting context
+                // does method run in the sorting context ?
                 is_sort_ctx: false
             }
         },
@@ -12505,13 +12505,13 @@
         // all available query method names that are already present in the query flow
         _all: [],
 
-        // private implementation - generating query method on demand from method definition !
+        // generating query method on demand from method definition
         _arrayBaseProxy: null,
 
         // backups the original prototype of an Array object
         _arrayProto: null,
 
-        // common methods shared across all traps
+        // shared methods across all traps
         _proxyTrapsCommon: {
             queryCreateContinuumFlowContext: function ( flowContext, collectionInQuestion, actionContext, queryChainMethodImplCacheObject, isNonFinalQueryMethod )
             {
@@ -12533,7 +12533,7 @@
 
                         case _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT:
                         case _ENUM.FLOW_CONTEXT.ACTION_SOURCE_CONTEXT:
-                            // return JLC proxied instance
+                            // create JLC proxied instance
                             return createProxiedInstance_I_2L( action_ctx, qmi_ctr, is_proxy_qm );
 
                         case _ENUM.FLOW_CONTEXT.PROXY_SOURCE_CONTEXT:
@@ -12543,8 +12543,10 @@
                             // if internally-stored one (handle PROXY_SOURCE)
                             if ( ticgui > -1 )
                             {
+                                // fetch context from context cache
                                 var cached_action_ctx = _SETUP._ccm[ ticgui ];
-                                // then get the cached context associated with this collection and return JLC proxied instance
+                                
+                                // get the cached context associated with this collection and return JLC proxied instance
                                 return createProxiedInstance_I_2L( cached_action_ctx, qmi_ctr, is_proxy_qm );
                             }
                             // if a new one (handle RAW_SOURCE)
@@ -12572,7 +12574,7 @@
                         // restore metadata of the contextually current collection state
                         _ACTION.hpidCommons.updateColumnSetCestAndCols( action_ctx.currentQueryIceMetaObject.length_gte_2, action_ctx.currentQueryIceMetaObject.item, action_ctx.currentQueryIceMetaObject.ofss );
 
-                        // create partial query new JLC proxied instance
+                        // create JLC proxied instance for this partial query
                         return createNewJLC_I_3L( action_ctx, qmi_ctr, is_proxy_qm );
 
 
@@ -12584,8 +12586,9 @@
                         /**
                          * Create new instance of JLC.
                          *
-                         * @param {Object} action_ctx Container of actions for this newly being created JLC instance.
-                         * @param {Object} qmi_ctr Container of query method implementations for this newly being created JLC instance.
+                         * @param {object} action_ctx Container of actions for this newly being created JLC instance.
+                         * @param {object} qmi_ctr Container of query method implementations for this newly being created JLC instance.
+                         * @param {boolean} is_proxy_qm Boolean flag that tells whether add resultsView enumerator for this newly being created JLC instance.
                         */
                         function createNewJLC_I_3L ( action_ctx, qmi_ctr, is_proxy_qm )
                         {
@@ -12602,7 +12605,7 @@
                             if ( is_proxy_qm )
                                 _LINQ_CONTEXT._proxyTrapsCommon.queryGenerateInDebuggingModeResultsView( ctxClone );
 
-                            // create and return proxied JLC instance
+                            // create and return JLC instance proxy object
                             return new Proxy( ctxClone, _LINQ_CONTEXT._arrayProxyHandler );
                         }
                     }
@@ -12611,7 +12614,7 @@
 
             queryStoreName: function ( method_name )
             {
-                // cache query method name if it's not present in the cache
+                // do cache the name of the query method if it's not present in the cache
                 if ( !_LINQ_CONTEXT._all.includes( method_name ) )
                     _LINQ_CONTEXT._all.push( method_name );
             },
@@ -12621,10 +12624,10 @@
                 // query constraint property name
                 var qcpn = _CONSTRAINT._placeholder + method.lmn;
 
-                // define '_baseConstraints' on '_CONSTRAINT' object once... 
+                // define '_baseConstraints' on '_CONSTRAINT' object if not already defined
                 if ( !( qcpn in _CONSTRAINT ) )
                 {
-                    // but create new instance of query flow base constraints (qfbc) for each query method that requires it, but only once
+                    // create new instance of query flow base constraints (qfbc) for each query method that requires it
                     Object.defineProperty(
                         _CONSTRAINT,
                         qcpn,
@@ -12663,7 +12666,7 @@
                     var adco = Object.create( null );
 
 
-                    // deal with any action constraints
+                    // create default constraint
                     var co = createConstraintObject_I_3L(
                         method.aco,
                         method.rcc.cfd,
@@ -12673,7 +12676,7 @@
                         method.is_sort_ctx
                     );
 
-                    // add action constraint to action default constraints object
+                    // add default constraint to action default constraints object
                     adco[ method.lmn ] = co;
 
 
@@ -12707,13 +12710,13 @@
                         // action constraint functions (all checks to perform)
                         co.acf = funcs_arr;
 
-                        // is this action constraint writable (if not, implicitly make it read only)
+                        // is this action constraint writable ? (if not, implicitly make it read only)
                         co.isWritable = writable;
 
-                        // is syntax checking for this query method required
+                        // is syntax checking for this query method required ?
                         co.requireSyntaxCheck = check_syntax;
 
-                        // is this action constraint invoked in the one of the order-* methods (By, ByDescending, ThenBy, ThenByDescending)
+                        // is this action constraint invoked in the one of the order-* methods (By, ByDescending, ThenBy, ThenByDescending) ?
                         co.isSortContext = is_sort_ctx || false;
 
 
@@ -12726,11 +12729,9 @@
             queryGenerateImplementation: function ( method, api )
             {
                 // add method to Linq context object
-                // @ts-ignore
                 System.Linq.Context[ method.lmn ] = method.lmn;
 
                 // store information whether this method produces physical result or a logical one
-                // @ts-ignore
                 System.Linq.QueryResult[ method.lmn ] = method.mrd.yes;
 
                 // create API method
@@ -12743,7 +12744,7 @@
                 */
                 function create_MI_I_2L ( method_def_obj )
                 {
-                    // return JLC method function implementation
+                    // create JLC method function implementation
                     return function ( params, queryChainCacheObjectUserDefined )
                     {
                         /**
@@ -12776,14 +12777,11 @@
                         */
                         // constraint object
                         var constr;
-                        //define an array of arrays of user-provided query filters
+                        // define an array of arrays of user-provided query filters
                         var upqf_arr = [];
                         // check for optional method syntax checking constraint
                         if ( method_def_obj.rsc )
                         {
-                            // define an array of arrays of user-provided query filters
-                            var upqf_arr = [];
-
                             // create array of parameters that store user-provided query filters
                             var rsc_syntax_arr = method_def_obj.rsc_syntax.split( ',' );
                             // trim spaces around array items
@@ -12806,9 +12804,9 @@
                         /**
                          * Assign values to parameters of the core method in the right order.
                         */
-                        // an object of arguments to be passed to the function
+                        // object of arguments to be passed to the function
                         var core_method_params = Object.create( null ), param_obj;
-                        // loop over all params array and extract all values
+                        // process parameters of the object called 'params', just to extract all values
                         for ( var i = 0, params_obj = method_def_obj.jcm_this_excluded_params.params, length = params_obj.length; i < length; i++ )
                         {
                             // access current param
@@ -12817,7 +12815,7 @@
                             // store current param value in the core method param object
                             core_method_params[ param_obj.name ] = params[ param_obj.name ];
                         }
-                        // loop over all misc array and extract all values
+                        // process parameters of the object called 'misc', just to extract all values
                         for ( var i = 0, miscs_obj = method_def_obj.jcm_this_excluded_params.misc, length = miscs_obj.length; i < length; i++ )
                         {
                             // access current param
@@ -12832,8 +12830,8 @@
                         /**
                          * Reference two contexts:
                          *  - context of JLC instance
-                         *      - for brand new query in the current query chain this refers to the input collection (first query based on input collection in the current query chain)
-                         *      - for another query in the current query chain this refers to the previous proxy object (first query based on input collection in the current query chain boxed into proxy -> aka intermediate query state)
+                         *      - for brand new query in the current query chain 'this' refers to the input collection (first query based on input collection in the current query chain)
+                         *      - for another query in the current query chain 'this' refers to the previous proxy object (first query based on input collection in the current query chain boxed into proxy -> aka intermediate query state)
                          *  - context of query flow methods
                         */
                         var runtimeContext, queryMethodImplContainer, ctx_discovery;
@@ -12850,8 +12848,8 @@
 
 
                         /**
-                         * Run action custom prerequisites (aka validation constraints) if there are any.
-                         * The implicit requirement for these custom prerequisites is that all params of functions can be fetched via 'Closures' feature !
+                         * Run action custom prerequisites (aka validation constraints), if there are any.
+                         * The implicit requirement for these custom prerequisites is that all parameters of functions can be fetched via 'Closures' feature !
                          * How they are different from action constraints ?
                          *  - the goal is to provide kind of the same logical functionality as during compilation phase, if regarding statically typed languages.
                          * 
@@ -12868,14 +12866,14 @@
                                 // function arguments
                                 func_args = [];
 
-                                // iterate over all function params accessors
+                                // iterate over all function parameters' accessors
                                 for ( var j = 0, fpa_length = method_def_obj.acp.cpfdm[ i ].length; j < fpa_length; j++ )
                                 {
                                     // fetch function arguments
                                     func_args.push( method_def_obj.acp.cpfdm[ i ][ j ].bind( api )() );
                                 }
 
-                                // store core method args as the last param
+                                // store core method args as the last parameter
                                 func_args.push( core_method_params );
 
                                 // invoke function with given arguments
@@ -13025,7 +13023,7 @@
                  * 2.
                  *    a.  is it a new api instance object (is it a non-final result, i.e. is this query method the very first or just another query method in the whole chain ?)
                  *          ||
-                 *    b.  is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?) 
+                 *    b.  is it an object of data or a primitive value (is it a final result, i.e. does this query method ends the whole chain ?)
                 */
 
                 // 1.
@@ -13124,7 +13122,7 @@
                     */
                     function init_LINQ_I_2L ()
                     {
-                        // create proxied prototype of an Array object
+                        // create proxy out of prototype of an Array object
                         _LINQ_CONTEXT._arrayBaseProxy = new Proxy( Object.create( null ), _LINQ_CONTEXT._arrayProxyHandler );
 
                         // update prototype of an Array object
@@ -13132,19 +13130,12 @@
 
 
                         // create LINQ namespaces
-                        // @ts-ignore
                         window.System = window.System || Object.create( null );
-                        // @ts-ignore
                         window.System.Linq = window.System.Linq || Object.create( null );
-                        // @ts-ignore
                         window.System.Linq.Context = window.System.Linq.Context || Object.create( null );
-                        // @ts-ignore
                         window.System.Linq.Context.Cache = window.System.Linq.Context.Cache || Object.create( null );
-                        // @ts-ignore
                         window.System.Linq.Context.Collection = window.System.Linq.Context.Collection || Object.create( null );
-                        // @ts-ignore
                         window.System.Linq.QueryResult = window.System.Linq.QueryResult || Object.create( null );
-                        // @ts-ignore
                         window.System.Linq.Resources = window.System.Linq.Resources || Object.create( null );
 
 
@@ -13167,7 +13158,6 @@
                         };
 
                         // enable disposing of LINQ resources
-                        // @ts-ignore
                         window.System.Linq.Resources.dispose = function ( ...user_coll_arr )
                         {
                             // remove all collections
@@ -13176,7 +13166,7 @@
                             // remove all collections' tokens
                             _DATA.collection_token_array.length = 0;
 
-                            // reset collections' index
+                            // reset collections' indexes
                             _DATA.index = -1;
 
                             // when you're done with LINQ, make any further array operations transparent ones !
@@ -13214,6 +13204,7 @@
 
                             function cleanupUserCollections_I_1L ()
                             {
+                                // cleanup user data collections
                                 _SETUP.Funcs.cleanupJLC( user_coll_arr );
                             }
                         };
@@ -13224,7 +13215,7 @@
                         // get all extensions' keys
                         var ext_key_arr = Object.getOwnPropertyNames( _EXTENSION );
 
-                        // loop over all extensions one by one
+                        // loop over all extensions
                         for ( var i = 0; i < ext_key_arr.length; i++ )
                             // enable this extension
                             _EXTENSION[ ext_key_arr[ i ] ]();
@@ -13260,7 +13251,7 @@
                 */
 
                 var collectionIndex, collectionToken, runtime_ctx;
-                //if collection wasn't indexed internally, prepare for indexation
+                // if collection wasn't indexed internally, prepare for indexation
                 if ( !( _ENUM.RUNTIME.CI in source_collection ) && !( _ENUM.RUNTIME.CT in source_collection ) )
                 {
                     // get token associated with current collection, aka root token
@@ -13269,6 +13260,7 @@
                     // check if current collection is stored internally by finding index of this collection within collection history array
                     collectionIndex = _DATA.exists( collectionToken );
 
+                    // if current collection isn't stored internally
                     if ( collectionIndex === -1 )
                     {
                         // yield the very next value of index that will refer to this new collection within collection history array
@@ -13280,7 +13272,7 @@
                         // assign internal collection index
                         source_collection[ _ENUM.RUNTIME.CI ] = collectionIndex;
 
-                        // pass data in to the mechanism
+                        // pass data to the mechanism
                         over_I_1L( source_collection );
                     }
 
@@ -13295,14 +13287,14 @@
                     // get cached collection index
                     collectionIndex = source_collection[ _ENUM.RUNTIME.CI ];
 
-                    // get cached root token
+                    // get cached collection token
                     collectionToken = source_collection[ _ENUM.RUNTIME.CT ];
 
                     // apply JLC common operations
                     applyJlcCommon_I_1L();
                 }
 
-                // return JLC proxied instance
+                // create proxy out of new JLC instance
                 return _LINQ_CONTEXT._proxyTrapsCommon.queryCreateContinuumFlowContext(
                     _ENUM.FLOW_CONTEXT.INDEX_SOURCE_CONTEXT,
                     source_collection, // this collection has just been stored, so pass it once again to fetch cached context
@@ -13321,7 +13313,7 @@
                     // declare a private data object holding data collection of current JLC instance
                     var coll_data = Object.create( null );
                     coll_data.dirty_data = null;    // current flow data
-                    coll_data.data = null;          // data - the copy of current flow data - requested on demand via resultsView dynamic property of JLC api instance
+                    coll_data.data = null;          // data - the copy of current flow data - requested via resultsView property of JLC api instance
 
 
                     // store the collection to iterate over
@@ -13348,7 +13340,7 @@
 
                     function create_JC_I_2L ()
                     {
-                        // create JLC instance context object
+                        // create context object of JLC instance
                         var r_ctx = Object.create( null );
 
                         // define all necessary properties
@@ -13369,7 +13361,7 @@
                         // initially parent set to null
                         r_ctx.parentActionObject = null;
 
-                        // return JLC instance context object
+                        // return context object of JLC instance
                         return r_ctx;
                     }
                 }
@@ -13382,7 +13374,7 @@
             {
                 // if user provided valid array of collections
                 if ( user_coll_arr && Array.isArray( user_coll_arr ) )
-                    // cleanup any each and every collection
+                    // cleanup every collection
                     user_coll_arr.forEach( cleanup_I_1L );
 
 
@@ -13395,7 +13387,7 @@
                     // fetch all symbols from the array
                     var symbols = Object.getOwnPropertySymbols( coll );
 
-                    // loop over the array and remove each and every symbol
+                    // loop over the array and remove every symbol
                     for ( const s of symbols )
                         delete coll[ s ];
                 }
