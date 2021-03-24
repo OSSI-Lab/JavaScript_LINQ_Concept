@@ -22,9 +22,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ##
 ## Version:&nbsp;:one:.:zero:
-## Status:&nbsp;Release Candidate&nbsp;:heavy_check_mark:
-## Streamlined:&nbsp;YES
-## Generally Available:&nbsp;2021-03-24&nbsp;Local Time&nbsp;:zap:&nbsp;:heavy_check_mark:
+## Status:&nbsp;Generally Available&nbsp;:heavy_check_mark:&nbsp;:zap:
+## Release date:&nbsp;2021-03-24&nbsp;Local Time
+## Streamlined:&nbsp;NO
+#
 #
 ## RC
  - RC Point Release #4 :&nbsp;2021-03-23 &nbsp;&nbsp;12:03 PM Local Time&nbsp;:information_source:

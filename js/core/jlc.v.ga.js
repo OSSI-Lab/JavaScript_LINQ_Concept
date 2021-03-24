@@ -13,13 +13,7 @@
  * 
  * 
  * Status:
- *      ⚠️ RCPR #4 | [GA/RELEASE] | RC
- *                                                                              -> Objects          ->      RC Version      ->      TEST COMPLETED      ->      100%
- *                                                                              -> Primitives       ->      RC Version      ->      TEST COMPLETED      ->      100%
- *
- *                                                                              ...
- * 
- *                                                                              -> "Common things"  ->      RC Version      ->      TEST COMPLETED      ->      100%
+ *      ⚠️ GA
  * 
  * 
  * 
