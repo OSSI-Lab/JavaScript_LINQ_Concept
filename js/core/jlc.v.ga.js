@@ -4020,14 +4020,14 @@
                             {
                                 if ( nVC === true && nVP === false ) return 1;
                                 else if ( nVC === false && nVP === true ) return -1;
-                                else return 0;
+                                else return handleTwoItemsEquality_I_3L (false);
                             }
                             // perform DESC comparison
                             else
                             {
                                 if ( nVC === true && nVP === false ) return -1;
                                 else if ( nVC === false && nVP === true ) return 1;
-                                else return 0;
+                                else return handleTwoItemsEquality_I_3L (true);
                             }
                         }
 
@@ -4038,17 +4038,24 @@
                             {
                                 if ( nVC > nVP )
                                     return 1;
-                                else
+                                else if ( nVC < nVP )
                                     return -1;
+                                else return handleTwoItemsEquality_I_3L(false);
                             }
                             // perform DESC comparison
                             else
                             {
                                 if ( nVC > nVP )
                                     return -1;
-                                else
+                                else if ( nVC < nVP )
                                     return 1;
+                                else return handleTwoItemsEquality_I_3L(true);
                             }
+                        }
+
+                        function handleTwoItemsEquality_I_3L ( keepAsInTheSourceCollection ) {
+                            if ( keepAsInTheSourceCollection ) return -1;
+                            else return 0;
                         }
                     }
                 }

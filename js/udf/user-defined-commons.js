@@ -35,53 +35,8 @@ var my_custom_jlc_common = {
         var selectors = this.selectors;
         var isAscOtherwiseDesc = this.isAscOtherwiseDesc;
 
-        // compare strings
-        if ( typeof kC === 'string' )
-        {
-            // sort in ascending order
-            if(isAscOtherwiseDesc) {
-                if ( kC > kP ) return 1;
-                else if ( kC < kP ) return -1;
-                else return 0;
-            }
-
-            // otherwise sort in descending order
-            if ( kC > kP ) return -1;
-            else if ( kC < kP ) return 1;
-            else return 0;
-        }
-        // compare numbers
-        else if ( typeof kC === 'number' )
-        {
-            // sort in ascending order
-            if(isAscOtherwiseDesc) {
-                if ( kC > kP ) return 1;
-                else if ( kC < kP ) return -1;
-                else return 0;
-            }
-
-            // otherwise sort in descending order
-            if ( kC > kP ) return -1;
-            else if ( kC < kP ) return 1;
-            else return 0;
-        }
-        // compare booleans
-        else if ( typeof kC === 'boolean' )
-        {
-            // sort in ascending order
-            if(isAscOtherwiseDesc) {
-                if ( kC === true && kP === false ) return 1;
-                else if ( kC === false && kP === true ) return -1;
-                else return 0;
-            }
-
-            // otherwise sort in descending order
-            if ( kC === true && kP === false ) return -1;
-            else if ( kC === false && kP === true ) return 1;
-            else return 0;
-        }
-        // compare booleans
-        else if ( typeof kC === 'object' )
+        // compare objects
+        if ( typeof kC === 'object' )
         {
             if ( selectors )
             {
@@ -97,21 +52,73 @@ var my_custom_jlc_common = {
 
 
 
-            /**
-             * Compare both values
-            */
+            // compare primitive types
+            return handlePrimitiveType_I_1L();
+        }
+        // compare primitive types
+        else return handlePrimitiveType_I_1L();
 
-            // sort in ascending order
-            if(isAscOtherwiseDesc) {
-                if ( kC > kP ) return 1;
-                else if ( kC < kP ) return -1;
-                else return 0;
+
+
+        /**
+         * Local helper functions
+        */
+        function handlePrimitiveType_I_1L () {
+            // compare strings
+            if ( typeof kC === 'string' )
+            {
+                // sort in ascending order
+                if(isAscOtherwiseDesc) {
+                    if ( kC > kP ) return 1;
+                    else if ( kC < kP ) return -1;
+                    else return handleTwoItemsEquality_I_2L(false);
+                }
+
+                // otherwise sort in descending order
+                if ( kC > kP ) return -1;
+                else if ( kC < kP ) return 1;
+                else return handleTwoItemsEquality_I_2L(true);
+            }
+            // compare numbers
+            else if ( typeof kC === 'number' )
+            {
+                // sort in ascending order
+                if(isAscOtherwiseDesc) {
+                    if ( kC > kP ) return 1;
+                    else if ( kC < kP ) return -1;
+                    else return handleTwoItemsEquality_I_2L(false);
+                }
+
+                // otherwise sort in descending order
+                if ( kC > kP ) return -1;
+                else if ( kC < kP ) return 1;
+                else return handleTwoItemsEquality_I_2L(true);
+            }
+            // compare booleans
+            else if ( typeof kC === 'boolean' )
+            {
+                // sort in ascending order
+                if(isAscOtherwiseDesc) {
+                    if ( kC === true && kP === false ) return 1;
+                    else if ( kC === false && kP === true ) return -1;
+                    else return handleTwoItemsEquality_I_2L(false);
+                }
+
+                // otherwise sort in descending order
+                if ( kC === true && kP === false ) return -1;
+                else if ( kC === false && kP === true ) return 1;
+                else return handleTwoItemsEquality_I_2L(true);
             }
 
-            // otherwise sort in descending order
-            if ( kC > kP ) return -1;
-            else if ( kC < kP ) return 1;
-            else return 0;
+
+
+            /**
+             * Local helper functions
+            */
+            function handleTwoItemsEquality_I_2L(keepAsInTheSourceCollection) {
+                if(keepAsInTheSourceCollection) return -1;
+                else return 0;
+            }
         }
     },
 

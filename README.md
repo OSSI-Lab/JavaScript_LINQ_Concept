@@ -23,6 +23,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 ##
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;Generally Available&nbsp;:heavy_check_mark:&nbsp;:zap:
+ - BUGFIX #1 - 2021-04-29 &nbsp;&nbsp;1:10 AM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - keeping the order of items in the source collection when sorting in 'ASC' or 'DESC' way two equal items !
+        - file test_objects.js, lines 1431 - 1590 !
 ## Release date:&nbsp;2021-03-24&nbsp;Local Time
 ## Streamlined:&nbsp;NO
 #
