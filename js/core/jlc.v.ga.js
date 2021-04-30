@@ -4054,7 +4054,11 @@
                         }
 
                         function handleTwoItemsEquality_I_3L ( keepAsInTheSourceCollection ) {
-                            if ( keepAsInTheSourceCollection ) return -1;
+                            // for 1st level sorting operations
+                            if(keepAsInTheSourceCollection && !sharedSecondLevelSortingContext.check()) return -1;
+                            // for 2nd level sorting operations
+                            else if(keepAsInTheSourceCollection) return 0;
+                            // otherwise let the internals of the browser or server do the job
                             else return 0;
                         }
                     }
@@ -7431,6 +7435,7 @@
                         Array.prototype.push.apply( sharedSecondLevelSortingContext.ovc, ovc );
                         sharedSecondLevelSortingContext.force( true );
 
+                        
                         // declare second-level sorted array !
                         var sls_arr = [];
                         var sls_item;
@@ -7450,6 +7455,8 @@
                                     var sortMetadataObj = Object.create( null );
                                     // sort meta object describing type of sorting
                                     sortMetadataObj.sortMetaObject = sortMetaObject;
+                                    // mark that sort metadata object is running in the context of 2nd sorting
+                                    sortMetadataObj.sortMetaObject.isSecondLevel = true;
                                     // selectors to be used to sort collection
                                     sortMetadataObj.selectors = keyPartSelectorArray;
                                     // pass direction of sorting

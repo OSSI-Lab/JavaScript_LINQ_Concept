@@ -49,14 +49,10 @@ var my_custom_jlc_common = {
                 kC = kC[ property ];
                 kP = kP[ property ];
             }
-
-
-
-            // compare primitive types
-            return handlePrimitiveType_I_1L();
         }
+
         // compare primitive types
-        else return handlePrimitiveType_I_1L();
+        return handlePrimitiveType_I_1L();
 
 
 
@@ -116,7 +112,11 @@ var my_custom_jlc_common = {
              * Local helper functions
             */
             function handleTwoItemsEquality_I_2L(keepAsInTheSourceCollection) {
-                if(keepAsInTheSourceCollection) return -1;
+                // for 1st level sorting operations
+                if(keepAsInTheSourceCollection && !sortMetaObject.isSecondLevel) return -1;
+                // for 2nd level sorting operations
+                else if(keepAsInTheSourceCollection) return 0;
+                // otherwise let the internals of the browser or server do the job
                 else return 0;
             }
         }

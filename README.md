@@ -27,6 +27,10 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
     - FIXED:
       - keeping the order of items in the source collection when sorting in 'ASC' or 'DESC' way two equal items !
         - file test_objects.js, lines 1431 - 1590 !
+ - BUGFIX #2 - 2021-04-30 &nbsp;&nbsp;4:35 PM Local Time&nbsp;:heavy_check_mark:
+    - FIXED:
+      - keeping the order of items in the source collection when sorting in 'THEN ASC' or 'THEN DESC' way two equal items !
+        - file test_objects.js, lines 1624 - 1658 !
 ## Release date:&nbsp;2021-03-24&nbsp;Local Time
 ## Streamlined:&nbsp;NO
 #
