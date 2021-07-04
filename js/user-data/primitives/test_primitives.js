@@ -1274,7 +1274,7 @@
         var hasKeyEq_3 = toDictionary_f0.containsKey( 3 );
         var hasValueEq_3 = toDictionary_f0.containsValue( 3 );
 
-        var hasKeyEq_10 = toDictionary_f0.containsKey( 101 );
+        var hasKeyEq_101 = toDictionary_f0.containsKey( 101 );
 
         /*
         // final query - produces output - THIS METHOD THROWS EXPECTED ERROR ! -> Item with the same key was already added to this dictionary object !
@@ -1323,7 +1323,7 @@
 
                     // 1.
                     if ( this.valueOf() === true )
-                        return udf_commons.udfEqualityComparer( value2, value1 );
+                        return udf_commons.udfEqualityComparer( value1, value2 );
 
                     // 2.
                     // primitives
@@ -1362,7 +1362,7 @@
         var hasValueEq_3_sort = toDictionary_f2_sort.containsValue( 3 );
         var hasValueEq_ForKeyEq3_sort = toDictionary_f2_sort.containsValue( { key: "#3", value: 3 } );
 
-        var hasKeyEq_10_sort = toDictionary_f2_sort.containsKey( 101 );
+        var hasKeyEq_101_sort = toDictionary_f2_sort.containsKey( 101 );
 
 
 
@@ -2116,7 +2116,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // examplary logic that calculates the output item !
@@ -2154,7 +2154,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // examplary logic that calculates the output item !
@@ -2188,7 +2188,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // examplary logic that calculates the output item !
@@ -2270,7 +2270,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -2332,7 +2332,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // examplary logic that calculates the output item !
@@ -2392,7 +2392,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -2436,7 +2436,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -2476,7 +2476,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -2564,7 +2564,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -2626,7 +2626,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -2756,7 +2756,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -2981,7 +2981,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // you can convert primitive value to object one for some reason
@@ -3460,7 +3460,7 @@
                         token: 'udfValueSelector_fullColl_int_min3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3521,7 +3521,7 @@
                         token: 'udfValueSelector_fullColl_int_max3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3582,7 +3582,7 @@
                         token: 'udfValueSelector_fullColl_int_average3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3660,7 +3660,7 @@
                         token: 'udfValueSelector_fullColl_decimal_min3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3721,7 +3721,7 @@
                         token: 'udfValueSelector_fullColl_decimal_max3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3782,7 +3782,7 @@
                         token: 'udfValueSelector_fullColl_decimal_average3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3860,7 +3860,7 @@
                         token: 'udfValueSelector_fullColl_string_min3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3921,7 +3921,7 @@
                         token: 'udfValueSelector_fullColl_string_max3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -3984,7 +3984,7 @@
         //                 token: 'udfValueSelector_fullColl_string_average3_using_user_cache_config'
         //             },
 
-        //             // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+        //             // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
         //         ]
         //     }
         // );
@@ -4062,7 +4062,7 @@
                         token: 'udfValueSelector_fullColl_boolean_min3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -4123,7 +4123,7 @@
                         token: 'udfValueSelector_fullColl_boolean_max3_using_user_cache_config'
                     },
 
-                    // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+                    // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
                 ]
             }
         );
@@ -4186,7 +4186,7 @@
         //                 token: 'udfValueSelector_fullColl_boolean_average3_using_user_cache_config'
         //             },
 
-        //             // .. other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
+        //             // ... other cache config objects go here if required for any other UDFs available in this aforementioned query method interface !
         //         ]
         //     }
         // );

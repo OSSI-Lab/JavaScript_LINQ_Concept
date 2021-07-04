@@ -113,7 +113,7 @@ var my_custom_jlc_common = {
             */
             function handleTwoItemsEquality_I_2L(keepAsInTheSourceCollection) {
                 // for 1st level sorting operations
-                if(keepAsInTheSourceCollection && !sortMetaObject.isSecondLevel) return -1;
+                if(keepAsInTheSourceCollection && sortMetaObject && !sortMetaObject.isSecondLevel) return -1;
                 // for 2nd level sorting operations
                 else if(keepAsInTheSourceCollection) return 0;
                 // otherwise let the internals of the browser or server do the job

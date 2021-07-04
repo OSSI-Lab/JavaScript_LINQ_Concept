@@ -2,8 +2,8 @@
 <html lang="en">
  <head>
   <meta charset="utf-8" />
-  <meta name="description" content="JavaScript LINQ Concept by C4B Solutions Lab | Łukasz Dąbrowski - Inżynier Oprogramowania | Lucas Dabrowski - Software Engineer" />
-  <title>JLC 1.0 by Solutions Lab</title>
+  <meta name="description" content="JavaScript LINQ Concept by Open Source Solutions Initiative | Łukasz Dąbrowski - Inżynier Oprogramowania | Lucas Dabrowski - Software Engineer" />
+  <title>JLC 1.0 by Open Source Solutions Initiative</title>
 
   <!--
 	  LOAD ALL DEPS
@@ -35,6 +35,9 @@
 
   <!-- libraries consisting of exmaples dealing with objects -->
   <script src="js/user-data/primitives/test_primitives.js"></script>
+
+  <!-- libraries consisting of exmaples dealing with common stuff -->
+  <script src="js/user-data/both/test_common.js"></script>
 
   <!-- load necessary CSS -->
   <link href="css/css_jlc.css" rel="stylesheet">
@@ -134,12 +137,6 @@
 
 		debugger;
 
-		/**
-		 * Tip:
-		 * 		1. Watch the JavaScript LINQ in action [ https://drive.google.com/drive/folders/1puGA_zuvLC-z9w93ajHtQepa8-PEl1-2 ] 
-		 * 		2. Rewrite these examples on your own or come up with your own ones !
-		*/
-
 
 		/**
 		* ⚠️
@@ -147,6 +144,7 @@
 		* These examples
 		* 	-> js/user-data/objects/test_objects.js  		[ window.testObjects() ]
 		*	-> js/user-data/primitives/test_primitives.js 	[ window.testPrimitives() ]
+		*	-> js/user-data/both/test_common.js 			[ window.testCommonStuff() ]
 		* use query method current interface !
 		*
 		* Other examples provided in the js/user-data/objects/ & js/user-data/primitives/ directories
@@ -159,6 +157,9 @@
 
 		// primitives
 		window.testPrimitives();
+
+		// common things
+		window.testCommonStuff();
 
 		// when you're done with all querying, you can free some memory up by removing all data stored in _DATA object
 		System.Linq.Resources.dispose();

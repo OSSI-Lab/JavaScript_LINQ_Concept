@@ -2567,7 +2567,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -2608,7 +2608,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -2645,7 +2645,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -2754,7 +2754,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -2817,7 +2817,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -2856,7 +2856,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -2893,7 +2893,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3002,7 +3002,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3065,7 +3065,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3104,7 +3104,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3151,7 +3151,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3270,7 +3270,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3342,7 +3342,7 @@
         //              *  - isGroupJoin -> true/false
         //              *  - isGroupLeftJoin -> true/false
         //              * 
-        //              * Only one of these two values can be set to true and vice-versa
+        //              * Only one of these four values can be set to true and vice-versa
         //             */
 
         //             // define the output item
@@ -3421,7 +3421,7 @@
         //              *  - isGroupJoin -> true/false
         //              *  - isGroupLeftJoin -> true/false
         //              * 
-        //              * Only one of these two values can be set to true and vice-versa
+        //              * Only one of these four values can be set to true and vice-versa
         //             */
 
         //             // define the output item
@@ -3500,7 +3500,7 @@
         //              *  - isGroupJoin -> true/false
         //              *  - isGroupLeftJoin -> true/false
         //              * 
-        //              * Only one of these two values can be set to true and vice-versa
+        //              * Only one of these four values can be set to true and vice-versa
         //             */
 
         //             // define the output item
@@ -3549,7 +3549,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3596,7 +3596,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3715,7 +3715,7 @@
                      *  - isGroupJoin -> true/false
                      *  - isGroupLeftJoin -> true/false
                      * 
-                     * Only one of these two values can be set to true and vice-versa
+                     * Only one of these four values can be set to true and vice-versa
                     */
 
                     // define the output item
@@ -3788,7 +3788,7 @@
         //              *  - isGroupJoin -> true/false
         //              *  - isGroupLeftJoin -> true/false
         //              * 
-        //              * Only one of these two values can be set to true and vice-versa
+        //              * Only one of these four values can be set to true and vice-versa
         //             */
 
         //             // define the output item
