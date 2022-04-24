@@ -22,7 +22,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
 
 ## Version:&nbsp;:one:.:one:
 ## Status:&nbsp;Generally Available&nbsp;:no_entry:&nbsp;:zap:
- - POINT_RELEASE #1 - 2022-04-24 &nbsp;&nbsp;9:00 PM Local Time&nbsp;:heavy_check_mark:
+ - POINT_RELEASE #1 - 2022-04-24 &nbsp;&nbsp;9:00 PM Local Time&nbsp;:no_entry:
     - DONE:
       - new function 'aggregate'
         - files: test_objects_new_functions.js, test_primitives_new_functions.js
