@@ -21,7 +21,7 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
  - [C# Deconstructed](https://www.apress.com/us/book/9781430266709 "Discover how C# works on the .NET Framework")&nbsp; - good for 6+ years of experience
 
 ## Version:&nbsp;:one:.:one:
-## Status:&nbsp;Generally Available&nbsp;:heavy_check_mark:&nbsp;:zap:
+## Status:&nbsp;Generally Available&nbsp;:no_entry:&nbsp;:zap:
  - POINT_RELEASE #1 - 2022-04-24 &nbsp;&nbsp;9:00 PM Local Time&nbsp;:heavy_check_mark:
     - DONE:
       - new function 'aggregate'
