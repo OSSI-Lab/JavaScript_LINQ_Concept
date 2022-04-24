@@ -2,7 +2,7 @@
 
 ![JavaScript LINQ Concept](/JLC_1_0_logo.png)
 
-This library is aimed to work in FCU or in the FrontEnd apps in general and will serve the same purpose as LINQ in C# \
+This library is aimed to work in FCU or in the FrontEnd apps in general and will serve the same purpose as LINQ in C#. \
 The parameters of methods of the same names like C#'s LINQ are exactly the same or as close as possible. \
 \
 My goal was to:
