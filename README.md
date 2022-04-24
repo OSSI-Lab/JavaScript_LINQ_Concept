@@ -2,7 +2,7 @@
 
 ![JavaScript LINQ Concept](/JLC_1_0_logo.png)
 
-This library is aimed to work in FCU or in the FrontEnd apps in general and will serve the same purpose as LINQ in C#. \
+This library is aimed to work in FCU or in the FrontEnd apps in general and will serve the same purpose as LINQ in C# ! \
 The parameters of methods of the same names like C#'s LINQ are exactly the same or as close as possible. \
 \
 My goal was to:
@@ -20,7 +20,16 @@ By the way, taking advantage of the occasion there are 3 books that every C#-ori
  - [C# in Depth, Fourth Edition](https://www.manning.com/books/c-sharp-in-depth-fourth-edition "C# in Depth, Fourth Edition is your key to unlocking the powerful new features added to the language in C# 5, 6, and 7")&nbsp; - good for 2+ years of experience
  - [C# Deconstructed](https://www.apress.com/us/book/9781430266709 "Discover how C# works on the .NET Framework")&nbsp; - good for 6+ years of experience
 
-##
+## Version:&nbsp;:one:.:one:
+## Status:&nbsp;Generally Available&nbsp;:heavy_check_mark:&nbsp;:zap:
+ - POINT_RELEASE #1 - 2022-04-24 &nbsp;&nbsp;9:00 PM Local Time&nbsp;:heavy_check_mark:
+    - DONE:
+      - new function 'aggregate'
+        - files: test_objects_new_functions.js, test_primitives_new_functions.js
+## Release date:&nbsp;2022-04-24&nbsp;Local Time
+## Streamlined:&nbsp;YES
+#
+#
 ## Version:&nbsp;:one:.:zero:
 ## Status:&nbsp;Generally Available&nbsp;:heavy_check_mark:&nbsp;:zap:
  - BUGFIX #2 - 2021-04-30 &nbsp;&nbsp;4:47 PM Local Time&nbsp;:heavy_check_mark:
