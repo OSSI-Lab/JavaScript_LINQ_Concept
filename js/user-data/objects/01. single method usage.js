@@ -16,10 +16,6 @@
             {id: 10, name : "Object 4", ne : {ne_id : 10, ne_name : "NO 10"}, valid : true, lite : true, descr : "Descr 4", quality : "A"}
         ];
         
-        /**
-         * Who you are ?
-         * https://thesaurus.yourdictionary.com/childish 
-        */
         var coll_toString = [
             {id: 1, name : "False software engineer", descr : "Earning a lot, learning nothing !", quality : "D", toString() {return "#" + this.id + "-" + this.descr + "-" + this.quality; }},
             {id: 2, name : "False software developer", descr : "Earning quite a lot, playing new computer games !", quality : "F", toString() {return "#" + this.id + "-" + this.descr + "-" + this.quality; }},

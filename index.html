@@ -1,54 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="utf-8" />
-  <meta name="description" content="JavaScript LINQ Concept by Open Source Solutions Initiative | Łukasz Dąbrowski - Inżynier Oprogramowania | Lucas Dabrowski - Software Engineer" />
-  <title>JLC 1.0 by Open Source Solutions Initiative</title>
+<head>
+	<meta charset="utf-8" />
+	<meta name="description" content="JavaScript LINQ Concept by Open Source Solutions Initiative | Łukasz Dąbrowski - Inżynier Oprogramowania | Lucas Dabrowski - Software Engineer" />
+	<title>JLC 1.0 by Open Source Solutions Initiative</title>
 
-  <!--
-	  LOAD ALL DEPS
-  -->
-  <!-- library consisting of user-defined shared functions to deliver various utilities -->
-  <script src="js/udf/user-defined-commons.js"></script>
-  <!-- library consisting of user-defined filter functions to deliver various filtering utilities --> 
-  <script src="js/udf/user-defined-filters.js"></script>
-  <!-- library consisting of user-defined filter functions to deliver various filtering utilities --> 
-  <script src="js/udf/user-defined-predicate-functions.js"></script>
-  <!-- library consisting of user-defined constraint functions to deliver various checkings --> 
-  <script src="js/udf/user-defined-constraints.js"></script>
-
-
-
-  <!--
-	  LOAD JLC
-  -->
-  <!-- core JLC library -->
-  <script src="js/core/jlc.v.ga.js"></script>
+	<!--
+		LOAD ALL DEPS
+	-->
+	<!-- library consisting of user-defined shared functions to deliver various utilities -->
+	<script src="js/udf/user-defined-commons.js"></script>
+	<!-- library consisting of user-defined filter functions to deliver various filtering utilities -->
+	<script src="js/udf/user-defined-filters.js"></script>
+	<!-- library consisting of user-defined filter functions to deliver various filtering utilities -->
+	<script src="js/udf/user-defined-predicate-functions.js"></script>
+	<!-- library consisting of user-defined constraint functions to deliver various checkings -->
+	<script src="js/udf/user-defined-constraints.js"></script>
 
 
 
-  <!--
-	  LOAD TEST CASES
-  -->
-  <!-- libraries consisting of exmaples dealing with objects -->
-  <script src="js/user-data/objects/test_objects.js"></script>
+	<!--
+		LOAD JLC
+	-->
+	<!-- core JLC library -->
+	<script src="js/core/jlc.v.ga.js"></script>
 
-  <!-- libraries consisting of exmaples dealing with objects -->
-  <script src="js/user-data/primitives/test_primitives.js"></script>
 
-  <!-- libraries consisting of exmaples dealing with common stuff -->
-  <script src="js/user-data/both/test_common.js"></script>
 
-  <!-- load necessary CSS -->
-  <link href="css/css_jlc.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.css" rel="stylesheet" integrity="sha256-DVK12s61Wqwmj3XI0zZ9MFFmnNH8puF/eRHTB4ftKwk=" crossorigin="anonymous" />
- </head>
+	<!--
+		LOAD TEST CASES
+	-->
+	<!-- libraries consisting of exmaples dealing with objects -->
+	<script src="js/user-data/objects/test_objects.js"></script>
+
+	<!-- libraries consisting of exmaples dealing with objects -->
+	<script src="js/user-data/objects/test_objects_new_functions.js"></script>
+
+	<!-- libraries consisting of exmaples dealing with objects -->
+	<script src="js/user-data/primitives/test_primitives.js"></script>
+	<!-- libraries consisting of exmaples dealing with objects -->
+	<script src="js/user-data/primitives/test_primitives_new_functions.js"></script>
+
+	<!-- libraries consisting of exmaples dealing with common stuff -->
+	<script src="js/user-data/both/test_common.js"></script>
+
+	<!-- load necessary CSS -->
+	<link href="css/css_jlc.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.css" rel="stylesheet" integrity="sha256-DVK12s61Wqwmj3XI0zZ9MFFmnNH8puF/eRHTB4ftKwk=" crossorigin="anonymous" />
+</head>
  <body>
 	<div class="content">
 		<div id="readme">
 			Clear the cache . Open the console . Hit Ctrl+R
 		</div>
-		<div id="city" title="Modern vision of the Mermaid of Warsaw !" onclick="window.open('https://en.wikipedia.org/wiki/Mermaid_of_Warsaw', '_blank')"></div>
+		<div id="city" title="Modern vision of the Mermaid of Warsaw :-)" onclick="window.open('https://en.wikipedia.org/wiki/Mermaid_of_Warsaw', '_blank')"></div>
 		<div class="author"></div>
 	</div>
 
@@ -151,6 +156,12 @@
 		* are using query method previous interface, which may or may not be valid one in some cases !
 		* You can use it as kind of resource to learn some edge cases or something like that. 
 		*/
+
+		// objects - new functions
+        window.testObjects_NewFunctions();
+
+		// primitives - new functions
+        window.testPrimitives_NewFunctions();
 
 		// objects
 		window.testObjects();

@@ -1,6 +1,6 @@
 /*
  * JavaScript LINQ Concept
- * The idea of querying JavaScript object collections is entirely based on programming language from Microsoft called C# !
+ * The idea of querying JavaScript object collections is entirely based on mechanism called LINQ from programming language from Microsoft called C# !
  * 
  * 
  * 
@@ -20,7 +20,7 @@
  * Author: Łukasz Dąbrowski
  * Title : Software Engineer
  * 
- * (c) C4B Solutions Open Source
+ * (c) Open Source Solutions Initiative
  * 
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
 */
@@ -64,6 +64,7 @@
         CONTAINS: Symbol( 'contains' ),
         DISTINCT: Symbol( 'distinct' ),
         EXCEPT: Symbol( 'except' ),
+        AGGREGATE: Symbol( 'aggregate' ),
 
         ORDER: {
             Level: {
@@ -2439,7 +2440,6 @@
                         if ( !isNotUndefined )
                             // throw error
                             throw new TypeError( error_prefix + ' with ' + paramsObjName + ' object provided is missing ' + ( req_params.length > 1 ? 'any of the following filters -> ' : '' ) + '\'' + paramsObjRequiredParamName + '\' !\r\n\r\n' );
-
                     }
                     // don't check the params object
                     else if ( t2sr === _ENUM.T2SR.BOOLEAN && paramsObjRequiredParamName === false )
@@ -4235,7 +4235,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4280,7 +4280,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4327,7 +4327,7 @@
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
          * @param {boolean} sharedSecondLevelSortingContext
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, sharedSecondLevelSortingContext )
             {
@@ -4375,7 +4375,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4421,7 +4421,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4464,7 +4464,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4507,7 +4507,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4549,7 +4549,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4592,7 +4592,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4633,7 +4633,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -4673,6 +4673,48 @@
                 }
             },
 
+        aggregate_mtds_2: /**
+         * @param {Object} params
+         *  - predicateArray
+         *  - enumValue
+         * @param {Object} actionContext
+         * @param {String} queryName
+         * @param {Object} queryChainCacheObjectInternal
+         * @param {Object} queryChainCacheObjectUserDefined
+         */
+            function (params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined) {
+                // reference runtime context
+                var runtime_ctx = this[_ENUM.RUNTIME.RTC];
+
+                // check cache for this query
+                var isCacheHit = _CACHE.cacheCommons.tryToLoad(params, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined, runtime_ctx.collectionIndex);
+
+                // not found cached result for this query
+                if (!isCacheHit) {
+                    /**
+                     * Update collection item structure metadata object of 'ice metadata object' of the current runtime context
+                    */
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.requiresChange = actionContext.itemStructureChangeObject.requiresChange;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.currentQueryName = queryName;
+                    runtime_ctx.currentQueryIceMetaObject.itemStructureChangeObject.triggeringQueryName = actionContext.itemStructureChangeObject.triggeringQueryName;
+
+
+                    // invoke core logic
+                    var pfr = _PHYSICAL_FILTER.executeAggregateFilter(
+                        this,
+                        params.func,
+                        params.seed,
+                        params.resultSelector
+                    );
+
+                    // cache the query result
+                    _CACHE.cacheCommons.store(true, pfr);
+
+                    // return physical filter result (pfr)
+                    return pfr;
+                }
+            },
+
         quantifying_mtds: /**
          * @param {Object} params
          *  - predicateArray
@@ -4680,7 +4722,7 @@
          * @param {Object} actionContext
          * @param {String} queryName
          * @param {Object} queryChainCacheObjectInternal
-         * @param {Object} userQueryCacheConfig
+         * @param {Object} queryChainCacheObjectUserDefined
          */
             function ( params, actionContext, queryName, queryChainCacheObjectInternal, queryChainCacheObjectUserDefined )
             {
@@ -5826,6 +5868,69 @@
                         // otherwise return execution to the caller
                         else return coll;
                     }
+                }
+            },
+
+        executeAggregateFilter: /**
+         * @param {any} jlc Runtime context.
+         * @param {any} func Accumulator function being applied over a sequence.
+         * @param {any} seed The initial accumulator value.
+         * @param {any} resultSelector A function to transform the final accumulator value into the result value.
+         */
+            function (jlc, func, seed, resultSelector) {
+                return execute_AF_I_1L(jlc, func, seed, resultSelector);
+
+
+
+                /**
+                 * Local helper functions
+                */
+                function execute_AF_I_1L(jlc, func, seed, udfAggregateResultSelector) {
+                    // reference runtime context
+                    var r_ctx = jlc[_ENUM.RUNTIME.RTC];
+
+
+                    // get contextually current collection from collection history array
+                    var currentColl = _DATA.fetchFlowData(r_ctx.collectionIndex, false);
+
+
+                    // current (so-far-aggregated) accumulator value
+                    var accumulatorValue;
+                    // if there is the very first accumulator value
+                    if (seed !== undefined && seed != null) {
+                        // assign it
+                        accumulatorValue = seed;
+
+                        // loop over the whole collection
+                        for (var i = 0; i < currentColl.length; i++) {
+                            accumulatorValue = func(accumulatorValue, currentColl[i]);
+                        }
+                    }
+                    else {
+                        // if collection has at least 1 item
+                        if (currentColl.length > 0)
+                            // assign it
+                            accumulatorValue = currentColl[0];
+
+
+                        // if collection has at least 2 items
+                        if (currentColl.length >= 2) {
+                            // loop over the whole collection
+                            for (var i = 1; i < currentColl.length; i++) {
+                                accumulatorValue = func(accumulatorValue, currentColl[i]);
+                            }
+                        }
+                    }
+
+
+                    // if there is final result selector
+                    if (udfAggregateResultSelector)
+                        // invoke it
+                        accumulatorValue = udfAggregateResultSelector(accumulatorValue);
+
+
+                    // return the final value
+                    return accumulatorValue;
                 }
             },
 
@@ -12478,6 +12583,103 @@
                             name: 'enumValue',
 
                             value: _ENUM.ALL
+                        }
+                    ]
+                },
+
+                // action custom prerequisites (acp) - execute additional logic that is required for this query method - predefined if required, otherwise null
+                acp: null,
+
+                // action context object (aco)
+                aco: null,
+
+                // can you update state during query flow ?
+                writable: false,
+
+                // does method run in the sorting context ?
+                is_sort_ctx: false
+            },
+
+            aggregate: {
+                // Linq method name
+                lmn: 'aggregate',
+
+                // method returns data
+                mrd: {
+                    // does return data ?
+                    yes: true,
+
+                    // does produce final result which is a collection ?
+                    returns_collection: false
+                },
+
+                // predefined internal constraint validation - validation of input parameter called 'params'
+                internal_rcc: [
+                    function (params) {
+                        // what parameters are required for this query method ?
+                        var queryName = '\'aggregate\'', paramsObjRequiredParamName = 'func';
+
+                        // validate input parameter of internal constraint checking phase
+                        return _COMMON.validateParamsObjectOfQueryInterface(params, queryName, paramsObjRequiredParamName);
+                    }
+                ],
+
+                // does require syntax checking ?
+                rsc: false,
+                // user-provided query filter syntax definition - name of the parameter from the query interface that holds filtering syntax
+                rsc_syntax: undefined,
+
+                // predefined internal constraint validation - mutation of constraint action state
+                rcc: {
+                    // functions to execute
+                    cf: [
+                        // to handle 1st level sorting context reset
+                        _PROXY_TRAP.udlm._handleResetFirstLevelSorting
+                    ],
+
+                    // input data for functions to be executed
+                    cfd: [
+                        false
+                    ],
+
+                    // all invocation contexts that had to take place prior to this invocation context
+                    required_ctxs: []
+                },
+
+                // JLC core method behind the API (jcm)
+                jcm: _CORE.aggregate_mtds_2,
+                // input parameters of JLC core method
+                jcm_this_excluded_params: {
+                    params: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 1,
+
+                            name: 'func'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 2,
+
+                            name: 'seed'
+                        },
+
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 3,
+
+                            name: 'resultSelector'
+                        }
+                    ],
+                    misc: [
+                        {
+                            // position of the parameter in the method
+                            pos_idx: 4,
+
+                            name: 'enumValue',
+
+                            value: _ENUM.AGGREGATE
                         }
                     ]
                 },

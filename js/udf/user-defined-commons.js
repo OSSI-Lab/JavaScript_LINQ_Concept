@@ -702,6 +702,55 @@ var my_custom_jlc_common = {
         return outputItem;
     },
 
+
+    /**
+     * This result selector is being used by the aggregate function using objects.
+    */
+    udfObjectAggregateResultSelector: function (accumulatorResultObject, currentObject) {
+        // you can convert primitive value to object one for some reason
+        var outputItem = Object.create(null);
+
+
+        outputItem.id = accumulatorResultObject.id + currentObject.id;
+        outputItem.name = accumulatorResultObject.name + currentObject.name;
+
+
+        // return the output item
+        return outputItem;
+    },
+
+    udfObjectAggregateFinalResultSelector: function (accumulatorResultObject) {
+        // you can convert primitive value to object one for some reason
+        var outputItem = Object.create(null);
+
+        // do some checks against accumulator value
+        if (accumulatorResultObject == undefined || accumulatorResultObject == null) {
+            accumulatorResultObject = Object.create(null);
+
+            accumulatorResultObject.id = -1;
+            accumulatorResultObject.name = "N/A"
+        }
+
+
+        outputItem.id = accumulatorResultObject.id * 100;
+        outputItem.name = accumulatorResultObject.name + ' - aggregate final result selector';
+
+
+        // return the output item
+        return outputItem;
+    },
+
+
+    /**
+     * This result selector is being used by the aggregate function using primitives.
+    */
+    udfPrimitiveAggregateResultSelector: function (accumulatorResultObject, currentObject) {
+        return accumulatorResultObject + " - " + currentObject;
+    },
+
+    udfPrimitiveAggregateFinalResultSelector: function (accumulatorResultObject) {
+        return accumulatorResultObject + ' - final result selector'
+    }
 };
 
 window.udf_commons = window.udf_commons || my_custom_jlc_common;
